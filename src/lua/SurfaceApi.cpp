@@ -47,6 +47,8 @@ void LuaContext::register_surface_module() {
       { "set_opacity", surface_api_set_opacity },
       { "get_pixels", surface_api_get_pixels },
       { "set_pixels", surface_api_set_pixels },
+      { "bind_as_texture",surface_api_bind_as_texture},
+      { "bind_as_target",surface_api_bind_as_target},
       { "draw", drawable_api_draw },
       { "draw_region", drawable_api_draw_region },
       { "get_blend_mode", drawable_api_get_blend_mode },
@@ -263,6 +265,24 @@ int LuaContext::surface_api_set_pixels(lua_State* l) {
         surface.set_pixels(buffer);
         return 0;
     });
+}
+
+/**
+ * \brief Implementation of surface:bind_as_texture().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::surface_api_bind_as_texture(lua_State* l) {
+
+}
+
+/**
+ * \brief Implementation of surface:bind_as_target().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::urface_api_bind_as_target(lua_State* l) {
+  
 }
 
 }

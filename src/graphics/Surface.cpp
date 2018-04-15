@@ -607,6 +607,10 @@ void Surface::render(SDL_Renderer*& renderer) {
   SDL_RenderCopy(renderer,internal_surface->get_texture(),NULL,NULL);
 }
 
+void Surface::bind_as_texture() const {
+  SDL_GL_BindTexture(internal_surface->get_texture(),nullptr,nullptr);
+}
+
 /**
  * \brief Returns the name identifying this type in Lua.
  * \return The name identifying this type in Lua.

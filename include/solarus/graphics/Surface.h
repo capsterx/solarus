@@ -124,6 +124,8 @@ class Surface: public Drawable {
     virtual Surface& get_transition_surface() override;
     SDL_BlendMode get_sdl_blend_mode() const;
 
+    void bind_as_texture() const;
+
     const std::string& get_lua_type_name() const override;
   private:
     uint8_t opacity;
