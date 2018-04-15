@@ -125,6 +125,7 @@ class Surface: public Drawable {
     SDL_BlendMode get_sdl_blend_mode() const;
 
     void bind_as_texture() const;
+    void bind_as_target();
 
     const std::string& get_lua_type_name() const override;
   private:

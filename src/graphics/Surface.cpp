@@ -611,6 +611,10 @@ void Surface::bind_as_texture() const {
   SDL_GL_BindTexture(internal_surface->get_texture(),nullptr,nullptr);
 }
 
+void Surface::bind_as_target() {
+  SDL_SetRenderTarget(Video::get_renderer(),request_render().get_texture());
+}
+
 /**
  * \brief Returns the name identifying this type in Lua.
  * \return The name identifying this type in Lua.

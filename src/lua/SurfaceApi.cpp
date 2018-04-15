@@ -273,7 +273,11 @@ int LuaContext::surface_api_set_pixels(lua_State* l) {
  * \return Number of values to return to Lua.
  */
 int LuaContext::surface_api_bind_as_texture(lua_State* l) {
-
+  return LuaTools::exception_boundary_handle(l, [&] {
+      const Surface& surface = *check_surface(l,1);
+      surface.bind_as_texture();
+      return 0;
+  });
 }
 
 /**
@@ -281,8 +285,12 @@ int LuaContext::surface_api_bind_as_texture(lua_State* l) {
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::urface_api_bind_as_target(lua_State* l) {
-  
+int LuaContext::surface_api_bind_as_target(lua_State* l) {
+  return LuaTools::exception_boundary_handle(l, [&] {
+      Surface& surface = *check_surface(l,1);
+      surface.bind_as_target();
+      return 0;
+  });
 }
 
 }
