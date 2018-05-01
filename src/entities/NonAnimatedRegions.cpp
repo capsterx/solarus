@@ -238,7 +238,7 @@ void NonAnimatedRegions::build_cell(int cell_index) {
       row * cell_size.height
   };
 
-  SurfacePtr cell_surface = Surface::create(cell_size);
+  SurfacePtr cell_surface = Surface::create(cell_size,true);
   optimized_tiles_surfaces[cell_index] = cell_surface;
   // Let this surface as a software destination because it is built only
   // once (here) and never changes later.
@@ -254,10 +254,11 @@ void NonAnimatedRegions::build_cell(int cell_index) {
         tile.box.get_height()
     );
 
+    Debug::check_assertion(tile.tileset != nullptr, "Missing tileset");
     tile.pattern->fill_surface(
         cell_surface,
         dst_position,
-        map.get_tileset(),
+        *tile.tileset,
         cell_xy
     );
   }
