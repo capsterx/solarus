@@ -130,12 +130,14 @@ class Enemy: public Entity {
     void set_attack_consequence(
         EnemyAttack attack,
         EnemyReaction::ReactionType reaction,
-        int life_lost = 0);
+        int life_lost = 0,
+        const ScopedLuaRef& callback = ScopedLuaRef());
     void set_attack_consequence_sprite(
         const Sprite& sprite,
         EnemyAttack attack,
         EnemyReaction::ReactionType reaction,
-        int life_lost = 0);
+        int life_lost = 0,
+        const ScopedLuaRef& callback = ScopedLuaRef());
     void set_no_attack_consequences();
     void set_no_attack_consequences_sprite(const Sprite& sprite);
     void set_default_attack_consequences();
@@ -171,7 +173,7 @@ class Enemy: public Entity {
     void notify_collision(Entity& other_entity, Sprite& this_sprite, Sprite& other_sprite) override;
     void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
     void notify_collision_with_fire(Fire& fire, Sprite& sprite_overlapping) override;
-    void notify_collision_with_enemy(Enemy& other, Sprite& other_sprite, Sprite& this_sprite) override;
+    void notify_collision_with_enemy(Enemy& other, Sprite& this_sprite, Sprite& other_sprite) override;
 
     // attack the hero
     void attack_hero(Hero& hero, Sprite* this_sprite);

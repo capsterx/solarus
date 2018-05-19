@@ -459,8 +459,8 @@ void CarriedObject::draw_on_map() {
  */
 void CarriedObject::notify_collision_with_enemy(
     Enemy& enemy,
-    Sprite& enemy_sprite,
-    Sprite& /* this_sprite */) {
+    Sprite& /* this_sprite */,
+    Sprite& enemy_sprite) {
 
   if (is_throwing
       && !can_explode()
@@ -479,7 +479,8 @@ void CarriedObject::notify_attacked_enemy(
     EnemyReaction::Reaction& result,
     bool /* killed */) {
 
-  if (result.type != EnemyReaction::ReactionType::IGNORED) {
+  if (result.type != EnemyReaction::ReactionType::IGNORED &&
+      result.type != EnemyReaction::ReactionType::LUA_CALLBACK) {
     break_item();
   }
 }

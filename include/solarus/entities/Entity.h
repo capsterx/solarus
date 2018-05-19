@@ -222,6 +222,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_visible() const;
     void set_visible(bool visible);
     void set_animation_ignore_suspend(bool ignore_suspend);
+    void update_sprite(Sprite& sprite);
 
     // Movement.
     const std::shared_ptr<Movement>& get_movement();
@@ -323,7 +324,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping);
     virtual void notify_collision_with_fire(Fire& fire, Sprite& sprite_overlapping);
     virtual void notify_collision_with_enemy(Enemy& enemy, CollisionMode collision_mode);
-    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite);
+    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite);
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,

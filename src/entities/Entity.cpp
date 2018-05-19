@@ -3272,10 +3272,10 @@ void Entity::notify_collision_with_enemy(Enemy& /* enemy */, CollisionMode /* co
 /**
  * \brief This function is called when an enemy's sprite collides with a sprite of this entity.
  * \param enemy the enemy
- * \param enemy_sprite the enemy's sprite that overlaps a sprite of this entity
  * \param this_sprite this entity's sprite that overlaps the enemy's sprite
+ * \param enemy_sprite the enemy's sprite that overlaps a sprite of this entity
  */
-void Entity::notify_collision_with_enemy(Enemy& /* enemy */, Sprite& /* enemy_sprite */, Sprite& /* this_sprite */) {
+void Entity::notify_collision_with_enemy(Enemy& /* enemy */, Sprite& /* this_sprite */, Sprite& /* enemy_sprite */) {
 }
 
 /**
@@ -3474,32 +3474,17 @@ void Entity::update() {
   }
 
   // Update the sprites.
-  std::vector<NamedSprite> sprites = this->sprites;
-  for (const NamedSprite& named_sprite: sprites) {
-    if (named_sprite.removed) {
-      continue;
-    }
-    Sprite& sprite = *named_sprite.sprite;
-
-    sprite.update();
-    if (sprite.has_frame_changed()) {
-      // The frame has just changed.
-      // Pixel-precise collisions need to be rechecked.
-      if (sprite.are_pixel_collisions_enabled()) {
-
-        if (is_detector()) {
-          // Since this entity is a detector, all entities need to check
-          // their pixel-precise collisions with it.
-          get_map().check_collision_from_detector(*this, sprite);
-        }
-
-        check_collision_with_detectors(sprite);
+  if (sprites.size() == 1) {
+    // Special case just to avoid a copy of the vector.
+    update_sprite(*sprites[0].sprite);
+  } else {
+    // Iterate on a copy because the list might change during the iteration.
+    std::vector<NamedSprite> sprites = this->sprites;
+    for (const NamedSprite& named_sprite: sprites) {
+      if (named_sprite.removed) {
+        return;
       }
-
-      notify_sprite_frame_changed(sprite, sprite.get_current_animation(), sprite.get_current_frame());
-      if (sprite.is_animation_finished()) {
-        notify_sprite_animation_finished(sprite, sprite.get_current_animation());
-      }
+      update_sprite(*named_sprite.sprite);
     }
   }
   clear_old_sprites();
@@ -3518,6 +3503,34 @@ void Entity::update() {
 
   // Update the state if any.
   update_state();
+}
+
+/**
+ * Updates one sprite of this entity.
+ * @param named_sprite The sprite to update.
+ */
+void Entity::update_sprite(Sprite& sprite) {
+
+  sprite.update();
+  if (sprite.has_frame_changed()) {
+    // The frame has just changed.
+    // Pixel-precise collisions need to be rechecked.
+    if (sprite.are_pixel_collisions_enabled()) {
+
+      if (is_detector()) {
+        // Since this entity is a detector, all entities need to check
+        // their pixel-precise collisions with it.
+        get_map().check_collision_from_detector(*this, sprite);
+      }
+
+      check_collision_with_detectors(sprite);
+    }
+
+    notify_sprite_frame_changed(sprite, sprite.get_current_animation(), sprite.get_current_frame());
+    if (sprite.is_animation_finished()) {
+      notify_sprite_animation_finished(sprite, sprite.get_current_animation());
+    }
+  }
 }
 
 /**
