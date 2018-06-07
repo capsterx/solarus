@@ -250,7 +250,7 @@ void Drawable::draw(const SurfacePtr& dst_surface,
  */
 void Drawable::draw(const SurfacePtr &dst_surface, const Point &dst_position, const DrawProxy& proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_blend_mode(),get_opacity(),proxy));
+  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -292,7 +292,7 @@ void Drawable::draw_region(const Rectangle& region,
     const SurfacePtr& dst_surface,
     const Point& dst_position, const DrawProxy &proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_blend_mode(),get_opacity(),proxy));
+  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -341,6 +341,22 @@ uint8_t Drawable::get_opacity() const {
  */
 void Drawable::set_opacity(uint8_t opacity) {
   this->opacity = opacity;
+}
+
+void Drawable::set_rotation(double rotation) {
+  this->rotation = rotation;
+}
+
+double Drawable::get_rotation() const {
+  return rotation;
+}
+
+const Scale& Drawable::get_scale() const {
+  return scale;
+}
+
+void Drawable::set_scale(const Scale &scale) {
+  this->scale = scale;
 }
 
 const DrawProxy& Drawable::terminal() const {

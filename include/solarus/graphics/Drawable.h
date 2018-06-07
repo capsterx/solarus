@@ -121,6 +121,12 @@ class Drawable: public ExportableToLua {
     uint8_t get_opacity() const;
     void set_opacity(uint8_t opacity);
 
+    double get_rotation() const;
+    void set_rotation(double rotation);
+
+    const Scale& get_scale() const;
+    void set_scale(const Scale& scale);
+
     virtual Rectangle get_region() const = 0;
   protected:
     Drawable();
@@ -140,6 +146,8 @@ class Drawable: public ExportableToLua {
     BlendMode blend_mode;         /**< How to draw this object on a surface. */
     ShaderPtr shader;             /**< Optional shader used to draw the object */
     uint8_t opacity = 255;              /**< Opacity of this drawable object */
+    double rotation = 0;
+    Scale scale;
 };
 
 }

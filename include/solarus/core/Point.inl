@@ -36,6 +36,11 @@ constexpr Point::Point(int x, int y):
   y(y) {
 }
 
+constexpr Point::Point(const Size& size) :
+  x(size.width), y(size.height)
+{
+
+}
 
 inline Point::operator glm::vec2() const {
   return glm::vec2(x,y);

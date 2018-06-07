@@ -40,7 +40,7 @@ public:
     void with_target(Func closure) const {
       surface_dirty = true;
       auto renderer = Video::get_renderer();
-      SOLARUS_CHECK_SDL(SDL_SetRenderTarget(renderer,target.get()));
+      Video::set_render_target(target.get());
       closure(renderer);
     }
 

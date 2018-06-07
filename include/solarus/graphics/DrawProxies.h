@@ -3,6 +3,7 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/graphics/BlendMode.h"
+#include "solarus/core/Scale.h"
 
 #include <array>
 
@@ -17,27 +18,51 @@ struct DrawProxy;
  * it could be updated in the future to support more parameters, such as rotation and scale
  */
 struct DrawInfos {
-  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position,
-            BlendMode blend_mode, uint8_t opacity,
+  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& origin,
+            BlendMode blend_mode, uint8_t opacity, float rotation, const Scale& scale,
             const DrawProxy& proxy):
-    region(region),dst_position(dst_position),
+    region(region),dst_position(dst_position), origin(origin),
+    scale(scale),proxy(proxy),
     blend_mode(blend_mode), opacity(opacity),
-    proxy(proxy) {}
+    rotation(rotation)
+     {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
-    DrawInfos(other.region,other.dst_position,other.blend_mode,other.opacity,proxy) {}
+    DrawInfos(other.region,other.dst_position,other.origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Rectangle& region,
             const Point& dst_position) :
-    DrawInfos(region,dst_position,other.blend_mode,other.opacity,other.proxy) {}
+    DrawInfos(region,dst_position,other.origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Point& dst_position) :
-    DrawInfos(other.region,dst_position,other.blend_mode,other.opacity,other.proxy) {}
+    DrawInfos(other.region,dst_position,other.origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
-    DrawInfos(other.region,other.dst_position,other.blend_mode,opacity,other.proxy) {}
+    DrawInfos(other.region,other.dst_position,other.origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
+
+  inline Rectangle dst_rectangle() const {
+    const Point& ototl = -origin;
+    Point otobr = Point(region.get_size()) - origin;
+    Point tcenter = dst_position+origin;
+    return Rectangle(
+          tcenter + ototl*scale,
+          tcenter + otobr*scale
+          );
+  }
+
+  inline SDL_Point sdl_origin() const {
+    return {(int)(origin.x*scale.x),(int)(origin.y*scale.y)};
+  }
+
+  inline bool should_use_ex() const {
+    return std::abs(rotation) > 1e-3;
+  }
+
   //TODO more helper constructors
   const Rectangle& region; /**< The region of the source surface that will be drawn*/
   const Point& dst_position; /**< The position in the target surface where the surface will be drawn */
+  const Point origin;
+  const Scale& scale;
+  const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
   BlendMode blend_mode; /**< blend mode that will be used */
   uint8_t   opacity; /**< opacity modulator */
-  const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
+  double rotation;
 };
 
 /**

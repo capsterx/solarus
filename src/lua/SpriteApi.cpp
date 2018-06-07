@@ -75,7 +75,11 @@ void LuaContext::register_sprite_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
-        { "get_frame_src_xy", sprite_api_get_frame_src_xy }
+        { "get_frame_src_xy", sprite_api_get_frame_src_xy },
+        { "set_rotation", drawable_api_set_rotation},
+        { "get_rotation", drawable_api_get_rotation},
+        { "set_scale", drawable_api_set_scale},
+        { "get_scale", drawable_api_get_scale}
     });
   }
 

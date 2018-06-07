@@ -52,6 +52,8 @@ file(
 	include/solarus/core/SavegameConverterV1.h
 	include/solarus/core/Savegame.h
 	include/solarus/core/Settings.h
+	include/solarus/core/Scale.h
+	include/solarus/core/Scale.inl
 	include/solarus/core/Size.h
 	include/solarus/core/Size.inl
 	include/solarus/core/SolarusFatal.h
@@ -130,7 +132,7 @@ file(
 	include/solarus/graphics/Color.h
 	include/solarus/graphics/Drawable.h
 	include/solarus/graphics/DrawablePtr.h
-        include/solarus/graphics/DrawProxies.h
+	      include/solarus/graphics/DrawProxies.h
 	include/solarus/graphics/GlArbShader.h
 	include/solarus/graphics/GlShader.h
 	include/solarus/graphics/GlTextureHandle.h

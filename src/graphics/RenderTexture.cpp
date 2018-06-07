@@ -64,11 +64,17 @@ SDL_Texture* RenderTexture::get_texture() const {
  */
 void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& infos) {
   with_target([&](SDL_Renderer* renderer){
-    Rectangle dst_rect(infos.dst_position,infos.region.get_size());
+    Rectangle dst_rect = infos.dst_rectangle();
+
     SDL_BlendMode mode = Surface::make_sdl_blend_mode(*this,texture,infos.blend_mode);
     SOLARUS_CHECK_SDL_HIGHER(SDL_SetTextureBlendMode(texture.get_texture(),mode),-1);
     SOLARUS_CHECK_SDL(SDL_SetTextureAlphaMod(texture.get_texture(),infos.opacity));
-    SOLARUS_CHECK_SDL(SDL_RenderCopy(renderer,texture.get_texture(),infos.region,dst_rect));
+    if(infos.should_use_ex()) {
+      SDL_Point origin= infos.sdl_origin();
+      SOLARUS_CHECK_SDL(SDL_RenderCopyEx(renderer,texture.get_texture(),infos.region,dst_rect,infos.rotation*180/M_PI,&origin,SDL_FLIP_NONE));
+    } else {
+      SOLARUS_CHECK_SDL(SDL_RenderCopy(renderer,texture.get_texture(),infos.region,dst_rect));
+    }
   });
 }
 

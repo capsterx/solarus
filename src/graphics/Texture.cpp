@@ -53,7 +53,9 @@ RenderTexture* Texture::to_render_texture() {
     RenderTexture* rt = new RenderTexture(get_width(),get_height());
     rt->draw_other(*this,DrawInfos(Rectangle(Point(),Size(get_width(),get_height())),
                                    Point(),
-                                   BlendMode::NONE,255,Surface::draw_proxy));
+                                   Point(),
+                                   BlendMode::NONE,255,
+                                   0,Scale(),Surface::draw_proxy));
     return rt;
 }
 
