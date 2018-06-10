@@ -108,8 +108,8 @@ const ShaderData& Shader::get_data() const {
  */
 std::string Shader::get_vertex_source() const {
 
-  const std::string& file_name = "shaders/" + get_data().get_vertex_file();
-  if (file_name != "") {
+  if (!get_data().get_vertex_file().empty()) {
+    const std::string& file_name = "shaders/" + get_data().get_vertex_file();
     if (QuestFiles::data_file_exists(file_name)) {
       return QuestFiles::data_file_read(file_name);
     }
@@ -124,8 +124,8 @@ std::string Shader::get_vertex_source() const {
  */
 std::string Shader::get_fragment_source() const {
 
-  const std::string& file_name = "shaders/" + get_data().get_fragment_file();
-  if (file_name != "") {
+  if (!get_data().get_fragment_file().empty()) {
+    const std::string& file_name = "shaders/" + get_data().get_fragment_file();
     if (QuestFiles::data_file_exists(file_name)) {
       return QuestFiles::data_file_read(file_name);
     }
