@@ -62,6 +62,8 @@ file(
 	include/solarus/core/System.h
 	include/solarus/core/Timer.h
 	include/solarus/core/TimerPtr.h
+        include/solarus/core/Transform.h
+        include/solarus/core/Transform.inl
 	include/solarus/core/Treasure.h
 
 	include/solarus/entities/AnimatedTilePattern.h

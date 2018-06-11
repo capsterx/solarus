@@ -68,6 +68,7 @@ map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "jumper_tests", description = "Jumper tests" }
+map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
 map{ id = "teletransportation_tests/main", description = "Main map" }
 map{ id = "teletransportation_tests/start_in_deep_water_drown", description = "Start in deep water (drowning)" }
@@ -129,6 +130,7 @@ sprite{ id = "main_heroes/sword", description = "Sword" }
 sprite{ id = "main_heroes/sword_electricity", description = "Sword electricity" }
 sprite{ id = "main_heroes/trail", description = "Trail" }
 sprite{ id = "menus/solarus_logo", description = "Solarus logo" }
+sprite{ id = "pivot", description = "Pivot Test" }
 sprite{ id = "todo", description = "TODO image" }
 
 

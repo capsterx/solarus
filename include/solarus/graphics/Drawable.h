@@ -130,6 +130,9 @@ class Drawable: public ExportableToLua {
     const Point& get_transform_origin() const;
     void set_transform_origin(const Point& origin);
 
+    Point get_full_origin() const;
+
+
     virtual Rectangle get_region() const = 0;
   protected:
     Drawable();
@@ -151,7 +154,7 @@ class Drawable: public ExportableToLua {
     uint8_t opacity = 255;        /**< Opacity of this drawable object */
     double rotation = 0;          /**< Rotation of the object around transform_origin*/
     Scale scale;                  /**< Scale of the object around transform_origin*/
-    Point transform_origin;       /**< pivot for the transformations (rot,scale) of the object*/
+    Point transform_origin;                 /**< pivot for the transformations (rot,scale) of the object*/
 };
 
 }

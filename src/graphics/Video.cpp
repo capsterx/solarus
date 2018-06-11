@@ -502,16 +502,6 @@ void set_quest_size_range(
     context.quest_size = context.wanted_quest_size;
   }
 
-  // Initialize the render target.
-  context.render_target = SDL_CreateTexture(
-      context.main_renderer,
-      context.pixel_format->format,
-      SDL_TEXTUREACCESS_TARGET,
-      context.quest_size.width,
-      context.quest_size.height
-  );
-  SDL_SetTextureBlendMode(context.render_target, SDL_BLENDMODE_BLEND);
-
   // We know the quest size: we can initialize legacy video modes.
   initialize_software_video_modes();
 }

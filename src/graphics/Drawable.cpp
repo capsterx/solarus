@@ -250,7 +250,7 @@ void Drawable::draw(const SurfacePtr& dst_surface,
  */
 void Drawable::draw(const SurfacePtr &dst_surface, const Point &dst_position, const DrawProxy& proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_origin()+get_transform_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
+  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -292,7 +292,7 @@ void Drawable::draw_region(const Rectangle& region,
     const SurfacePtr& dst_surface,
     const Point& dst_position, const DrawProxy &proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_origin()+get_transform_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
+  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -365,6 +365,10 @@ const Point& Drawable::get_transform_origin() const {
 
 void Drawable::set_transform_origin(const Point& origin) {
   transform_origin = origin;
+}
+
+Point Drawable::get_full_origin() const {
+  return transform_origin + get_origin();
 }
 
 const DrawProxy& Drawable::terminal() const {

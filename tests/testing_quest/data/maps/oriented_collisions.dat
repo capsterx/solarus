@@ -1,0 +1,60 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+custom_entity{
+  name = "pivot",
+  layer = 0,
+  x = 160,
+  y = 125,
+  width = 16,
+  height = 16,
+  direction = 0,
+  sprite = "pivot",
+}
+
+custom_entity{
+  name = "in_hole",
+  layer = 0,
+  x = 200,
+  y = 125,
+  width = 16,
+  height = 16,
+  direction = 0,
+  sprite = "enemies/slime_green",
+}
+
+custom_entity{
+  name = "on_tip",
+  layer = 0,
+  x = 240,
+  y = 125,
+  width = 16,
+  height = 16,
+  direction = 0,
+  sprite = "enemies/slime_green",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 8,
+  y = 13,
+  direction = 1,
+}
+

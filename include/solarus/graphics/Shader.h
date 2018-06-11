@@ -108,7 +108,8 @@ class Shader : public DrawProxy, public ExportableToLua {
     static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders*/
 
   private:
-
+    static inline void compute_matrices(const Size& surface_size, const Rectangle& region, const Size& dst_size, const Point& dst_position, bool flip_y,
+                          glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3& uvm);
     const std::string shader_id;  /**< The id of the shader (filename without extension). */
     ShaderData data;              /**< The loaded shader data file. */
     bool valid;                   /**< \c true if the compilation succedeed. */

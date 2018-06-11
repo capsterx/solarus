@@ -93,10 +93,9 @@ PixelBits::PixelBits(const Surface& surface, const Rectangle& image_position):
  * \param location2 Position of the upper-left corner of the other image.
  * \return \c true if there is a collision.
  */
-bool PixelBits::test_collision(
-    const PixelBits& other,
-    const Point& location1,
-    const Point& location2
+bool PixelBits::test_aligned_collision(const PixelBits& other,
+    const Point &location1,
+    const Point &location2
 ) const {
   const bool debug_pixel_collisions = false;
 
@@ -233,6 +232,49 @@ bool PixelBits::test_collision(
   return false;
 }
 
+bool PixelBits::test_collision(const PixelBits &other,
+                    const Transform &transform1, const Transform &transform2) const {
+  if(transform1.aligned() && transform2.aligned()) {
+    return test_aligned_collision(other,transform1.position,transform2.position);
+  } else {
+    return test_oriented_collision(other,transform1,transform2);
+  }
+}
+
+bool PixelBits::test_oriented_collision(const PixelBits &other,
+                             const Transform& transform1,
+                             const Transform& transform2) const {
+  if(!transform1.obb_intersect(Size(width,height),transform2,Size(other.width,other.height))) {
+    return false;
+  }
+  glm::vec2 origin,vx,vy;
+  transform1.compute_collision_data(transform2,origin,vx,vy);
+  for(int y = 0; y < height; y++) {
+    for(int x = 0; x < width; x++) {
+      if(at(x,y)){
+        glm::vec2 p = origin+vx*(float)x+vy*(float)y;
+        int ox = p.x;
+        int oy = p.y;
+
+        if(other.at(ox,oy)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool PixelBits::at(int x, int y) const {
+  if(x < 0 or y < 0 or x >= width or y >= height) {
+    return false;
+  }
+  const auto& row = bits.at(y);
+  int index = x / 32;
+  int offset = x % 32;
+  return (row[index] << offset) & 0x80000000;
+}
+
 /**
  * \brief Prints an ASCII representation of the pixels (for debugging purposes only).
  */
@@ -243,20 +285,12 @@ void PixelBits::print() const {
     int k = -1;
     uint32_t mask = 0x00000000;
     for (int j = 0; j < width; j++) {
-
-      if (mask == 0x00000000) {
-        k++;
-        mask = 0x80000000;
-      }
-
-      if (bits[i][k] & mask) {
-        std::cout << "X";
+      if (at(j,i)) {
+        std::cout << "X ";
       }
       else {
-        std::cout << ".";
+        std::cout << ". ";
       }
-
-      mask >>= 1;
     }
     std::cout << std::endl;
   }

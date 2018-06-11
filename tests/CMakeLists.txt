@@ -5,6 +5,7 @@ set(lua_test_maps
   "dynamic_tile_tests"
   "jumper_tests"
   "surface_tests"
+  "oriented_collisions"
   "teletransportation_tests/main"
   "bugs/486_diagonal_dynamic_tiles"
   "bugs/496_stream_speed_0"
