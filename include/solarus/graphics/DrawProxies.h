@@ -15,7 +15,8 @@ struct DrawProxy;
  * @brief Struct used to pass drawing arguments trough the drawing pipeline
  *
  * It contains all the information needed to perform a draw of a drawable to another,
- * it could be updated in the future to support more parameters, such as rotation and scale
+ *
+ * it also provide some helper methods to extract useful informations from the drawing data
  */
 struct DrawInfos {
   inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transform_origin,
@@ -36,6 +37,10 @@ struct DrawInfos {
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
     DrawInfos(other.region,other.dst_position,other.transform_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
 
+  /**
+   * @brief compute scaled destination rectangle
+   * @return
+   */
   inline Rectangle dst_rectangle() const {
     const Point& ototl = -transform_origin;
     Point otobr = Point(region.get_size()) - transform_origin;
@@ -46,6 +51,10 @@ struct DrawInfos {
           );
   }
 
+  /**
+   * @brief compute sdl_origin for use with SDL_RenderCopyEx
+   * @return
+   */
   inline SDL_Point sdl_origin() const {
     return {(int)(transform_origin.x*scale.x),(int)(transform_origin.y*scale.y)};
   }
@@ -54,15 +63,14 @@ struct DrawInfos {
     return std::abs(rotation) > 1e-3;
   }
 
-  //TODO more helper constructors
   const Rectangle& region; /**< The region of the source surface that will be drawn*/
   const Point& dst_position; /**< The position in the target surface where the surface will be drawn */
-  const Point transform_origin;
-  const Scale& scale;
+  const Point transform_origin; /** < The origin of the rotation and scale */
+  const Scale& scale; /** < The object scale */
   const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
   BlendMode blend_mode; /**< blend mode that will be used */
   uint8_t   opacity; /**< opacity modulator */
-  double rotation;
+  double rotation; /**< The object rotation */
 };
 
 /**

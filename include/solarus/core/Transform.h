@@ -8,6 +8,11 @@
 
 namespace Solarus {
 
+/**
+ * @brief Wrapper class that hold transform informations
+ *
+ * Transform information allows to compute usefull data, for example transforms to other transforms
+ */
 class Transform
 {
 public:

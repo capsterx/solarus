@@ -232,6 +232,16 @@ bool PixelBits::test_aligned_collision(const PixelBits& other,
   return false;
 }
 
+/**
+ * @brief test collision of this pixmap with another one
+ * @param other other PixelBits
+ * @param transform1 transform of this pixel bits
+ * @param transform2 transform of the other pixel bits
+ * @return true if pixel bits intersects
+ *
+ * Both pixelbits are potentially transformed, if one of them is not trivially translated
+ * a slower algorithm is used where one of the pixelbits is projected on the other
+ */
 bool PixelBits::test_collision(const PixelBits &other,
                     const Transform &transform1, const Transform &transform2) const {
   if(transform1.aligned() && transform2.aligned()) {
@@ -241,6 +251,13 @@ bool PixelBits::test_collision(const PixelBits &other,
   }
 }
 
+/**
+ * @brief slower collision test taking rotation and scale into account
+ * @param other other pixelbits
+ * @param transform1 transform applied to this pixelbits
+ * @param transform2 transform applied to the other pixel bits
+ * @return
+ */
 bool PixelBits::test_oriented_collision(const PixelBits &other,
                              const Transform& transform1,
                              const Transform& transform2) const {
@@ -265,8 +282,14 @@ bool PixelBits::test_oriented_collision(const PixelBits &other,
   return false;
 }
 
+/**
+ * @brief access the pixel at given coords
+ * @param x x coord in the pixel map
+ * @param y y coord in the pixel map
+ * @return
+ */
 bool PixelBits::at(int x, int y) const {
-  if(x < 0 or y < 0 or x >= width or y >= height) {
+  if(x < 0 || y < 0 || x >= width || y >= height) {
     return false;
   }
   const auto& row = bits.at(y);

@@ -6,6 +6,11 @@
 
 namespace Solarus {
 
+/**
+ * @brief Represent a 2D scaling
+ *
+ * Two components scaling datas
+ */
 class Scale
 {
 public:
