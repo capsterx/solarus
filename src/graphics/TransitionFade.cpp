@@ -175,7 +175,7 @@ void TransitionFade::update() {
  */
 void TransitionFade::draw(Surface& dst_surface, const Surface &src_surface, const DrawInfos &infos) const { //TODO fix this
   // Draw the transition effect on the surface.
-  int alpha_impl = std::min((alpha*infos.opacity)/256, 255); //TODO fix alpha not being retained...
+  int alpha_impl = std::min(alpha, 255); //TODO fix alpha not being retained...
 
   if (!colored) {
     // Draw surface with modified opacity
@@ -192,7 +192,7 @@ void TransitionFade::draw(Surface& dst_surface, const Surface &src_surface, cons
 }
 
 void TransitionFade::finish(Drawable& target) const {
-  target.set_opacity(std::min((alpha*target.get_opacity())/256,255));
+  target.set_opacity(std::min(alpha,255));
 }
 
 }
