@@ -19,6 +19,7 @@ Engine changes
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
 * Fix crash when opening a chest with a missing treasure dialog (#1089).
+* Fix crash when scrolling to the same map (#924) by stdgregwar.
 * Fix joypad deadzone issue (#672) by strycore.
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
@@ -28,8 +29,6 @@ Engine changes
 * Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix scripts failing to load if a directory exists with the same name (#1100).
 * Improve Lua error messages.
-* Fix scrolling to the same map that was crashing the engine (#924)
-* Added drawables transformations
 
 Solarus launcher GUI changes
 ----------------------------
@@ -51,6 +50,7 @@ Changes that do not introduce incompatibilities:
 * Add methods entity:get_layer() and entity:set_layer().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
+* Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
 * Add a method sprite:get_frame_src_xy() (#1093).
 * sprite:get_num_frames() can now optionally take an animation and direction.
