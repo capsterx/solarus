@@ -309,7 +309,7 @@ void Shader::draw(Surface& dst_surface, const Surface &src_surface, const DrawIn
       glm::mat4 viewport,dst,scale;
       glm::mat3 uvm;
       compute_matrices(src_surface.get_size(),region,dst_size,dst_position,false,viewport,dst,scale,uvm);
-      glm::mat4 transform = Transform(dst_position,infos.transform_origin,infos.scale,infos.rotation).get_glm_transform() * scale;
+      glm::mat4 transform = Transform(dst_position,infos.transformation_origin,infos.scale,infos.rotation).get_glm_transform() * scale;
       //Set input size
       const Size& size = dst_size;
       that->set_uniform_1i(Shader::TIME_NAME, System::now());

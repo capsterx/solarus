@@ -70,8 +70,8 @@ void LuaContext::register_surface_module() {
       { "get_rotation", drawable_api_get_rotation},
       { "set_scale", drawable_api_set_scale},
       { "get_scale", drawable_api_get_scale},
-      { "set_transform_origin", drawable_api_set_transform_origin},
-      { "get_transform_origin", drawable_api_get_transform_origin}
+      { "set_transformation_origin", drawable_api_set_transformation_origin},
+      { "get_transformation_origin", drawable_api_get_transformation_origin}
     });
   }
 

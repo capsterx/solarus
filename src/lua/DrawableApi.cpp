@@ -462,14 +462,14 @@ int LuaContext::drawable_api_get_scale(lua_State* l) {
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::drawable_api_set_transform_origin(lua_State* l) {
+int LuaContext::drawable_api_set_transformation_origin(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     double x = LuaTools::check_number(l, 2);
     double y = LuaTools::check_number(l, 3);
 
-    drawable.set_transform_origin(Point(x,y));
+    drawable.set_transformation_origin(Point(x,y));
 
     return 0;
   });
@@ -480,11 +480,11 @@ int LuaContext::drawable_api_set_transform_origin(lua_State* l) {
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::drawable_api_get_transform_origin(lua_State* l) {
+int LuaContext::drawable_api_get_transformation_origin(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const Drawable& drawable = *check_drawable(l, 1);
-    const Point& o = drawable.get_transform_origin();
+    const Point& o = drawable.get_transformation_origin();
 
     lua_pushnumber(l,o.x);
     lua_pushnumber(l,o.y);

@@ -1,5 +1,5 @@
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
+#ifndef SOLARUS_TRANSFORM_H
+#define SOLARUS_TRANSFORM_H
 
 #include "solarus/core/Point.h"
 #include "solarus/core/Scale.h"

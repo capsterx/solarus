@@ -127,8 +127,8 @@ class Drawable: public ExportableToLua {
     const Scale& get_scale() const;
     void set_scale(const Scale& scale);
 
-    const Point& get_transform_origin() const;
-    void set_transform_origin(const Point& origin);
+    const Point& get_transformation_origin() const;
+    void set_transformation_origin(const Point& origin);
 
     Point get_full_origin() const;
 
@@ -154,7 +154,7 @@ class Drawable: public ExportableToLua {
     uint8_t opacity = 255;        /**< Opacity of this drawable object */
     double rotation = 0;          /**< Rotation of the object around transform_origin*/
     Scale scale;                  /**< Scale of the object around transform_origin*/
-    Point transform_origin;       /**< pivot for the transformations (rot,scale) of the object*/
+    Point transformation_origin;       /**< pivot for the transformations (rot,scale) of the object*/
 };
 
 }

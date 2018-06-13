@@ -305,8 +305,6 @@ void PixelBits::print() const {
 
   std::cout << "frame size is " << width << " x " << height << std::endl;
   for (int i = 0; i < height; i++) {
-    int k = -1;
-    uint32_t mask = 0x00000000;
     for (int j = 0; j < width; j++) {
       if (at(j,i)) {
         std::cout << "X ";

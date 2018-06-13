@@ -19,32 +19,32 @@ struct DrawProxy;
  * it also provide some helper methods to extract useful informations from the drawing data
  */
 struct DrawInfos {
-  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transform_origin,
+  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
             BlendMode blend_mode, uint8_t opacity, float rotation, const Scale& scale,
             const DrawProxy& proxy):
-    region(region),dst_position(dst_position), transform_origin(transform_origin),
+    region(region),dst_position(dst_position), transformation_origin(transformation_origin),
     scale(scale),proxy(proxy),
     blend_mode(blend_mode), opacity(opacity),
     rotation(rotation)
      {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
-    DrawInfos(other.region,other.dst_position,other.transform_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Rectangle& region,
             const Point& dst_position) :
-    DrawInfos(region,dst_position,other.transform_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Point& dst_position) :
-    DrawInfos(other.region,dst_position,other.transform_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
-    DrawInfos(other.region,other.dst_position,other.transform_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
 
   /**
    * @brief compute scaled destination rectangle
    * @return
    */
   inline Rectangle dst_rectangle() const {
-    const Point& ototl = -transform_origin;
-    Point otobr = Point(region.get_size()) - transform_origin;
-    Point tcenter = dst_position+transform_origin;
+    const Point& ototl = -transformation_origin;
+    Point otobr = Point(region.get_size()) - transformation_origin;
+    Point tcenter = dst_position+transformation_origin;
     return Rectangle(
           tcenter + ototl*scale,
           tcenter + otobr*scale
@@ -56,7 +56,7 @@ struct DrawInfos {
    * @return
    */
   inline SDL_Point sdl_origin() const {
-    return {(int)(transform_origin.x*scale.x),(int)(transform_origin.y*scale.y)};
+    return {(int)(transformation_origin.x*scale.x),(int)(transformation_origin.y*scale.y)};
   }
 
   inline bool should_use_ex() const {
@@ -65,7 +65,7 @@ struct DrawInfos {
 
   const Rectangle& region; /**< The region of the source surface that will be drawn*/
   const Point& dst_position; /**< The position in the target surface where the surface will be drawn */
-  const Point transform_origin; /** < The origin of the rotation and scale */
+  const Point transformation_origin; /** < The origin of the rotation and scale */
   const Scale& scale; /** < The object scale */
   const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
   BlendMode blend_mode; /**< blend mode that will be used */

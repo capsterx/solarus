@@ -1,5 +1,5 @@
-#ifndef SCALE_H
-#define SCALE_H
+#ifndef SOLARUS_SCALE_H
+#define SOLARUS_SCALE_H
 
 #include "solarus/core/Size.h"
 #include "solarus/core/Point.h"

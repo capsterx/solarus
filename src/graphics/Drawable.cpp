@@ -379,16 +379,16 @@ void Drawable::set_scale(const Scale &scale) {
  * @brief get the origin of the object transformation, relative to object actual origin
  * @return
  */
-const Point& Drawable::get_transform_origin() const {
-  return transform_origin;
+const Point& Drawable::get_transformation_origin() const {
+  return transformation_origin;
 }
 
 /**
  * @brief set the origin of the object transformation, relative to object actual origin
  * @param origin
  */
-void Drawable::set_transform_origin(const Point& origin) {
-  transform_origin = origin;
+void Drawable::set_transformation_origin(const Point& origin) {
+  transformation_origin = origin;
 }
 
 /**
@@ -396,7 +396,7 @@ void Drawable::set_transform_origin(const Point& origin) {
  * @return
  */
 Point Drawable::get_full_origin() const {
-  return transform_origin + get_origin();
+  return transformation_origin + get_origin();
 }
 
 /**
