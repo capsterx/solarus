@@ -1,4 +1,5 @@
 /*
+ *
  * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
@@ -14,6 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/graphics/Color.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/Surface.h"
@@ -39,18 +42,14 @@ void LuaContext::register_surface_module() {
       { "create", surface_api_create }
   };
 
-  const std::vector<luaL_Reg> methods = {
+  std::vector<luaL_Reg> methods = {
       { "get_size", surface_api_get_size },
       { "clear", surface_api_clear },
       { "fill_color", surface_api_fill_color },
-      { "get_pixels", surface_api_get_pixels },
-      { "set_pixels", surface_api_set_pixels },
       { "draw", drawable_api_draw },
       { "draw_region", drawable_api_draw_region },
       { "get_blend_mode", drawable_api_get_blend_mode },
       { "set_blend_mode", drawable_api_set_blend_mode },
-      { "set_shader", drawable_api_set_shader},
-      { "get_shader", drawable_api_get_shader},
       { "get_opacity", drawable_api_get_opacity },
       { "set_opacity", drawable_api_set_opacity},
       { "fade_in", drawable_api_fade_in },
@@ -60,6 +59,21 @@ void LuaContext::register_surface_module() {
       { "get_movement", drawable_api_get_movement },
       { "stop_movement", drawable_api_stop_movement }
   };
+
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    methods.insert(methods.end(), {
+      { "get_pixels", surface_api_get_pixels },
+      { "set_pixels", surface_api_set_pixels },
+      { "set_shader", drawable_api_set_shader},
+      { "get_shader", drawable_api_get_shader},
+      { "set_rotation", drawable_api_set_rotation},
+      { "get_rotation", drawable_api_get_rotation},
+      { "set_scale", drawable_api_set_scale},
+      { "get_scale", drawable_api_get_scale},
+      { "set_transformation_origin", drawable_api_set_transformation_origin},
+      { "get_transformation_origin", drawable_api_get_transformation_origin}
+    });
+  }
 
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", drawable_meta_gc }

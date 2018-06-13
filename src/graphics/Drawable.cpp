@@ -250,7 +250,7 @@ void Drawable::draw(const SurfacePtr& dst_surface,
  */
 void Drawable::draw(const SurfacePtr &dst_surface, const Point &dst_position, const DrawProxy& proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_blend_mode(),get_opacity(),proxy));
+  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -292,7 +292,7 @@ void Drawable::draw_region(const Rectangle& region,
     const SurfacePtr& dst_surface,
     const Point& dst_position, const DrawProxy &proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_blend_mode(),get_opacity(),proxy));
+  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
 }
 
 /**
@@ -343,6 +343,66 @@ void Drawable::set_opacity(uint8_t opacity) {
   this->opacity = opacity;
 }
 
+/**
+ * @brief Set object rotation around its origin
+ * @param rotation a rotation in radians
+ */
+void Drawable::set_rotation(double rotation) {
+  this->rotation = rotation;
+}
+
+/**
+ * @brief Get object rotation
+ * @return rotation
+ */
+double Drawable::get_rotation() const {
+  return rotation;
+}
+
+/**
+ * @brief Get object scale
+ * @return scale
+ */
+const Scale& Drawable::get_scale() const {
+  return scale;
+}
+
+/**
+ * @brief set object scaling
+ * @param scale scale
+ */
+void Drawable::set_scale(const Scale &scale) {
+  this->scale = scale;
+}
+
+/**
+ * @brief get the origin of the object transformation, relative to object actual origin
+ * @return
+ */
+const Point& Drawable::get_transformation_origin() const {
+  return transformation_origin;
+}
+
+/**
+ * @brief set the origin of the object transformation, relative to object actual origin
+ * @param origin
+ */
+void Drawable::set_transformation_origin(const Point& origin) {
+  transformation_origin = origin;
+}
+
+/**
+ * @brief get the full transformation origin, i.e the actual origin plus the transform one
+ * @return
+ */
+Point Drawable::get_full_origin() const {
+  return transformation_origin + get_origin();
+}
+
+/**
+ * @brief get the final proxy that will finish drawing this object
+ * @return
+ */
 const DrawProxy& Drawable::terminal() const {
   if(shader)
     return (const DrawProxy&)(*shader);

@@ -668,7 +668,9 @@ bool Sprite::test_collision(const Sprite& other, int x1, int y1, int x2, int y2)
   location2 += other.get_xy();
   const PixelBits& pixel_bits2 = direction2.get_pixel_bits(other.current_frame);
 
-  return pixel_bits1.test_collision(pixel_bits2, location1, location2);
+  return pixel_bits1.test_collision(pixel_bits2,
+                                    Transform(location1,get_origin(),get_scale(),get_rotation()),
+                                    Transform(location2,other.get_origin(),other.get_scale(),other.get_rotation()));
 }
 
 /**

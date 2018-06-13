@@ -17,6 +17,7 @@
 #include "solarus/core/Logger.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/System.h"
+#include "solarus/core/Transform.h"
 #include "solarus/graphics/Shader.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/graphics/Surface.h"
@@ -241,6 +242,30 @@ bool Shader::set_uniform_texture(const std::string&, const SurfacePtr&) {
   return false;
 }
 
+void Shader::compute_matrices(const Size& surface_size, const Rectangle& region, const Size& dst_size, const Point& dst_position, bool flip_y,
+                                     glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3 &uvm) {
+  viewport = glm::ortho<float>(0,dst_size.width,0,dst_size.height); //Specify float as type to avoid integral division
+  dst = glm::translate(glm::mat4(),glm::vec3(dst_position.x,dst_position.y,0));
+  scale = glm::scale(glm::mat4(),glm::vec3(region.get_width(),region.get_height(),1));
+
+  float uxf = 1.f/surface_size.width;
+  float uyf = 1.f/surface_size.height;
+
+  glm::mat3 uv_scale = glm::scale(
+        glm::mat3(1),
+        glm::vec2(
+          region.get_width()*uxf,
+          region.get_height()*uyf
+          )
+        );
+  glm::mat3 uv_trans = glm::translate(glm::mat3(),glm::vec2(region.get_left()*uxf,region.get_top()*uyf));
+  uvm = uv_trans*uv_scale;
+  if(!flip_y){
+    uvm = glm::scale(uvm,glm::vec2(1,-1));
+    uvm = glm::translate(uvm,glm::vec2(0,-1));
+  }
+}
+
 /**
  * @brief Render given surface on currently bound rendertarget
  * @param surface surface to draw
@@ -251,26 +276,9 @@ bool Shader::set_uniform_texture(const std::string&, const SurfacePtr&) {
  */
 void Shader::render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point & dst_position, bool flip_y) {
   //TODO compute mvp and uv_matrix here
-  glm::mat4 viewport = glm::ortho<float>(0,dst_size.width,0,dst_size.height); //Specify float as type to avoid integral division
-  glm::mat4 dst = glm::translate(glm::mat4(),glm::vec3(dst_position.x,dst_position.y,0));
-  glm::mat4 scale = glm::scale(glm::mat4(),glm::vec3(region.get_width(),region.get_height(),1));
-
-  float uxf = 1.f/surface.get_width();
-  float uyf = 1.f/surface.get_height();
-
-  glm::mat3 uv_scale = glm::scale(
-        glm::mat3(1),
-        glm::vec2(
-          region.get_width()*uxf,
-          region.get_height()*uyf
-          )
-        );
-  glm::mat3 uv_trans = glm::translate(glm::mat3(),glm::vec2(region.get_left()*uxf,region.get_top()*uyf));
-  glm::mat3 uvm = uv_trans*uv_scale;
-  if(!flip_y){
-    uvm = glm::scale(uvm,glm::vec2(1,-1));
-    uvm = glm::translate(uvm,glm::vec2(0,-1));
-  }
+  glm::mat4 viewport,dst,scale;
+  glm::mat3 uvm;
+  compute_matrices(surface.get_size(),region,dst_size,dst_position,flip_y,viewport,dst,scale,uvm);
   //Set input size
   const Size& size = flip_y ? Video::get_output_size() : dst_size;
   set_uniform_1i(Shader::TIME_NAME, System::now());
@@ -292,8 +300,22 @@ void Shader::draw(Surface& dst_surface, const Surface &src_surface, const DrawIn
       }
       //TODO fix this ugliness
       Shader* that = const_cast<Shader*>(this);
-      that->set_uniform_1f(OPACITY_NAME,src_surface.get_opacity()/256.f);
-      that->Shader::render(src_surface,infos.region,dst_surface.get_size(),infos.dst_position);
+      that->set_uniform_1f(OPACITY_NAME,infos.opacity/256.f);
+      //TODO compute mvp and uv_matrix here
+      const auto& dst_position = infos.dst_position;
+      const auto& region = infos.region;
+
+      Size dst_size = dst_surface.get_size();
+      glm::mat4 viewport,dst,scale;
+      glm::mat3 uvm;
+      compute_matrices(src_surface.get_size(),region,dst_size,dst_position,false,viewport,dst,scale,uvm);
+      glm::mat4 transform = Transform(dst_position,infos.transformation_origin,infos.scale,infos.rotation).get_glm_transform() * scale;
+      //Set input size
+      const Size& size = dst_size;
+      that->set_uniform_1i(Shader::TIME_NAME, System::now());
+      that->set_uniform_2f(Shader::OUTPUT_SIZE_NAME, size.width, size.height);
+      that->set_uniform_2f(Shader::INPUT_SIZE_NAME, region.get_width(), region.get_height());
+      that->render(screen_quad,src_surface,viewport*transform,uvm);
     });
 }
 

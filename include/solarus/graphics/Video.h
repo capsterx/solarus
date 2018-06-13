@@ -50,7 +50,6 @@ namespace Video {
     SDL_Window* get_window();
     SDL_Renderer* get_renderer();
 
-    SDL_Texture* get_render_target();
     SDL_PixelFormat* get_pixel_format();
     SDL_PixelFormat* get_rgba_format();
     const std::string& get_rendering_driver_name();
@@ -101,6 +100,8 @@ namespace Video {
     bool renderer_to_quest_coordinates(const Point& renderer_xy, Point& quest_xy);
 
     void render(const SurfacePtr& quest_surface);
+
+    void set_render_target(SDL_Texture* target);
 
 }  // namespace Video
 

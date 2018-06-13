@@ -319,14 +319,6 @@ SDL_Renderer* get_renderer() {
 }
 
 /**
- * \brief Returns the render texture target, if any.
- * \return The render target, or nullptr.
- */
-SDL_Texture* get_render_target() {
-    return context.render_target;
-  }
-
-/**
  * \brief Returns the pixel format to use.
  * \return The pixel format to use.
  */
@@ -388,7 +380,7 @@ void render(const SurfacePtr& quest_surface) {
     surface_to_render = context.scaled_surface;
   }
 
-  SDL_SetRenderTarget(context.main_renderer,nullptr);
+  set_render_target(nullptr);
   SDL_SetRenderDrawColor(context.main_renderer, 0, 0, 0, 255);
   SDL_RenderSetClipRect(context.main_renderer, nullptr);
   SDL_RenderClear(context.main_renderer);
@@ -509,16 +501,6 @@ void set_quest_size_range(
   else {
     context.quest_size = context.wanted_quest_size;
   }
-
-  // Initialize the render target.
-  context.render_target = SDL_CreateTexture(
-      context.main_renderer,
-      context.pixel_format->format,
-      SDL_TEXTUREACCESS_TARGET,
-      context.quest_size.width,
-      context.quest_size.height
-  );
-  SDL_SetTextureBlendMode(context.render_target, SDL_BLENDMODE_BLEND);
 
   // We know the quest size: we can initialize legacy video modes.
   initialize_software_video_modes();
@@ -973,6 +955,17 @@ bool renderer_to_quest_coordinates(
   }
 
   return true;
+}
+
+/**
+ * @brief Conservatly set the current render target
+ * @param a SDL texture with TARGET capabilities
+ */
+void set_render_target(SDL_Texture* target) {
+  if(target != context.render_target) {
+    SDL_SetRenderTarget(context.main_renderer,target);
+    context.render_target=target;
+  }
 }
 
 }  // namespace Video

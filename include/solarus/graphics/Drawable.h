@@ -121,6 +121,18 @@ class Drawable: public ExportableToLua {
     uint8_t get_opacity() const;
     void set_opacity(uint8_t opacity);
 
+    double get_rotation() const;
+    void set_rotation(double rotation);
+
+    const Scale& get_scale() const;
+    void set_scale(const Scale& scale);
+
+    const Point& get_transformation_origin() const;
+    void set_transformation_origin(const Point& origin);
+
+    Point get_full_origin() const;
+
+
     virtual Rectangle get_region() const = 0;
   protected:
     Drawable();
@@ -139,7 +151,10 @@ class Drawable: public ExportableToLua {
     bool suspended;               /**< Whether this object is suspended. */
     BlendMode blend_mode;         /**< How to draw this object on a surface. */
     ShaderPtr shader;             /**< Optional shader used to draw the object */
-    uint8_t opacity = 255;              /**< Opacity of this drawable object */
+    uint8_t opacity = 255;        /**< Opacity of this drawable object */
+    double rotation = 0;          /**< Rotation of the object around transform_origin*/
+    Scale scale;                  /**< Scale of the object around transform_origin*/
+    Point transformation_origin;       /**< pivot for the transformations (rot,scale) of the object*/
 };
 
 }

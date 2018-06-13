@@ -1,0 +1,7 @@
+animation{
+  name = "idle",
+  src_image = "things/collision_lollipop.png",
+  directions = {
+    { x = 0, y = 0, frame_width = 320, frame_height = 240, origin_x = 160, origin_y = 120 },
+  },
+}
