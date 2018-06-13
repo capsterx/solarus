@@ -1,6 +1,6 @@
 ![Solarus logo](/images/solarus_logo.png)
 
-[![Build Status](https://travis-ci.org/solarus-games/solarus.svg?branch=dev)](https://travis-ci.org/solarus-games/solarus)
+[![Build status](https://gitlab.com/solarus-games/solarus/badges/dev/pipeline.svg)](https://gitlab.com/solarus-games/solarus/commits/dev)
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/copyleft/gpl.html)
 
 ---
