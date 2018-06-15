@@ -72,6 +72,9 @@ class Shader : public DrawProxy, public ExportableToLua {
     virtual std::string default_vertex_source() const = 0;
     virtual std::string default_fragment_source() const = 0;
 
+    double get_scaling_factor() const;
+    void set_scaling_factor(double scaling_factor);
+
     virtual void set_uniform_1b(
         const std::string& uniform_name, bool value);  // TODO make pure virtual
     virtual void set_uniform_1i(
@@ -86,8 +89,8 @@ class Shader : public DrawProxy, public ExportableToLua {
         const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4);
     virtual bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value);
 
-    void render(const Surface &surface, const Rectangle &region, const Size &dst_size, const Point &dst_position = Point(), bool flip_y = false);
-    virtual void draw(Surface& dst_surface, const Surface &src_surface, const DrawInfos &infos) const override;
+    void render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point& dst_position = Point(), bool flip_y = false);
+    virtual void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
     /**
      * @brief render the given vertex array with this shader, passing the texture and matrices as uniforms
@@ -96,7 +99,10 @@ class Shader : public DrawProxy, public ExportableToLua {
      * @param mvp_matrix model view projection matrix
      * @param uv_matrix uv_matrix
      */
-    virtual void render(const VertexArray &array, const Surface &texture, const glm::mat4& mvp_matrix = glm::mat4(), const glm::mat3& uv_matrix = glm::mat3()) = 0;
+    virtual void render(const VertexArray& array,
+                        const Surface &texture,
+                        const glm::mat4& mvp_matrix = glm::mat4(),
+                        const glm::mat3& uv_matrix = glm::mat3()) = 0;
 
     const std::string& get_lua_type_name() const override;
 
@@ -105,11 +111,20 @@ class Shader : public DrawProxy, public ExportableToLua {
     void set_error(const std::string& error);
     void set_data(const ShaderData& data);
     virtual void load();  // TODO make pure virtual
-    static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders*/
+    static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
 
   private:
-    static inline void compute_matrices(const Size& surface_size, const Rectangle& region, const Size& dst_size, const Point& dst_position, bool flip_y,
-                          glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3& uvm);
+    static inline void compute_matrices(
+        const Size& surface_size,
+        const Rectangle& region,
+        const Size& dst_size,
+        const Point& dst_position,
+        bool flip_y,
+        glm::mat4& viewport,
+        glm::mat4& dst,
+        glm::mat4& scale,
+        glm::mat3& uvm);
+
     const std::string shader_id;  /**< The id of the shader (filename without extension). */
     ShaderData data;              /**< The loaded shader data file. */
     bool valid;                   /**< \c true if the compilation succedeed. */

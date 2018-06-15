@@ -70,6 +70,12 @@ set(lua_test_maps
   "bugs/1181_hurt_enemy_after_custom_attack"
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
+  "bugs/1210_shader_scaling_factor"
+)
+
+# Tests that requires showing the window.
+set(lua_test_maps_with_window
+  "surface_tests"
 )
 
 # Build the Solarus testing library.
@@ -157,6 +163,9 @@ foreach(test_main_file ${tests_main_files})
     # Lua test runner: add an individual test for each map.
     foreach(map_id ${lua_test_maps})
       add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+    endforeach()
+    foreach(map_id ${lua_test_maps_with_window})
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
   else()
     # Normal C++ test.

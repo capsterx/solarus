@@ -12,25 +12,32 @@ namespace Solarus {
  */
 RenderTexture::RenderTexture(int width, int height)
 {
-  auto renderer = Video::get_renderer();
-  auto tex = SDL_CreateTexture(renderer,
-                               Video::get_rgba_format()->format,
-                               SDL_TEXTUREACCESS_TARGET,
-                               width,height);
-  Debug::check_assertion(tex!=nullptr,
+  SDL_Renderer* renderer = Video::get_renderer();
+  SDL_PixelFormat* format = Video::get_rgba_format();
+
+  Debug::check_assertion(renderer != nullptr, "Missing renderer");
+  Debug::check_assertion(format != nullptr, "Missing RGBA pixel format");
+
+  SDL_Texture* tex = SDL_CreateTexture(
+      renderer,
+      Video::get_rgba_format()->format,
+      SDL_TEXTUREACCESS_TARGET,
+      width,
+      height);
+  Debug::check_assertion(tex != nullptr,
                          std::string("Failed to create render texture : ") + SDL_GetError());
   target.reset(tex);
 
-  auto format = Video::get_rgba_format();
-  auto surf_ptr = SDL_CreateRGBSurface(0,
-                                       width,
-                                       height,
-                                       32,
-                                       format->Rmask,
-                                       format->Gmask,
-                                       format->Bmask,
-                                       format->Amask);
-  Debug::check_assertion(surf_ptr!=nullptr,
+  SDL_Surface* surf_ptr = SDL_CreateRGBSurface(
+       0,
+       width,
+       height,
+       32,
+       format->Rmask,
+       format->Gmask,
+       format->Bmask,
+       format->Amask);
+  Debug::check_assertion(surf_ptr != nullptr,
                          std::string("Failed to create backup surface ") + SDL_GetError());
   surface.reset(surf_ptr);
   clear();
