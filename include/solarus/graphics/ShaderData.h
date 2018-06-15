@@ -37,16 +37,19 @@ class SOLARUS_API ShaderData : public LuaData {
     const std::string& get_fragment_file() const;
     void set_fragment_file(const std::string& fragment_file);
 
+    double get_scaling_factor() const;
+    void set_scaling_factor(double scaling_factor);
+
     bool import_from_lua(lua_State* l) override;
     bool export_to_lua(std::ostream& out) const override;
 
   private:
 
-    static int l_vertex_shader(lua_State* l);
-    static int l_fragment_shader(lua_State* l);
+    static int l_shader(lua_State* l);
 
     std::string vertex_file;    /**< Source file of the vertex shader. */
     std::string fragment_file;  /**< Source file of the fragment shader. */
+    double scaling_factor;      /**< Scaling factor, or 0 if none. */
 };
 
 }

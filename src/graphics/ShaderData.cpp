@@ -63,14 +63,29 @@ void ShaderData::set_fragment_file(const std::string& fragment_file) {
 }
 
 /**
+ * \brief Returns the scaling factor of this shader.
+ * \return The scaling factor (0.0 means none).
+ */
+double ShaderData::get_scaling_factor() const {
+  return scaling_factor;
+}
+
+/**
+ * \brief Sets the scaling factor of this shader.
+ * \param scaling_factor The scaling factor (0.0 means none).
+ */
+void ShaderData::set_scaling_factor(double scaling_factor) {
+  this->scaling_factor = scaling_factor;
+}
+
+/**
  * \copydoc LuaData::import_from_lua
  */
 bool ShaderData::import_from_lua(lua_State* l) {
 
   lua_pushlightuserdata(l, this);
   lua_setfield(l, LUA_REGISTRYINDEX, "shader");
-  lua_register(l, "vertex_shader", l_vertex_shader);
-  lua_register(l, "fragment_shader", l_fragment_shader);
+  lua_register(l, "shader", l_shader);
   if (lua_pcall(l, 0, 0, 0) != 0) {
     Debug::error(std::string("Failed to load shader: ") + lua_tostring(l, -1));
     lua_pop(l, 1);
@@ -85,29 +100,30 @@ bool ShaderData::import_from_lua(lua_State* l) {
  */
 bool ShaderData::export_to_lua(std::ostream& out) const {
 
+  out << "shader{\n";
   if (!vertex_file.empty()) {
-    out << "vertex_shader{\n";
-    out << "  source_file = \"" << escape_string(vertex_file) << "\",\n";
-    out << "}\n";
+    out << "  vertex_file = \"" << escape_string(vertex_file) << "\",\n";
   }
   if (!fragment_file.empty()) {
-    out << "fragment_shader{\n";
-    out << "  source_file = \"" << escape_string(fragment_file) << "\",\n";
-    out << "}\n";
+    out << "  fragment_file = \"" << escape_string(fragment_file) << "\",\n";
   }
+  if (scaling_factor != 0.0) {
+    out << "  scaling_factor = " << scaling_factor << ",\n";
+  }
+  out << "}\n";
 
   return true;
 }
 
 /**
- * \brief Function called by the Lua data file to define a vertex shader.
+ * \brief Function called by the Lua data file to define the shader.
  *
  * - Argument 1 (table): properties of the shader.
  *
  * \param l the Lua context that is calling this function
  * \return Number of values to return to Lua.
  */
-int ShaderData::l_vertex_shader(lua_State* l) {
+int ShaderData::l_shader(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
@@ -120,38 +136,14 @@ int ShaderData::l_vertex_shader(lua_State* l) {
     LuaTools::check_type(l, 1, LUA_TTABLE);
 
     const std::string vertex_file =
-        LuaTools::opt_string_field(l, 1, "source_file", "");
+        LuaTools::opt_string_field(l, 1, "vertex_file", "");
+    const std::string fragment_file =
+        LuaTools::opt_string_field(l, 1, "fragment_file", "");
+    double scaling_factor = LuaTools::opt_number_field(l, 1, "scaling_factor", 0.0);
 
     shader_data->set_vertex_file(vertex_file);
-
-    return 0;
-  });
-}
-
-/**
- * \brief Function called by the Lua data file to define a fragment shader.
- *
- * - Argument 1 (table): properties of the shader.
- *
- * \param l the Lua context that is calling this function
- * \return Number of values to return to Lua.
- */
-int ShaderData::l_fragment_shader(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-
-    lua_getfield(l, LUA_REGISTRYINDEX, "shader");
-    ShaderData* shader_data = static_cast<ShaderData*>(
-        lua_touserdata(l, -1));
-    lua_pop(l, 1);
-
-    // Retrieve the shader properties from the table parameter.
-    LuaTools::check_type(l, 1, LUA_TTABLE);
-
-    const std::string fragment_file =
-        LuaTools::check_string_field(l, 1, "source_file");
-
     shader_data->set_fragment_file(fragment_file);
+    shader_data->set_scaling_factor(scaling_factor);
 
     return 0;
   });

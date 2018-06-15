@@ -118,6 +118,7 @@ set(
   src/tests/Quadtree.cpp
   src/tests/SpriteData.cpp
   src/tests/TilesetData.cpp
+  src/tests/ShaderData.cpp
   src/tests/RunLuaTest.cpp
 )
 
