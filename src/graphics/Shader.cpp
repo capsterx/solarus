@@ -104,6 +104,14 @@ const ShaderData& Shader::get_data() const {
 }
 
 /**
+ * \brief Sets the shader information.
+ * \param data The shader data.
+ */
+void Shader::set_data(const ShaderData& data) {
+  this->data = data;
+}
+
+/**
  * @brief Returns the vertex source of the data or the default vertex source.
  * @return The vertex source.
  */
@@ -136,11 +144,19 @@ std::string Shader::get_fragment_source() const {
 }
 
 /**
- * \brief Sets the shader information.
- * \param data The shader data.
+ * \brief Returns the scaling factor of this shader.
+ * \return The scaling factor (0.0 means none).
  */
-void Shader::set_data(const ShaderData& data) {
-  this->data = data;
+double Shader::get_scaling_factor() const {
+  return data.get_scaling_factor();
+}
+
+/**
+ * \brief Sets the scaling factor of this shader.
+ * \param scaling_factor The scaling factor (0.0 means none).
+ */
+void Shader::set_scaling_factor(double scaling_factor) {
+  data.set_scaling_factor(scaling_factor);
 }
 
 /**

@@ -627,6 +627,8 @@ class LuaContext {
       shader_api_get_id,
       shader_api_get_vertex_file,
       shader_api_get_fragment_file,
+      shader_api_get_scaling_factor,
+      shader_api_set_scaling_factor,
       shader_api_set_uniform,
 
       // Movement API.

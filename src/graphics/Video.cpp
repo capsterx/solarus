@@ -114,12 +114,12 @@ void create_window() {
   Debug::check_assertion(context.main_window != nullptr,
       std::string("Cannot create the window: ") + SDL_GetError());
 
+  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
   context.main_renderer = SDL_CreateRenderer(
-        context.main_window,
-        -1,
-        SDL_RENDERER_ACCELERATED
+      context.main_window,
+      -1,
+      SDL_RENDERER_ACCELERATED
   );
-
 
   if (context.main_renderer == nullptr) {
     // Try without acceleration.
@@ -128,8 +128,6 @@ void create_window() {
 
   Debug::check_assertion(context.main_renderer != nullptr,
       std::string("Cannot create the renderer: ") + SDL_GetError());
-
-
 
   // Get the first renderer format which supports alpha channel and is not a unique format.
   SDL_RendererInfo renderer_info;
@@ -142,19 +140,16 @@ void create_window() {
       break;
     }
   }
-
-  Logger::info("SDL Renderer : " + std::string(renderer_info.name));
-
-  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
-
   Debug::check_assertion(context.pixel_format != nullptr, "No compatible pixel format");
+  Logger::info("SDL Renderer : " + std::string(renderer_info.name));
 
   // Check renderer's flags
   context.rendering_driver_name = renderer_info.name;
   context.rendertarget_supported = (renderer_info.flags & SDL_RENDERER_TARGETTEXTURE) != 0;
 
   // Decide whether we enable shaders.
-  context.shaders_enabled = context.rendertarget_supported &&
+  context.shaders_enabled =
+      context.rendertarget_supported &&
       ShaderContext::initialize();
 }
 
@@ -239,15 +234,16 @@ void initialize(const Arguments& args) {
     // Create a pixel format anyway to make surface and color operations work,
     // even though nothing will ever be rendered.
     context.pixel_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
-    context.software_surface = SDL_CreateRGBSurface(0,
-                                                320,
-                                                240,
-                                                32,
-                                                context.pixel_format->Rmask,
-                                                context.pixel_format->Gmask,
-                                                context.pixel_format->Bmask,
-                                                context.pixel_format->Amask
-                                                    );
+    context.software_surface = SDL_CreateRGBSurface(
+        0,
+        320,
+        240,
+        32,
+        context.pixel_format->Rmask,
+        context.pixel_format->Gmask,
+        context.pixel_format->Bmask,
+        context.pixel_format->Amask
+    );
     context.rgba_format = context.pixel_format;
     context.main_renderer = SDL_CreateSoftwareRenderer(context.software_surface);
   }
@@ -327,8 +323,8 @@ SDL_PixelFormat* get_pixel_format() {
 }
 
 /**
- * @brief Return the ABGR8888 format
- * @return
+ * @brief Return the ABGR8888 format.
+ * @return The ABGR8888 format.
  */
 SDL_PixelFormat* get_rgba_format() {
   return context.rgba_format;
@@ -344,17 +340,21 @@ const std::string& get_rendering_driver_name() {
 }
 
 /**
- * \brief Show the window.
+ * \brief Shows the window if it is not disabled.
  */
 void show_window() {
-  SDL_ShowWindow(context.main_window);
+  if (!context.disable_window) {
+    SDL_ShowWindow(context.main_window);
+  }
 }
 
 /**
- * \brief hide_window
+ * \brief Hides the window.
  */
 void hide_window() {
-  SDL_HideWindow(context.main_window);
+  if (!context.disable_window) {
+    SDL_HideWindow(context.main_window);
+  }
 }
 
 /**
