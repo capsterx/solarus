@@ -380,16 +380,42 @@ void render(const SurfacePtr& quest_surface) {
     surface_to_render = context.scaled_surface;
   }
 
-  set_render_target(nullptr);
-  SDL_SetRenderDrawColor(context.main_renderer, 0, 0, 0, 255);
-  SDL_RenderSetClipRect(context.main_renderer, nullptr);
-  SDL_RenderClear(context.main_renderer);
+  //Declare local clear screen routine
+  auto clearScreen = [&](){
+    set_render_target(nullptr);
+    SDL_SetRenderDrawColor(context.main_renderer, 0, 0, 0, 255);
+    SDL_RenderSetClipRect(context.main_renderer, nullptr);
+    SDL_RenderClear(context.main_renderer);
+  };
+
+  //See if there is a shader to apply
   if (context.current_shader != nullptr) {
-    // OpenGL rendering with the current shader.
-    context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
-    SDL_GL_SwapWindow(Video::get_window());
+    float scale_factor = context.current_shader->get_data().get_scaling_factor();
+    //See if the shader must be draw to a intermediate surface
+    if(scale_factor > 0.f) {
+      context.current_shader->draw(
+            *context.scaled_surface.get(),
+            *quest_surface,
+            DrawInfos(Rectangle(quest_surface->get_size()),
+                      Point(),
+                      Point(),
+                      BlendMode::BLEND,
+                      255,0,
+                      Scale(scale_factor),
+                      Surface::draw_proxy /*dont care about this anyway*/));
+      surface_to_render = context.scaled_surface;
+    } else {
+      //Shader can be draw directly to screen
+      clearScreen();
+      surface_to_render = nullptr; //Final SDL render is not nessesary
+      // OpenGL rendering with the current shader.
+      context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
+      SDL_GL_SwapWindow(Video::get_window());
+    }
   }
-  else {
+  //Render the final surface with sdl if necessary
+  if(surface_to_render) {
+    clearScreen();
     // SDL rendering.
     //Set blending mode to none to simply replace any on_screen material
     SDL_SetTextureBlendMode(surface_to_render->get_internal_surface().get_texture(),SDL_BLENDMODE_NONE);
@@ -574,6 +600,13 @@ const ShaderPtr& get_shader() {
 void set_shader(const ShaderPtr& shader) {
 
   context.current_shader = shader;
+
+  if(context.current_shader) {
+    float s = context.current_shader->get_data().get_scaling_factor();
+    if(s > 0.f) { //Create scaled surface if needed
+      context.scaled_surface = Surface::create(context.quest_size*Scale(s));
+    }
+  }
 
   if (shader != nullptr) {
     Logger::info("Shader: " + shader->get_id());
