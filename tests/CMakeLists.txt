@@ -72,6 +72,11 @@ set(lua_test_maps
   "bugs/1195_enemy_dying_animation_never_finishes"
 )
 
+# Tests that requires showing the window.
+set(lua_test_maps_with_window
+  "bugs/1210_shader_scaling_factor"
+)
+
 # Build the Solarus testing library.
 file(
   GLOB
@@ -158,6 +163,12 @@ foreach(test_main_file ${tests_main_files})
     foreach(map_id ${lua_test_maps})
       add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
+    if (NOT $ENV{GITLAB_CI})
+      # The CI environment cannot run tests that create a window.
+      foreach(map_id ${lua_test_maps_with_window})
+        add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      endforeach()
+    endif()
   else()
     # Normal C++ test.
     get_filename_component(test_name "${test_main_file}" NAME_WE)
