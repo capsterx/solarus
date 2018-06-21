@@ -173,7 +173,7 @@ void Entity::update_ground_observers() {
   // Update overlapping entities that are sensible to their ground.
   const Rectangle& box = get_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  get_entities().get_entities_in_rectangle(box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (!entity_nearby->is_ground_observer()) {

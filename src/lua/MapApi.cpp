@@ -2027,7 +2027,7 @@ int LuaContext::map_api_get_entities(lua_State* l) {
     const std::string& prefix = LuaTools::opt_string(l, 2, "");
 
     const EntityVector& entities =
-        map.get_entities().get_entities_with_prefix_sorted(prefix);
+        map.get_entities().get_entities_with_prefix_z_sorted(prefix);
 
     push_entity_iterator(l, entities);
     return 1;
@@ -2081,7 +2081,7 @@ int LuaContext::map_api_get_entities_by_type(lua_State* l) {
     EntityType type = LuaTools::check_enum<EntityType>(l, 2);
 
     const EntityVector& entities =
-        map.get_entities().get_entities_by_type_sorted(type);
+        map.get_entities().get_entities_by_type_z_sorted(type);
 
     push_entity_iterator(l, entities);
     return 1;
@@ -2103,7 +2103,7 @@ int LuaContext::map_api_get_entities_in_rectangle(lua_State* l) {
     const int height = LuaTools::check_int(l, 5);
 
     EntityVector entities;
-    map.get_entities().get_entities_in_rectangle_sorted(
+    map.get_entities().get_entities_in_rectangle_z_sorted(
         Rectangle(x, y, width, height), entities
     );
 
@@ -2137,7 +2137,7 @@ int LuaContext::map_api_get_entities_in_region(lua_State* l) {
     }
 
     EntityVector entities;
-    map.get_entities().get_entities_in_region_sorted(
+    map.get_entities().get_entities_in_region_z_sorted(
         xy, entities
     );
 

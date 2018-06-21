@@ -40,10 +40,12 @@ class Color;
  *
  * \param T Type of objects.
  */
-template <typename T>
+template <typename T, typename Comparator = std::less<T>>
 class Quadtree {
 
   public:
+
+    using Set = std::set<T, Comparator>;
 
     Quadtree();
     explicit Quadtree(const Rectangle& space);
@@ -105,7 +107,7 @@ class Quadtree {
 
         void get_elements(
             const Rectangle& region,
-            std::set<T>& result
+            Set& result
         ) const;
 
         int get_num_elements() const;
@@ -142,7 +144,7 @@ class Quadtree {
 
     std::map<T, ElementInfo> elements;      /**< Elements in the quadtree and
                                              * intersecting its space. */
-    std::set<T> elements_outside;           /**< Elements that were added to
+    Set elements_outside;                   /**< Elements that were added to
                                              * the quadtree but that are
                                              * currently outside its space. */
     Node root;                              /** The root node of the tree. */

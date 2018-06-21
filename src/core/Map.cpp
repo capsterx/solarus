@@ -889,7 +889,7 @@ bool Map::test_collision_with_entities(
   }
 
   EntityVector entities_nearby;
-  get_entities().get_entities_in_rectangle(collision_box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(collision_box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity_nearby->overlaps(collision_box) &&
@@ -1114,7 +1114,7 @@ Ground Map::get_ground(
   // See if a dynamic entity changes the ground.
   const Rectangle box(xy, Size(1, 1));
   ConstEntityVector entities_nearby;
-  get_entities().get_entities_in_rectangle_sorted(box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(box, entities_nearby);
 
   const auto& rend = entities_nearby.rend();
   for (auto it = entities_nearby.rbegin(); it != rend; ++it) {
@@ -1311,7 +1311,7 @@ void Map::check_collision_with_detectors(Entity& entity) {
   // Extend the box because some collision tests work without overlapping.
   Rectangle box = entity.get_extended_bounding_box(8);
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity.is_being_removed()) {
@@ -1357,7 +1357,7 @@ void Map::check_collision_from_detector(Entity& detector) {
   // Check each entity with this detector.
   Rectangle box = detector.get_extended_bounding_box(8);
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (detector.is_being_removed()) {
@@ -1403,7 +1403,7 @@ void Map::check_collision_from_detector(Entity& detector, Sprite& detector_sprit
   // Check each entity with this detector.
   Rectangle box = detector.get_max_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (detector.is_being_removed()) {
@@ -1446,7 +1446,7 @@ void Map::check_collision_with_detectors(Entity& entity, Sprite& sprite) {
   // Check each detector.
   Rectangle box = entity.get_max_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity.is_being_removed()) {
