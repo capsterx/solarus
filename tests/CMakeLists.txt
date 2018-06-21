@@ -161,11 +161,11 @@ foreach(test_main_file ${tests_main_files})
   if (${test_main_file} MATCHES "src/tests/RunLuaTest.cpp")
     # Lua test runner: add an individual test for each map.
     foreach(map_id ${lua_test_maps})
-      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
     # Tests that need a window to run.
     foreach(map_id ${lua_test_maps_with_window})
-      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
   else()
     # Normal C++ test.
