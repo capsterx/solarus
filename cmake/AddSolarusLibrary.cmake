@@ -62,8 +62,8 @@ file(
 	include/solarus/core/System.h
 	include/solarus/core/Timer.h
 	include/solarus/core/TimerPtr.h
-        include/solarus/core/Transform.h
-        include/solarus/core/Transform.inl
+	      include/solarus/core/Transform.h
+				include/solarus/core/Transform.inl
 	include/solarus/core/Treasure.h
 
 	include/solarus/entities/AnimatedTilePattern.h
@@ -135,9 +135,6 @@ file(
 	include/solarus/graphics/Drawable.h
 	include/solarus/graphics/DrawablePtr.h
 	      include/solarus/graphics/DrawProxies.h
-	include/solarus/graphics/GlArbShader.h
-	include/solarus/graphics/GlShader.h
-	include/solarus/graphics/GlTextureHandle.h
 	include/solarus/graphics/Hq2xFilter.h
 	include/solarus/graphics/Hq3xFilter.h
 	include/solarus/graphics/Hq4xFilter.h
@@ -339,9 +336,6 @@ file(
 	src/graphics/BlendModeInfo.cpp
 	src/graphics/Color.cpp
 	src/graphics/Drawable.cpp
-	src/graphics/GlArbShader.cpp
-	src/graphics/GlShader.cpp
-	src/graphics/GlTextureHandle.cpp
 	src/graphics/Hq2xFilter.cpp
 	src/graphics/Hq3xFilter.cpp
 	src/graphics/Hq4xFilter.cpp

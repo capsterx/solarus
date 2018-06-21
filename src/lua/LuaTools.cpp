@@ -491,7 +491,6 @@ std::string check_string(
             + luaL_typename(l, index) + ")"
     );
   }
-
   size_t size = 0;
   const char* data = lua_tolstring(l, index, &size);
   return {data, size};

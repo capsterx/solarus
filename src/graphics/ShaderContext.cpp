@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/Logger.h"
-#include "solarus/graphics/GlArbShader.h"
-#include "solarus/graphics/GlShader.h"
+#include "solarus/graphics/Shader.h"
 #include "solarus/graphics/ShaderContext.h"
 #include "solarus/graphics/Video.h"
 
@@ -58,12 +57,7 @@ bool ShaderContext::initialize() {
   }
 
   // Try to initialize a gl shader system, in order from the earlier to the older.
-  is_universal_shader_supported = GlShader::initialize();
-  if (is_universal_shader_supported) {
-    return true;
-  }
-
-  return GlArbShader::initialize();
+  return Shader::initialize();
 }
 
 /**
@@ -98,17 +92,7 @@ const std::string& ShaderContext::get_shading_language_version() {
  * \return The created shader.
  */
 ShaderPtr ShaderContext::create_shader(const std::string& shader_id) {
-
-  ShaderPtr shader = nullptr;
-
-  if (is_universal_shader_supported) {
-    shader = std::make_shared<GlShader>(shader_id);
-  }
-  else {
-    shader = std::make_shared<GlArbShader>(shader_id);
-  }
-
-  return shader;
+  return std::make_shared<Shader>(shader_id);
 }
 
 void ShaderContext::make_current() {

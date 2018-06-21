@@ -85,8 +85,7 @@ private:
  */
 class VertexArray
 {
-  friend class GlShader;
-  friend class GlArbShader;
+  friend class Shader;
   friend class VerticeView;
 public:
     VertexArray(PrimitiveType type = TRIANGLES);
