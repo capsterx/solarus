@@ -15,6 +15,7 @@ class Scale
 {
 public:
   constexpr Scale();
+  constexpr Scale(float s);
   constexpr Scale(float x,float y);
   Scale& operator*=(const Scale& other);
   Scale& operator*=(float factor);

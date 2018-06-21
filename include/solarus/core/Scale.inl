@@ -2,6 +2,13 @@ namespace Solarus {
 
 constexpr Scale::Scale() = default;
 
+
+/**
+ * @brief Make a scale
+ * @param s the scale in each dimension
+ */
+constexpr Scale::Scale(float s) : x(s),y(s) {}
+
 /**
  * @brief Make a scale
  * @param x scale in x dimension
