@@ -4,7 +4,24 @@
 
 namespace Solarus {
 
-//RenderTargetAtlas RenderTexture::render_atlas;
+RenderTexture::RenderTexture(SDL_Texture* texture, int width, int height) {
+  target.reset(texture);
+  SDL_PixelFormat* format = Video::get_rgba_format();
+
+  SDL_Surface* surf_ptr = SDL_CreateRGBSurface(
+       0,
+       width,
+       height,
+       32,
+       format->Rmask,
+       format->Gmask,
+       format->Bmask,
+       format->Amask);
+  Debug::check_assertion(surf_ptr != nullptr,
+                         std::string("Failed to create backup surface ") + SDL_GetError());
+  surface.reset(surf_ptr);
+}
+
 /**
  * @brief RenderTexture::RenderTexture
  * @param width width of the render texture
@@ -26,6 +43,7 @@ RenderTexture::RenderTexture(int width, int height)
       height);
   Debug::check_assertion(tex != nullptr,
                          std::string("Failed to create render texture : ") + SDL_GetError());
+
   target.reset(tex);
 
   SDL_Surface* surf_ptr = SDL_CreateRGBSurface(
@@ -72,6 +90,9 @@ SDL_Texture* RenderTexture::get_texture() const {
 void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& infos) {
   with_target([&](SDL_Renderer* renderer){
     Rectangle dst_rect = infos.dst_rectangle();
+    if(!texture.get_texture()) {
+      Debug::error("Could not draw screen on another surface");
+    }
 
     SDL_BlendMode mode = Surface::make_sdl_blend_mode(*this,texture,infos.blend_mode);
     SOLARUS_CHECK_SDL_HIGHER(SDL_SetTextureBlendMode(texture.get_texture(),mode),-1);

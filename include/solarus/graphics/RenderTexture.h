@@ -29,6 +29,7 @@ class RenderTexture : public SurfaceImpl
 {
 public:
     RenderTexture(int width, int height);
+    RenderTexture(SDL_Texture* texture, int width, int height);
     SDL_Texture* get_texture() const override;
     SDL_Surface* get_surface() const override;
 

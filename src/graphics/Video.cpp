@@ -52,6 +52,7 @@ struct VideoContext {
   SDL_PixelFormat* pixel_format = nullptr;  /**< The pixel color format to use. */
   SDL_PixelFormat* rgba_format = nullptr;
   SDL_Surface* software_surface = nullptr;
+
   std::string rendering_driver_name;        /**< The name of the rendering driver. */
   bool disable_window = false;              /**< Indicates that no window is displayed (used for unit tests). */
   bool fullscreen_window = false;           /**< True if the window is in fullscreen. */
@@ -82,7 +83,7 @@ struct VideoContext {
   const SoftwareVideoMode*
       default_video_mode = nullptr;         /**< Default software video mode. */
   SurfacePtr scaled_surface = nullptr;      /**< The screen surface used with software-scaled modes. */
-
+  SurfacePtr screen_surface = nullptr;
 };
 
 VideoContext context;
