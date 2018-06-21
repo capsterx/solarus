@@ -19,7 +19,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 96,
+  x = 64,
   y = 40,
   width = 32,
   height = 32,
@@ -28,7 +28,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 72,
+  x = 40,
   y = 16,
   width = 16,
   height = 16,
@@ -37,7 +37,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 56,
+  x = 24,
   y = 32,
   width = 16,
   height = 16,
@@ -46,7 +46,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 72,
+  x = 40,
   y = 32,
   width = 16,
   height = 16,
@@ -55,7 +55,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 56,
+  x = 24,
   y = 16,
   width = 16,
   height = 16,
@@ -64,7 +64,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 72,
+  x = 40,
   y = 80,
   width = 32,
   height = 32,
@@ -74,7 +74,7 @@ tile{
 block{
   name = "block_2",
   layer = 0,
-  x = 88,
+  x = 56,
   y = 61,
   sprite = "entities/block",
   pushable = true,
@@ -85,7 +85,7 @@ block{
 destination{
   name = "destination",
   layer = 0,
-  x = 72,
+  x = 40,
   y = 77,
   direction = 1,
 }
@@ -93,7 +93,7 @@ destination{
 block{
   name = "block_1",
   layer = 0,
-  x = 72,
+  x = 40,
   y = 61,
   sprite = "entities/block",
   pushable = true,
@@ -104,7 +104,7 @@ block{
 block{
   name = "block_3",
   layer = 0,
-  x = 88,
+  x = 56,
   y = 77,
   sprite = "entities/block",
   pushable = true,
@@ -114,7 +114,7 @@ block{
 
 wall{
   layer = 0,
-  x = 64,
+  x = 32,
   y = 32,
   width = 16,
   height = 16,
@@ -123,7 +123,7 @@ wall{
 
 wall{
   layer = 0,
-  x = 96,
+  x = 64,
   y = 48,
   width = 16,
   height = 16,
@@ -132,10 +132,19 @@ wall{
 
 wall{
   layer = 0,
-  x = 80,
+  x = 48,
   y = 80,
   width = 16,
   height = 16,
   stops_hero = true,
+}
+
+sensor{
+  name = "expected_final_position_sensor",
+  layer = 0,
+  x = 56,
+  y = 77,
+  width = 16,
+  height = 16,
 }
 
