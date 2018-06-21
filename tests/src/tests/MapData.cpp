@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/CurrentQuest.h"
-#include "solarus/QuestResources.h"
-#include "solarus/MapData.h"
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/QuestDatabase.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/MapData.h"
 #include "test_tools/TestEnvironment.h"
 #include <iostream>
 
@@ -44,8 +44,8 @@ void check_entity(const EntityData& entity) {
   Debug::check_assertion(imported_entity.get_name() == entity.get_name(), "Entity name differs");
   Debug::check_assertion(imported_entity.get_layer() == entity.get_layer(), "Entity layer differs");
   Debug::check_assertion(imported_entity.get_xy() == entity.get_xy(), "Entity xy differs");
-  Debug::check_assertion(imported_entity.get_fields() == entity.get_fields(), "Entity fields differ");
-
+  Debug::check_assertion(imported_entity.get_user_properties() == entity.get_user_properties(), "Entity user properties differ");
+  Debug::check_assertion(imported_entity.get_specific_properties() == entity.get_specific_properties(), "Entity specific properties differ");
 }
 
 /**
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
   TestEnvironment env(argc, argv);
 
   const std::map<std::string, std::string>& map_elements =
-      CurrentQuest::get_resources().get_elements(ResourceType::MAP);
+      CurrentQuest::get_database().get_resource_elements(ResourceType::MAP);
   Debug::check_assertion(!map_elements.empty(), "No maps");
   for (const auto& kvp : map_elements) {
     const std::string& map_id = kvp.first;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Debug.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/MainLoop.h"
+#include "solarus/core/Map.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/Hero.h"
-#include "solarus/lowlevel/Debug.h"
+#include "solarus/graphics/Drawable.h"
 #include "solarus/lua/ExportableToLua.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
@@ -29,10 +33,6 @@
 #include "solarus/movements/RandomMovement.h"
 #include "solarus/movements/RandomPathMovement.h"
 #include "solarus/movements/TargetMovement.h"
-#include "solarus/Drawable.h"
-#include "solarus/Game.h"
-#include "solarus/MainLoop.h"
-#include "solarus/Map.h"
 
 namespace Solarus {
 
@@ -193,6 +193,7 @@ void LuaContext::register_movement_module() {
       { "set_path", path_movement_api_set_path },
       { "get_speed", path_movement_api_get_speed },
       { "set_speed", path_movement_api_set_speed },
+      { "get_angle", path_movement_api_get_angle},
       { "get_loop", path_movement_api_get_loop },
       { "set_loop", path_movement_api_set_loop },
       { "get_snap_to_grid", path_movement_api_get_snap_to_grid },
@@ -213,7 +214,8 @@ void LuaContext::register_movement_module() {
   // Random path movement.
   std::vector<luaL_Reg> random_path_movement_methods = {
       { "get_speed", random_path_movement_api_get_speed },
-      { "set_speed", random_path_movement_api_set_speed }
+      { "set_speed", random_path_movement_api_set_speed },
+      { "get_angle", random_path_movement_api_get_angle}
   };
   random_path_movement_methods.insert(
         random_path_movement_methods.end(),
@@ -231,7 +233,8 @@ void LuaContext::register_movement_module() {
   std::vector<luaL_Reg> path_finding_movement_methods = {
       { "set_target", path_finding_movement_api_set_target },
       { "get_speed", path_finding_movement_api_get_speed },
-      { "set_speed", path_finding_movement_api_set_speed }
+      { "set_speed", path_finding_movement_api_set_speed },
+      { "get_angle", path_finding_movement_api_get_angle}
   };
   path_finding_movement_methods.insert(
         path_finding_movement_methods.end(),
@@ -477,13 +480,19 @@ void LuaContext::stop_movement_on_point(const std::shared_ptr<Movement>& movemen
 void LuaContext::update_movements() {
 
   lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  std::vector<std::shared_ptr<Movement>> movements;
   lua_pushnil(l);  // First key.
   while (lua_next(l, -2)) {
-    Movement& movement = *check_movement(l, -2);
-    movement.update();
+    const std::shared_ptr<Movement>& movement = check_movement(l, -2);
+    movements.push_back(movement);
     lua_pop(l, 1);  // Pop the value, keep the key for next iteration.
   }
   lua_pop(l, 1);  // Pop the movements table.
+
+  // Work on a copy of the list because the list may be changed during the iteration.
+  for (const std::shared_ptr<Movement>& movement : movements) {
+    movement->update();
+  }
 }
 
 /**
@@ -621,6 +630,11 @@ int LuaContext::movement_api_start(lua_State* l) {
     }
     else if (is_entity(l, 2)) {
       Entity& entity = *check_entity(l, 2);
+      if (!entity.is_on_map() ||
+          !entity.get_map().is_started()
+      ) {
+        LuaTools::arg_error(l, 2, "This entity is not on the current map");
+      }
       entity.clear_movement();
       entity.set_movement(movement);
     }
@@ -1210,6 +1224,19 @@ int LuaContext::path_movement_api_set_speed(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of path_movement:get_angle().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::path_movement_api_get_angle(lua_State* l) {
+    return LuaTools::exception_boundary_handle(l, [&] {
+       const PathMovement& movement = *check_path_movement(l,1);
+       lua_pushnumber(l,movement.get_angle());
+       return 1;
+    });
+}
+
+/**
  * \brief Implementation of path_movement:get_loop().
  * \param l the Lua context that is calling this function
  * \return number of values to return to Lua
@@ -1309,6 +1336,20 @@ int LuaContext::random_path_movement_api_get_speed(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of random_path_movement:get_angle().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::random_path_movement_api_get_angle(lua_State* l) {
+    return LuaTools::exception_boundary_handle(l, [&] {
+       const PathMovement& movement = *check_random_path_movement(l,1);
+       lua_pushnumber(l,movement.get_angle());
+       return 1;
+    });
+}
+
+
+/**
  * \brief Implementation of random_path_movement:set_speed().
  * \param l the Lua context that is calling this function
  * \return number of values to return to Lua
@@ -1376,6 +1417,20 @@ int LuaContext::path_finding_movement_api_get_speed(lua_State* l) {
     return 1;
   });
 }
+
+/**
+ * \brief Implementation of path_finding_movement:get_angle().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::path_finding_movement_api_get_angle(lua_State* l) {
+    return LuaTools::exception_boundary_handle(l, [&] {
+       const PathMovement& movement = *check_path_finding_movement(l,1);
+       lua_pushnumber(l,movement.get_angle());
+       return 1;
+    });
+}
+
 
 /**
  * \brief Implementation of path_finding_movement:set_speed().

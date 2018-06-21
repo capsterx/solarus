@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus Quest Editor is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/gui/settings.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/Settings.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/Settings.h"
 #include <QApplication>
 
 namespace SolarusGui {
@@ -32,8 +32,7 @@ Settings::Settings(Scope scope) :
 /**
  * @brief Export GUI settings to the Solarus settings.dat file of a quest.
  *
- * System settings like audio volume and the video mode are written to
- * settings.dat.
+ * System settings like the audio volume are written to settings.dat.
  * It allows quests that use settings.dat to apply what the user chose
  * in the GUI.
  *
@@ -56,12 +55,6 @@ void Settings::export_to_quest(const QString& quest_path) const {
   if (Solarus::QuestFiles::data_file_exists(file_name)) {
     // First, load the existing settings.dat to preserve unmodified values.
     solarus_settings.load(file_name);
-  }
-
-  QVariant video_mode = value("quest_video_mode");
-  if (video_mode.isValid()) {
-    solarus_settings.set_string(
-          Solarus::Settings::key_video_mode, video_mode.toString().toStdString());
   }
 
   QVariant fullscreen = value("quest_fullscreen");

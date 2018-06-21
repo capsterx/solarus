@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Debug.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/MainLoop.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/CollisionMode.h"
 #include "solarus/entities/Destructible.h"
 #include "solarus/entities/Door.h"
@@ -27,16 +33,10 @@
 #include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Tileset.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/lowlevel/System.h"
+#include "solarus/graphics/Sprite.h"
+#include "solarus/graphics/SpriteAnimationSet.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/Game.h"
-#include "solarus/MainLoop.h"
-#include "solarus/Map.h"
-#include "solarus/Sprite.h"
-#include "solarus/SpriteAnimationSet.h"
 #include <algorithm>
 #include <iterator>
 #include <list>
@@ -67,6 +67,7 @@ Entity::Entity(
   origin(0, 0),
   name(name),
   direction(direction),
+  user_properties(),
   sprites(),
   default_sprite_name(),
   visible(true),
@@ -1222,6 +1223,91 @@ int Entity::get_optimization_distance2() const {
 void Entity::set_optimization_distance(int distance) {
   this->optimization_distance = distance;
   this->optimization_distance2 = distance * distance;
+}
+
+/**
+ * \brief Returns the user-defined properties of this entity.
+ * \return The user-defined properties.
+ */
+const std::vector<Entity::UserProperty>& Entity::get_user_properties() const {
+  return user_properties;
+}
+
+/**
+ * \brief Sets the user-defined properties of this entity.
+ * \param user_properties The user-defined properties to set.
+ */
+void Entity::set_user_properties(const std::vector<UserProperty>& user_properties) {
+
+  this->user_properties = user_properties;
+}
+
+/**
+ * \brief Returns whether the entity has a user-defined property.
+ * \param key Key of the user-defined property to check.
+ * \return \c true if such a property exists.
+ */
+bool Entity::has_user_property(const std::string& key) const {
+
+  for (const UserProperty& user_property : user_properties) {
+    if (user_property.first == key) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * \brief Returns the value of a user property.
+ * \param key Key of the property to get.
+ * \return The corresponding value or an empty string.
+ */
+const std::string& Entity::get_user_property_value(const std::string& key) const {
+
+  for (const UserProperty& user_property : user_properties) {
+    if (user_property.first == key) {
+      return user_property.second;
+    }
+  }
+
+  static const std::string empty_string;
+  return empty_string;
+}
+
+/**
+ * \brief Sets the value of a user property.
+ *
+ * Creates the property if it does not exists yet.
+ *
+ * \param key Key of the property to set.
+ * \param value The value to set.
+ */
+void Entity::set_user_property_value(const std::string& key, const std::string& value) {
+
+  for (UserProperty& user_property : user_properties) {
+    if (user_property.first == key) {
+      user_property.second = value;
+      return;
+    }
+  }
+
+  // Not found: add a new property.
+  user_properties.emplace_back(std::make_pair(key, value));
+}
+
+/**
+ * \brief Removes a user property if it exists.
+ * \param key Key of the property to remove.
+ */
+void Entity::remove_user_property(const std::string& key) {
+
+  for (auto it = user_properties.begin(); it != user_properties.end(); ++it) {
+    if (it->first == key) {
+      user_properties.erase(it);
+      return;
+    }
+  }
 }
 
 /**
@@ -3176,19 +3262,20 @@ void Entity::notify_collision_with_fire(Fire& /* fire */, Sprite& /* sprite_over
 }
 
 /**
- * \brief This function is called when an enemy's rectangle detects a collision with this entity's rectangle.
- * \param enemy the enemy
+ * \brief This function is called when an enemy detects a collision with this entity.
+ * \param enemy The enemy.
+ * \param collision_mode The collision mode that detected the event.
  */
-void Entity::notify_collision_with_enemy(Enemy& /* enemy */) {
+void Entity::notify_collision_with_enemy(Enemy& /* enemy */, CollisionMode /* collision_mode */) {
 }
 
 /**
  * \brief This function is called when an enemy's sprite collides with a sprite of this entity.
  * \param enemy the enemy
- * \param enemy_sprite the enemy's sprite that overlaps a sprite of this entity
  * \param this_sprite this entity's sprite that overlaps the enemy's sprite
+ * \param enemy_sprite the enemy's sprite that overlaps a sprite of this entity
  */
-void Entity::notify_collision_with_enemy(Enemy& /* enemy */, Sprite& /* enemy_sprite */, Sprite& /* this_sprite */) {
+void Entity::notify_collision_with_enemy(Enemy& /* enemy */, Sprite& /* this_sprite */, Sprite& /* enemy_sprite */) {
 }
 
 /**
@@ -3387,32 +3474,19 @@ void Entity::update() {
   }
 
   // Update the sprites.
-  std::vector<NamedSprite> sprites = this->sprites;
-  for (const NamedSprite& named_sprite: sprites) {
-    if (named_sprite.removed) {
-      continue;
+  if (sprites.size() == 1) {
+    // Special case just to avoid a copy of the vector.
+    if (!sprites[0].removed) {
+      update_sprite(*sprites[0].sprite);
     }
-    Sprite& sprite = *named_sprite.sprite;
-
-    sprite.update();
-    if (sprite.has_frame_changed()) {
-      // The frame has just changed.
-      // Pixel-precise collisions need to be rechecked.
-      if (sprite.are_pixel_collisions_enabled()) {
-
-        if (is_detector()) {
-          // Since this entity is a detector, all entities need to check
-          // their pixel-precise collisions with it.
-          get_map().check_collision_from_detector(*this, sprite);
-        }
-
-        check_collision_with_detectors(sprite);
+  } else {
+    // Iterate on a copy because the list might change during the iteration.
+    std::vector<NamedSprite> sprites = this->sprites;
+    for (const NamedSprite& named_sprite: sprites) {
+      if (named_sprite.removed) {
+        continue;
       }
-
-      notify_sprite_frame_changed(sprite, sprite.get_current_animation(), sprite.get_current_frame());
-      if (sprite.is_animation_finished()) {
-        notify_sprite_animation_finished(sprite, sprite.get_current_animation());
-      }
+      update_sprite(*named_sprite.sprite);
     }
   }
   clear_old_sprites();
@@ -3431,6 +3505,34 @@ void Entity::update() {
 
   // Update the state if any.
   update_state();
+}
+
+/**
+ * Updates one sprite of this entity.
+ * @param named_sprite The sprite to update.
+ */
+void Entity::update_sprite(Sprite& sprite) {
+
+  sprite.update();
+  if (sprite.has_frame_changed()) {
+    // The frame has just changed.
+    // Pixel-precise collisions need to be rechecked.
+    if (sprite.are_pixel_collisions_enabled()) {
+
+      if (is_detector()) {
+        // Since this entity is a detector, all entities need to check
+        // their pixel-precise collisions with it.
+        get_map().check_collision_from_detector(*this, sprite);
+      }
+
+      check_collision_with_detectors(sprite);
+    }
+
+    notify_sprite_frame_changed(sprite, sprite.get_current_animation(), sprite.get_current_frame());
+    if (sprite.is_animation_finished()) {
+      notify_sprite_animation_finished(sprite, sprite.get_current_animation());
+    }
+  }
 }
 
 /**

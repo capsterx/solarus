@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 #ifndef SOLARUS_NON_ANIMATED_REGIONS_H
 #define SOLARUS_NON_ANIMATED_REGIONS_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/containers/Grid.h"
-#include "solarus/lowlevel/SurfacePtr.h"
 #include "solarus/entities/TileInfo.h"
+#include "solarus/graphics/SurfacePtr.h"
 #include <vector>
 
 namespace Solarus {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,19 +14,19 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Boomerang.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/hero/BackToSolidGroundState.h"
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/lowlevel/Sound.h"
-#include "solarus/lowlevel/System.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/movements/TargetMovement.h"
-#include "solarus/Equipment.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
 #include <lua.hpp>
 #include <memory>
 
@@ -129,7 +129,7 @@ void Hero::BackToSolidGroundState::update() {
     return;
   }
 
-  // the current movement is an instance of TargetMovement
+  // The current movement is an instance of TargetMovement.
   Hero& hero = get_entity();
   if (hero.get_movement()->is_finished()) {
 

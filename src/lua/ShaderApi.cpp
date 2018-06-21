@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/lowlevel/shaders/GLContext.h"
-#include "solarus/lowlevel/shaders/Shader.h"
-#include "solarus/lowlevel/shaders/ShaderContext.h"
-#include "solarus/lowlevel/Video.h"
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/graphics/Shader.h"
+#include "solarus/graphics/ShaderContext.h"
+#include "solarus/graphics/Video.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
-#include "solarus/CurrentQuest.h"
 #include <iostream>
 
 namespace Solarus {
@@ -51,6 +50,8 @@ void LuaContext::register_shader_module() {
       { "get_id", shader_api_get_id },
       { "get_vertex_file", shader_api_get_vertex_file },
       { "get_fragment_file", shader_api_get_fragment_file },
+      { "get_scaling_factor", shader_api_get_scaling_factor },
+      { "set_scaling_factor", shader_api_set_scaling_factor },
       { "set_uniform", shader_api_set_uniform },
   };
 
@@ -105,6 +106,7 @@ int LuaContext::shader_api_create(lua_State* l) {
     const std::string& shader_id = LuaTools::check_string(l, 1);
 
     ShaderPtr shader = ShaderContext::create_shader(shader_id);
+    Debug::check_assertion(shader != nullptr, "Failed to create shader '" + shader_id + "'");
 
     if (!shader->is_valid()) {
       LuaTools::error(l, "Failed to create shader '" + shader_id + "': " + shader->get_error());
@@ -124,7 +126,7 @@ int LuaContext::shader_api_get_opengl_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& opengl_version = GLContext::get_opengl_version();
+    const std::string& opengl_version = ShaderContext::get_opengl_version();
 
     push_string(l, opengl_version);
     return 1;
@@ -140,7 +142,7 @@ int LuaContext::shader_api_get_shading_language_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& shading_language_version = GLContext::get_shading_language_version();
+    const std::string& shading_language_version = ShaderContext::get_shading_language_version();
 
     push_string(l, shading_language_version);
     return 1;
@@ -174,7 +176,13 @@ int LuaContext::shader_api_get_vertex_file(lua_State* l) {
 
     const Shader& shader = *check_shader(l, 1);
 
-    push_string(l, shader.get_data().get_vertex_source());
+    const std::string& vertex_file = shader.get_data().get_vertex_file();
+    if (vertex_file.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, vertex_file);
+    }
     return 1;
   });
 }
@@ -190,8 +198,67 @@ int LuaContext::shader_api_get_fragment_file(lua_State* l) {
 
     const Shader& shader = *check_shader(l, 1);
 
-    push_string(l, shader.get_data().get_fragment_source());
+    const std::string& fragment_file = shader.get_data().get_fragment_file();
+    if (fragment_file.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, fragment_file);
+    }
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:get_scaling_factor().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_scaling_factor(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    double scaling_factor = shader.get_data().get_scaling_factor();
+    if (scaling_factor == 0.0) {
+      lua_pushnil(l);
+    }
+    else {
+      lua_pushnumber(l, scaling_factor);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:set_scaling_factor().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_set_scaling_factor(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    Shader& shader = *check_shader(l, 1);
+
+    double scaling_factor = 0.0;
+    if (lua_isnil(l, 2)) {
+      shader.set_scaling_factor(0.0);
+      return 0;
+    }
+
+    if (!lua_isnumber(l, 2)) {
+      LuaTools::type_error(l, 2, "number or nil");
+    }
+    scaling_factor = LuaTools::check_number(l, 2);
+
+    if (scaling_factor <= 0.0) {
+      LuaTools::arg_error(l, 2, "Scaling factor must be positive");
+    }
+
+    shader.set_scaling_factor(scaling_factor);
+    return 0;
   });
 }
 

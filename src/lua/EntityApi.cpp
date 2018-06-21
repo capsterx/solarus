@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/Savegame.h"
+#include "solarus/core/Timer.h"
 #include "solarus/entities/Block.h"
 #include "solarus/entities/Chest.h"
 #include "solarus/entities/CustomEntity.h"
@@ -35,22 +45,12 @@
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/entities/Tileset.h"
+#include "solarus/graphics/Sprite.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/lowlevel/Sound.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/CurrentQuest.h"
-#include "solarus/Equipment.h"
-#include "solarus/EquipmentItem.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
-#include "solarus/Savegame.h"
-#include "solarus/Sprite.h"
-#include "solarus/Timer.h"
 #include <sstream>
 
 namespace Solarus {
@@ -141,7 +141,11 @@ void LuaContext::register_entity_module() {
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     common_methods.insert(common_methods.end(), {
         { "get_layer", entity_api_get_layer },
-        { "set_layer", entity_api_set_layer }
+        { "set_layer", entity_api_set_layer },
+        { "get_property", entity_api_get_property },
+        { "set_property", entity_api_set_property },
+        { "get_properties", entity_api_get_properties },
+        { "set_properties", entity_api_set_properties }
     });
   }
 
@@ -451,6 +455,8 @@ void LuaContext::register_entity_module() {
       { "set_treasure", enemy_api_set_treasure },
       { "is_traversable", enemy_api_is_traversable },
       { "set_traversable", enemy_api_set_traversable },
+      { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
+      { "set_attacking_collision_mode", enemy_api_set_attacking_collision_mode },
       { "get_obstacle_behavior", enemy_api_get_obstacle_behavior },
       { "set_obstacle_behavior", enemy_api_set_obstacle_behavior },
       { "set_size", entity_api_set_size },
@@ -1669,6 +1675,113 @@ int LuaContext::entity_api_get_state(lua_State* l) {
     else {
       push_string(l, state_name);
     }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:get_property().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_property(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+    const std::string& key = LuaTools::check_string(l, 2);
+
+    if (!entity.has_user_property(key)) {
+      lua_pushnil(l);
+    }
+    else {
+      const std::string& value = entity.get_user_property_value(key);
+      push_string(l, value);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_property().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_property(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    const std::string& key = LuaTools::check_string(l, 2);
+
+    if (lua_isnil(l, 3)) {
+      entity.remove_user_property(key);
+    }
+    else {
+      const std::string& value = LuaTools::check_string(l, 3);
+
+      if (!EntityData::is_user_property_key_valid(key)) {
+        LuaTools::arg_error(l, 2, "Invalid property key: '" + key + "'");
+      }
+      entity.set_user_property_value(key, value);
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of entity:get_properties().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_properties(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+
+    const std::vector<Entity::UserProperty>& properties = entity.get_user_properties();
+    lua_createtable(l, properties.size(), 0);
+    int i = 1;
+    for (const Entity::UserProperty& property : properties) {
+      lua_createtable(l, 0, 2);
+      push_string(l, property.first);
+      lua_setfield(l, -2, "key");
+      push_string(l, property.second);
+      lua_setfield(l, -2, "value");
+      lua_rawseti(l, -2, i);
+      ++i;
+    }
+
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_properties().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_properties(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    LuaTools::check_type(l, 2, LUA_TTABLE);
+
+    entity.set_user_properties({});
+    lua_pushnil(l);
+    while (lua_next(l, 2) != 0) {
+      LuaTools::check_type(l, -1, LUA_TTABLE);
+      const std::string& key = LuaTools::check_string_field(l, -1, "key");
+      const std::string& value = LuaTools::check_string_field(l, -1, "value");
+      if (entity.has_user_property(key)) {
+        LuaTools::error(l, "Duplicate property '" + key + "'");
+      }
+      if (!EntityData::is_user_property_key_valid(key)) {
+        LuaTools::error(l, "Invalid property key: '" + key + "'");
+      }
+      entity.set_user_property_value(key, value);
+      lua_pop(l, 1);
+    }
+
     return 1;
   });
 }
@@ -4679,6 +4792,10 @@ int LuaContext::enemy_api_get_attack_consequence(lua_State* l) {
       // Return the life damage.
       lua_pushinteger(l, reaction.life_lost);
     }
+    else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+      // Return the callback.
+      reaction.callback.push();
+    }
     else {
       // Return a string.
       push_string(l, enum_to_name(reaction.type));
@@ -4708,10 +4825,17 @@ int LuaContext::enemy_api_set_attack_consequence(lua_State* l) {
       }
       enemy.set_attack_consequence(attack, EnemyReaction::ReactionType::HURT, life_points);
     }
-    else {
+    else if (lua_isstring(l, 3)) {
       EnemyReaction::ReactionType reaction = LuaTools::check_enum<EnemyReaction::ReactionType>(
           l, 3);
       enemy.set_attack_consequence(attack, reaction);
+    }
+    else if (lua_isfunction(l, 3)) {
+      ScopedLuaRef callback = LuaTools::check_function(l, 3);
+      enemy.set_attack_consequence(attack, EnemyReaction::ReactionType::LUA_CALLBACK, 0, callback);
+    }
+    else {
+      LuaTools::type_error(l, 3, "number, string or function");
     }
 
     return 0;
@@ -4734,6 +4858,10 @@ int LuaContext::enemy_api_get_attack_consequence_sprite(lua_State* l) {
     if (reaction.type == EnemyReaction::ReactionType::HURT) {
       // Return the life damage.
       lua_pushinteger(l, reaction.life_lost);
+    }
+    else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+      // Return the callback.
+      reaction.callback.push();
     }
     else {
       // Return a string.
@@ -4765,10 +4893,17 @@ int LuaContext::enemy_api_set_attack_consequence_sprite(lua_State* l) {
       }
       enemy.set_attack_consequence_sprite(sprite, attack, EnemyReaction::ReactionType::HURT, life_points);
     }
-    else {
+    else if (lua_isstring(l, 4)) {
       EnemyReaction::ReactionType reaction = LuaTools::check_enum<EnemyReaction::ReactionType>(
           l, 4);
       enemy.set_attack_consequence_sprite(sprite, attack, reaction);
+    }
+    else if (lua_isfunction(l, 4)) {
+      ScopedLuaRef callback = LuaTools::check_function(l, 4);
+      enemy.set_attack_consequence_sprite(sprite, attack, EnemyReaction::ReactionType::LUA_CALLBACK, 0, callback);
+    }
+    else {
+      LuaTools::type_error(l, 3, "number, string or function");
     }
 
     return 0;
@@ -4935,6 +5070,39 @@ int LuaContext::enemy_api_set_traversable(lua_State* l) {
     bool traversable = LuaTools::opt_boolean(l, 2, true);
 
     enemy.set_traversable(traversable);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of enemy:get_attacking_collision_mode().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::enemy_api_get_attacking_collision_mode(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Enemy& enemy = *check_enemy(l, 1);
+
+    push_string(l, enum_to_name(enemy.get_attacking_collision_mode()));
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of enemy:set_attacking_collision_mode().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::enemy_api_set_attacking_collision_mode(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Enemy& enemy = *check_enemy(l, 1);
+    CollisionMode attacking_collision_mode = LuaTools::check_enum<CollisionMode>(l, 2,
+        EnumInfoTraits<CollisionMode>::names_no_none_no_custom
+    );
+    enemy.set_attacking_collision_mode(attacking_collision_mode);
 
     return 0;
   });
@@ -5519,39 +5687,9 @@ int LuaContext::custom_entity_api_add_collision_test(lua_State* l) {
 
     if (lua_isstring(l, 2)) {
       // Built-in collision test.
-      // TODO move string to enum conversion into a function of Entity.
-      // We cannot use LuaTools::check_enum() like always, because this
-      // enum has special numerical values.
-      const std::string& collision_mode_name = LuaTools::check_string(l, 2);
-      CollisionMode collision_mode = CollisionMode::COLLISION_NONE;
-
-      if (collision_mode_name == "overlapping") {
-        collision_mode = CollisionMode::COLLISION_OVERLAPPING;
-      }
-      else if (collision_mode_name == "containing") {
-        collision_mode = CollisionMode::COLLISION_CONTAINING;
-      }
-      else if (collision_mode_name == "origin") {
-        collision_mode = CollisionMode::COLLISION_CONTAINING;
-      }
-      else if (collision_mode_name == "facing") {
-        collision_mode = CollisionMode::COLLISION_FACING;
-      }
-      else if (collision_mode_name == "touching") {
-        collision_mode = CollisionMode::COLLISION_TOUCHING;
-      }
-      else if (collision_mode_name == "center") {
-        collision_mode = CollisionMode::COLLISION_CENTER;
-      }
-      else if (collision_mode_name == "sprite") {
-        collision_mode = CollisionMode::COLLISION_SPRITE;
-      }
-      else {
-        LuaTools::arg_error(l, 2,
-            std::string("Invalid name '") + lua_tostring(l, 2) + "'"
-        );
-      }
-
+      CollisionMode collision_mode = LuaTools::check_enum<CollisionMode>(l, 2,
+          EnumInfoTraits<CollisionMode>::names_no_none_no_custom
+      );
       entity.add_collision_test(collision_mode, callback_ref);
     }
     else if (lua_isfunction(l, 2)) {

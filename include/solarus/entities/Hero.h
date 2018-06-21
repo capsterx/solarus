@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,11 @@
 #ifndef SOLARUS_HERO_H
 #define SOLARUS_HERO_H
 
+#include "solarus/core/Point.h"
 #include "solarus/entities/EnemyAttack.h"
 #include "solarus/entities/Entity.h"
 #include "solarus/entities/Ground.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/lowlevel/Point.h"
 #include <memory>
 #include <string>
 
@@ -186,8 +186,8 @@ class Hero: public Entity {
      */
     virtual void check_position() override;
     virtual void notify_collision_with_destructible(Destructible& destructible, CollisionMode collision_mode) override;
-    virtual void notify_collision_with_enemy(Enemy& enemy) override;
-    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite) override;
+    virtual void notify_collision_with_enemy(Enemy& enemy, CollisionMode) override;
+    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite) override;
     virtual void notify_collision_with_teletransporter(Teletransporter& teletransporter, CollisionMode collision_mode) override;
     virtual void notify_collision_with_stream(Stream& stream, int dx, int dy) override;
     virtual void notify_collision_with_stairs(Stairs& stairs, CollisionMode collision_mode) override;
@@ -267,10 +267,15 @@ class Hero: public Entity {
     void start_victory(const ScopedLuaRef& callback_ref);
     void start_lifting(const std::shared_ptr<CarriedObject>& item_to_lift);
     void start_running();
+    void start_pushing();
     void start_grabbing();
+    void start_pulling();
     bool can_pick_treasure(EquipmentItem& item);
     bool can_avoid_teletransporter(const Teletransporter& teletransporter) const;
     bool can_run() const;
+    bool can_push() const;
+    bool can_grab() const;
+    bool can_pull() const;
     bool can_use_shield() const;
     bool can_start_sword() const;
     void start_sword();

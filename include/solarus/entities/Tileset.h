@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef SOLARUS_TILESET_H
 #define SOLARUS_TILESET_H
 
-#include "solarus/Common.h"
-#include "solarus/lowlevel/Color.h"
-#include "solarus/lowlevel/SurfacePtr.h"
+#include "solarus/core/Common.h"
+#include "solarus/graphics/Color.h"
+#include "solarus/graphics/SurfacePtr.h"
 #include <memory>
 #include <string>
 #include <unordered_map>

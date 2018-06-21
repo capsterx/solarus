@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/movements/PathMovement.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/Point.h"
+#include "solarus/core/Random.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Entity.h"
 #include "solarus/lua/LuaContext.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/lowlevel/System.h"
-#include "solarus/lowlevel/Random.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Point.h"
+#include "solarus/movements/PathMovement.h"
 #include <list>
 
 namespace Solarus {
@@ -440,6 +440,13 @@ void PathMovement::set_snapping_trajectory(const Point& src, const Point& dst) {
   PixelMovement::set_trajectory(trajectory);
 }
 
+/**
+ * @brief Returns the current angle with the horizontal in radians.
+ * @return The angle in radians.
+ */
+double PathMovement::get_angle() const {
+    return get_current_direction() * Geometry::PI_OVER_4;
+}
 
 /**
  * \brief Returns a string describing a path with random length in one of the four main directions.

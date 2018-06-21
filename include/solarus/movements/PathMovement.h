@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #ifndef SOLARUS_PATH_MOVEMENT_H
 #define SOLARUS_PATH_MOVEMENT_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/movements/PixelMovement.h"
 #include <cstdint>
 #include <string>
@@ -61,6 +61,7 @@ class SOLARUS_API PathMovement: public PixelMovement {
     void set_loop(bool loop);
     bool get_snap_to_grid() const;
     void set_snap_to_grid(bool snap_to_grid);
+    double get_angle() const;
 
     Point get_xy_change() const;
     int get_current_direction() const;

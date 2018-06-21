@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #ifndef SOLARUS_SCOPED_LUA_REF_H
 #define SOLARUS_SCOPED_LUA_REF_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include <string>
 
 struct lua_State;

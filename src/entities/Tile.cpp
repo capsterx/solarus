@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/Map.h"
 #include "solarus/entities/Tile.h"
 #include "solarus/entities/TileInfo.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/entities/TilePattern.h"
-#include "solarus/lowlevel/Surface.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/Map.h"
+#include "solarus/graphics/Surface.h"
 
 namespace Solarus {
 
@@ -33,7 +33,8 @@ Tile::Tile(
 ):
   Entity("", 0, tile_info.layer, tile_info.box.get_xy(), tile_info.box.get_size()),
   tile_pattern_id(tile_info.pattern_id),
-  tile_pattern(*tile_info.pattern) {
+  tile_pattern(*tile_info.pattern),
+  tileset(*tile_info.tileset) {
 
 }
 
@@ -86,7 +87,7 @@ void Tile::draw(const SurfacePtr& dst_surface, const Point& viewport) {
   tile_pattern.fill_surface(
       dst_surface,
       dst_position,
-      get_map().get_tileset(),
+      tileset,
       viewport
   );
 }

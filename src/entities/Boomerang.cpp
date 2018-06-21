@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Boomerang.h"
 #include "solarus/entities/Crystal.h"
 #include "solarus/entities/Enemy.h"
@@ -22,13 +27,8 @@
 #include "solarus/entities/Npc.h"
 #include "solarus/entities/Stairs.h"
 #include "solarus/entities/Switch.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Sound.h"
-#include "solarus/lowlevel/System.h"
 #include "solarus/movements/StraightMovement.h"
 #include "solarus/movements/TargetMovement.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
 
 namespace Solarus {
 
@@ -333,10 +333,13 @@ void Boomerang::notify_collision_with_crystal(Crystal& crystal, CollisionMode co
 }
 
 /**
- * \brief This function is called when an enemy collides with the entity.
- * \param enemy the enemy
+ * \copydoc Entity::notify_collision_with_enemy(Enemy&, CollisionMode)
  */
-void Boomerang::notify_collision_with_enemy(Enemy& enemy) {
+void Boomerang::notify_collision_with_enemy(Enemy& enemy, CollisionMode collision_mode) {
+
+  if (collision_mode != CollisionMode::COLLISION_OVERLAPPING) {
+    return;
+  }
 
   if (!overlaps(*hero)) {
     enemy.try_hurt(EnemyAttack::BOOMERANG, *this, nullptr);

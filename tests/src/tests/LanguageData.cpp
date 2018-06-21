@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/CurrentQuest.h"
-#include "solarus/MapData.h"
-#include "solarus/QuestResources.h"
-#include "solarus/DialogResources.h"
-#include "solarus/StringResources.h"
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/DialogResources.h"
+#include "solarus/core/MapData.h"
+#include "solarus/core/QuestDatabase.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/StringResources.h"
 #include "test_tools/TestEnvironment.h"
 #include <iostream>
 
@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
   TestEnvironment env(argc, argv);
 
   const std::map<std::string, std::string>& language_elements =
-      CurrentQuest::get_resources().get_elements(ResourceType::LANGUAGE);
+      CurrentQuest::get_database().get_resource_elements(ResourceType::LANGUAGE);
   Debug::check_assertion(!language_elements.empty(), "No languages");
   for (const auto& kvp : language_elements) {
     const std::string& language_id = kvp.first;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/hero/PushingState.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/GameCommands.h"
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/GrabbingState.h"
 #include "solarus/hero/HeroSprites.h"
+#include "solarus/hero/PushingState.h"
 #include "solarus/movements/PathMovement.h"
-#include "solarus/Game.h"
-#include "solarus/GameCommands.h"
 #include <string>
 
 namespace Solarus {
@@ -81,8 +81,10 @@ void Hero::PushingState::update() {
     // stop pushing if the player changes his direction
     else if (get_commands().get_wanted_direction8() != pushing_direction4 * 2) {
 
-      if (get_commands().is_command_pressed(GameCommand::ACTION)) {
-        hero.set_state(new GrabbingState(hero));
+      if (get_commands().is_command_pressed(GameCommand::ACTION) &&
+          hero.can_grab()
+      ) {
+        hero.start_grabbing();
       }
       else {
         hero.set_state(new FreeState(hero));
@@ -241,17 +243,19 @@ void Hero::PushingState::stop_moving_pushed_entity() {
     return;
   }
 
-  if (!get_commands().is_command_pressed(GameCommand::ACTION)) {
+  if (get_commands().is_command_pressed(GameCommand::ACTION) &&
+      hero.can_grab()
+  ) {
+    // The hero was pushing an entity and grabbing it.
+    hero.start_grabbing();
+  }
+  else {
     // The hero was pushing an entity without grabbing it.
 
     // Stop the animation pushing if his direction changed.
     if (get_commands().get_wanted_direction8() != pushing_direction4 * 2) {
       hero.set_state(new FreeState(hero));
     }
-  }
-  else {
-    // The hero was pushing an entity and grabbing it.
-    hero.set_state(new GrabbingState(hero));
   }
 }
 

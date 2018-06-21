@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/lowlevel/Color.h"
+#include "solarus/core/Map.h"
+#include "solarus/graphics/Color.h"
 #include "solarus/lua/LuaException.h"
 #include "solarus/lua/LuaTools.h"
+#include "solarus/lua/LuaContext.h"
 #include "solarus/lua/ScopedLuaRef.h"
-#include "solarus/Map.h"
 #include <cctype>
 #include <sstream>
 
@@ -47,7 +48,7 @@ int get_positive_index(lua_State* l, int index) {
 /**
  * \brief Returns whether the specified name is a valid Lua identifier.
  * \param name The name to check.
- * \return true if the name only contains alphanumeric characters or '_' and
+ * \return \c true if the name only contains alphanumeric characters or '_' and
  * does not start with a digit.
  */
 bool is_valid_lua_identifier(const std::string& name) {
@@ -114,14 +115,18 @@ bool call_function(
     int nb_results,
     const char* function_name
 ) {
-  if (lua_pcall(l, nb_arguments, nb_results, 0) != 0) {
+  int base = lua_gettop(l) - nb_arguments;
+  lua_pushcfunction(l, &LuaContext::l_backtrace);
+  lua_insert(l, base);
+  int status = lua_pcall(l, nb_arguments, nb_results, base);
+  lua_remove(l,base);
+  if (status != 0) {
     Debug::error(std::string("In ") + function_name + ": "
         + lua_tostring(l, -1)
     );
     lua_pop(l, 1);
     return false;
   }
-
   return true;
 }
 
@@ -486,9 +491,9 @@ std::string check_string(
             + luaL_typename(l, index) + ")"
     );
   }
-  size_t str_len=0;
-  const char* c_str = lua_tolstring(l,index,&str_len);
-  return {c_str,str_len};
+  size_t size = 0;
+  const char* data = lua_tolstring(l, index, &size);
+  return {data, size};
 }
 
 /**
@@ -514,7 +519,9 @@ std::string check_string_field(
     );
   }
 
-  const std::string& value = lua_tostring(l, -1);
+  size_t size = 0;
+  const char* data = lua_tolstring(l, -1, &size);
+  const std::string value = {data, size};
   lua_pop(l, 1);
   return value;
 }
@@ -570,7 +577,9 @@ std::string opt_string_field(
         + luaL_typename(l, -1) + ")"
     );
   }
-  const std::string& value = lua_tostring(l, -1);
+  size_t size = 0;
+  const char* data = lua_tolstring(l, -1, &size);
+  const std::string value = {data, size};
   lua_pop(l, 1);
   return value;
 }

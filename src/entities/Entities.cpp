@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Music.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
 #include "solarus/entities/Boomerang.h"
 #include "solarus/entities/CrystalBlock.h"
 #include "solarus/entities/Destination.h"
@@ -27,13 +31,9 @@
 #include "solarus/entities/Tile.h"
 #include "solarus/entities/TilePattern.h"
 #include "solarus/entities/Tileset.h"
-#include "solarus/lowlevel/Color.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Music.h"
-#include "solarus/lowlevel/Surface.h"
+#include "solarus/graphics/Color.h"
+#include "solarus/graphics/Surface.h"
 #include "solarus/lua/LuaContext.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
 #include <sstream>
 #include <lua.hpp>
 
@@ -1055,7 +1055,7 @@ void Entities::add_entity(const EntityPtr& entity) {
 
 /**
  * \brief Removes an entity from the map and schedules it to be destroyed.
- * \param entity the entity to remove
+ * \param entity The entity to remove.
  */
 void Entities::remove_entity(Entity& entity) {
 
@@ -1233,19 +1233,13 @@ void Entities::draw() {
     for (const EntityPtr& entity : entities_in_camera) {
       int layer = entity->get_layer();
       Debug::check_assertion(map.is_valid_layer(layer), "Invalid layer");
-      if (entity->is_enabled() &&
-          entity->is_visible()) {
-        entities_to_draw[layer].push_back(entity);
-      }
+      entities_to_draw[layer].push_back(entity);
     }
 
     // Add entities displayed even when out of the camera.
     for (int layer = map.get_min_layer(); layer <= map.get_max_layer(); ++layer) {
       for (const EntityPtr& entity : entities_drawn_not_at_their_position[layer]) {
-        if (entity->is_enabled() &&
-            entity->is_visible()) {
-          entities_to_draw[layer].push_back(entity);
-        }
+        entities_to_draw[layer].push_back(entity);
       }
 
       // Sort them and remove duplicates.
@@ -1280,7 +1274,11 @@ void Entities::draw() {
 
     // Draw dynamic entities, ordered by their data structure.
     for (const EntityPtr& entity: entities_to_draw[layer]) {
-      entity->draw_on_map();
+      if (!entity->is_being_removed() &&
+          entity->is_enabled() &&
+          entity->is_visible()) {
+        entity->draw_on_map();
+      }
     }
   }
 

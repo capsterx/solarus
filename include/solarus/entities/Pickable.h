@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 #ifndef SOLARUS_PICKABLE_H
 #define SOLARUS_PICKABLE_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Point.h"
+#include "solarus/core/Treasure.h"
 #include "solarus/entities/Entity.h"
 #include "solarus/entities/EntityPtr.h"
-#include "solarus/lowlevel/Point.h"
+#include "solarus/graphics/SpritePtr.h"
 #include "solarus/movements/FallingHeight.h"
-#include "solarus/SpritePtr.h"
-#include "solarus/Treasure.h"
 #include <memory>
 #include <string>
 
@@ -69,6 +69,9 @@ class Pickable: public Entity {
     // item state
     void set_suspended(bool suspended) override;
     EntityPtr get_entity_followed();
+
+    bool is_stream_obstacle(Stream& stream) override;
+
     void notify_collision(
         Entity& entity_overlapping,
         CollisionMode collision_mode

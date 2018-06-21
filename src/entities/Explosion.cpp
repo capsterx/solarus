@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/entities/Explosion.h"
-#include "solarus/entities/Switch.h"
+#include "solarus/core/Game.h"
 #include "solarus/entities/Crystal.h"
-#include "solarus/entities/Sensor.h"
 #include "solarus/entities/Enemy.h"
-#include "solarus/Game.h"
-#include "solarus/Sprite.h"
-#include "solarus/SpriteAnimationSet.h"
+#include "solarus/entities/Explosion.h"
+#include "solarus/entities/Sensor.h"
+#include "solarus/entities/Switch.h"
+#include "solarus/graphics/Sprite.h"
+#include "solarus/graphics/SpriteAnimationSet.h"
 #include <algorithm>
 
 namespace Solarus {
@@ -130,12 +130,9 @@ void Explosion::notify_collision_with_sensor(Sensor& sensor, CollisionMode colli
 }
 
 /**
- * \brief This function is called when an enemy's sprite collides with a sprite of this entity
- * \param enemy the enemy
- * \param enemy_sprite the enemy's sprite that overlaps a sprite of this entity
- * \param this_sprite this entity's sprite that overlaps the enemy's sprite
+ * \copydoc Entity::notify_collision_with_enemy(Enemy&, Sprite&, Sprite&)
  */
-void Explosion::notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& /* this_sprite */) {
+void Explosion::notify_collision_with_enemy(Enemy& enemy, Sprite& /* this_sprite */, Sprite& enemy_sprite) {
 
   try_attack_enemy(enemy, enemy_sprite);
 }
@@ -167,7 +164,8 @@ void Explosion::notify_attacked_enemy(
     EnemyReaction::Reaction& result,
     bool /* killed */) {
 
-  if (result.type != EnemyReaction::ReactionType::IGNORED) {
+  if (result.type != EnemyReaction::ReactionType::IGNORED &&
+      result.type != EnemyReaction::ReactionType::LUA_CALLBACK) {
     victims.push_back(&victim);
   }
 }

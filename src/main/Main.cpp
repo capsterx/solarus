@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,17 @@
  */
 #ifndef SOLARUS_NOMAIN
 
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/Arguments.h"
-#include "solarus/MainLoop.h"
+#include "solarus/core/Arguments.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/MainLoop.h"
 #include <iostream>
 #include <string>
+
+// On iOS SDL provides a main function that creates an application delegate
+// and starts the iOS application run loop.
+#if defined(SOLARUS_IOS)
+#  include "SDL_main.h"
+#endif
 
 namespace Solarus {
 
@@ -55,8 +61,6 @@ void print_help(const Arguments& args) {
     << std::endl
     << "  -no-video                     disables displaying"
     << std::endl
-    << "  -video-acceleration=yes|no    enables or disables accelerated graphics (default yes)"
-    << std::endl
     << "  -quest-size=<width>x<height>  sets the size of the drawing area (if compatible with the quest)"
     << std::endl
     << "  -lua-console=yes|no           accepts standard input lines as Lua commands (default yes)"
@@ -89,7 +93,6 @@ void print_help(const Arguments& args) {
  *   -help                             Shows a help message.
  *   -no-audio                         Disables sounds and musics.
  *   -no-video                         Disables displaying (used for unit tests).
- *   -video-acceleration=yes|no        Enables or disables 2D accelerated graphics if available (default: yes).
  *   -quest-size=<width>x<height>      Sets the size of the drawing area (if compatible with the quest).
  *   -lua-console=yes|no               Accepts lines from standard input as Lua commands (default: yes).
  *   -turbo=yes|no                     Runs as fast as possible rather than simulating real time (default: no).

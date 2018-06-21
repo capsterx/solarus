@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/movements/TargetMovement.h"
-#include "solarus/lua/LuaContext.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Entity.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/lowlevel/System.h"
-#include "solarus/lowlevel/Debug.h"
+#include "solarus/lua/LuaContext.h"
+#include "solarus/movements/TargetMovement.h"
 #include <cmath>
 
 namespace Solarus {
@@ -49,6 +49,7 @@ TargetMovement::TargetMovement(
     bool ignore_obstacles):
     TargetMovement(target_entity, Point(x,y), moving_speed, ignore_obstacles) {
 }
+
 /**
  * \brief Creates a new target movement toward an entity or a fixed point.
  * \param target_entity The entity to target or nullptr.
@@ -70,11 +71,12 @@ TargetMovement::TargetMovement(
   sign_y(0),
   moving_speed(moving_speed),
   next_recomputation_date(System::now()),
-  finished(false) {
+  finished(false),
+  recomputing_movement(false) {
 }
 
 /**
- * \brief Notifies this movement that the object it controls has changed.
+ * \copydoc Movement::notify_object_controlled
  */
 void TargetMovement::notify_object_controlled() {
 
@@ -82,6 +84,16 @@ void TargetMovement::notify_object_controlled() {
 
   // Coordinates have changed: compute a new trajectory.
   recompute_movement();
+}
+
+/**
+ * \copydoc Movement::notify_position_changed
+ */
+void TargetMovement::notify_position_changed() {
+
+  StraightMovement::notify_position_changed();
+
+  check_target_reached();
 }
 
 /**
@@ -137,15 +149,7 @@ void TargetMovement::update() {
     next_recomputation_date += recomputation_delay;
   }
 
-  // see if the target is reached
-  Point dxy = target - get_xy();
-  if (dxy.x * sign_x <= 0 && dxy.y * sign_y <= 0) {
-    if (!test_collision_with_obstacles(dxy)) {
-      set_xy(target);  // Because the target movement may have not been very precise.
-      stop();
-      finished = true;
-    }
-  }
+  check_target_reached();
 
   StraightMovement::update();
 }
@@ -155,6 +159,12 @@ void TargetMovement::update() {
  * depending on the target.
  */
 void TargetMovement::recompute_movement() {
+
+  if (recomputing_movement) {
+    // Avoid reentrant updates.
+    return;
+  }
+  recomputing_movement = true;
 
   if (target_entity != nullptr) {
     // the target may be a moving entity
@@ -176,6 +186,21 @@ void TargetMovement::recompute_movement() {
       set_angle(angle);
       set_max_distance((int) Geometry::get_distance(get_xy(), target));
     }
+  }
+
+  recomputing_movement = false;
+}
+
+/**
+ * \brief Checks whether the target is reached.
+ *
+ * Finishes the movement if this is the case.
+ */
+void TargetMovement::check_target_reached() {
+
+  if (get_xy() == target) {
+    stop();
+    finished = true;
   }
 }
 

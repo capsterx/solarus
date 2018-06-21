@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef SOLARUS_TARGET_MOVEMENT_H
 #define SOLARUS_TARGET_MOVEMENT_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Point.h"
 #include "solarus/entities/EntityPtr.h"
-#include "solarus/lowlevel/Point.h"
 #include "solarus/movements/StraightMovement.h"
 #include <cstdint>
 #include <string>
@@ -58,15 +58,17 @@ class TargetMovement: public StraightMovement {
     int get_moving_speed() const;
     void set_moving_speed(int moving_speed);
 
-    virtual void notify_object_controlled() override;
-    virtual bool is_finished() const override;
-    virtual void update() override;
+    void notify_object_controlled() override;
+    void notify_position_changed() override;
+    bool is_finished() const override;
+    void update() override;
 
     virtual const std::string& get_lua_type_name() const override;
 
   private:
 
     void recompute_movement();
+    void check_target_reached();
 
     Point target;                      /**< Coordinates of the point or entity to track. */
     EntityPtr target_entity;           /**< The entity to track (nullptr if only
@@ -79,6 +81,7 @@ class TargetMovement: public StraightMovement {
 
     uint32_t next_recomputation_date;  /**< Date when the movement is recalculated. */
     bool finished;                     /**< \c true if the target is reached. */
+    bool recomputing_movement;         /**< Whether we are in \c recompute_movement(). */
 
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #ifndef SOLARUS_CUSTOM_ENTITY_H
 #define SOLARUS_CUSTOM_ENTITY_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
 #include "solarus/lua/ScopedLuaRef.h"
 #include <map>
@@ -154,8 +154,8 @@ class SOLARUS_API CustomEntity: public Entity {
     void notify_collision_with_explosion(Explosion& explosion, CollisionMode collision_mode) override;
     void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
     void notify_collision_with_fire(Fire& fire, Sprite& sprite_overlapping) override;
-    void notify_collision_with_enemy(Enemy& enemy) override;
-    void notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite) override;
+    void notify_collision_with_enemy(Enemy& enemy, CollisionMode collision_mode) override;
+    void notify_collision_with_enemy(Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite) override;
     bool notify_action_command_pressed() override;
     bool notify_interaction_with_item(EquipmentItem& item) override;
 
@@ -246,7 +246,7 @@ class SOLARUS_API CustomEntity: public Entity {
     const TraversableInfo& get_can_traverse_entity_info(EntityType type);
 
     void notify_collision_from(Entity& other_entity);
-    void notify_collision_from(Entity& other_entity, Sprite& other_sprite, Sprite& this_sprite);
+    void notify_collision_from(Entity& other_entity, Sprite& this_sprite, Sprite& other_sprite);
 
     void update_ground_observer();
 

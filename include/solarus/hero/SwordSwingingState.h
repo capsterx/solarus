@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@ class Hero::SwordSwingingState: public HeroState {
     virtual bool can_start_sword() const override;
     virtual bool can_be_hurt(Entity* attacker) const override;
     virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool can_avoid_stream(const Stream& stream) const override;
     virtual bool can_use_shield() const override;
     virtual bool can_sword_hit_crystal() const override;
     virtual bool is_cutting_with_sword(Entity& entity) override;

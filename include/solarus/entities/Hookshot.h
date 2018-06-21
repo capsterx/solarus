@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef SOLARUS_HOOKSHOT_H
 #define SOLARUS_HOOKSHOT_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
-#include "solarus/Sprite.h"
+#include "solarus/graphics/Sprite.h"
 
 namespace Solarus {
 
@@ -58,7 +58,7 @@ class Hookshot: public Entity {
 
     // collisions
     virtual void notify_obstacle_reached() override;
-    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite) override;
+    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite) override;
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,

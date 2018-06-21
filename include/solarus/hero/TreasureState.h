@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 #ifndef SOLARUS_HERO_TREASURE_STATE_H
 #define SOLARUS_HERO_TREASURE_STATE_H
 
+#include "solarus/core/Common.h"
+#include "solarus/core/Treasure.h"
 #include "solarus/hero/HeroState.h"
 #include "solarus/lua/ScopedLuaRef.h"
-#include "solarus/Treasure.h"
 
 namespace Solarus {
 

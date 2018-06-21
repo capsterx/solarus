@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,21 +14,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/hero/SwordSwingingState.h"
-#include "solarus/hero/HeroSprites.h"
+#include "solarus/core/CommandsEffects.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/EntityState.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Jumper.h"
 #include "solarus/entities/Stairs.h"
-#include "solarus/lowlevel/System.h"
-#include "solarus/lowlevel/Debug.h"
+#include "solarus/graphics/Sprite.h"
+#include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/LuaContext.h"
-#include "solarus/CommandsEffects.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
-#include "solarus/Equipment.h"
-#include "solarus/EquipmentItem.h"
-#include "solarus/Sprite.h"
 
 namespace Solarus {
 
@@ -777,7 +776,7 @@ bool Entity::State::can_take_stairs() const {
 bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
 
   // The entity may overlap stairs in rare cases,
-  // for example if he arrived by swimming over them
+  // for example if the hero arrived by swimming over them
   // and thus did not activate them.
   // This is allowed and can be used to leave water pools for example.
   if (entity.overlaps(stairs)) {

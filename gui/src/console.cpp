@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus Quest Editor is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ const QRegularExpression output_regexp("^\\[Solarus\\] \\[(\\d+)\\] (\\w*): (.+)
 const QRegularExpression output_command_result_begin_regexp("^====== Begin Lua command #(\\d+) ======$");
 const QRegularExpression output_command_result_end_regexp("^====== End Lua command #(\\d+): (\\w+) ======$");
 const QRegularExpression output_simplify_console_error_regexp("In Lua command: \\[string \".*\"\\]:\\d+: ");
-const QRegularExpression output_setting_video_mode_regexp("^Video mode: (\\w+)$");
 const QRegularExpression output_setting_fullscreen_regexp("^Fullscreen: (\\w+)$");
 
 }
@@ -56,6 +55,14 @@ Console::Console(QWidget* parent) :
   command_enabled(true) {
 
   ui.setupUi(this);
+}
+
+/**
+ * @brief Clears the content of the console.
+ */
+void Console::clear() {
+
+  ui.log_view->clear();
 }
 
 /**
@@ -100,6 +107,8 @@ void Console::set_quest_runner(QuestRunner& quest_runner) {
  * @brief Slot called when the quest execution begins.
  */
 void Console::quest_running() {
+
+  clear();
 
   // Apply settings to the running quest as Lua commands,
   // for quests that don't read the settings.dat file.
@@ -320,13 +329,6 @@ void Console::detect_setting_change(
 
   QRegularExpressionMatch match_result;
 
-  match_result = output_setting_video_mode_regexp.match(message);
-  if (match_result.lastCapturedIndex() == 1) {
-    QVariant value = match_result.captured(1);
-    emit setting_changed_in_quest("quest_video_mode", value);
-    return;
-  }
-
   match_result = output_setting_fullscreen_regexp.match(message);
   if (match_result.lastCapturedIndex() == 1) {
     QVariant value = (match_result.captured(1) == "yes");
@@ -388,11 +390,6 @@ QStringList Console::get_quest_lua_commands_from_settings() const {
 
   Settings settings;
   QStringList commands;
-  QVariant video_mode = settings.value("quest_video_mode");
-  if (video_mode.isValid()) {
-    commands << QString("sol.video.set_mode(\"%1\")").
-                arg(video_mode.toString());
-  }
 
   QVariant fullscreen = settings.value("quest_fullscreen");
   if (fullscreen.isValid()) {

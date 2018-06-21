@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Stream.h"
-#include "solarus/lowlevel/System.h"
+#include "solarus/graphics/Sprite.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/Map.h"
 #include <cmath>
 
 namespace Solarus {
@@ -40,7 +41,7 @@ StreamAction::StreamAction(Stream& stream, Entity& entity_moved):
 
   recompute_movement();
 
-  next_move_date = System::now() + delay;
+  next_move_date = System::now();
 }
 
 /**
@@ -94,22 +95,42 @@ void StreamAction::recompute_movement() {
     delay = 0;
   }
 
-  target = stream->get_xy();
+  if (stream->get_allow_movement()) {
+    // Don't center the entity on non-blocking streams.
+    target = entity_moved->get_xy();
+  }
+  else {
+    target = stream->get_xy();
+  }
 
   // Stop 16 pixels after the stream.
   if (dx != 0) {
     // Horizontal stream.
-    target.x = stream->get_x() + (dx > 0 ? 16 : -16);
+    target.x += dx > 0 ? 16 : -16;
   }
 
   if (dy != 0) {
     // Vertical stream.
-    target.y = stream->get_y() + (dy > 0 ? 16 : -16);
+    target.y += dy > 0 ? 16 : -16;
   }
 
-  if (target != entity_moved->get_xy()) {
-    // Adjust the speed to the diagonal movement.
-    delay = (uint32_t) (delay * std::sqrt(2));
+  if (stream->get_direction() % 2 != 0) {
+    if (target != entity_moved->get_xy()) {
+      // Adjust the speed to the diagonal movement.
+      delay = (uint32_t) (delay * std::sqrt(2));
+    }
+  }
+
+  const SpritePtr& sprite = stream->get_sprite();
+  if (sprite != nullptr &&
+      sprite->get_nb_frames() > 1 &&
+      delay == sprite->get_frame_delay() &&
+      sprite->get_next_frame_date() >= System::now() &&
+      next_move_date < sprite->get_next_frame_date()) {
+    // The stream and its sprite happen to have exactly the same speed:
+    // adjust the delay to synchronize them perfectly
+    // to avoid flickering.
+    next_move_date = sprite->get_next_frame_date();
   }
 }
 

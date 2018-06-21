@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #ifndef SOLARUS_ENEMY_H
 #define SOLARUS_ENEMY_H
 
-#include "solarus/Common.h"
-#include "solarus/Treasure.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Treasure.h"
 #include "solarus/entities/EnemyAttack.h"
 #include "solarus/entities/EnemyReaction.h"
 #include "solarus/entities/Entity.h"
@@ -112,6 +112,8 @@ class Enemy: public Entity {
     void set_can_attack(bool can_attack);
     bool is_traversable() const;
     void set_traversable(bool traversable);
+    CollisionMode get_attacking_collision_mode() const;
+    void set_attacking_collision_mode(CollisionMode attacking_collision_mode);
     ObstacleBehavior get_obstacle_behavior() const;
     void set_obstacle_behavior(ObstacleBehavior obstacle_behavior);
     bool get_pushed_back_when_hurt() const;
@@ -128,12 +130,14 @@ class Enemy: public Entity {
     void set_attack_consequence(
         EnemyAttack attack,
         EnemyReaction::ReactionType reaction,
-        int life_lost = 0);
+        int life_lost = 0,
+        const ScopedLuaRef& callback = ScopedLuaRef());
     void set_attack_consequence_sprite(
         const Sprite& sprite,
         EnemyAttack attack,
         EnemyReaction::ReactionType reaction,
-        int life_lost = 0);
+        int life_lost = 0,
+        const ScopedLuaRef& callback = ScopedLuaRef());
     void set_no_attack_consequences();
     void set_no_attack_consequences_sprite(const Sprite& sprite);
     void set_default_attack_consequences();
@@ -144,30 +148,32 @@ class Enemy: public Entity {
     void set_animation(const std::string& animation);
 
     // obstacles
-    virtual bool is_obstacle_for(Entity& other) override;
-    virtual bool is_destructible_obstacle(Destructible& destructible) override;
-    virtual bool is_block_obstacle(Block& block) override;
-    virtual bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
-    virtual bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
-    virtual bool is_low_wall_obstacle() const override;
-    virtual bool is_deep_water_obstacle() const override;
-    virtual bool is_shallow_water_obstacle() const override;
-    virtual bool is_hole_obstacle() const override;
-    virtual bool is_prickle_obstacle() const override;
-    virtual bool is_lava_obstacle() const override;
+    bool is_obstacle_for(Entity& other) override;
+    bool is_destructible_obstacle(Destructible& destructible) override;
+    bool is_block_obstacle(Block& block) override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
+    bool is_stream_obstacle(Stream& stream) override;
+
+    bool is_low_wall_obstacle() const override;
+    bool is_deep_water_obstacle() const override;
+    bool is_shallow_water_obstacle() const override;
+    bool is_hole_obstacle() const override;
+    bool is_prickle_obstacle() const override;
+    bool is_lava_obstacle() const override;
 
     // enemy state
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
-    virtual void draw_on_map() override;
+    void update() override;
+    void set_suspended(bool suspended) override;
+    void draw_on_map() override;
 
-    virtual void notify_enabled(bool enabled) override;
-    virtual void notify_ground_below_changed() override;
-    virtual void notify_collision(Entity& entity_overlapping, CollisionMode collision_mode) override;
-    virtual void notify_collision(Entity& other_entity, Sprite& this_sprite, Sprite& other_sprite) override;
-    virtual void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
-    virtual void notify_collision_with_fire(Fire& fire, Sprite& sprite_overlapping) override;
-    virtual void notify_collision_with_enemy(Enemy& other, Sprite& other_sprite, Sprite& this_sprite) override;
+    void notify_enabled(bool enabled) override;
+    void notify_ground_below_changed() override;
+    void notify_collision(Entity& entity_overlapping, CollisionMode collision_mode) override;
+    void notify_collision(Entity& other_entity, Sprite& this_sprite, Sprite& other_sprite) override;
+    void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
+    void notify_collision_with_fire(Fire& fire, Sprite& sprite_overlapping) override;
+    void notify_collision_with_enemy(Enemy& other, Sprite& this_sprite, Sprite& other_sprite) override;
 
     // attack the hero
     void attack_hero(Hero& hero, Sprite* this_sprite);
@@ -227,7 +233,10 @@ class Enemy: public Entity {
     std::string savegame_variable;     /**< name of the boolean variable indicating whether this enemy is killed,
                                         * or an empty string if it is not saved */
     bool traversable;                  /**< Whether this enemy can be traversed by other entities. */
-    ObstacleBehavior obstacle_behavior; /**< behavior with obstacles */
+    CollisionMode
+        attacking_collision_mode;      /**< How the enemy tries to attack the hero. */
+    ObstacleBehavior
+        obstacle_behavior;             /**< Whether this enemy can fly or swim. */
 
     // enemy state
     bool being_hurt;                   /**< indicates that the enemy is being hurt */

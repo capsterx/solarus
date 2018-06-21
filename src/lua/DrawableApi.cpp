@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/lowlevel/BlendModeInfo.h"
-#include "solarus/lowlevel/Surface.h"
+#include "solarus/graphics/BlendModeInfo.h"
+#include "solarus/graphics/Drawable.h"
+#include "solarus/graphics/Surface.h"
+#include "solarus/graphics/TransitionFade.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/Drawable.h"
-#include "solarus/TransitionFade.h"
 #include <lua.hpp>
 
 /* This file contains common code for all drawable types known by Lua,
@@ -205,6 +205,80 @@ int LuaContext::drawable_api_set_blend_mode(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of drawable:set_shader().
+ * \param l the Lua context that is calling this function
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_shader(lua_State* l) {
+  return LuaTools::exception_boundary_handle(l,[&]{
+    Drawable& drawable = *check_drawable(l,1);
+    ShaderPtr shader = nullptr;
+    if (!lua_isnil(l, 2)) {
+      if (is_shader(l, 2)) {
+        shader = check_shader(l, 2);
+      }
+      else {
+        LuaTools::type_error(l, 2, "shader or nil");
+      }
+    }
+    drawable.set_shader(shader);
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_shader().
+ * \param l the Lua context that is calling this function
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_shader(lua_State* l) {
+  return LuaTools::exception_boundary_handle(l,[&]{
+    const Drawable& drawable = *check_drawable(l,1);
+    const ShaderPtr& shader = drawable.get_shader();
+    if(shader) {
+      push_shader(l,*shader);
+    } else {
+      lua_pushnil(l);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_opacity().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_opacity(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+
+    uint8_t opacity = drawable.get_opacity();
+
+    lua_pushinteger(l, opacity);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_opacity().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_opacity(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    uint8_t opacity = (uint8_t) LuaTools::check_int(l, 2);
+
+    drawable.set_opacity(opacity);
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of drawable:fade_in().
  * \param l the Lua context that is calling this function
  * \return number of values to return to Lua
@@ -229,8 +303,7 @@ int LuaContext::drawable_api_fade_in(lua_State* l) {
     }
 
     TransitionFade* transition(new TransitionFade(
-        Transition::Direction::OPENING,
-        drawable.get_transition_surface()
+        Transition::Direction::OPENING
     ));
     transition->clear_color();
     transition->set_delay(delay);
@@ -268,8 +341,7 @@ int LuaContext::drawable_api_fade_out(lua_State* l) {
     }
 
     TransitionFade* transition(new TransitionFade(
-        Transition::Direction::CLOSING,
-        drawable.get_transition_surface()
+        Transition::Direction::CLOSING
     ));
     transition->clear_color();
     transition->set_delay(delay);
@@ -313,6 +385,110 @@ int LuaContext::drawable_api_set_xy(lua_State* l) {
     drawable.set_xy(Point(x, y));
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_rotation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_rotation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double rot = LuaTools::check_number(l, 2);
+
+    drawable.set_rotation(rot);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_rotation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_rotation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    double rot = drawable.get_rotation();
+
+    lua_pushnumber(l,rot);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_scale().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_scale(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double x = LuaTools::check_number(l, 2);
+    double y = LuaTools::check_number(l, 3);
+
+    drawable.set_scale(Scale(x, y));
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_scale().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_scale(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    const Scale& s = drawable.get_scale();
+
+    lua_pushnumber(l,s.x);
+    lua_pushnumber(l,s.y);
+
+    return 2;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_transform_origin().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_transformation_origin(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double x = LuaTools::check_number(l, 2);
+    double y = LuaTools::check_number(l, 3);
+
+    drawable.set_transformation_origin(Point(x,y));
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_transform_origin().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_transformation_origin(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    const Point& o = drawable.get_transformation_origin();
+
+    lua_pushnumber(l,o.x);
+    lua_pushnumber(l,o.y);
+    return 2;
   });
 }
 

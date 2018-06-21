@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 #ifndef SOLARUS_TEST_ENVIRONMENT_H
 #define SOLARUS_TEST_ENVIRONMENT_H
 
-#include "solarus/Common.h"
-#include "solarus/Arguments.h"
-#include "solarus/MainLoop.h"
-#include "solarus/lowlevel/Point.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Arguments.h"
+#include "solarus/core/MainLoop.h"
+#include "solarus/core/Point.h"
 #include <cstdint>
 #include <memory>
 

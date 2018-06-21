@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef SOLARUS_CARRIED_OBJECT_H
 #define SOLARUS_CARRIED_OBJECT_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
-#include "solarus/SpritePtr.h"
+#include "solarus/graphics/SpritePtr.h"
 #include <string>
 
 namespace Solarus {
@@ -97,8 +97,8 @@ class CarriedObject: public Entity {
     void notify_collision_with_stairs(Stairs& stairs, CollisionMode collision_mode) override;
     void notify_collision_with_enemy(
         Enemy& enemy,
-        Sprite& enemy_sprite,
-        Sprite& this_sprite
+        Sprite& this_sprite,
+        Sprite& enemy_sprite
     ) override;
     void notify_attacked_enemy(
         EnemyAttack attack,

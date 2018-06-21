@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Equipment.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/GameCommands.h"
 #include "solarus/entities/Enemy.h"
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/hero/SwordLoadingState.h"
 #include "solarus/hero/SwordSwingingState.h"
 #include "solarus/movements/StraightMovement.h"
-#include "solarus/Equipment.h"
-#include "solarus/Game.h"
-#include "solarus/GameCommands.h"
 #include <memory>
 
 namespace Solarus {
@@ -132,13 +132,6 @@ bool Hero::SwordSwingingState::can_pick_treasure(EquipmentItem& /* item */) cons
 }
 
 /**
- * \copydoc Entity::State::can_avoid_stream
- */
-bool Hero::SwordSwingingState::can_avoid_stream(const Stream& /* stream */) const {
-  return true;
-}
-
-/**
  * \copydoc Entity::State::can_use_shield
  */
 bool Hero::SwordSwingingState::can_use_shield() const {
@@ -227,7 +220,9 @@ void Hero::SwordSwingingState::notify_attacked_enemy(
     EnemyReaction::Reaction& result,
     bool /* killed */) {
 
-  if (result.type != EnemyReaction::ReactionType::IGNORED && attack == EnemyAttack::SWORD) {
+  if (attack == EnemyAttack::SWORD &&
+      result.type != EnemyReaction::ReactionType::IGNORED &&
+      result.type != EnemyReaction::ReactionType::LUA_CALLBACK) {
     attacked = true;
 
     if (victim.get_push_hero_on_sword()) {

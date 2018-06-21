@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #ifndef SOLARUS_BOOMERANG_H
 #define SOLARUS_BOOMERANG_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
 #include "solarus/entities/HeroPtr.h"
 #include <memory>
@@ -76,7 +76,7 @@ class Boomerang: public Entity {
     // collisions
     virtual void notify_collision_with_switch(Switch& sw, CollisionMode collision_mode) override;
     virtual void notify_collision_with_crystal(Crystal& crystal, CollisionMode collision_mode) override;
-    virtual void notify_collision_with_enemy(Enemy& enemy) override;
+    virtual void notify_collision_with_enemy(Enemy& enemy, CollisionMode collision_mode) override;
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,

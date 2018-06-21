@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Music.h"
+#include "solarus/audio/Sound.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/MainLoop.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/ResourceProvider.h"
+#include "solarus/core/Timer.h"
+#include "solarus/core/Treasure.h"
 #include "solarus/entities/Block.h"
 #include "solarus/entities/Bomb.h"
 #include "solarus/entities/Chest.h"
@@ -45,19 +56,9 @@
 #include "solarus/entities/TilePattern.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/entities/Wall.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Music.h"
-#include "solarus/lowlevel/Sound.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/Equipment.h"
-#include "solarus/EquipmentItem.h"
-#include "solarus/Game.h"
-#include "solarus/MainLoop.h"
-#include "solarus/Map.h"
-#include "solarus/Timer.h"
-#include "solarus/Treasure.h"
 #include <lua.hpp>
 #include <sstream>
 
@@ -417,8 +418,13 @@ int LuaContext::l_create_tile(lua_State* l) {
     const int y = data.get_xy().y;
     const Size size =  entity_creation_check_size(l, 1, data);
     const std::string& tile_pattern_id = data.get_string("pattern");
+    std::string tileset_id = data.get_string("tileset");
 
-    const Tileset& tileset = map.get_tileset();
+    if (tileset_id.empty()) {
+      tileset_id = map.get_tileset_id();
+    }
+    ResourceProvider& resource_provider = map.get_game().get_resource_provider();
+    const Tileset& tileset = resource_provider.get_tileset(tileset_id);
     const TilePattern& pattern = tileset.get_tile_pattern(tile_pattern_id);
     const Size& pattern_size = pattern.get_size();
     Entities& entities = map.get_entities();
@@ -426,14 +432,15 @@ int LuaContext::l_create_tile(lua_State* l) {
     // If the tile is big, divide it in several smaller tiles so that
     // most of them can still be optimized away.
     // Otherwise, tiles expanded in big rectangles like a lake or a dungeon
-    // floor would be entirely redrawn at each frame if just one small
-    // animated tile overlapped them.
+    // floor would be entirely redrawn at each frame when just one small
+    // animated tile overlaps them.
 
     TileInfo tile_info;
     tile_info.layer = layer;
     tile_info.box = { Point(), pattern_size };
     tile_info.pattern_id = tile_pattern_id;
     tile_info.pattern = &pattern;
+    tile_info.tileset = &tileset;
 
     for (int current_y = y; current_y < y + size.height; current_y += pattern.get_height()) {
       for (int current_x = x; current_x < x + size.width; current_x += pattern.get_width()) {
@@ -471,6 +478,7 @@ int LuaContext::l_create_destination(lua_State* l) {
     StartingLocationMode starting_location_mode =
         entity_creation_check_enum<StartingLocationMode>(l, 1, data, "starting_location_mode");
     entity->set_starting_location_mode(starting_location_mode);
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -503,6 +511,7 @@ int LuaContext::l_create_teletransporter(lua_State* l) {
         data.get_string("destination_map"),
         data.get_string("destination")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -553,6 +562,7 @@ int LuaContext::l_create_pickable(lua_State* l) {
       return 1;
     }
 
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -593,6 +603,7 @@ int LuaContext::l_create_destructible(lua_State* l) {
     destructible->set_can_explode(data.get_boolean("can_explode"));
     destructible->set_can_regenerate(data.get_boolean("can_regenerate"));
     destructible->set_damage_on_enemies(data.get_integer("damage_on_enemies"));
+    destructible->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(destructible);
     if (map.is_started()) {
       push_entity(l, *destructible);
@@ -657,6 +668,7 @@ int LuaContext::l_create_chest(lua_State* l) {
     chest->set_opening_condition(opening_condition);
     chest->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     chest->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
+    chest->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(chest);
     if (map.is_started()) {
       push_entity(l, *chest);
@@ -685,6 +697,7 @@ int LuaContext::l_create_jumper(lua_State* l) {
         data.get_integer("direction"),
         data.get_integer("jump_length")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -724,6 +737,7 @@ int LuaContext::l_create_enemy(lua_State* l) {
       lua_pushnil(l);
       return 1;
     }
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -755,6 +769,7 @@ int LuaContext::l_create_npc(lua_State* l) {
         data.get_integer("direction"),
         data.get_string("behavior")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -791,6 +806,7 @@ int LuaContext::l_create_block(lua_State* l) {
         data.get_boolean("pullable"),
         maximum_moves
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -811,15 +827,23 @@ int LuaContext::l_create_dynamic_tile(lua_State* l) {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
+    std::string tileset_id = data.get_string("tileset");
+    if (tileset_id.empty()) {
+      tileset_id = map.get_tileset_id();
+    }
+    ResourceProvider& resource_provider = map.get_game().get_resource_provider();
+    const Tileset& tileset = resource_provider.get_tileset(tileset_id);
+
     EntityPtr entity = std::make_shared<DynamicTile>(
         data.get_name(),
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy(),
         entity_creation_check_size(l, 1, data),
-        map.get_tileset(),
+        tileset,
         data.get_string("pattern"),
         data.get_boolean("enabled_at_start")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -850,6 +874,7 @@ int LuaContext::l_create_switch(lua_State* l) {
         data.get_boolean("needs_block"),
         data.get_boolean("inactivate_when_leaving")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -881,6 +906,7 @@ int LuaContext::l_create_wall(lua_State* l) {
         data.get_boolean("stops_blocks"),
         data.get_boolean("stops_projectiles")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -907,6 +933,7 @@ int LuaContext::l_create_sensor(lua_State* l) {
         data.get_xy(),
         entity_creation_check_size(l, 1, data)
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -932,6 +959,7 @@ int LuaContext::l_create_crystal(lua_State* l) {
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy()
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -961,6 +989,7 @@ int LuaContext::l_create_crystal_block(lua_State* l) {
         entity_creation_check_size(l, 1, data),
         CrystalBlock::Subtype(data.get_integer("subtype"))
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1002,6 +1031,7 @@ int LuaContext::l_create_shop_treasure(lua_State* l) {
       return 1;
     }
 
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1033,7 +1063,7 @@ int LuaContext::l_create_stream(lua_State* l) {
     stream->set_allow_movement(data.get_boolean("allow_movement"));
     stream->set_allow_attack(data.get_boolean("allow_attack"));
     stream->set_allow_item(data.get_boolean("allow_item"));
-
+    stream->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(stream);
     if (map.is_started()) {
       push_stream(l, *stream);
@@ -1094,6 +1124,7 @@ int LuaContext::l_create_door(lua_State* l) {
     door->set_opening_condition(opening_condition);
     door->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     door->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
+    door->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(door);
     if (map.is_started()) {
       push_entity(l, *door);
@@ -1121,6 +1152,7 @@ int LuaContext::l_create_stairs(lua_State* l) {
         data.get_integer("direction"),
         Stairs::Subtype(data.get_integer("subtype"))
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1147,6 +1179,7 @@ int LuaContext::l_create_separator(lua_State* l) {
         data.get_xy(),
         entity_creation_check_size(l, 1, data)
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1178,6 +1211,7 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
         data.get_string("sprite"),
         data.get_string("model")
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1203,6 +1237,7 @@ int LuaContext::l_create_bomb(lua_State* l) {
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy()
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1230,6 +1265,7 @@ int LuaContext::l_create_explosion(lua_State* l) {
         data.get_xy(),
         with_damage
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1255,6 +1291,7 @@ int LuaContext::l_create_fire(lua_State* l) {
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy()
     );
+    entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1390,6 +1427,19 @@ int LuaContext::l_entity_iterator_next(lua_State* l) {
 }
 
 /**
+ * \brief Generates a Lua error if a map is not in an existing game.
+ * \param l A Lua context.
+ * \param map The map to check.
+ */
+void LuaContext::check_map_has_game(lua_State* l, const Map& map) {
+
+  if (!map.is_game_running()) {
+    // Return nil if the game is already destroyed.
+    LuaTools::error(l, "The game of this map is no longer running");
+  }
+}
+
+/**
  * \brief Implementation of map:get_game().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -1399,7 +1449,7 @@ int LuaContext::map_api_get_game(lua_State* l) {
   return LuaTools::exception_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
-    push_game(l, map.get_game().get_savegame());
+    push_game(l, *map.get_savegame());
     return 1;
   });
 }
@@ -2113,6 +2163,8 @@ int LuaContext::map_api_get_hero(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
+
+    check_map_has_game(l, map);
 
     // Return the hero even if he is no longer on this map.
     push_hero(l, *map.get_game().get_hero());

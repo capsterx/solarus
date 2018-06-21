@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef SOLARUS_PIXEL_MOVEMENT_H
 #define SOLARUS_PIXEL_MOVEMENT_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Point.h"
 #include "solarus/movements/Movement.h"
-#include "solarus/lowlevel/Point.h"
 #include <cstdint>
 #include <list>
 #include <string>

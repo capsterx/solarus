@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/graphics/Sprite.h"
+#include "solarus/graphics/SpriteAnimationSet.h"
+#include "solarus/graphics/SpriteAnimation.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
-#include "solarus/Sprite.h"
-#include "solarus/SpriteAnimationSet.h"
-#include "solarus/SpriteAnimation.h"
-#include "solarus/CurrentQuest.h"
 #include <sstream>
 
 namespace Solarus {
@@ -71,9 +71,20 @@ void LuaContext::register_sprite_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
-        { "get_frame_src_xy", sprite_api_get_frame_src_xy }
+      { "set_shader", drawable_api_set_shader},
+      { "get_shader", drawable_api_get_shader},
+      { "get_opacity", drawable_api_get_opacity },
+      { "set_opacity", drawable_api_set_opacity },
+      { "get_frame_src_xy", sprite_api_get_frame_src_xy },
+      { "set_rotation", drawable_api_set_rotation},
+      { "get_rotation", drawable_api_get_rotation},
+      { "set_scale", drawable_api_set_scale},
+      { "get_scale", drawable_api_get_scale},
+      { "set_transformation_origin", drawable_api_set_transformation_origin},
+      { "get_transformation_origin", drawable_api_get_transformation_origin}
     });
   }
+
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", drawable_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/CommandsEffects.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Block.h"
 #include "solarus/entities/Bomb.h"
 #include "solarus/entities/Boomerang.h"
@@ -32,6 +40,7 @@
 #include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Teletransporter.h"
+#include "solarus/graphics/Sprite.h"
 #include "solarus/hero/BackToSolidGroundState.h"
 #include "solarus/hero/BoomerangState.h"
 #include "solarus/hero/BowState.h"
@@ -47,6 +56,8 @@
 #include "solarus/hero/JumpingState.h"
 #include "solarus/hero/LiftingState.h"
 #include "solarus/hero/PlungingState.h"
+#include "solarus/hero/PullingState.h"
+#include "solarus/hero/PushingState.h"
 #include "solarus/hero/RunningState.h"
 #include "solarus/hero/StairsState.h"
 #include "solarus/hero/SwordSwingingState.h"
@@ -54,18 +65,9 @@
 #include "solarus/hero/TreasureState.h"
 #include "solarus/hero/UsingItemState.h"
 #include "solarus/hero/VictoryState.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Sound.h"
-#include "solarus/lowlevel/System.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/movements/StraightMovement.h"
-#include "solarus/CommandsEffects.h"
-#include "solarus/Equipment.h"
-#include "solarus/EquipmentItem.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
-#include "solarus/Sprite.h"
 #include <lua.hpp>
 #include <algorithm>
 #include <utility>
@@ -1540,28 +1542,35 @@ void Hero::notify_collision_with_destructible(
 }
 
 /**
- * \brief This function is called when the rectangle of an enemy collides with the hero.
- * \param enemy the enemy
+ * \copydoc Enemy::notify_collision_with_enemy(Enemy&, CollisionMode)
  */
-void Hero::notify_collision_with_enemy(Enemy& /* enemy */) {
-  // hurt the hero only on pixel-precise collisions
+void Hero::notify_collision_with_enemy(Enemy& enemy, CollisionMode collision_mode) {
+
+  if (enemy.get_attacking_collision_mode() != collision_mode) {
+    // Not the collision mode used to attack the hero.
+    return;
+  }
+  enemy.attack_hero(*this, nullptr);
 }
 
 /**
- * \brief This function is called when an enemy's sprite collides with a sprite of the hero.
- * \param enemy the enemy
- * \param enemy_sprite the enemy's sprite that overlaps a sprite of the hero
- * \param this_sprite the hero's sprite that overlaps the enemy's sprite
+ * \copydoc Enemy::notify_collision_with_enemy(Enemy&, Sprite&, Sprite&))
  */
 void Hero::notify_collision_with_enemy(
-    Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite) {
+    Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite) {
 
-  const std::string this_sprite_id = this_sprite.get_animation_set_id();
+  const std::string& this_sprite_id = this_sprite.get_animation_set_id();
   if (this_sprite_id == get_hero_sprites().get_sword_sprite_id()) {
     // the hero's sword overlaps the enemy
     enemy.try_hurt(EnemyAttack::SWORD, *this, &enemy_sprite);
   }
   else if (this_sprite_id == get_hero_sprites().get_tunic_sprite_id()) {
+
+    if (enemy.get_attacking_collision_mode() != CollisionMode::COLLISION_SPRITE) {
+      // The enemy does not attack with sprite collisions.
+      return;
+    }
+
     // The hero's body sprite overlaps the enemy.
     // Check that the 16x16 rectangle of the hero also overlaps the enemy.
     const Size& enemy_sprite_size = enemy_sprite.get_size();
@@ -1738,6 +1747,20 @@ void Hero::notify_collision_with_stairs(
           Stairs::NORMAL_WAY : Stairs::REVERSE_WAY;
     }
 
+    // Check that the hero is exactly aligned with the stairs.
+    if (stairs.get_direction() % 2 == 0) {
+      // Horizontal stairs.
+      if (get_top_left_y() != stairs.get_top_left_y()) {
+        return;
+      }
+    }
+    else {
+      // Vertical stairs.
+      if (get_top_left_x() != stairs.get_top_left_x()) {
+        return;
+      }
+    }
+
     // Check whether the hero is trying to move in the direction of the stairs.
     int correct_direction = stairs.get_movement_direction(stairs_way);
     if (is_moving_towards(correct_direction / 2)) {
@@ -1862,10 +1885,11 @@ void Hero::notify_collision_with_chest(Chest& chest) {
  */
 void Hero::notify_collision_with_block(Block& /* block */) {
 
-  if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE
-      && is_free()) {
-
-    // we show the action icon
+  if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE &&
+      is_free() &&
+      can_grab()
+  ) {
+    // We allow to grab using the action command.
     get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_GRAB);
   }
 }
@@ -2480,10 +2504,30 @@ void Hero::start_running() {
 }
 
 /**
+ * \brief Starts pushing an obstacle.
+ */
+void Hero::start_pushing() {
+
+  get_equipment().notify_ability_used(Ability::PUSH);
+  set_state(new PushingState(*this));
+}
+
+/**
  * \brief Starts grabbing an obstacle.
  */
 void Hero::start_grabbing() {
+
+  get_equipment().notify_ability_used(Ability::GRAB);
   set_state(new GrabbingState(*this));
+}
+
+/**
+ * \brief Starts pulling an obstacle.
+ */
+void Hero::start_pulling() {
+
+  get_equipment().notify_ability_used(Ability::PULL);
+  set_state(new PullingState(*this));
 }
 
 /**
@@ -2535,6 +2579,33 @@ bool Hero::can_run() const {
   }
 
   return is_free();
+}
+
+/**
+ * \brief Returns whether the hero can currently push an obstacle.
+ * \return \c true if the hero can push.
+ */
+bool Hero::can_push() const {
+
+  return get_equipment().has_ability(Ability::PUSH);
+}
+
+/**
+ * \brief Returns whether the hero can currently grab an obstacle.
+ * \return \c true if the hero can grab.
+ */
+bool Hero::can_grab() const {
+
+  return get_equipment().has_ability(Ability::GRAB);
+}
+
+/**
+ * \brief Returns whether the hero can currently pull an obstacle.
+ * \return \c true if the hero can pull.
+ */
+bool Hero::can_pull() const {
+
+  return get_equipment().has_ability(Ability::PULL);
 }
 
 /**

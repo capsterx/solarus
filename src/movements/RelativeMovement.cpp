@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/movements/RelativeMovement.h"
+#include "solarus/core/Debug.h"
 #include "solarus/entities/Entity.h"
-#include "solarus/lowlevel/Debug.h"
+#include "solarus/movements/RelativeMovement.h"
 
 namespace Solarus {
 

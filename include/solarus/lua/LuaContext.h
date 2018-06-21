@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,24 @@
 #ifndef SOLARUS_LUA_CONTEXT_H
 #define SOLARUS_LUA_CONTEXT_H
 
-#include "solarus/Common.h"
-#include "solarus/GameCommands.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/Ability.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/GameCommands.h"
+#include "solarus/core/InputEvent.h"
+#include "solarus/core/TimerPtr.h"
 #include "solarus/entities/Camera.h"
 #include "solarus/entities/EnemyAttack.h"
 #include "solarus/entities/EntityPtr.h"
 #include "solarus/entities/EntityType.h"
 #include "solarus/entities/Ground.h"
 #include "solarus/entities/HeroPtr.h"
-#include "solarus/lowlevel/shaders/ShaderPtr.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/InputEvent.h"
-#include "solarus/lowlevel/SurfacePtr.h"
+#include "solarus/graphics/DrawablePtr.h"
+#include "solarus/graphics/ShaderPtr.h"
+#include "solarus/graphics/SpritePtr.h"
+#include "solarus/graphics/SurfacePtr.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/ScopedLuaRef.h"
-#include "solarus/Ability.h"
-#include "solarus/DrawablePtr.h"
-#include "solarus/SpritePtr.h"
-#include "solarus/TimerPtr.h"
 #include <lua.hpp>
 #include <list>
 #include <map>
@@ -245,6 +245,9 @@ class LuaContext {
     );
     void stop_movement_on_point(const std::shared_ptr<Movement>& movement);
     void update_movements();
+
+    // Maps.
+    static void check_map_has_game(lua_State* l, const Map& map);
 
     // Entities.
     static const std::string& get_entity_internal_type_name(EntityType entity_type);
@@ -548,10 +551,20 @@ class LuaContext {
       drawable_api_draw_region,
       drawable_api_get_blend_mode,
       drawable_api_set_blend_mode,
+      drawable_api_set_shader,
+      drawable_api_get_shader,
+      drawable_api_set_opacity,
+      drawable_api_get_opacity,
       drawable_api_fade_in,
       drawable_api_fade_out,
       drawable_api_get_xy,
       drawable_api_set_xy,
+      drawable_api_set_rotation,
+      drawable_api_get_rotation,
+      drawable_api_set_scale,
+      drawable_api_get_scale,
+      drawable_api_set_transformation_origin,
+      drawable_api_get_transformation_origin,
       drawable_api_get_movement,
       drawable_api_stop_movement,
       drawable_meta_gc,
@@ -614,6 +627,8 @@ class LuaContext {
       shader_api_get_id,
       shader_api_get_vertex_file,
       shader_api_get_fragment_file,
+      shader_api_get_scaling_factor,
+      shader_api_set_scaling_factor,
       shader_api_set_uniform,
 
       // Movement API.
@@ -650,15 +665,18 @@ class LuaContext {
       path_movement_api_set_path,
       path_movement_api_get_speed,
       path_movement_api_set_speed,
+      path_movement_api_get_angle,
       path_movement_api_get_loop,
       path_movement_api_set_loop,
       path_movement_api_get_snap_to_grid,
       path_movement_api_set_snap_to_grid,
       random_path_movement_api_get_speed,
       random_path_movement_api_set_speed,
+      random_path_movement_api_get_angle,
       path_finding_movement_api_set_target,
       path_finding_movement_api_get_speed,
       path_finding_movement_api_set_speed,
+      path_finding_movement_api_get_angle,
       circle_movement_api_set_center,
       circle_movement_api_get_radius,
       circle_movement_api_set_radius,
@@ -873,6 +891,10 @@ class LuaContext {
       entity_api_set_optimization_distance,
       entity_api_is_in_same_region,
       entity_api_get_state,
+      entity_api_get_property,
+      entity_api_set_property,
+      entity_api_get_properties,
+      entity_api_set_properties,
       hero_api_teleport,
       hero_api_get_direction,
       hero_api_set_direction,
@@ -1008,6 +1030,8 @@ class LuaContext {
       enemy_api_set_treasure,
       enemy_api_is_traversable,
       enemy_api_set_traversable,
+      enemy_api_get_attacking_collision_mode,
+      enemy_api_set_attacking_collision_mode,
       enemy_api_get_obstacle_behavior,
       enemy_api_set_obstacle_behavior,
       enemy_api_restart,
@@ -1031,8 +1055,9 @@ class LuaContext {
       // available to all userdata types
       userdata_meta_gc,
       userdata_meta_newindex_as_table,
-      userdata_meta_index_as_table;
-
+      userdata_meta_index_as_table,
+      // Lua backtrace error function
+      l_backtrace;
   private:
 
     /**

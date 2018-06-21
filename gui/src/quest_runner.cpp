@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus Quest Editor is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,11 +88,6 @@ QStringList QuestRunner::create_arguments(const QString& quest_path) const {
   if (settings.value("no_audio", false).toBool()) {
     arguments << "-no-audio";
   }
-
-  // video-acceleration
-  const bool video_acceleration =
-      settings.value("video_acceleration", true).toBool();
-  arguments << "-video-acceleration=" + QString(video_acceleration ? "yes" : "no");
 
   // quest-size
   const QSize size = settings.value("quest_size").toSize();

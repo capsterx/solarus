@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Game.h"
+#include "solarus/core/GameCommands.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/Map.h"
 #include "solarus/entities/Boomerang.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/hero/BoomerangState.h"
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/Game.h"
-#include "solarus/GameCommands.h"
-#include "solarus/Map.h"
 #include <memory>
 
 namespace Solarus {

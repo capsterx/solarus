@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/AbilityInfo.h"
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Logger.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/QuestProperties.h"
+#include "solarus/core/Timer.h"
+#include "solarus/core/Treasure.h"
 #include "solarus/entities/Block.h"
 #include "solarus/entities/Chest.h"
 #include "solarus/entities/CustomEntity.h"
@@ -27,20 +38,9 @@
 #include "solarus/entities/ShopTreasure.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Tileset.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/lowlevel/Logger.h"
-#include "solarus/lowlevel/QuestFiles.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
-#include "solarus/AbilityInfo.h"
-#include "solarus/CurrentQuest.h"
-#include "solarus/Equipment.h"
-#include "solarus/EquipmentItem.h"
-#include "solarus/Map.h"
-#include "solarus/QuestProperties.h"
-#include "solarus/Timer.h"
-#include "solarus/Treasure.h"
 #include <sstream>
 
 namespace Solarus {
@@ -2974,6 +2974,28 @@ int LuaContext::l_loader(lua_State* l) {
     }
     return 1;
   });
+}
+
+/**
+ * \brief A function that prints the stack trace of an error raised in lua
+ * \param l The lua context
+ * \return Number of values to return to lua
+ */
+int LuaContext::l_backtrace(lua_State* l) {
+    if (!lua_isstring(l, 1)) return 1;
+    lua_getglobal(l, "debug");
+    if (!lua_istable(l, -1)) {
+        lua_pop(l, 1);
+        return 1;
+    }
+    lua_getfield(l, -1, "traceback");
+    if (!lua_isfunction(l, -1)) {
+        lua_pop(l, 2);
+        return 1;
+    }
+    lua_pushvalue(l, 1);    // pass error message
+    lua_call(l, 1, 1);      // call debug.traceback
+    return 1;
 }
 
 }

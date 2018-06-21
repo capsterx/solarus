@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #ifndef SOLARUS_HERO_BACK_TO_SOLID_GROUND_STATE_H
 #define SOLARUS_HERO_BACK_TO_SOLID_GROUND_STATE_H
 
+#include "solarus/core/Common.h"
 #include "solarus/hero/HeroState.h"
-#include "solarus/lowlevel/Point.h"
 #include <cstdint>
 
 namespace Solarus {

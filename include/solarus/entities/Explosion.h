@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #ifndef SOLARUS_EXPLOSION_H
 #define SOLARUS_EXPLOSION_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
 #include <list>
 #include <string>
@@ -53,7 +53,7 @@ class Explosion: public Entity {
     virtual void notify_collision_with_switch(Switch& sw, Sprite& sprite_overlapping) override;
     virtual void notify_collision_with_crystal(Crystal& crystal, Sprite& sprite_overlapping) override;
     virtual void notify_collision_with_sensor(Sensor& sensor, CollisionMode collision_mode) override;
-    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& enemy_sprite, Sprite& this_sprite) override;
+    virtual void notify_collision_with_enemy(Enemy& enemy, Sprite& this_sprite, Sprite& enemy_sprite) override;
     void try_attack_enemy(Enemy& enemy, Sprite &enemy_sprite);
     virtual void notify_attacked_enemy(
         EnemyAttack attack,

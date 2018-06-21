@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 #include "solarus/entities/CrystalBlock.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/Hero.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/lowlevel/Sound.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/audio/Sound.h"
 #include "solarus/movements/PlayerMovement.h"
-#include "solarus/Game.h"
-#include "solarus/Map.h"
-#include "solarus/Sprite.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
+#include "solarus/graphics/Sprite.h"
 
 namespace Solarus {
 

@@ -1,4 +1,4 @@
-__________________________
+___________________________
 
 Solarus 1.6.0 (in progress)
 ___________________________
@@ -7,18 +7,33 @@ Engine changes
 --------------
 
 * Solarus 1.5 quests are still supported by Solarus 1.6.
+* Add support of OpenGL shaders (#394) by stdgregwar, Vlag and Christopho.
+* Maps can now use multiple tilesets (#1174).
 * Treasure dialogs are now optional (#1076).
+* Don't center the hero on non-blocking streams (#1063).
+* Fix enemies unable to move on non-blocking streams.
+* Fix streams stopping when using the sword several times.
+* Fix stairs activating when the hero is not exactly aligned.
 * Fix random movement giving the same path for all entities on Mac (#1083).
 * Fix possible crash when reloading very old savegame files (#1064).
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
 * Fix crash when opening a chest with a missing treasure dialog (#1089).
+* Fix crash when scrolling to the same map (#924) by stdgregwar.
 * Fix joypad deadzone issue (#672) by strycore.
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix hero:on_movement_changed() not called (#1095).
+* Fix hero shield sprite directions in animation sword (#1185).
+* Fix removed entity still drawn during scrolling transition (#1193).
+* Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix scripts failing to load if a directory exists with the same name (#1100).
 * Improve Lua error messages.
+
+Solarus launcher GUI changes
+----------------------------
+
+* Clear the console when a quest is started.
 
 Lua API changes
 ---------------
@@ -29,16 +44,29 @@ Changes that do not introduce incompatibilities:
 * Video mode functions are now deprecated. Use shader functions instead.
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_resource_ids() to get the resource lists (#959).
+* Add abilities push, grab and pull to game:get/set_ability() (#788).
+* Add methods entity:get_property() and entity:set_property() (#1094).
+* Add methods entity:get_properties() and entity:set_properties() (#1144).
 * Add methods entity:get_layer() and entity:set_layer().
+* Add optional callback parameter to enemy:set_attack_consequence() (#1062).
+* Add methods enemy:get/set_attacking_collision_mode() (#1066).
+* Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
+* Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
 * Add a method sprite:get_frame_src_xy() (#1093).
 * sprite:get_num_frames() can now optionally take an animation and direction.
 * sprite:get_frame_delay() can now optionally take an animation.
 * sprite:get_size() can now optionally take an animation and direction.
 * sprite:get_origin() can now optionally take an animation and direction.
+* Add a method surface:get_pixels() (#452).
+* Add a method surface:set_pixels() (#466) by stdgregwar.
+* Add method get_angle() to more movement types (#1122) by stdgregwar.
 
 Data files format changes
 -------------------------
 
+* Maps: add support of custom properties for entities (#1094).
+* Maps: add property tileset to tiles and dynamic tiles (#1174).
+* Tilesets: add support of border sets (autotiles) (#1069).
 * Make the tileset entities image optional (#884).
 
 ___________________________
@@ -71,7 +99,6 @@ Engine changes
 * Fix entity:get_name() returning nil after the entity is removed (#954).
 * Improve error messages of surface creations and conversions.
 * Chests: set an initial value "entities/chest" to the sprite field.
-
 
 Solarus launcher GUI changes
 ----------------------------
@@ -1013,4 +1040,3 @@ hookshot, they are activated instead
 solarus-0.9.0 (2011-12-23)
 
 * Initial release of Solarus without quest data
-

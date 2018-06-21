@@ -1,11 +1,18 @@
 map{ id = "all_entities", description = "All entities" }
 map{ id = "basic_test", description = "Basic test" }
+map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
 map{ id = "bugs/1076_treasure_dialog_optional", description = "#1076: Treasure dialog should be optional" }
+map{ id = "bugs/1094_entity_properties", description = "#1094: Entity user-defined properties" }
+map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
+map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
+map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
+map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
+map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195: Enemy dying animation never finishes" }
+map{ id = "bugs/1210_shader_scaling_factor", description = "#1210: shader:get/set_shading_factor()" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
 map{ id = "bugs/633_straight_movement_speed_zero", description = "#633: Straight movements resets speed to zero when reaching an obstacle" }
-map{ id = "bugs/648_non_blocking_streams", description = "#648: Non-blocking streams direction change" }
 map{ id = "bugs/656_map_set_world", description = "#656: map:set_world()" }
 map{ id = "bugs/664_chest_get_set_treasure", description = "#664: chest:get/set_treasure()" }
 map{ id = "bugs/667_hero_save_solid_ground_callback", description = "#867: Add callback parameter to hero:save_solid_ground()" }
@@ -63,6 +70,7 @@ map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "jumper_tests", description = "Jumper tests" }
+map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
 map{ id = "teletransportation_tests/main", description = "Main map" }
 map{ id = "teletransportation_tests/start_in_deep_water_drown", description = "Start in deep water (drowning)" }
@@ -76,6 +84,7 @@ map{ id = "teletransportation_tests/start_scrolling", description = "Start by sc
 map{ id = "teletransportation_tests/start_scrolling_carrying", description = "Start by scrolling while carrying" }
 map{ id = "teletransportation_tests/start_scrolling_jumping", description = "Start by scrolling while jumping" }
 map{ id = "teletransportation_tests/start_scrolling_running", description = "Start by scrolling while running" }
+map{ id = "teletransportation_tests/start_scrolling_same_map", description = "Scroll to the other side of the same map" }
 map{ id = "teletransportation_tests/start_scrolling_sword_charged", description = "Start by scrolling while the sword is charged" }
 map{ id = "traversable", description = "Traversable test area" }
 
@@ -123,6 +132,7 @@ sprite{ id = "main_heroes/sword", description = "Sword" }
 sprite{ id = "main_heroes/sword_electricity", description = "Sword electricity" }
 sprite{ id = "main_heroes/trail", description = "Trail" }
 sprite{ id = "menus/solarus_logo", description = "Solarus logo" }
+sprite{ id = "pivot", description = "Pivot Test" }
 sprite{ id = "todo", description = "TODO image" }
 
 
@@ -262,3 +272,6 @@ language{ id = "en", description = "English" }
 font{ id = "8_bit", description = "8 bit" }
 font{ id = "minecraftia", description = "Minecraftia" }
 
+shader{ id = "sepia", description = "Sepia" }
+
+file{ path = "sounds/diarandor/solarus_logo.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }

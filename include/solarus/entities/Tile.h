@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,15 @@
 #ifndef SOLARUS_TILE_H
 #define SOLARUS_TILE_H
 
-#include "solarus/Common.h"
+#include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
-#include "solarus/lowlevel/SurfacePtr.h"
+#include "solarus/graphics/SurfacePtr.h"
 #include <string>
 
 namespace Solarus {
 
 struct TileInfo;
+class Tileset;
 class TilePattern;
 
 /**
@@ -62,6 +63,7 @@ class Tile: public Entity {
 
     const std::string tile_pattern_id;       /**< Id of the tile pattern. */
     const TilePattern& tile_pattern;         /**< Pattern of the tile. */
+    const Tileset& tileset;                  /**< Tileet of the pattern. */
 
 };
 

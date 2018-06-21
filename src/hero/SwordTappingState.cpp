@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "solarus/hero/SwordTappingState.h"
-#include "solarus/hero/SwordLoadingState.h"
+#include "solarus/audio/Sound.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/GameCommands.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/Map.h"
+#include "solarus/core/System.h"
+#include "solarus/entities/Enemy.h"
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/entities/Enemy.h"
-#include "solarus/lowlevel/System.h"
-#include "solarus/lowlevel/Sound.h"
+#include "solarus/hero/SwordTappingState.h"
+#include "solarus/hero/SwordLoadingState.h"
 #include "solarus/movements/StraightMovement.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/Game.h"
-#include "solarus/GameCommands.h"
-#include "solarus/Map.h"
 #include <memory>
 #include <string>
 
@@ -202,20 +202,20 @@ void Hero::SwordTappingState::notify_attacked_enemy(
     EnemyReaction::Reaction& result,
     bool /* killed */) {
 
-  if (result.type != EnemyReaction::ReactionType::IGNORED && attack == EnemyAttack::SWORD) {
+  if (attack == EnemyAttack::SWORD &&
+      victim.get_push_hero_on_sword() &&
+      result.type != EnemyReaction::ReactionType::IGNORED &&
+      result.type != EnemyReaction::ReactionType::LUA_CALLBACK) {
 
-    if (victim.get_push_hero_on_sword()) {
-
-      Hero& hero = get_entity();
-      double angle = victim.get_angle(hero, victim_sprite, nullptr);
-      std::shared_ptr<StraightMovement> movement =
-          std::make_shared<StraightMovement>(false, true);
-      movement->set_max_distance(24);
-      movement->set_speed(120);
-      movement->set_angle(angle);
-      hero.set_movement(movement);
-      get_sprites().set_animation_walking_normal();
-    }
+    Hero& hero = get_entity();
+    double angle = victim.get_angle(hero, victim_sprite, nullptr);
+    std::shared_ptr<StraightMovement> movement =
+        std::make_shared<StraightMovement>(false, true);
+    movement->set_max_distance(24);
+    movement->set_speed(120);
+    movement->set_angle(angle);
+    hero.set_movement(movement);
+    get_sprites().set_animation_walking_normal();
   }
 }
 

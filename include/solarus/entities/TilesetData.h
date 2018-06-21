@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 #ifndef SOLARUS_TILESET_DATA_H
 #define SOLARUS_TILESET_DATA_H
 
-#include "solarus/Common.h"
-#include "solarus/EnumInfo.h"
+#include "solarus/core/Common.h"
+#include "solarus/core/EnumInfo.h"
+#include "solarus/core/Rectangle.h"
 #include "solarus/entities/BorderSet.h"
 #include "solarus/entities/Ground.h"
-#include "solarus/lowlevel/Color.h"
-#include "solarus/lowlevel/Rectangle.h"
+#include "solarus/graphics/Color.h"
 #include "solarus/lua/LuaData.h"
 #include <iosfwd>
 #include <map>

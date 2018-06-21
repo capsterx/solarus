@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
  */
 #include "solarus/gui/main_window.h"
 #include "solarus/gui/settings.h"
-#include "solarus/lowlevel/Debug.h"
-#include "solarus/Arguments.h"
-#include "solarus/MainLoop.h"
+#include "solarus/core/Arguments.h"
+#include "solarus/core/Debug.h"
+#include "solarus/core/MainLoop.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QFile>

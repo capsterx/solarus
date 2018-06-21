@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Christopho, Solarus - http://www.solarus-games.org
+ * Copyright (C) 2006-2018 Christopho, Solarus - http://www.solarus-games.org
  *
  * Solarus is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Geometry.h"
+#include "solarus/core/MainLoop.h"
+#include "solarus/core/QuestFiles.h"
+#include "solarus/core/QuestDatabase.h"
+#include "solarus/core/QuestProperties.h"
+#include "solarus/core/Settings.h"
+#include "solarus/core/System.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
-#include "solarus/lowlevel/Geometry.h"
-#include "solarus/lowlevel/QuestFiles.h"
-#include "solarus/lowlevel/System.h"
-#include "solarus/CurrentQuest.h"
-#include "solarus/QuestProperties.h"
-#include "solarus/QuestResources.h"
-#include "solarus/MainLoop.h"
-#include "solarus/Settings.h"
 #include <lua.hpp>
 
 namespace Solarus {
@@ -357,12 +357,12 @@ int LuaContext::main_api_get_resource_ids(lua_State* l) {
   return LuaTools::exception_boundary_handle(l, [&] {
 
     ResourceType resource_type = LuaTools::check_enum<ResourceType>(l, 1);
-    const QuestResources::ResourceMap& elements = CurrentQuest::get_resources().get_elements(resource_type);
+    const QuestDatabase::ResourceMap& elements = CurrentQuest::get_database().get_resource_elements(resource_type);
 
     // Build a Lua array containing the ids.
     lua_settop(l, 0);
     lua_newtable(l);
-    int i = 0;
+    int i = 1;
     for (const std::pair<std::string, std::string>& kvp : elements) {
       const std::string& id = kvp.first;
       push_string(l, id);
