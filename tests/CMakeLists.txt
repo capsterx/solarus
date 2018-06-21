@@ -131,7 +131,7 @@ foreach(test_main_file ${tests_main_files})
 
   get_filename_component(test_bin_file ${test_main_file} NAME_WE)
   add_executable(${test_bin_file} ${test_main_file})
-  
+
   if (WIN32)
     set(SDL2MAIN_LINK "${SDL2MAIN_LIBRARY}")
   else()
@@ -152,23 +152,21 @@ foreach(test_main_file ${tests_main_files})
     "${VORBISFILE_LIBRARY}"
     "${OGG_LIBRARY}"
     "${MODPLUG_LIBRARY}"
-  )
+    )
   set_target_properties(${test_bin_file}
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-  )
+    )
 
   if (${test_main_file} MATCHES "src/tests/RunLuaTest.cpp")
     # Lua test runner: add an individual test for each map.
     foreach(map_id ${lua_test_maps})
       add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
-    if (NOT DEFINED ENV{GITLAB_CI})
-      # The CI environment cannot run tests that create a window.
-      foreach(map_id ${lua_test_maps_with_window})
-        add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
-      endforeach()
-    endif()
+    # Tests that need a window to run.
+    foreach(map_id ${lua_test_maps_with_window})
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+    endforeach()
   else()
     # Normal C++ test.
     get_filename_component(test_name "${test_main_file}" NAME_WE)
