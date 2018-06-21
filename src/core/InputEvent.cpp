@@ -1467,8 +1467,19 @@ bool InputEvent::is_released() const {
  * \return true if this is a window closing event
  */
 bool InputEvent::is_window_closing() const {
-
   return internal_event.type == SDL_QUIT;
+}
+
+/**
+ * @brief InputEvent::is_window_resizing
+ * @return
+ */
+bool InputEvent::is_window_resizing() const {
+  return internal_event.type == SDL_WINDOWEVENT && internal_event.window.event == SDL_WINDOWEVENT_RESIZED;
+}
+
+Size InputEvent::get_window_size() const {
+  return {internal_event.window.data1,internal_event.window.data2};
 }
 
 }
