@@ -18,5 +18,6 @@ function map:on_opening_transition_finished()
   local facing_entity = hero:get_facing_entity()
   assert_equal(facing_entity:get_name(), "block_10")
   assert(facing_entity == block_10)
+  sol.main.exit()
 end
  
