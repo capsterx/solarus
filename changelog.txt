@@ -31,6 +31,7 @@ Engine changes
 * Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix scripts failing to load if a directory exists with the same name (#1100).
 * Improve Lua error messages.
+* Add a virtual surface representing the screen (#1216).
 
 Solarus launcher GUI changes
 ----------------------------
@@ -62,6 +63,7 @@ Changes that do not introduce incompatibilities:
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
+* Add an event sol.video:on_draw(screen) to draw directly to screen (#1216).
 
 Data files format changes
 -------------------------

@@ -472,7 +472,7 @@ void MainLoop::notify_input(const InputEvent& event) {
   if (event.is_window_closing()) {
     set_exiting();
   }
-  if(event.is_window_resizing()) {
+  else if (event.is_window_resizing()) {
     Video::on_window_resized(event.get_window_size());
   }
   else if (event.is_keyboard_key_pressed()) {

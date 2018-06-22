@@ -61,7 +61,7 @@ void LuaContext::register_video_module() {
   lua_getglobal(l, "sol");
                                   // ... sol
   lua_getfield(l, -1, "video");
-                                  // ... sol main
+                                  // ... sol video
   lua_setfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());
                                   // ... sol
   lua_pop(l, 1);
