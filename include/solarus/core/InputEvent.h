@@ -31,6 +31,7 @@ namespace Solarus {
 
 class Point;
 class Rectangle;
+class Size;
 
 /**
  * \brief Represents a low-level event.
