@@ -181,9 +181,15 @@ void Hero::PushingState::notify_obstacle_reached() {
 void Hero::PushingState::notify_position_changed() {
 
   if (is_moving_grabbed_entity()) {
-    // if the entity has made more than 8 pixels and is aligned on the grid,
-    // we stop the movement
 
+    // Check that the entity still exists.
+    if (pushed_entity->is_being_removed()) {
+      stop_moving_pushed_entity();
+      return;
+    }
+
+    // If the entity has made more than 8 pixels and is aligned on the grid,
+    // we stop the movement.
     bool horizontal = pushing_direction4 % 2 == 0;
     bool has_reached_grid = pushing_movement->get_total_distance_covered() > 8
       && ((horizontal && pushed_entity->is_aligned_to_grid_x())

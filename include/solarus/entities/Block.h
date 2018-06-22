@@ -49,6 +49,8 @@ class Block: public Entity {
 
     bool is_obstacle_for(Entity& other) override;
     bool is_hole_obstacle() const override;
+    bool is_deep_water_obstacle() const override;
+    bool is_lava_obstacle() const override;
     bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
     bool is_hero_obstacle(Hero& hero) override;
     bool is_enemy_obstacle(Enemy& enemy) override;

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/audio/Music.h"
+#include "solarus/containers/Quadtree.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Game.h"
 #include "solarus/core/Map.h"
@@ -39,23 +40,18 @@
 
 namespace Solarus {
 
-namespace {
-
 /**
  * \brief Comparator that sorts entities according to their stacking order
  * on the map (layer and then Z index).
  */
-class ZOrderComparator {
+class EntityZOrderComparator {
 
   public:
 
     /**
-     * \brief Creates a Z order comparator.
-     * \param entities The map entities to work with.
+     * \brief Creates an EntityPtr Z order comparator.
      */
-    explicit ZOrderComparator(const Entities& entities) :
-        entities(entities) {
-
+    EntityZOrderComparator() {
     }
 
     /**
@@ -75,14 +71,12 @@ class ZOrderComparator {
       }
 
       // Same layer.
+      const Entities& entities = first->get_entities();
       return entities.get_entity_relative_z_order(first) < entities.get_entity_relative_z_order(second);
     }
-
-  private:
-
-    const Entities& entities;
-
 };
+
+namespace {
 
 /**
  * \brief Comparator that sorts entities in drawing order.
@@ -150,7 +144,7 @@ Entities::Entities(Game& game, Map& map):
   camera(nullptr),
   named_entities(),
   all_entities(),
-  quadtree(),
+  quadtree(new EntityTree()),
   z_caches(),
   entities_drawn_not_at_their_position(),
   entities_to_draw(),
@@ -175,10 +169,16 @@ Entities::Entities(Game& game, Map& map):
   // Initialize the quadtree.
   const int margin = 64;
   Rectangle quadtree_space(-margin, -margin, map.get_width() + 2 * margin, map.get_height() + 2 * margin);
-  quadtree.initialize(quadtree_space);
+  quadtree->initialize(quadtree_space);
 
   // Create the camera.
   add_entity(std::make_shared<Camera>(map));
+}
+
+/**
+ * \brief Destructor.
+ */
+Entities::~Entities() {
 }
 
 /**
@@ -344,10 +344,10 @@ EntityVector Entities::get_entities_with_prefix(const std::string& prefix) {
  * \param prefix Prefix of the name.
  * \return The entities having this prefix in their name, in Z order.
  */
-EntityVector Entities::get_entities_with_prefix_sorted(const std::string& prefix) {
+EntityVector Entities::get_entities_with_prefix_z_sorted(const std::string& prefix) {
 
   EntityVector entities = get_entities_with_prefix(prefix);
-  std::sort(entities.begin(), entities.end(), ZOrderComparator(*this));
+  std::sort(entities.begin(), entities.end(), EntityZOrderComparator());
 
   return entities;
 }
@@ -395,11 +395,11 @@ EntityVector Entities::get_entities_with_prefix(
  * \param prefix Prefix of the name.
  * \return The entities having this prefix in their name, in Z order.
  */
-EntityVector Entities::get_entities_with_prefix_sorted(
+EntityVector Entities::get_entities_with_prefix_z_sorted(
     EntityType type, const std::string& prefix) {
 
   EntityVector entities = get_entities_with_prefix(type, prefix);
-  std::sort(entities.begin(), entities.end(), ZOrderComparator(*this));
+  std::sort(entities.begin(), entities.end(), EntityZOrderComparator());
 
   return entities;
 }
@@ -423,14 +423,15 @@ bool Entities::has_entity_with_prefix(const std::string& prefix) const {
 
 /**
  * \brief Returns all entities whose bounding box overlaps the given rectangle.
+ * Entities are sorted according to their Z index on the map.
  * \param[in] rectangle A rectangle.
  * \param[out] result The entities in that rectangle, in arbitrary order.
  */
-void Entities::get_entities_in_rectangle(
+void Entities::get_entities_in_rectangle_z_sorted(
     const Rectangle& rectangle, ConstEntityVector& result
 ) const {
 
-  EntityVector non_const_result = quadtree.get_elements(rectangle);
+  EntityVector non_const_result = quadtree->get_elements(rectangle);
 
   result.reserve(non_const_result.size());
   for (const ConstEntityPtr& entity : non_const_result) {
@@ -441,58 +442,11 @@ void Entities::get_entities_in_rectangle(
 /**
  * \overload Non-const version.
  */
-void Entities::get_entities_in_rectangle(
+void Entities::get_entities_in_rectangle_z_sorted(
     const Rectangle& rectangle, EntityVector& result
 ) {
 
-  result = quadtree.get_elements(rectangle);
-}
-
-/**
- * \brief Like get_entities_in_rectangle(), but sorts entities according to
- * their Z index on the map.
- * \param[in] rectangle A rectangle.
- * \param[out] result The entities in that rectangle, in arbitrary order.
- */
-void Entities::get_entities_in_rectangle_sorted(
-    const Rectangle& rectangle,
-    ConstEntityVector& result
-) const {
-
-  get_entities_in_rectangle(rectangle, result);
-  std::sort(result.begin(), result.end(), ZOrderComparator(*this));
-}
-
-/**
- * \overload Non-const version.
- */
-void Entities::get_entities_in_rectangle_sorted(
-    const Rectangle& rectangle,
-    EntityVector& result
-) {
-
-  get_entities_in_rectangle(rectangle, result);
-  std::sort(result.begin(), result.end(), ZOrderComparator(*this));
-}
-
-/**
- * \brief Returns all entities in the same separator region as the given point.
- *
- * Regions are assumed to be rectangular (convex: no "L" shape).
- *
- * \param[in] xy A point.
- * \param[out] result The entities in the same region as the point,
- * where regions are delimited by separators and map limits.
- */
-void Entities::get_entities_in_region(
-    const Point& xy, EntityVector& result
-) {
-
-  // Find the bounding box of the region.
-  Rectangle region_box = get_region_box(xy);
-
-  // Get entities in that rectangle.
-  get_entities_in_rectangle(region_box, result);
+  result = quadtree->get_elements(rectangle);
 }
 
 /**
@@ -570,18 +524,23 @@ Rectangle Entities::get_region_box(const Point& point) const {
 }
 
 /**
- * \brief Like get_entities_in_region(), but sorts entities according to
- * their Z index on the map.
+ * \brief Returns all entities in the same separator region as the given point.
+ *
+ * Regions are assumed to be rectangular (convex: no "L" shape).
+ *
  * \param[in] xy A point.
  * \param[out] result The entities in the same region as the point,
  * where regions are delimited by separators and map limits.
+ * Entities are sorted according to their Z index on the map.
  */
-void Entities::get_entities_in_region_sorted(
+void Entities::get_entities_in_region_z_sorted(
     const Point& xy, EntityVector& result
 ) {
+  // Find the bounding box of the region.
+  Rectangle region_box = get_region_box(xy);
 
-  get_entities_in_region(xy, result);
-  std::sort(result.begin(), result.end(), ZOrderComparator(*this));
+  // Get entities in that rectangle.
+  get_entities_in_rectangle_z_sorted(region_box, result);
 }
 
 /**
@@ -605,12 +564,12 @@ EntitySet Entities::get_entities_by_type(EntityType type) {
  * \param type An entity type.
  * \return All entities of the type.
  */
-EntityVector Entities::get_entities_by_type_sorted(EntityType type) {
+EntityVector Entities::get_entities_by_type_z_sorted(EntityType type) {
 
   EntitySet entity_set = get_entities_by_type(type);
   EntityVector entities;
   entities.insert(entities.begin(), entity_set.begin(), entity_set.end());
-  std::sort(entities.begin(), entities.end(), ZOrderComparator(*this));
+  std::sort(entities.begin(), entities.end(), EntityZOrderComparator());
   return entities;
 }
 
@@ -965,7 +924,7 @@ void Entities::add_entity(const EntityPtr& entity) {
     const int layer = entity->get_layer();
 
     // Update the quadtree.
-    quadtree.add(entity, entity->get_max_bounding_box());
+    quadtree->add(entity, entity->get_max_bounding_box());
 
     // Update the specific entities lists.
     switch (entity->get_type()) {
@@ -1112,7 +1071,7 @@ void Entities::remove_marked_entities() {
     const int layer = entity->get_layer();
 
     // Remove it from the quadtree.
-    quadtree.remove(entity);
+    quadtree->remove(entity);
 
     // Remove it from the whole list.
     all_entities.remove(entity);
@@ -1228,7 +1187,7 @@ void Entities::draw() {
         ),
         camera->get_size() * 3
     );
-    get_entities_in_rectangle(around_camera, entities_in_camera);
+    get_entities_in_rectangle_z_sorted(around_camera, entities_in_camera);
 
     for (const EntityPtr& entity : entities_in_camera) {
       int layer = entity->get_layer();
@@ -1284,7 +1243,7 @@ void Entities::draw() {
 
   if (EntityTree::debug_quadtrees) {
     // Draw the quadtree structure for debugging.
-    quadtree.draw(camera_surface, -camera->get_top_left_xy());
+    quadtree->draw(camera_surface, -camera->get_top_left_xy());
   }
 }
 
@@ -1331,7 +1290,7 @@ void Entities::notify_entity_bounding_box_changed(Entity& entity) {
   // Note that if the entity is not in the quadtree
   // (i.e. not managed by MapEntities) this does nothing.
   EntityPtr shared_entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
-  quadtree.move(shared_entity, shared_entity->get_max_bounding_box());
+  quadtree->move(shared_entity, shared_entity->get_max_bounding_box());
 }
 
 /**
@@ -1343,7 +1302,7 @@ void Entities::notify_entity_bounding_box_changed(Entity& entity) {
 bool Entities::overlaps_raised_blocks(int layer, const Rectangle& rectangle) {
 
   EntityVector entities_nearby;
-  get_entities_in_rectangle(rectangle, entities_nearby);
+  get_entities_in_rectangle_z_sorted(rectangle, entities_nearby);
   for (const EntityPtr& entity : entities_nearby) {
 
     if (entity->get_type() != EntityType::CRYSTAL_BLOCK) {

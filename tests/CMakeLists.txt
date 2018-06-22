@@ -63,6 +63,7 @@ set(lua_test_maps
   "bugs/945_flying_enemies_fall_in_hole"
   "bugs/946_reused_movement_callback"
   "bugs/954_entity_name_nil_after_removed"
+  "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1076_treasure_dialog_optional"
   "bugs/1094_entity_properties"
@@ -70,11 +71,13 @@ set(lua_test_maps
   "bugs/1181_hurt_enemy_after_custom_attack"
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
+  "bugs/1214_blocks_in_water"
 )
 
 # Tests that requires showing the window.
 set(lua_test_maps_with_window
   "bugs/1210_shader_scaling_factor"
+  "graphical/scale2x"
 )
 
 # Build the Solarus testing library.
@@ -131,7 +134,7 @@ foreach(test_main_file ${tests_main_files})
 
   get_filename_component(test_bin_file ${test_main_file} NAME_WE)
   add_executable(${test_bin_file} ${test_main_file})
-  
+
   if (WIN32)
     set(SDL2MAIN_LINK "${SDL2MAIN_LIBRARY}")
   else()
@@ -152,23 +155,21 @@ foreach(test_main_file ${tests_main_files})
     "${VORBISFILE_LIBRARY}"
     "${OGG_LIBRARY}"
     "${MODPLUG_LIBRARY}"
-  )
+    )
   set_target_properties(${test_bin_file}
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-  )
+    )
 
   if (${test_main_file} MATCHES "src/tests/RunLuaTest.cpp")
     # Lua test runner: add an individual test for each map.
     foreach(map_id ${lua_test_maps})
-      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
-    if (NOT $ENV{GITLAB_CI})
-      # The CI environment cannot run tests that create a window.
-      foreach(map_id ${lua_test_maps_with_window})
-        add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes -map=${map_id} "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
-      endforeach()
-    endif()
+    # Tests that need a window to run.
+    foreach(map_id ${lua_test_maps_with_window})
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -turbo=yes "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+    endforeach()
   else()
     # Normal C++ test.
     get_filename_component(test_name "${test_main_file}" NAME_WE)

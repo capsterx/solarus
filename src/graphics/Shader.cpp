@@ -735,7 +735,7 @@ void Shader::draw(Surface& dst_surface, const Surface &src_surface, const DrawIn
 
       //TODO fix this ugliness
       Shader* that = const_cast<Shader*>(this);
-      that->set_uniform_1f(OPACITY_NAME,infos.opacity/256.f);
+      that->set_uniform_1f(OPACITY_NAME,infos.opacity/255.f);
       //TODO compute mvp and uv_matrix here
 
       const auto& region = infos.region;

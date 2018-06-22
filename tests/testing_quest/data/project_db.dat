@@ -1,5 +1,6 @@
 map{ id = "all_entities", description = "All entities" }
 map{ id = "basic_test", description = "Basic test" }
+map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "bugs/1042_multiple_facing_entities_random_picked" }
 map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
 map{ id = "bugs/1076_treasure_dialog_optional", description = "#1076: Treasure dialog should be optional" }
 map{ id = "bugs/1094_entity_properties", description = "#1094: Entity user-defined properties" }
@@ -9,6 +10,7 @@ map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: En
 map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
 map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195: Enemy dying animation never finishes" }
 map{ id = "bugs/1210_shader_scaling_factor", description = "#1210: shader:get/set_shading_factor()" }
+map{ id = "bugs/1214_blocks_in_water", description = "bugs/1214_blocks_in_water" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -69,6 +71,7 @@ map{ id = "bugs/945_flying_enemies_fall_in_hole", description = "#945: Flying en
 map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no longer work after reusing a movement" }
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
+map{ id = "graphical/scale2x", description = "Test shader behaviour" }
 map{ id = "jumper_tests", description = "Jumper tests" }
 map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
@@ -272,6 +275,7 @@ language{ id = "en", description = "English" }
 font{ id = "8_bit", description = "8 bit" }
 font{ id = "minecraftia", description = "Minecraftia" }
 
+shader{ id = "scale2x", description = "scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
 file{ path = "sounds/diarandor/solarus_logo.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }

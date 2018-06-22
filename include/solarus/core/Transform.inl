@@ -97,12 +97,12 @@ static inline bool interval_intersect(const Interval& a, const Interval& b) {
  * @return transformed points
  */
 static inline Vecs make_points(const mat4& m, const Size& box) {
-  return {
-        vec2(m*vec4(0,0,0,1)),
+  return {{
+        vec2{m*vec4{0,0,0,1}},
         vec2(m*vec4(box.width,0,0,1)),
         vec2(m*vec4(box.width,box.height,0,1)),
         vec2(m*vec4(0,box.height,0,1))
-  };
+  }};
 }
 
 /**
@@ -118,12 +118,12 @@ inline bool Transform::obb_intersect(const Size& size, const Transform& other, c
   mat4 a_to_w = get_glm_transform();
 
   //Compute axes
-  Vecs axises = {
+  Vecs axises = {{
     vec2(a_to_w*vec4(1,0,0,0)),
     vec2(a_to_w*vec4(0,1,0,0)),
     vec2(b_to_w*vec4(1,0,0,0)),
     vec2(b_to_w*vec4(0,1,0,0)),
-  };
+  }};
 
   auto points_a = make_points(a_to_w,size);
   auto points_b = make_points(b_to_w,othersize);

@@ -112,9 +112,8 @@ void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& info
 SDL_Surface *RenderTexture::get_surface() const {
   if (surface_dirty) {
     with_target([&](SDL_Renderer* renderer){
-      Rectangle rect(0,0,get_width(),get_height());
       SOLARUS_CHECK_SDL(SDL_RenderReadPixels(renderer,
-                           rect,
+                           NULL,
                            Video::get_rgba_format()->format,
                            surface->pixels,
                            surface->pitch

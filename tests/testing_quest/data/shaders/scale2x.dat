@@ -1,0 +1,5 @@
+shader{
+  vertex_file = "scale2x.vert.glsl",
+  fragment_file = "scale2x.frag.glsl",
+  scaling_factor = 2,
+}

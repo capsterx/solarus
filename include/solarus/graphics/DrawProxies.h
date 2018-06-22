@@ -6,6 +6,7 @@
 #include "solarus/core/Scale.h"
 
 #include <array>
+#include <cmath>
 
 namespace Solarus {
 
@@ -60,7 +61,7 @@ struct DrawInfos {
   }
 
   inline bool should_use_ex() const {
-    return std::abs(rotation) > 1e-3;
+    return std::fabs(rotation) > 1e-3;
   }
 
   const Rectangle& region; /**< The region of the source surface that will be drawn*/

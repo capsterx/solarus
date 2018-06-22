@@ -101,10 +101,23 @@ bool Block::is_obstacle_for(Entity& other) {
 }
 
 /**
- * \brief Returns whether a hole is currently considered as an obstacle for this entity.
- * \return true if the holes are currently an obstacle for this entity
+ * \copydoc Entity::is_hole_obstacle
  */
 bool Block::is_hole_obstacle() const {
+  return false;
+}
+
+/**
+ * \copydoc Entity::is_deep_water_obstacle
+ */
+bool Block::is_deep_water_obstacle() const {
+  return false;
+}
+
+/**
+ * \copydoc Entity::is_lava_obstacle
+ */
+bool Block::is_lava_obstacle() const {
   return false;
 }
 

@@ -18,7 +18,6 @@
 #define SOLARUS_ENTITIES_H
 
 #include "solarus/core/Common.h"
-#include "solarus/containers/Quadtree.h"
 #include "solarus/graphics/Transition.h"
 #include "solarus/entities/Camera.h"
 #include "solarus/entities/CameraPtr.h"
@@ -51,7 +50,12 @@ using EntityList = std::list<EntityPtr>;
 using EntitySet = std::set<EntityPtr>;
 using EntityVector = std::vector<EntityPtr>;
 using ConstEntityVector = std::vector<ConstEntityPtr>;
-using EntityTree = Quadtree<EntityPtr>;
+
+template <typename T, typename Comparator>
+class Quadtree;
+
+class EntityZOrderComparator;
+using EntityTree = Quadtree<EntityPtr, EntityZOrderComparator>;
 
 /**
  * \brief Manages the whole content of a map.
@@ -67,6 +71,7 @@ class SOLARUS_API Entities {
 
     // Creation and destruction.
     Entities(Game& game, Map& map);
+    ~Entities();
 
     // Get entities.
     Hero& get_hero();
@@ -80,14 +85,14 @@ class SOLARUS_API Entities {
     EntityPtr find_entity(const std::string& name);
 
     EntityVector get_entities_with_prefix(const std::string& prefix);
-    EntityVector get_entities_with_prefix_sorted(const std::string& prefix);
+    EntityVector get_entities_with_prefix_z_sorted(const std::string& prefix);
     EntityVector get_entities_with_prefix(EntityType type, const std::string& prefix);
-    EntityVector get_entities_with_prefix_sorted(EntityType type, const std::string& prefix);
+    EntityVector get_entities_with_prefix_z_sorted(EntityType type, const std::string& prefix);
     bool has_entity_with_prefix(const std::string& prefix) const;
 
     // By type.
     EntitySet get_entities_by_type(EntityType type);
-    EntityVector get_entities_by_type_sorted(EntityType type);
+    EntityVector get_entities_by_type_z_sorted(EntityType type);
     EntitySet get_entities_by_type(EntityType type, int layer);
 
     // By type, template versions to avoid casts.
@@ -101,14 +106,11 @@ class SOLARUS_API Entities {
     std::set<std::shared_ptr<T>> get_entities_by_type(int layer);
 
     // By coordinates.
-    void get_entities_in_rectangle(const Rectangle& rectangle, ConstEntityVector& result) const;
-    void get_entities_in_rectangle(const Rectangle& rectangle, EntityVector& result);
-    void get_entities_in_rectangle_sorted(const Rectangle& rectangle, ConstEntityVector& result) const;
-    void get_entities_in_rectangle_sorted(const Rectangle& rectangle, EntityVector& result);
+    void get_entities_in_rectangle_z_sorted(const Rectangle& rectangle, ConstEntityVector& result) const;
+    void get_entities_in_rectangle_z_sorted(const Rectangle& rectangle, EntityVector& result);
 
     // By separator region.
-    void get_entities_in_region(const Point& xy, EntityVector& result);
-    void get_entities_in_region_sorted(const Point& xy, EntityVector& result);
+    void get_entities_in_region_z_sorted(const Point& xy, EntityVector& result);
     Rectangle get_region_box(const Point& point) const;
 
     // Handle entities.
@@ -209,7 +211,7 @@ class SOLARUS_API Entities {
     std::map<EntityType, ByLayer<EntitySet>>
         entities_by_type;                           /**< All map entities except tiles, by type and then layer. */
 
-    EntityTree quadtree;                            /**< All map entities except tiles.
+    std::unique_ptr<EntityTree> quadtree;           /**< All map entities except tiles.
                                                      * Optimized for fast spatial search. */
     ByLayer<ZCache> z_caches;                       /**< For each layer, tracks the relative Z order of entities. */
     ByLayer<EntityVector>

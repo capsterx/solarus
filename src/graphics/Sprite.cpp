@@ -876,7 +876,7 @@ void Sprite::raw_draw_region(Surface& dst_surface, const DrawInfos& infos) const
           infos.dst_position,
           current_direction,
           current_frame,
-          DrawInfos(infos,DrawProxyChain<2>({cropProxy,infos.proxy})));
+          DrawInfos(infos,DrawProxyChain<2>(DrawProxyChain<2>::Proxies{{cropProxy,infos.proxy}})));
   }
 }
 

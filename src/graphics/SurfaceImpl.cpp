@@ -12,7 +12,6 @@ void SurfaceImpl::upload_surface() {
                     );
 }
 
-
 SurfaceImpl::~SurfaceImpl() {
 
 }
