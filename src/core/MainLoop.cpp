@@ -472,6 +472,9 @@ void MainLoop::notify_input(const InputEvent& event) {
   if (event.is_window_closing()) {
     set_exiting();
   }
+  else if (event.is_window_resizing()) {
+    Video::on_window_resized(event.get_window_size());
+  }
   else if (event.is_keyboard_key_pressed()) {
     // A key was pressed.
 #if defined(PANDORA)
@@ -503,6 +506,8 @@ void MainLoop::draw() {
   }
   lua_context->main_on_draw(root_surface);
   Video::render(root_surface);
+  lua_context->video_on_draw(Video::get_screen_surface());
+  Video::finish();
 }
 
 /**

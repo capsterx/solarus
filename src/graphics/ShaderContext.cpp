@@ -22,14 +22,10 @@
 namespace Solarus {
 
 namespace {
-
-SDL_GLContext gl_context = nullptr;
 std::string opengl_version;
 std::string shading_language_version;
 std::string opengl_vendor;
 std::string opengl_renderer;
-bool is_universal_shader_supported = false;
-
 }  // Anonymous namespace.
 
 
@@ -48,14 +44,6 @@ bool ShaderContext::initialize() {
   Logger::info(std::string("OpenGL renderer: ") + opengl_renderer);
   Logger::info(std::string("OpenGL shading language: ") + shading_language_version);
 
-  SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-  // Use late swap tearing, or try to use the classic swap interval (aka VSync) if not supported.
-  if (SDL_GL_SetSwapInterval(-1) == -1) {
-    SDL_GL_SetSwapInterval(1);
-  }
-
   // Try to initialize a gl shader system, in order from the earlier to the older.
   return Shader::initialize();
 }
@@ -64,10 +52,6 @@ bool ShaderContext::initialize() {
  * \brief Free shader-related context.
  */
 void ShaderContext::quit() {
-
-  if (gl_context) {
-    SDL_GL_DeleteContext(gl_context);
-  }
 }
 
 /**
@@ -93,10 +77,6 @@ const std::string& ShaderContext::get_shading_language_version() {
  */
 ShaderPtr ShaderContext::create_shader(const std::string& shader_id) {
   return std::make_shared<Shader>(shader_id);
-}
-
-void ShaderContext::make_current() {
-  SDL_GL_MakeCurrent(Video::get_window(),gl_context);
 }
 
 }

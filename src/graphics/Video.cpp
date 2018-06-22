@@ -30,6 +30,7 @@
 #include "solarus/graphics/SoftwareVideoMode.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Video.h"
+#include "solarus/graphics/RenderTexture.h"
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -52,6 +53,7 @@ struct VideoContext {
   SDL_PixelFormat* pixel_format = nullptr;  /**< The pixel color format to use. */
   SDL_PixelFormat* rgba_format = nullptr;
   SDL_Surface* software_surface = nullptr;
+
   std::string rendering_driver_name;        /**< The name of the rendering driver. */
   bool disable_window = false;              /**< Indicates that no window is displayed (used for unit tests). */
   bool fullscreen_window = false;           /**< True if the window is in fullscreen. */
@@ -67,6 +69,7 @@ struct VideoContext {
   Size window_size;                         /**< Size of the window. The quest size is stretched and
                                              * letterboxed to fit. In fullscreen, remembers the size
                                              * to use when returning to windowed mode. */
+  Size logical_size;                        /**< Size of the window minus the letterboxing black bars */
 
   // Shaders.
   bool rendertarget_supported = false;      /**< True if rendering on texture is supported. */
@@ -82,7 +85,7 @@ struct VideoContext {
   const SoftwareVideoMode*
       default_video_mode = nullptr;         /**< Default software video mode. */
   SurfacePtr scaled_surface = nullptr;      /**< The screen surface used with software-scaled modes. */
-
+  SurfacePtr screen_surface = nullptr;      /**< Strange surface representing the window */
 };
 
 VideoContext context;
@@ -410,7 +413,6 @@ void render(const SurfacePtr& quest_surface) {
       surface_to_render = nullptr; //Final SDL render is not nessesary
       // OpenGL rendering with the current shader.
       context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
-      SDL_GL_SwapWindow(Video::get_window());
     }
   }
   //Render the final surface with sdl if necessary
@@ -418,10 +420,22 @@ void render(const SurfacePtr& quest_surface) {
     clearScreen();
     // SDL rendering.
     //Set blending mode to none to simply replace any on_screen material
-    SDL_SetTextureBlendMode(surface_to_render->get_internal_surface().get_texture(),SDL_BLENDMODE_NONE);
-    SDL_RenderCopy(context.main_renderer, surface_to_render->get_internal_surface().get_texture(), nullptr, nullptr);
-    SDL_RenderPresent(context.main_renderer);
+    context.screen_surface->request_render().with_target([&](SDL_Renderer*) { //Bind screen surface to account virtual surface dirtyness
+      SDL_SetTextureBlendMode(surface_to_render->get_internal_surface().get_texture(),SDL_BLENDMODE_NONE);
+      SDL_RenderCopy(context.main_renderer, surface_to_render->get_internal_surface().get_texture(), nullptr, nullptr);
+    });
   }
+}
+
+/**
+ * @brief present the final result to the screen
+ */
+void finish() {
+  SDL_RenderPresent(context.main_renderer);
+}
+
+SurfacePtr& get_screen_surface() {
+  return context.screen_surface;
 }
 
 /**
@@ -731,11 +745,6 @@ bool set_video_mode(const SoftwareVideoMode& mode) {
       context.scaled_surface->fill_with_color(Color::black);  // To initialize the internal surface.
     }
 
-    SDL_RenderSetLogicalSize(
-        context.main_renderer,
-        render_size.width,
-        render_size.height);
-
     if (mode_changed) {
       reset_window_size();
     }
@@ -846,6 +855,7 @@ void set_window_size(const Size& size) {
           size.width,
           size.height
       );
+      on_window_resized(size);
       SDL_SetWindowPosition(
           context.main_window,
           SDL_WINDOWPOS_CENTERED,
@@ -863,6 +873,35 @@ void reset_window_size() {
   Debug::check_assertion(context.video_mode != nullptr, "No video mode");
 
   set_window_size(context.video_mode->get_initial_window_size());
+}
+
+/**
+ * @brief return a letter boxed size
+ * @param basesize window base size
+ * @return
+ */
+Size get_letter_box(const Size& basesize) {
+  float qratio = context.quest_size.width / (float) context.quest_size.height;
+  float wratio = basesize.width / (float) basesize.height;
+  if(qratio > wratio) {
+    return Size(basesize.width,basesize.width/qratio);
+  } else {
+    return Size(basesize.height*qratio, basesize.height);
+  }
+}
+
+/**
+ * @brief Window resize event
+ * @param size new window size
+ */
+void on_window_resized(const Size& size) {
+  Size letter = get_letter_box(size);
+  context.screen_surface = std::make_shared<Surface>(new RenderTexture(nullptr,letter.width,letter.height));
+  context.logical_size = letter;
+  SDL_RenderSetLogicalSize(
+      context.main_renderer,
+      letter.width,
+      letter.height);
 }
 
 /**

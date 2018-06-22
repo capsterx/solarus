@@ -58,6 +58,21 @@ void LuaContext::register_video_module() {
     });
   }
   register_functions(video_module_name, functions);
+  lua_getglobal(l, "sol");
+                                  // ... sol
+  lua_getfield(l, -1, "video");
+                                  // ... sol video
+  lua_setfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());
+                                  // ... sol
+  lua_pop(l, 1);
+}
+
+/**
+ * @brief push video module onto lua stack
+ * @param l
+ */
+void LuaContext::push_video(lua_State* l) {
+  lua_getfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());
 }
 
 /**
@@ -399,6 +414,16 @@ int LuaContext::video_api_set_shader(lua_State* l) {
 
     return 0;
   });
+}
+
+/**
+ * @brief call video:on_draw event if any
+ * @param screen the destination surface representing the screen
+ */
+void LuaContext::video_on_draw(const SurfacePtr &screen) {
+  push_video(l);
+  on_draw(screen);
+  lua_pop(l,1);
 }
 
 }

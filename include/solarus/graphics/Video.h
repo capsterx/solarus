@@ -92,6 +92,8 @@ namespace Video {
     void set_window_size(const Size& size);
     void reset_window_size();
 
+    void on_window_resized(const Size& size);
+
     Size get_output_size();
     Size get_output_size_no_bars();
 
@@ -100,8 +102,10 @@ namespace Video {
     bool renderer_to_quest_coordinates(const Point& renderer_xy, Point& quest_xy);
 
     void render(const SurfacePtr& quest_surface);
+    void finish();
 
     void set_render_target(SDL_Texture* target);
+    SurfacePtr& get_screen_surface();
 
 }  // namespace Video
 

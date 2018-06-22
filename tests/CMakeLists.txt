@@ -77,6 +77,7 @@ set(lua_test_maps
 # Tests that requires showing the window.
 set(lua_test_maps_with_window
   "bugs/1210_shader_scaling_factor"
+  "graphical/scale2x"
 )
 
 # Build the Solarus testing library.

@@ -283,6 +283,9 @@ class LuaContext {
     void main_on_draw(const SurfacePtr& dst_surface);
     bool main_on_input(const InputEvent& event);
 
+    //Video events
+    void video_on_draw(const SurfacePtr& screen);
+
     // Menu events.
     void menu_on_started(const ScopedLuaRef& menu_ref);
     void menu_on_finished(const ScopedLuaRef& menu_ref);
@@ -1125,6 +1128,7 @@ class LuaContext {
 
     // Pushing objects to Lua.
     static void push_main(lua_State* l);
+    static void push_video(lua_State* l);
     static void push_string(lua_State* l, const std::string& text);
     static void push_color(lua_State* l, const Color& color);
     static void push_userdata(lua_State* l, ExportableToLua& userdata);

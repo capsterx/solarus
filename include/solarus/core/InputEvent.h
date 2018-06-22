@@ -31,6 +31,7 @@ namespace Solarus {
 
 class Point;
 class Rectangle;
+class Size;
 
 /**
  * \brief Represents a low-level event.
@@ -306,6 +307,9 @@ class InputEvent {
 
     // window event
     bool is_window_closing() const;
+    bool is_window_resizing() const;
+
+    Size get_window_size() const;
 
   private:
 

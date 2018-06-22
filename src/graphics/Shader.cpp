@@ -675,6 +675,7 @@ void Shader::set_scaling_factor(double scaling_factor) {
 
 void Shader::compute_matrices(const Size& surface_size, const Rectangle& region, const Size& dst_size, const Point& dst_position, bool flip_y,
                                      glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3 &uvm) {
+
   viewport = glm::ortho<float>(0,dst_size.width,0,dst_size.height); //Specify float as type to avoid integral division
   dst = glm::translate(glm::mat4(),glm::vec3(dst_position.x,dst_position.y,0));
   scale = glm::scale(glm::mat4(),glm::vec3(region.get_width(),region.get_height(),1));
@@ -730,17 +731,24 @@ void Shader::draw(Surface& dst_surface, const Surface &src_surface, const DrawIn
         SDL_RenderDrawPoint(r,-100,-100); //Draw a point offscreen to force blendmode change
       }
 
+      bool flip_y =  !dst_surface.get_internal_surface().get_texture();
+
       //TODO fix this ugliness
       Shader* that = const_cast<Shader*>(this);
       that->set_uniform_1f(OPACITY_NAME,infos.opacity/255.f);
       //TODO compute mvp and uv_matrix here
-      const auto& dst_position = infos.dst_position;
+
       const auto& region = infos.region;
+      auto dst_position = flip_y ?
+            Point(infos.dst_position.x,dst_surface.get_height()-infos.dst_position.y-region.get_height()) :
+            infos.dst_position;
 
       Size dst_size = dst_surface.get_size();
       glm::mat4 viewport,dst,scale;
       glm::mat3 uvm;
-      compute_matrices(src_surface.get_size(),region,dst_size,dst_position,false,viewport,dst,scale,uvm);
+      compute_matrices(src_surface.get_size(),region,dst_size,dst_position,
+                       flip_y,
+                       viewport,dst,scale,uvm);
       glm::mat4 transform = Transform(dst_position,infos.transformation_origin,infos.scale,infos.rotation).get_glm_transform() * scale;
       //Set input size
       const Size& size = dst_size;
