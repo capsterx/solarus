@@ -219,18 +219,18 @@ void Shader::load() {
 
   // Check GL status.
   ctx.glGetProgramiv(program, GL_LINK_STATUS, &linked);
+  GLint info_len = 0;
+  ctx.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
+
+  if (info_len > 1) {
+    std::string log;
+    log.resize(info_len, '\0');
+    ctx.glGetProgramInfoLog(program, info_len, NULL, &log[0]);
+    Logger::info(std::string("Linking result of shader '") + get_id() + std::string("':\n") + log);
+  }
 
   if (!linked) {
-    GLint info_len = 0;
-    ctx.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
-
-    if (info_len > 1) {
-      char* info = (char*)malloc(sizeof(char) * info_len);
-      ctx.glGetProgramInfoLog(program, info_len, NULL, info);
-      Debug::error(std::string("Failed to link shader ") + get_id() + std::string(" :\n") + info);
-      free(info);
-    }
-
+    Debug::error(std::string("Failed to link shader '") + get_id() + std::string("':\n"));
     ctx.glDeleteProgram(program);
   }
 }
@@ -258,20 +258,21 @@ GLuint Shader::create_shader(GLenum type, const char* source) {
   ctx.glCompileShader(shader);
 
   // Check the compile status.
+  std::string shader_type_string = (type == GL_VERTEX_SHADER) ?
+        "vertex" : "fragment";
   ctx.glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+  GLint info_len = 0;
+  ctx.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
+
+  if (info_len > 1) {
+    std::string log;
+    log.resize(info_len, '\0');
+    ctx.glGetShaderInfoLog(shader, info_len, NULL, &log[0]);
+    Logger::info("Compilation result of " + shader_type_string + " shader '" + get_id() + "':\n" + log);
+  }
 
   if (!compiled) {
-    GLint info_len = 0;
-
-    ctx.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
-
-    if (info_len > 1) {
-      char* info = (char*)malloc(sizeof(char) * info_len);
-      ctx.glGetShaderInfoLog(shader, info_len, NULL, info);
-      Debug::error(std::string("Failed to compile shader '") + get_id() + std::string("':\n") + info);
-      free(info);
-    }
-
+    Debug::error("Failed to compile " + shader_type_string + " shader '" + get_id() + "'");
     ctx.glDeleteShader(shader);
     shader = 0;
   }
