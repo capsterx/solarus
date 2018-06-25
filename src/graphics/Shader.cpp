@@ -260,7 +260,7 @@ GLuint Shader::create_shader(GLenum type, const char* source) {
   // Check the compile status.
   ctx.glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 
-  if(!compiled) {
+  if (!compiled) {
     GLint info_len = 0;
 
     ctx.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
