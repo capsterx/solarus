@@ -156,15 +156,15 @@ void create_window() {
   Debug::check_assertion(context.pixel_format != nullptr, "No compatible pixel format");
   Logger::info("SDL Renderer: " + std::string(renderer_info.name));
 
-  std::string opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-  std::string shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
-  std::string opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-  std::string opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+  context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 
-  Logger::info(std::string("OpenGL: ") + opengl_version);
-  Logger::info(std::string("OpenGL vendor: ") + opengl_vendor);
-  Logger::info(std::string("OpenGL renderer: ") + opengl_renderer);
-  Logger::info(std::string("OpenGL shading language: ") + shading_language_version);
+  Logger::info(std::string("OpenGL: ") + context.opengl_version);
+  Logger::info(std::string("OpenGL vendor: ") + context.opengl_vendor);
+  Logger::info(std::string("OpenGL renderer: ") + context.opengl_renderer);
+  Logger::info(std::string("OpenGL shading language: ") + context.shading_language_version);
 
   // Check renderer's flags
   context.rendering_driver_name = renderer_info.name;
