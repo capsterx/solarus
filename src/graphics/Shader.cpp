@@ -208,7 +208,7 @@ void Shader::load() {
   // Create a program object with both shaders.
   program = ctx.glCreateProgram();
   if (program == 0) {
-    Logger::error(std::string("Could not create OpenGL program"));
+    Debug::error(std::string("Could not create OpenGL program"));
     return;
   }
 
@@ -227,7 +227,7 @@ void Shader::load() {
     if (info_len > 1) {
       char* info = (char*)malloc(sizeof(char) * info_len);
       ctx.glGetProgramInfoLog(program, info_len, NULL, info);
-      Logger::error(std::string("Failed to link shader ") + get_id() + std::string(" :\n") + info);
+      Debug::error(std::string("Failed to link shader ") + get_id() + std::string(" :\n") + info);
       free(info);
     }
 
@@ -249,8 +249,8 @@ GLuint Shader::create_shader(GLenum type, const char* source) {
   GLuint shader = ctx.glCreateShader(type);
   check_gl_error();
 
-  if(shader == 0) {
-    Logger::error(std::string("Could not create OpenGL shader "));
+  if (shader == 0) {
+    Debug::error("Could not create OpenGL shader");
     return shader;
   }
 
@@ -265,10 +265,10 @@ GLuint Shader::create_shader(GLenum type, const char* source) {
 
     ctx.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
 
-    if(info_len > 1) {
+    if (info_len > 1) {
       char* info = (char*)malloc(sizeof(char) * info_len);
       ctx.glGetShaderInfoLog(shader, info_len, NULL, info);
-      Logger::error(std::string("Failed to compile shader '") + get_id() + std::string("':\n") + info);
+      Debug::error(std::string("Failed to compile shader '") + get_id() + std::string("':\n") + info);
       free(info);
     }
 
@@ -306,7 +306,7 @@ void Shader::check_gl_error() {
       break;
     }
 
-    Logger::error(std::string("GL_") + error.c_str() + std::string(" - "));
+    Debug::error(std::string("GL_") + error.c_str() + std::string(" - "));
     gl_error = ctx.glGetError();
   }
 }
@@ -635,7 +635,7 @@ std::string Shader::get_vertex_source() const {
     if (QuestFiles::data_file_exists(file_name)) {
       return QuestFiles::data_file_read(file_name);
     }
-    Logger::error("Cannot find vertex shader file '" + file_name + "'");
+    Debug::error("Cannot find vertex shader file '" + file_name + "'");
   }
   return default_vertex_source();
 }
@@ -651,7 +651,7 @@ std::string Shader::get_fragment_source() const {
     if (QuestFiles::data_file_exists(file_name)) {
       return QuestFiles::data_file_read(file_name);
     }
-    Logger::error("Cannot find fragment shader file '" + file_name + "'");
+    Debug::error("Cannot find fragment shader file '" + file_name + "'");
   }
   return default_fragment_source();
 }

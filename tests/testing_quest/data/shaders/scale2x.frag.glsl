@@ -1,6 +1,8 @@
 #version 130
 
-uniform sampler2D sol_texture;
+unif
+
+orm sampler2D sol_texture;
 uniform vec2 sol_input_size;
 uniform vec2 sol_output_size;
 vec2 sol_texture_size = sol_input_size;

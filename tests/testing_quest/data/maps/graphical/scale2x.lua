@@ -36,7 +36,7 @@ function map:on_opening_transition_finished()
     draw_load = nil
     function draw_load(screen_hw) -- get hardware filter result and compare
       local hw_pix = screen_hw:get_pixels()
-      assert(sw_pix == hw_pix,"Software and shader scale2x don't lead to same result")
+      assert(sw_pix == hw_pix, "Software and shader scale2x don't lead to same result")
       sol.main.exit()
     end
   end
