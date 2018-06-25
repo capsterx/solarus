@@ -236,7 +236,7 @@ void Drawable::draw(const SurfacePtr& dst_surface,
     const Point& dst_position) const {
   //draw_region(get_region(),dst_surface,dst_position);
   if (transition) {
-    draw(dst_surface,dst_position,DrawProxyChain<2>({*transition,terminal()}));
+    draw(dst_surface, dst_position, DrawProxyChain<2>(DrawProxyChain<2>::Proxies{{*transition,terminal()}}));
   } else {
     draw(dst_surface, dst_position,terminal());
   }
@@ -275,7 +275,7 @@ void Drawable::draw_region(const Rectangle& region,
     const SurfacePtr& dst_surface,
     const Point& dst_position) const {
   if (transition) {
-    draw_region(region,dst_surface,dst_position,DrawProxyChain<2>({*transition,terminal()}));
+    draw_region(region,dst_surface,dst_position,DrawProxyChain<2>(DrawProxyChain<2>::Proxies{{*transition,terminal()}}));
   } else {
     draw_region(region, dst_surface, dst_position,terminal());
   }
