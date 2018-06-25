@@ -25,7 +25,7 @@ RenderTexture::RenderTexture(SDL_Texture* texture, int width, int height) {
 /**
  * @brief RenderTexture::RenderTexture
  * @param width width of the render texture
- * @param height height og the render texture
+ * @param height height of the render texture
  */
 RenderTexture::RenderTexture(int width, int height)
 {

@@ -68,8 +68,8 @@ void LuaContext::register_video_module() {
 }
 
 /**
- * @brief push video module onto lua stack
- * @param l
+ * \brief Pushes the sol.video table onto the stack.
+ * \param l A Lua state.
  */
 void LuaContext::push_video(lua_State* l) {
   lua_getfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());

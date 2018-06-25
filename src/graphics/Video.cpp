@@ -38,6 +38,11 @@
 #include <SDL.h>
 #include <SDL_render.h>
 #include <SDL_hints.h>
+#ifdef SOLARUS_HAVE_OPENGL
+#  include <SDL_opengl.h>
+#else
+#  include <SDL_opengles2.h>
+#endif
 
 namespace Solarus {
 
@@ -86,6 +91,11 @@ struct VideoContext {
       default_video_mode = nullptr;         /**< Default software video mode. */
   SurfacePtr scaled_surface = nullptr;      /**< The screen surface used with software-scaled modes. */
   SurfacePtr screen_surface = nullptr;      /**< Strange surface representing the window */
+
+  std::string opengl_version;
+  std::string shading_language_version;
+  std::string opengl_vendor;
+  std::string opengl_renderer;
 };
 
 VideoContext context;
@@ -100,6 +110,7 @@ void create_window() {
 
   // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
   SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   // Set the default OpenGL built-in shader (nearest).
   SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "1");
@@ -145,6 +156,16 @@ void create_window() {
   }
   Debug::check_assertion(context.pixel_format != nullptr, "No compatible pixel format");
   Logger::info("SDL Renderer: " + std::string(renderer_info.name));
+
+  std::string opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  std::string shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+  std::string opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  std::string opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
+  Logger::info(std::string("OpenGL: ") + opengl_version);
+  Logger::info(std::string("OpenGL vendor: ") + opengl_vendor);
+  Logger::info(std::string("OpenGL renderer: ") + opengl_renderer);
+  Logger::info(std::string("OpenGL shading language: ") + shading_language_version);
 
   // Check renderer's flags
   context.rendering_driver_name = renderer_info.name;
@@ -217,6 +238,12 @@ void initialize(const Arguments& args) {
   std::ostringstream oss;
   oss << "SDL: " << static_cast<int>(sdl_version.major) << "." << static_cast<int>(sdl_version.minor) << "." << static_cast<int>(sdl_version.patch);
   Logger::info(oss.str());
+
+  // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
+  SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
+
+  // Set the default OpenGL built-in shader (nearest).
+  SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "1");
 
   // Check the -no-video and the -quest-size options.
   const std::string& quest_size_string = args.get_argument_value("-quest-size");
@@ -334,11 +361,26 @@ SDL_PixelFormat* get_rgba_format() {
 }
 
 /**
+ * \brief Returns the OpenGL version name.
+ * \return The OpenGL version name.
+ */
+const std::string& get_opengl_version() {
+  return context.opengl_version;
+}
+
+/**
+ * \brief Returns the shading language version.
+ * \return The shading language version.
+ */
+const std::string& get_shading_language_version() {
+  return context.shading_language_version;
+}
+
+/**
  * \brief Get the default rendering driver for the current platform.
  * \return a string containing the rendering driver name.
  */
 const std::string& get_rendering_driver_name() {
-
   return context.rendering_driver_name;
 }
 

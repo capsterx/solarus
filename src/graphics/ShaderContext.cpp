@@ -21,30 +21,11 @@
 
 namespace Solarus {
 
-namespace {
-std::string opengl_version;
-std::string shading_language_version;
-std::string opengl_vendor;
-std::string opengl_renderer;
-}  // Anonymous namespace.
-
-
 /**
  * \brief Initializes the shader system.
  * \return \c true if any shader system is supported.
  */
 bool ShaderContext::initialize() {
-  opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-  shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
-  opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-  opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-
-  Logger::info(std::string("OpenGL: ") + opengl_version);
-  Logger::info(std::string("OpenGL vendor: ") + opengl_vendor);
-  Logger::info(std::string("OpenGL renderer: ") + opengl_renderer);
-  Logger::info(std::string("OpenGL shading language: ") + shading_language_version);
-
-  // Try to initialize a gl shader system, in order from the earlier to the older.
   return Shader::initialize();
 }
 
@@ -52,22 +33,6 @@ bool ShaderContext::initialize() {
  * \brief Free shader-related context.
  */
 void ShaderContext::quit() {
-}
-
-/**
- * \brief Returns the OpenGL version name.
- * \return The OpenGL version name.
- */
-const std::string& ShaderContext::get_opengl_version() {
-  return opengl_version;
-}
-
-/**
- * \brief Returns the shading language version.
- * \return The shading language version.
- */
-const std::string& ShaderContext::get_shading_language_version() {
-  return shading_language_version;
 }
 
 /**

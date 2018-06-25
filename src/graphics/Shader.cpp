@@ -124,7 +124,6 @@ bool Shader::initialize() {
 #include "gles2funcs.h"
 #undef SDL_PROC
 
-
   //Init screen quad
   screen_quad.add_quad(Rectangle(0,0,1,1),Rectangle(0,1,1,-1),Color::white);
 

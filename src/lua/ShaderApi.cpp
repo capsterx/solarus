@@ -126,7 +126,7 @@ int LuaContext::shader_api_get_opengl_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& opengl_version = ShaderContext::get_opengl_version();
+    const std::string& opengl_version = Video::get_opengl_version();
 
     push_string(l, opengl_version);
     return 1;
@@ -142,7 +142,7 @@ int LuaContext::shader_api_get_shading_language_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& shading_language_version = ShaderContext::get_shading_language_version();
+    const std::string& shading_language_version = Video::get_shading_language_version();
 
     push_string(l, shading_language_version);
     return 1;
