@@ -269,7 +269,7 @@ GLuint Shader::create_shader(GLenum type, const char* source) {
     if(info_len > 1) {
       char* info = (char*)malloc(sizeof(char) * info_len);
       ctx.glGetShaderInfoLog(shader, info_len, NULL, info);
-      Logger::error(std::string("Failed to compile shader ") + get_id() + std::string(" :\n") + info);
+      Logger::error(std::string("Failed to compile shader '") + get_id() + std::string("':\n") + info);
       free(info);
     }
 

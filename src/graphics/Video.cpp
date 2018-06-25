@@ -144,7 +144,7 @@ void create_window() {
     }
   }
   Debug::check_assertion(context.pixel_format != nullptr, "No compatible pixel format");
-  Logger::info("SDL Renderer : " + std::string(renderer_info.name));
+  Logger::info("SDL Renderer: " + std::string(renderer_info.name));
 
   // Check renderer's flags
   context.rendering_driver_name = renderer_info.name;
