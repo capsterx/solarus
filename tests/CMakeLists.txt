@@ -67,6 +67,7 @@ set(lua_test_maps
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1076_treasure_dialog_optional"
   "bugs/1094_entity_properties"
+  "bugs/1158_entity_timer_suspended"
   "bugs/1162_custom_entity_collision_wrong_order"
   "bugs/1163_circular_movement_get_direction4"
   "bugs/1181_hurt_enemy_after_custom_attack"

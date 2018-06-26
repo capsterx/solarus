@@ -291,6 +291,34 @@ void LuaContext::set_entity_timers_suspended(
 }
 
 /**
+ * \brief Suspends or resumes the timers attached to a map entity.
+ *
+ * This takes into account the Timer::is_suspended_with_map() property.
+ *
+ * \param entity A map entity.
+ * \param suspended \c true to suspend its timers
+ * (unless Timer::is_suspended_with_map() is false), \c false to resume them.
+ */
+void LuaContext::set_entity_timers_suspended_as_map(
+    Entity& entity, bool suspended
+) {
+  if (!suspended) {
+    set_entity_timers_suspended(entity, suspended);
+    return;
+  }
+
+  // Suspend timers except the ones that ignore the map being suspended.
+  for (const auto& kvp: timers) {
+    const TimerPtr& timer = kvp.first;
+    if (kvp.second.context == &entity) {
+      if (timer->is_suspended_with_map()) {
+        timer->set_suspended(suspended);
+      }
+    }
+  }
+}
+
+/**
  * \brief Executes the callback of a timer.
  *
  * Then, if the callback returns \c true, the timer is rescheduled,

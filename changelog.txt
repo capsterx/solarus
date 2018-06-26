@@ -14,6 +14,7 @@ Engine changes
 * Fix enemies unable to move on non-blocking streams.
 * Fix streams stopping when using the sword several times.
 * Fix stairs activating when the hero is not exactly aligned.
+* Fix timer:set_suspended_with_map() not working for entity timers (#1158).
 * Fix random movement giving the same path for all entities on Mac (#1083).
 * Fix circle_movement:get_direction4() not working (#1163).
 * Fix possible crash when reloading very old savegame files (#1064).

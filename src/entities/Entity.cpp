@@ -3411,7 +3411,7 @@ void Entity::set_suspended(bool suspended) {
 
   // Suspend/unsuspend timers.
   if (is_on_map()) {
-    get_lua_context()->set_entity_timers_suspended(*this, suspended || !is_enabled());
+    get_lua_context()->set_entity_timers_suspended_as_map(*this, suspended || !is_enabled());
   }
 
   if (!suspended) {
