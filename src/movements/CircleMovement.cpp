@@ -482,6 +482,17 @@ void CircleMovement::stop() {
 }
 
 /**
+ * \copydoc Movement::get_displayed_direction4()
+ */
+int CircleMovement::get_displayed_direction4() const {
+
+  int tangent_angle = current_angle +
+      (is_clockwise() ? (-90) : 90);
+  int direction = (tangent_angle + 45 + 360) / 90;
+  return direction % 4;
+}
+
+/**
  * \brief Returns the name identifying this type in Lua.
  * \return the name identifying this type in Lua
  */

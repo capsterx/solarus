@@ -38,12 +38,12 @@ class CircleMovement: public Movement {
     explicit CircleMovement(bool ignore_obstacles);
 
     // state
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
     void start();
-    virtual void stop() override;
-    virtual bool is_started() const override;
-    virtual bool is_finished() const override;
+    void stop() override;
+    bool is_started() const override;
+    bool is_finished() const override;
 
     // properties
     void set_center(const Point& center_point);
@@ -68,8 +68,9 @@ class CircleMovement: public Movement {
     void set_max_rotations(int max_rotations);
     uint32_t get_loop() const;
     void set_loop(uint32_t delay);
+    int get_displayed_direction4() const override;
 
-    virtual const std::string& get_lua_type_name() const override;
+    const std::string& get_lua_type_name() const override;
 
   private:
 
