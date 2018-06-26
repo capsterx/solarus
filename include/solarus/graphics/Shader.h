@@ -77,6 +77,7 @@ class Shader : public DrawProxy, public ExportableToLua {
     void set_scaling_factor(double scaling_factor);
 
     static bool initialize();
+    static void quit();
 
     void set_uniform_1b(
         const std::string& uniform_name, bool value);
@@ -113,7 +114,7 @@ class Shader : public DrawProxy, public ExportableToLua {
     void set_valid(bool valid);
     void set_error(const std::string& error);
     void set_data(const ShaderData& data);
-     void load();
+    void load();
     static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
 
   private:

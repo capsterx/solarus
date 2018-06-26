@@ -133,6 +133,12 @@ bool Shader::initialize() {
 }
 
 /**
+ * \brief Uninitializes the GL shader system.
+ */
+void Shader::quit() {
+}
+
+/**
  * \brief Constructor.
  * \param shader_name The name of the shader to load.
  */

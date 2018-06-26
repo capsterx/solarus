@@ -16,7 +16,6 @@
  */
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/graphics/Shader.h"
-#include "solarus/graphics/ShaderContext.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -105,7 +104,7 @@ int LuaContext::shader_api_create(lua_State* l) {
 
     const std::string& shader_id = LuaTools::check_string(l, 1);
 
-    ShaderPtr shader = ShaderContext::create_shader(shader_id);
+    ShaderPtr shader = std::make_shared<Shader>(shader_id);
     Debug::check_assertion(shader != nullptr, "Failed to create shader '" + shader_id + "'");
 
     if (!shader->is_valid()) {

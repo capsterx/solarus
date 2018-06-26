@@ -134,7 +134,7 @@ file(
     include/solarus/graphics/Color.h
     include/solarus/graphics/Drawable.h
     include/solarus/graphics/DrawablePtr.h
-          include/solarus/graphics/DrawProxies.h
+    include/solarus/graphics/DrawProxies.h
     include/solarus/graphics/Hq2xFilter.h
     include/solarus/graphics/Hq3xFilter.h
     include/solarus/graphics/Hq4xFilter.h
@@ -142,7 +142,6 @@ file(
     include/solarus/graphics/Scale2xFilter.h
     include/solarus/graphics/SDLPtrs.h
     include/solarus/graphics/Shader.h
-    include/solarus/graphics/ShaderContext.h
     include/solarus/graphics/ShaderData.h
     include/solarus/graphics/ShaderPtr.h
     include/solarus/graphics/SoftwarePixelFilter.h
@@ -341,7 +340,6 @@ file(
     src/graphics/Hq4xFilter.cpp
     src/graphics/RenderTexture.cpp
     src/graphics/Scale2xFilter.cpp
-    src/graphics/ShaderContext.cpp
     src/graphics/ShaderData.cpp
     src/graphics/Shader.cpp
     src/graphics/SoftwarePixelFilter.cpp

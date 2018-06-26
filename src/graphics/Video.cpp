@@ -26,7 +26,7 @@
 #include "solarus/graphics/Hq3xFilter.h"
 #include "solarus/graphics/Hq4xFilter.h"
 #include "solarus/graphics/Scale2xFilter.h"
-#include "solarus/graphics/ShaderContext.h"
+#include "solarus/graphics/Shader.h"
 #include "solarus/graphics/SoftwareVideoMode.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Video.h"
@@ -173,7 +173,7 @@ void create_window() {
   // Decide whether we enable shaders.
   context.shaders_enabled =
       context.rendertarget_supported &&
-      ShaderContext::initialize();
+      Shader::initialize();
 }
 
 /**
@@ -289,8 +289,6 @@ void quit() {
   if (!is_initialized()) {
     return;
   }
-
-  ShaderContext::quit();
 
   if (is_fullscreen()) {
     // Get back on desktop before destroy the window.
