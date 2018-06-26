@@ -116,6 +116,8 @@ class SOLARUS_API TilesetData : public LuaData {
 
     TilesetData();
 
+    void clear();
+
     Color get_background_color() const;
     void set_background_color(const Color& background_color);
 

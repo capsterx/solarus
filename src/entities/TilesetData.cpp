@@ -195,6 +195,15 @@ TilesetData::TilesetData() :
 }
 
 /**
+ * \brief Removes all content of this tileset.
+ */
+void TilesetData::clear() {
+  background_color = Color::white;
+  patterns.clear();
+  border_sets.clear();
+}
+
+/**
  * \brief Returns the tileset's background color.
  * \return The background color.
  */
@@ -608,6 +617,7 @@ int l_border_set(lua_State* l) {
  */
 bool TilesetData::import_from_lua(lua_State* l) {
 
+  clear();
   lua_pushlightuserdata(l, this);
   lua_setfield(l, LUA_REGISTRYINDEX, "tileset");
   lua_register(l, "background_color", l_background_color);
