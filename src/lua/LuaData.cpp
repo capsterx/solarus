@@ -157,6 +157,7 @@ bool LuaData::export_to_file(const std::string& file_name) const {
   in.close();
   std::remove(tmp_file_name.c_str());
   out.flush();
+  out.close();
   return true;
 }
 
