@@ -63,6 +63,7 @@ set(lua_test_maps
   "bugs/945_flying_enemies_fall_in_hole"
   "bugs/946_reused_movement_callback"
   "bugs/954_entity_name_nil_after_removed"
+  "bugs/1015_crash_scrolling_to_invalid_layer/map_1"
   "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1076_treasure_dialog_optional"
