@@ -1260,6 +1260,17 @@ void Entities::set_entity_layer(Entity& entity, int layer) {
 
     const EntityPtr& shared_entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
 
+    if (!map.is_valid_layer(layer)) {
+      std::ostringstream oss;
+      oss << "Invalid layer: " << layer;
+      Debug::die(oss.str());
+    }
+    if (!map.is_valid_layer(old_layer)) {
+      std::ostringstream oss;
+      oss << "Invalid layer: " << old_layer;
+      Debug::die(oss.str());
+    }
+
     // Track the insertion order.
     z_caches.at(old_layer).remove(shared_entity);
     z_caches.at(layer).add(shared_entity);

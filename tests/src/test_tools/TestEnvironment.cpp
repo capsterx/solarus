@@ -34,8 +34,10 @@ TestEnvironment::TestEnvironment(int argc, char** argv):
     main_loop(arguments),
     map_id("traversable") {
 
+  bool fatal_errors = get_arguments().get_argument_value("-fatal-errors", "yes") == "yes";
+
   Debug::set_show_popup_on_die(false);
-  Debug::set_die_on_error(true);
+  Debug::set_die_on_error(fatal_errors);
   Debug::set_abort_on_die(true);
 }
 

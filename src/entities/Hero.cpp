@@ -70,6 +70,7 @@
 #include "solarus/movements/StraightMovement.h"
 #include <lua.hpp>
 #include <algorithm>
+#include <sstream>
 #include <utility>
 
 namespace Solarus {
@@ -199,6 +200,11 @@ void Hero::update() {
  * This function is called repeatedly by update().
  */
 void Hero::update_movement() {
+
+  if (!get_map().is_loaded()) {
+    // Can happen during transitions.
+    return;
+  }
 
   if (on_raised_blocks && !get_state().is_touching_ground()) {
     // If the hero was already over raised blocks, keep it that way while he
@@ -606,6 +612,15 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
     if (side != -1) {
 
       // Go to a side of the other map.
+      int layer = get_layer();
+      if (!map.is_valid_layer(layer)) {
+        std::ostringstream oss;
+        oss << "Layer " << layer << " does not exist on map '" << map.get_id()
+               + "'. Placing the hero on layer 0 instead.";
+        Debug::error(oss.str());
+        layer = 0;
+        set_layer(layer);
+      }
       place_on_map(map);
 
       switch (side) {
@@ -634,6 +649,7 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
         Debug::die("Invalid destination side");
       }
       map.get_entities().notify_entity_bounding_box_changed(*this);
+      map.get_entities().set_entity_layer(*this, layer);
       last_solid_ground_coords = get_xy();
       last_solid_ground_layer = get_layer();
       // Note that we keep the hero's state from the previous map.

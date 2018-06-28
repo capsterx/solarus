@@ -63,7 +63,6 @@ set(lua_test_maps
   "bugs/945_flying_enemies_fall_in_hole"
   "bugs/946_reused_movement_callback"
   "bugs/954_entity_name_nil_after_removed"
-  "bugs/1015_crash_scrolling_to_invalid_layer/map_1"
   "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1076_treasure_dialog_optional"
@@ -75,6 +74,11 @@ set(lua_test_maps
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
   "bugs/1214_blocks_in_water"
+)
+
+# Test that should not fail when there are errors.
+set(lua_test_maps_non_fatal_errors
+  "bugs/1015_crash_scrolling_to_invalid_layer/map_1"
 )
 
 # Tests that requires showing the window.
@@ -168,6 +172,10 @@ foreach(test_main_file ${tests_main_files})
     # Lua test runner: add an individual test for each map.
     foreach(map_id ${lua_test_maps})
       add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+    endforeach()
+    # Tests that want to survive on errors.
+    foreach(map_id ${lua_test_maps_non_fatal_errors})
+      add_test("lua/${map_id}" "bin/${test_bin_file}" -no-audio -no-video -turbo=yes -fatal-errors=no "-map=${map_id}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
     # Tests that need a window to run.
     foreach(map_id ${lua_test_maps_with_window})
