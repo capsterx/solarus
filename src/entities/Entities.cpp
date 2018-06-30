@@ -55,7 +55,7 @@ class EntityZOrderComparator {
     }
 
     /**
-     * \brief Compares two con entities.
+     * \brief Compares two entities.
      * \param first An entity.
      * \param second Another entity.
      * \return \c true if the first entity's Z index is lower than the second one's.
@@ -71,6 +71,11 @@ class EntityZOrderComparator {
       }
 
       // Same layer.
+      if (!first->is_on_map() && !second->is_on_map()) {
+        // The map is still being loaded.
+        return false;
+      }
+
       const Entities& entities = first->get_entities();
       return entities.get_entity_relative_z_order(first) < entities.get_entity_relative_z_order(second);
     }
