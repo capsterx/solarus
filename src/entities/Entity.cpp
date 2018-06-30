@@ -1695,7 +1695,20 @@ void Entity::start_stream_action(
  */
 void Entity::stop_stream_action() {
 
+  if (stream_action == nullptr) {
+    return;
+  }
+
+  old_stream_actions.emplace_back(std::move(stream_action));
   stream_action = nullptr;
+}
+
+/**
+ * \brief Destroys the old stream actions of this entity.
+ */
+void Entity::clear_old_stream_actions() {
+
+  old_stream_actions.clear();
 }
 
 /**
@@ -3496,12 +3509,14 @@ void Entity::update() {
     movement->update();
   }
   clear_old_movements();
+
   if (stream_action != nullptr) {
     stream_action->update();
-    if (!get_stream_action()->is_active()) {
+    if (stream_action != nullptr && !get_stream_action()->is_active()) {
       stop_stream_action();
     }
   }
+  clear_old_stream_actions();
 
   // Update the state if any.
   update_state();

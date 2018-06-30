@@ -245,15 +245,16 @@ void StreamAction::update() {
       }
     }
 
-    entity_moved->set_xy(entity_moved->get_x() + dx, entity_moved->get_y() + dy);
-    entity_moved->notify_position_changed();
+    Point new_xy = entity_moved->get_xy() + Point(dx, dy);
 
     // See if the entity has come outside the stream,
     // in other words, if the movement is finished.
-    if (has_reached_target()) {
+    if (new_xy == target) {
       // The target point is reached: stop the stream.
       active = false;
     }
+    entity_moved->set_xy(new_xy);
+    entity_moved->notify_position_changed();
     recompute_movement();
   }
 }

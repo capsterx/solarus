@@ -207,6 +207,8 @@ MainLoop::~MainLoop() {
     game.reset();  // While deleting the game, the Lua world must still exist.
   }
 
+  resource_provider.clear();
+
   // Clear the surface while Lua still exists,
   // because it may point to other surfaces that have Lua movements.
   root_surface = nullptr;

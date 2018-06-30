@@ -436,6 +436,7 @@ class SOLARUS_API Entity: public ExportableToLua {
 
     void finish_initialization();
     void clear_old_movements();
+    void clear_old_stream_actions();
     void clear_old_sprites();
 
     MainLoop* main_loop;                        /**< The Solarus main loop. */
@@ -487,6 +488,8 @@ class SOLARUS_API Entity: public ExportableToLua {
 
     std::unique_ptr<StreamAction>
         stream_action;                          /**< The stream effect currently applied if any. */
+    std::vector<std::unique_ptr<StreamAction>>
+        old_stream_actions;                     /**< Old stream actions to destroy as soon as possible. */
 
     // state
     std::unique_ptr<State> state;               /**< The current internal state */

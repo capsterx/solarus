@@ -25,6 +25,13 @@ ResourceProvider::ResourceProvider() {
 }
 
 /**
+ * \brief Clears all stored resources.
+ */
+void ResourceProvider::clear() {
+  tileset_cache.clear();
+}
+
+/**
  * \brief Provides the tileset with the given id.
  * \param tileset_id A tileset id.
  * \return The corresponding tileset.

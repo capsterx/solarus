@@ -81,6 +81,7 @@ class Pickable: public Entity {
         Sprite& this_sprite,
         Sprite& other_sprite
     ) override;
+    void notify_collision_with_stream(Stream& stream, int dx, int dy) override;
     void update() override;
     void draw_on_map() override;
 

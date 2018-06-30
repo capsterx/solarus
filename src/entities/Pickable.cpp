@@ -27,6 +27,8 @@
 #include "solarus/entities/Hookshot.h"
 #include "solarus/entities/Pickable.h"
 #include "solarus/graphics/Sprite.h"
+#include "solarus/entities/Stream.h"
+#include "solarus/entities/StreamAction.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/FallingOnFloorMovement.h"
@@ -349,6 +351,21 @@ void Pickable::notify_collision(
     if (other_sprite.get_animation_set_id() == hero.get_hero_sprites().get_sword_sprite_id()) {
       try_give_item_to_player();
     }
+  }
+}
+
+/**
+ * \copydoc Entity::notify_collision_with_stream
+ */
+void Pickable::notify_collision_with_stream(
+    Stream& stream, int /* dx */, int /* dy */) {
+
+  if (has_stream_action()) {
+    get_stream_action()->update();
+  }
+
+  if (!has_stream_action()) {
+    stream.activate(*this);
   }
 }
 

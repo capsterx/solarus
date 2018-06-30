@@ -38,6 +38,7 @@ class SOLARUS_API ResourceProvider {
   public:
 
     ResourceProvider();
+    void clear();
 
     const Tileset& get_tileset(const std::string& tileset_id);
     // TODO other types of resources
