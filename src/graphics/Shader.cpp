@@ -25,74 +25,15 @@
 #include "solarus/lua/LuaTools.h"
 #include "solarus/graphics/VertexArray.h"
 #include "solarus/graphics/RenderTexture.h"
+#include "solarus/graphics/DefaultShaders.h"
 
-#include "solarus/third_party/glm/gtc/type_ptr.hpp"
-#include "solarus/third_party/glm/gtx/transform.hpp"
-#include "solarus/third_party/glm/gtx/matrix_transform_2d.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 namespace Solarus {
 
 VertexArray Shader::screen_quad(TRIANGLES);
-
-constexpr auto DEFAULT_VERTEX =
-    R"(
-    #if __VERSION__ >= 130
-    #define COMPAT_VARYING out
-    #define COMPAT_ATTRIBUTE in
-    #else
-    #define COMPAT_VARYING varying
-    #define COMPAT_ATTRIBUTE attribute
-    #endif
-
-    #ifdef GL_ES
-    precision mediump float;
-    #define COMPAT_PRECISION mediump
-    #else
-    #define COMPAT_PRECISION
-    #endif
-
-    uniform mat4 sol_mvp_matrix;
-    uniform mat3 sol_uv_matrix;
-    COMPAT_ATTRIBUTE vec2 sol_vertex;
-    COMPAT_ATTRIBUTE vec2 sol_tex_coord;
-    COMPAT_ATTRIBUTE vec4 sol_color;
-
-    COMPAT_VARYING vec2 sol_vtex_coord;
-    COMPAT_VARYING vec4 sol_vcolor;
-    void main() {
-      gl_Position = sol_mvp_matrix * vec4(sol_vertex,0,1);
-      sol_vcolor = sol_color;
-      sol_vtex_coord = (sol_uv_matrix * vec3(sol_tex_coord,1)).xy;
-    }
-    )";
-
-constexpr auto DEFAULT_FRAGMENT =
-    R"(
-    #if __VERSION__ >= 130
-    #define COMPAT_VARYING in
-    #define COMPAT_TEXTURE texture
-    out vec4 FragColor;
-    #else
-    #define COMPAT_VARYING varying
-    #define FragColor gl_FragColor
-    #define COMPAT_TEXTURE texture2D
-    #endif
-
-    #ifdef GL_ES
-    precision mediump float;
-    #define COMPAT_PRECISION mediump
-    #else
-    #define COMPAT_PRECISION
-    #endif
-
-    uniform sampler2D sol_texture;
-    COMPAT_VARYING vec2 sol_vtex_coord;
-    COMPAT_VARYING vec4 sol_vcolor;
-    void main() {
-      vec4 tex_color = COMPAT_TEXTURE(sol_texture,sol_vtex_coord);
-      FragColor = tex_color*sol_vcolor;
-    }
-    )";
 
 struct GlContext {
 #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
@@ -318,12 +259,12 @@ void Shader::check_gl_error() {
   }
 }
 
-std::string Shader::default_vertex_source() const {
-  return DEFAULT_VERTEX;
+std::string Shader::default_vertex_source() {
+  return DEFAULT_VERTEX_SHADER;
 }
 
-std::string Shader::default_fragment_source() const {
-  return DEFAULT_FRAGMENT;
+std::string Shader::default_fragment_source() {
+  return DEFAULT_FRAGMENT_SHADER;
 }
 
 /**

@@ -23,8 +23,8 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/graphics/VertexArrayPtr.h"
 #include "solarus/graphics/BlendMode.h"
-#include "solarus/third_party/glm/mat4x4.hpp"
-#include "solarus/third_party/glm/mat3x3.hpp"
+#include <glm/mat4x4.hpp>
+#include <glm/mat3x3.hpp>
 #include "solarus/lua/ExportableToLua.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -70,8 +70,8 @@ class Shader : public DrawProxy, public ExportableToLua {
     std::string get_vertex_source() const;
     std::string get_fragment_source() const;
 
-    std::string default_vertex_source() const;
-    std::string default_fragment_source() const;
+    static std::string default_vertex_source();
+    static std::string default_fragment_source();
 
     double get_scaling_factor() const;
     void set_scaling_factor(double scaling_factor);
