@@ -31,7 +31,3 @@ if("${DL_LIBRARY}" MATCHES DL_LIBRARY-NOTFOUND)
   set(DL_LIBRARY "")
 endif()
 
-# Specify we are in a GL Context, else GLES2 would be used by default.
-if(OPENGL_FOUND)
-  add_definitions(-DSOLARUS_HAVE_OPENGL)
-endif()
