@@ -24,7 +24,7 @@
 #include <fstream>
 #include <cstdlib>  // exit(), mkstemp(), tmpnam()
 #include <cstdio>   // remove()
-#ifdef HAVE_UNISTD_H
+#ifdef SOLARUS_HAVE_UNISTD_H
 #  include <unistd.h>  // close()
 #endif
 
@@ -460,7 +460,7 @@ SOLARUS_API std::string create_temporary_file(const std::string& content) {
   // Determine the name of our temporary file.
   std::string file_name;
 
-#ifdef HAVE_MKSTEMP
+#ifdef SOLARUS_HAVE_MKSTEMP
   // mkstemp+close is safer than tmpnam, but POSIX only.
   char name_template[] = "/tmp/solarus.XXXXXX";
   int file_descriptor = mkstemp(name_template);
