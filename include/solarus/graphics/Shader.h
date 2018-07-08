@@ -45,7 +45,7 @@ namespace Solarus {
 /**
  * \brief Represents a shader for a driver and sampler-independant uses.
  */
-class Shader : public DrawProxy, public ExportableToLua {
+class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
   public:
     constexpr static const char* POSITION_NAME = "sol_vertex";
     constexpr static const char* TEXCOORD_NAME = "sol_tex_coord";

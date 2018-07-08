@@ -27,7 +27,7 @@ namespace Solarus {
  *
  * This class simply wraps the RGBA components of a color.
  */
-class Color {
+class SOLARUS_API Color {
 
   public:
 
