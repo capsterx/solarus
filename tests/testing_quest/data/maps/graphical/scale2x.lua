@@ -10,7 +10,9 @@ function map:on_opening_transition_finished()
     assert(#sw_pix > 0)
 
     sol.video.set_mode("normal")  
-    sol.video.set_shader(sol.shader.create("scale2x")) -- set hardware filter from source
+    local shader = sol.shader.create("scale2x")
+    assert(shader ~= nil)
+    sol.video.set_shader(shader) -- set hardware filter from source
 
     function sol.video:on_draw(screen_hw) -- get hardware filter result and compare
       local hw_pix = screen_hw:get_pixels()

@@ -48,7 +48,9 @@ void LuaContext::register_shader_module() {
   const std::vector<luaL_Reg> methods = {
       { "get_id", shader_api_get_id },
       { "get_vertex_file", shader_api_get_vertex_file },
+      { "get_vertex_source", shader_api_get_vertex_source },
       { "get_fragment_file", shader_api_get_fragment_file },
+      { "get_fragment_source", shader_api_get_fragment_source },
       { "get_scaling_factor", shader_api_get_scaling_factor },
       { "set_scaling_factor", shader_api_set_scaling_factor },
       { "set_uniform", shader_api_set_uniform },
@@ -125,6 +127,7 @@ int LuaContext::shader_api_create(lua_State* l) {
       LuaTools::type_error(l, 1, "string or table");
     }
 
+    Debug::check_assertion(shader != nullptr, "Missing shader");
     push_shader(l, *shader);
     return 1;
   });
@@ -201,6 +204,22 @@ int LuaContext::shader_api_get_vertex_file(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of shader:get_vertex_source().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_vertex_source(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    push_string(l, shader.get_vertex_source());
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of shader:get_fragment_file().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -218,6 +237,22 @@ int LuaContext::shader_api_get_fragment_file(lua_State* l) {
     else {
       push_string(l, fragment_file);
     }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:get_fragment_source().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_fragment_source(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    push_string(l, shader.get_fragment_source());
     return 1;
   });
 }

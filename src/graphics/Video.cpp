@@ -654,15 +654,20 @@ void set_shader(const ShaderPtr& shader) {
 
   context.current_shader = shader;
 
-  if(context.current_shader) {
+  if (context.current_shader) {
     float s = context.current_shader->get_data().get_scaling_factor();
-    if(s > 0.f) { //Create scaled surface if needed
-      context.scaled_surface = Surface::create(context.quest_size*Scale(s));
+    if (s > 0.f) { // Create scaled surface if needed
+      context.scaled_surface = Surface::create(context.quest_size * Scale(s));
     }
   }
 
   if (shader != nullptr) {
-    Logger::info("Shader: " + shader->get_id());
+    if (!shader->get_id().empty()) {
+      Logger::info("Shader: '" + shader->get_id() + "'");
+    }
+    else {
+      Logger::info("Shader: active");
+    }
   }
   else {
     Logger::info("Shader: none");

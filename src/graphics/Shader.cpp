@@ -627,12 +627,8 @@ void Shader::set_data(const ShaderData& data) {
  */
 std::string Shader::get_vertex_source() const {
 
-  if (!get_data().get_vertex_file().empty()) {
-    const std::string& file_name = "shaders/" + get_data().get_vertex_file();
-    if (QuestFiles::data_file_exists(file_name)) {
-      return QuestFiles::data_file_read(file_name);
-    }
-    Debug::error("Cannot find vertex shader file '" + file_name + "'");
+  if (!vertex_source.empty()) {
+    return vertex_source;
   }
   return default_vertex_source();
 }
@@ -643,12 +639,8 @@ std::string Shader::get_vertex_source() const {
  */
 std::string Shader::get_fragment_source() const {
 
-  if (!get_data().get_fragment_file().empty()) {
-    const std::string& file_name = "shaders/" + get_data().get_fragment_file();
-    if (QuestFiles::data_file_exists(file_name)) {
-      return QuestFiles::data_file_read(file_name);
-    }
-    Debug::error("Cannot find fragment shader file '" + file_name + "'");
+  if (!fragment_source.empty()) {
+    return fragment_source;
   }
   return default_fragment_source();
 }

@@ -22,6 +22,9 @@ function map:on_opening_transition_finished()
       vertex_source = vertex_source,
       fragment_source = fragment_source,
     })
+    assert(shader ~= nil)
+    assert(shader:get_vertex_source() == vertex_source)
+    assert(shader:get_fragment_source() == fragment_source)
     sol.video.set_shader(shader) -- set hardware filter from source
 
     function sol.video:on_draw(screen_hw) -- get hardware filter result and compare
