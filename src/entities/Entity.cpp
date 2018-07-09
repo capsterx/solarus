@@ -62,6 +62,7 @@ Entity::Entity(
   main_loop(nullptr),
   map(nullptr),
   layer(layer),
+  z(0),
   bounding_box(xy, size),
   ground_below(Ground::EMPTY),
   origin(0, 0),
@@ -456,17 +457,16 @@ const Game& Entity::get_game() const {
  * \brief Returns the entities of the current map.
  * \return The entities.
  */
-Entities& Entity::get_entities() {
-  Debug::check_assertion(map != nullptr, "No map was set");
+const Entities& Entity::get_entities() const {
+  SOLARUS_ASSERT(map != nullptr, "No map was set");
   return map->get_entities();
 }
 
 /**
- * \brief Returns the entities of the current map.
- * \return The entities.
+ * \overload Non-const version.
  */
-const Entities& Entity::get_entities() const {
-  Debug::check_assertion(map != nullptr, "No map was set");
+Entities& Entity::get_entities() {
+  SOLARUS_ASSERT(map != nullptr, "No map was set");
   return map->get_entities();
 }
 
@@ -560,14 +560,6 @@ void Entity::notify_being_removed() {
   if (get_hero().get_facing_entity() == this) {
     get_hero().set_facing_entity(nullptr);
   }
-}
-
-/**
- * \brief Returns the layer of the entity on the map.
- * \return The layer of the entity on the map.
- */
-int Entity::get_layer() const {
-  return layer;
 }
 
 /**

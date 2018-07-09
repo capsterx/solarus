@@ -182,6 +182,9 @@ class SOLARUS_API Entity: public ExportableToLua {
     int get_optimization_distance2() const;
     void set_optimization_distance(int distance);
 
+    int get_z() const;
+    void set_z(int z);
+
     bool is_enabled() const;
     void set_enabled(bool enable);
     virtual void notify_enabled(bool enabled);
@@ -445,6 +448,9 @@ class SOLARUS_API Entity: public ExportableToLua {
     int layer;                                  /**< Layer of the entity on the map.
                                                  * The layer is constant for the tiles and can change for the hero and the dynamic entities. */
 
+    int z;                                      /**< Z order of this entity on its layer.
+                                                 * This value is abitrary, it can be negative and the sequence can have holes. */
+
     Rectangle bounding_box;                     /**< This rectangle represents the position of the entity of the map and is
                                                  * used for the collision tests. It corresponds to the bounding box of the entity.
                                                  * It can be different from the sprite's rectangle of the entity.
@@ -511,6 +517,34 @@ class SOLARUS_API Entity: public ExportableToLua {
         default_optimization_distance = 0;      /**< Default value. */
 
 };
+
+/**
+ * \brief Returns the layer of the entity on the map.
+ * \return The layer of the entity on the map.
+ */
+inline int Entity::get_layer() const {
+  return layer;
+}
+
+/**
+ * \brief Returns the Z order of this entity on its layer.
+ *
+ * This is an arbitrary value that can be used to compare the order of
+ * entities. It can be negative. The sequence can have holes.
+ *
+ * \return The Z order.
+ */
+inline int Entity::get_z() const {
+  return z;
+}
+
+/**
+ * \brief Sets the Z order of this entity on its layer.
+ * \param z The Z order.
+ */
+inline void Entity::set_z(int z) {
+  this->z = z;
+}
 
 /**
  * \brief Returns whether this entity is enabled.

@@ -40,47 +40,6 @@
 
 namespace Solarus {
 
-/**
- * \brief Comparator that sorts entities according to their stacking order
- * on the map (layer and then Z index).
- */
-class EntityZOrderComparator {
-
-  public:
-
-    /**
-     * \brief Creates an EntityPtr Z order comparator.
-     */
-    EntityZOrderComparator() {
-    }
-
-    /**
-     * \brief Compares two entities.
-     * \param first An entity.
-     * \param second Another entity.
-     * \return \c true if the first entity's Z index is lower than the second one's.
-     */
-    bool operator()(const ConstEntityPtr& first, const ConstEntityPtr& second) const {
-
-      if (first->get_layer() < second->get_layer()) {
-        return true;
-      }
-
-      if (first->get_layer() > second->get_layer()) {
-        return false;
-      }
-
-      // Same layer.
-      if (!first->is_on_map() && !second->is_on_map()) {
-        // The map is still being loaded.
-        return false;
-      }
-
-      const Entities& entities = first->get_entities();
-      return entities.get_entity_relative_z_order(first) < entities.get_entity_relative_z_order(second);
-    }
-};
-
 namespace {
 
 /**
@@ -123,8 +82,7 @@ class DrawingOrderComparator {
       }
 
       // Both entities are displayed in Z order.
-      const Entities& entities = first->get_entities();
-      return entities.get_entity_relative_z_order(first) < entities.get_entity_relative_z_order(second);
+      return first->get_z() < second->get_z();
     }
 
 };
@@ -150,7 +108,7 @@ Entities::Entities(Game& game, Map& map):
   named_entities(),
   all_entities(),
   quadtree(new EntityTree()),
-  z_caches(),
+  z_orders(),
   entities_drawn_not_at_their_position(),
   entities_to_draw(),
   entities_to_remove(),
@@ -607,29 +565,6 @@ EntitySet Entities::get_entities_by_type(EntityType type, int layer) {
 }
 
 /**
- * \brief Returns a hint on the Z order of this entity.
- *
- * It can be used to know if an entity is above or below another one on the
- * same layer. It is unique for each entity on the same layer.
- *
- * This is an arbitrary value: it is not necessarily between 0 and the number
- * of entities on the layer. Its value only makes sense when compared to the
- * value of other entities.
- * Due to entities being removed from the map, entities whose layer changes,
- * and bring_to_front()/bring_to_back() calls,
- * there may be holes in the sequence.
- * The returned value can even be negative.
- *
- * \param entity An entity of the map.
- * \return Its relative Z order.
- */
-int Entities::get_entity_relative_z_order(const ConstEntityPtr& entity) const {
-
-  const int layer = entity->get_layer();
-  return z_caches.at(layer).get_z(entity);
-}
-
-/**
  * \brief Brings to front an entity in its layer.
  * \param entity The entity to bring to front.
  */
@@ -637,7 +572,7 @@ void Entities::bring_to_front(Entity& entity) {
 
   const EntityPtr& shared_entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
   int layer = entity.get_layer();
-  z_caches.at(layer).bring_to_front(shared_entity);
+  z_orders.at(layer).bring_to_front(shared_entity);
 }
 
 /**
@@ -648,7 +583,7 @@ void Entities::bring_to_back(Entity& entity) {
 
   const EntityPtr& shared_entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
   int layer = entity.get_layer();
-  z_caches.at(layer).bring_to_back(shared_entity);
+  z_orders.at(layer).bring_to_back(shared_entity);
 }
 
 /**
@@ -724,13 +659,13 @@ void Entities::notify_map_finished() {
  */
 void Entities::initialize_layers() {
 
-  Debug::check_assertion(z_caches.empty(), "Layers already initialized");
+  Debug::check_assertion(z_orders.empty(), "Layers already initialized");
 
   for (int layer = map.get_min_layer(); layer <= map.get_max_layer(); ++layer) {
     tiles_ground[layer] = std::vector<Ground>();
     non_animated_regions[layer] = std::unique_ptr<NonAnimatedRegions>();
     tiles_in_animated_regions[layer] = std::vector<TilePtr>();
-    z_caches[layer] = ZCache();
+    z_orders[layer] = ZOrderInfo();
   }
 }
 
@@ -959,7 +894,7 @@ void Entities::add_entity(const EntityPtr& entity) {
     }
 
     // Track the insertion order.
-    z_caches[layer].add(entity);
+    z_orders[layer].add(entity);
 
     // Update the list of entities by type.
     auto it = entities_by_type.find(type);
@@ -1097,7 +1032,7 @@ void Entities::remove_marked_entities() {
     }
 
     // Track the insertion order.
-    z_caches.at(layer).remove(entity);
+    z_orders.at(layer).remove(entity);
 
     // Update the list of entities by type.
     const auto& it = entities_by_type.find(type);
@@ -1277,8 +1212,8 @@ void Entities::set_entity_layer(Entity& entity, int layer) {
     }
 
     // Track the insertion order.
-    z_caches.at(old_layer).remove(shared_entity);
-    z_caches.at(layer).add(shared_entity);
+    z_orders.at(old_layer).remove(shared_entity);
+    z_orders.at(layer).add(shared_entity);
 
     // Update the list of entities by type and layer.
     const EntityType type = entity.get_type();
@@ -1341,30 +1276,10 @@ bool Entities::overlaps_raised_blocks(int layer, const Rectangle& rectangle) {
 /**
  * \brief Creates a Z order tracking data structure.
  */
-Entities::ZCache::ZCache() :
-    z_values(),
+Entities::ZOrderInfo::ZOrderInfo() :
     min(0),
     max(-1) {
 
-}
-
-/**
- * \brief Returns the relative Z order of an entity.
- * \param entity An entity of the map. It must be in the structure.
- * \return Its relative Z order.
- */
-int Entities::ZCache::get_z(const ConstEntityPtr& entity) const {
-
-  SOLARUS_ASSERT(z_values.find(entity) != z_values.end(),
-      std::string("No such entity in Z cache: " +
-          entity->get_lua_type_name() +
-          " '" +
-          entity->get_name() +
-          "'"
-      )
-  );
-
-  return z_values.at(entity);
 }
 
 /**
@@ -1372,10 +1287,10 @@ int Entities::ZCache::get_z(const ConstEntityPtr& entity) const {
  *
  * Nothing happens if the entity was already present.
  */
-void Entities::ZCache::add(const ConstEntityPtr& entity) {
+void Entities::ZOrderInfo::add(const EntityPtr& entity) {
 
   ++max;
-  z_values.insert(std::make_pair(entity, max));
+  entity->set_z(max);
 }
 
 /**
@@ -1383,10 +1298,10 @@ void Entities::ZCache::add(const ConstEntityPtr& entity) {
  *
  * Nothing happens if the entity was not present.
  */
-void Entities::ZCache::remove(const ConstEntityPtr& entity) {
+void Entities::ZOrderInfo::remove(const EntityPtr& entity) {
 
-  z_values.erase(entity);
-  // Z values remain unchanged: removing an entity does not break the order.
+  entity->set_z(0);
+  // Other Z values remain unchanged: removing an entity does not break the order.
 }
 
 /**
@@ -1394,7 +1309,7 @@ void Entities::ZCache::remove(const ConstEntityPtr& entity) {
  *
  * It will then have a Z order greater than all other entities in the structure.
  */
-void Entities::ZCache::bring_to_front(const ConstEntityPtr& entity) {
+void Entities::ZOrderInfo::bring_to_front(const EntityPtr& entity) {
 
   remove(entity);
   add(entity);
@@ -1405,11 +1320,11 @@ void Entities::ZCache::bring_to_front(const ConstEntityPtr& entity) {
  *
  * It will then have a Z order lower than all other entities in the structure.
  */
-void Entities::ZCache::bring_to_back(const ConstEntityPtr& entity) {
+void Entities::ZOrderInfo::bring_to_back(const EntityPtr& entity) {
 
   remove(entity);
   --min;
-  z_values.insert(std::make_pair(entity, min));
+  entity->set_z(min);
 }
 
 }

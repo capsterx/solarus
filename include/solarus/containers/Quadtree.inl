@@ -541,7 +541,7 @@ int Quadtree<T, Comparator>::Node::get_num_elements() const {
 /**
  * \brief Gets the elements intersecting the given rectangle under this node.
  * \param[in] region The rectangle to check.
- * \param[in/out] result A list that will be filled with elements.
+ * \param[in/out] result A set that will be filled with elements.
  */
 template<typename T, typename Comparator>
 void Quadtree<T, Comparator>::Node::get_elements(
@@ -557,7 +557,7 @@ void Quadtree<T, Comparator>::Node::get_elements(
   if (!is_split()) {
     for (const std::pair<T, Rectangle>& pair : elements) {
       if (pair.second.overlaps(region)) {
-        result.insert(pair.first);
+        result.emplace(pair.first);
       }
     }
   }

@@ -54,7 +54,41 @@ using ConstEntityVector = std::vector<ConstEntityPtr>;
 template <typename T, typename Comparator>
 class Quadtree;
 
-class EntityZOrderComparator;
+/**
+ * \brief Comparator that sorts entities according to their stacking order
+ * on the map (layer and then Z index).
+ */
+class EntityZOrderComparator {
+
+  public:
+
+    /**
+     * \brief Creates an EntityPtr Z order comparator.
+     */
+    EntityZOrderComparator() {
+    }
+
+    /**
+     * \brief Compares two entities.
+     * \param first An entity.
+     * \param second Another entity.
+     * \return \c true if the first entity's Z index is lower than the second one's.
+     */
+    bool operator()(const ConstEntityPtr& first, const ConstEntityPtr& second) const {
+
+      if (first->get_layer() < second->get_layer()) {
+        return true;
+      }
+
+      if (first->get_layer() > second->get_layer()) {
+        return false;
+      }
+
+      // Same layer.
+      return first->get_z() < second->get_z();
+    }
+};
+
 using EntityTree = Quadtree<EntityPtr, EntityZOrderComparator>;
 
 /**
@@ -121,7 +155,6 @@ class SOLARUS_API Entities {
     void remove_entity(Entity& entity);
     void remove_entity(const std::string& name);
     void remove_entities_with_prefix(const std::string& prefix);
-    int get_entity_relative_z_order(const ConstEntityPtr& entity) const;
     void bring_to_front(Entity& entity);
     void bring_to_back(Entity& entity);
     void set_entity_layer(Entity& entity, int layer);
@@ -155,23 +188,21 @@ class SOLARUS_API Entities {
     using EntitiesToDraw = std::vector<EntityPtr>;
 
     /**
-     * \brief Internal fast cached information about the entity insertion order.
+     * \brief Internal information about the entity insertion order.
      */
-    class ZCache {
+    class ZOrderInfo {
 
       public:
 
-        ZCache();
+        ZOrderInfo();
 
-        int get_z(const ConstEntityPtr& entity) const;
-        void add(const ConstEntityPtr& entity);
-        void remove(const ConstEntityPtr& entity);
-        void bring_to_front(const ConstEntityPtr& entity);
-        void bring_to_back(const ConstEntityPtr& entity);
+        void add(const EntityPtr& entity);
+        void remove(const EntityPtr& entity);
+        void bring_to_front(const EntityPtr& entity);
+        void bring_to_back(const EntityPtr& entity);
 
       private:
 
-        std::unordered_map<ConstEntityPtr, int> z_values;
         int min;
         int max;
     };
@@ -213,7 +244,7 @@ class SOLARUS_API Entities {
 
     std::unique_ptr<EntityTree> quadtree;           /**< All map entities except tiles.
                                                      * Optimized for fast spatial search. */
-    ByLayer<ZCache> z_caches;                       /**< For each layer, tracks the relative Z order of entities. */
+    ByLayer<ZOrderInfo> z_orders;                   /**< For each layer, tracks the relative Z order of entities. */
     ByLayer<EntityVector>
         entities_drawn_not_at_their_position;       /**< For each layer, entities to draw even if there position
                                                      * is outside the camera. */
