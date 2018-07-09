@@ -14,6 +14,7 @@ map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enem
 map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
 map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195: Enemy dying animation never finishes" }
+map{ id = "bugs/1200_create_shader_from_source", description = "#1200: Create shader from source" }
 map{ id = "bugs/1210_shader_scaling_factor", description = "#1210: shader:get/set_shading_factor()" }
 map{ id = "bugs/1214_blocks_in_water", description = "#1214: Blocks cannot be pushed into water" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }

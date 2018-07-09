@@ -84,6 +84,7 @@ set(lua_test_maps_non_fatal_errors
 
 # Tests that requires showing the window.
 set(lua_test_maps_with_window
+  "bugs/1200_create_shader_from_source"
   "bugs/1210_shader_scaling_factor"
   "graphical/scale2x"
 )

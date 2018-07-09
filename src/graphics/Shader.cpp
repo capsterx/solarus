@@ -80,44 +80,73 @@ void Shader::quit() {
 }
 
 /**
- * \brief Constructor.
+ * \brief Creates a shader from a shader resource file.
  * \param shader_name The name of the shader to load.
  */
 Shader::Shader(const std::string& shader_id):
   shader_id(shader_id),
   data(),
+  vertex_source(),
+  fragment_source(),
   valid(true),
   error(),
   program(0),
   vertex_shader(0),
   fragment_shader(0) {
 
-  GLint previous_program;
-  ctx.glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
+  // Load the shader data file.
+  const std::string shader_file_name =
+      "shaders/" + get_id() + ".dat";
 
-  ctx.glGetError();
-
-  // Load the shader.
-  load();
-
-  ctx.glUseProgram(program);
-  // Set up constant uniform variables.
-  GLint location = ctx.glGetUniformLocation(program, TEXTURE_NAME);
-  if (location >= 0) {
-    ctx.glUniform1i(location, 0);
+  ShaderData data;
+  bool success = data.import_from_quest_file(shader_file_name);
+  if (!success) {
+    return;
   }
 
-  const Size& quest_size = Video::get_quest_size();
-  location = ctx.glGetUniformLocation(program, INPUT_SIZE_NAME);
-  if (location >= 0) {
-    ctx.glUniform2f(location, quest_size.width, quest_size.height);
+  if (!data.get_vertex_file().empty()) {
+    const std::string& file_name = "shaders/" + data.get_vertex_file();
+    if (QuestFiles::data_file_exists(file_name)) {
+      vertex_source = QuestFiles::data_file_read(file_name);
+    }
+    else {
+      Debug::error("Cannot find vertex shader file '" + file_name + "'");
+    }
+  }
+  if (!data.get_fragment_file().empty()) {
+    const std::string& file_name = "shaders/" + data.get_fragment_file();
+    if (QuestFiles::data_file_exists(file_name)) {
+      fragment_source = QuestFiles::data_file_read(file_name);
+    }
+    else {
+      Debug::error("Cannot find fragment shader file '" + file_name + "'");
+    }
   }
 
-  position_location = ctx.glGetAttribLocation(program,POSITION_NAME);
-  tex_coord_location = ctx.glGetAttribLocation(program,TEXCOORD_NAME);
-  color_location = ctx.glGetAttribLocation(program,COLOR_NAME);
+  set_data(data);
+  compile();
+}
 
-  ctx.glUseProgram(previous_program);
+/**
+ * \brief Creates a shader from vertex and fragment source.
+ * \param vertex_source Vertex shader code.
+ * \param fragment_source Fragment shader code.
+ */
+Shader::Shader(const std::string& vertex_source,
+               const std::string& fragment_source,
+               double scaling_factor):
+  shader_id(),
+  data(),
+  vertex_source(vertex_source),
+  fragment_source(fragment_source),
+  valid(true),
+  error(),
+  program(0),
+  vertex_shader(0),
+  fragment_shader(0) {
+
+  data.set_scaling_factor(scaling_factor);
+  compile();
 }
 
 /**
@@ -130,27 +159,27 @@ Shader::~Shader() {
 }
 
 /**
- * \copydoc Shader::load
+ * \brief Compiles the shader program.
  */
-void Shader::load() {
+void Shader::compile() {
+
+  GLint previous_program;
+  ctx.glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
+
+  ctx.glGetError();
 
   GLint linked;
 
-  // Load the shader data file.
-  const std::string shader_file_name =
-      "shaders/" + get_id() + ".dat";
-
-  ShaderData data;
-  bool success = data.import_from_quest_file(shader_file_name);
-  if (!success) {
-    return;
+  if (vertex_source.empty()) {
+    vertex_source = DEFAULT_VERTEX_SHADER;
+  }
+  if (fragment_source.empty()) {
+    fragment_source = DEFAULT_FRAGMENT_SHADER;
   }
 
-  set_data(data);
-
   // Create the vertex and fragment shaders.
-  vertex_shader = create_shader(GL_VERTEX_SHADER, get_vertex_source().c_str());
-  fragment_shader = create_shader(GL_FRAGMENT_SHADER, get_fragment_source().c_str());
+  vertex_shader = create_shader(GL_VERTEX_SHADER, vertex_source.c_str());
+  fragment_shader = create_shader(GL_FRAGMENT_SHADER, fragment_source.c_str());
 
   // Create a program object with both shaders.
   program = ctx.glCreateProgram();
@@ -180,6 +209,26 @@ void Shader::load() {
     Debug::error(std::string("Failed to link shader '") + get_id() + std::string("':\n"));
     ctx.glDeleteProgram(program);
   }
+
+  ctx.glUseProgram(program);
+
+  // Set up constant uniform variables.
+  GLint location = ctx.glGetUniformLocation(program, TEXTURE_NAME);
+  if (location >= 0) {
+    ctx.glUniform1i(location, 0);
+  }
+
+  const Size& quest_size = Video::get_quest_size();
+  location = ctx.glGetUniformLocation(program, INPUT_SIZE_NAME);
+  if (location >= 0) {
+    ctx.glUniform2f(location, quest_size.width, quest_size.height);
+  }
+
+  position_location = ctx.glGetAttribLocation(program, POSITION_NAME);
+  tex_coord_location = ctx.glGetAttribLocation(program, TEXCOORD_NAME);
+  color_location = ctx.glGetAttribLocation(program, COLOR_NAME);
+
+  ctx.glUseProgram(previous_program);
 }
 
 /**

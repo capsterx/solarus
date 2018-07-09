@@ -19,12 +19,12 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/core/Debug.h"
+#include "solarus/graphics/BlendMode.h"
 #include "solarus/graphics/ShaderData.h"
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/graphics/VertexArrayPtr.h"
-#include "solarus/graphics/BlendMode.h"
-#include <glm/mat4x4.hpp>
 #include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
 #include "solarus/lua/ExportableToLua.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -59,6 +59,9 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     constexpr static const char* OPACITY_NAME = "sol_opacity";
 
     explicit Shader(const std::string& shader_id);
+    Shader(const std::string& vertex_source,
+           const std::string& fragment_source,
+           double scaling_factor);
     ~Shader();
 
     bool is_valid() const;
@@ -97,11 +100,11 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
     /**
-     * @brief render the given vertex array with this shader, passing the texture and matrices as uniforms
-     * @param array a vertex array
-     * @param texture a valid surface
-     * @param mvp_matrix model view projection matrix
-     * @param uv_matrix uv_matrix
+     * \brief render the given vertex array with this shader, passing the texture and matrices as uniforms
+     * \param array a vertex array
+     * \param texture a valid surface
+     * \param mvp_matrix model view projection matrix
+     * \param uv_matrix uv_matrix
      */
      void render(const VertexArray& array,
                         const Surface &texture,
@@ -110,14 +113,14 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
 
     const std::string& get_lua_type_name() const override;
 
-  protected:
+  private:
     void set_valid(bool valid);
     void set_error(const std::string& error);
     void set_data(const ShaderData& data);
-    void load();
+    void compile();
+
     static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
 
-  private:
     void check_gl_error();
     void enable_attribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
     void restore_attribute_states();
@@ -144,6 +147,8 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
 
     const std::string shader_id;  /**< The id of the shader (filename without extension). */
     ShaderData data;              /**< The loaded shader data file. */
+    std::string vertex_source;    /**< Vertex shader code. */
+    std::string fragment_source;  /**< Fragment shader code. */
     bool valid;                   /**< \c true if the compilation succedeed. */
     std::string error;            /**< Error message of the last operation if any. */
 
