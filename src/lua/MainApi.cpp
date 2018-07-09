@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Game.h"
 #include "solarus/core/Geometry.h"
 #include "solarus/core/MainLoop.h"
 #include "solarus/core/QuestFiles.h"
@@ -54,7 +55,8 @@ void LuaContext::register_main_module() {
       { "get_angle", main_api_get_angle },
       { "get_type", main_api_get_type },
       { "get_metatable", main_api_get_metatable },
-      { "get_os", main_api_get_os }
+      { "get_os", main_api_get_os },
+      { "get_game", main_api_get_game }
   };
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
@@ -421,10 +423,33 @@ int LuaContext::main_api_get_metatable(lua_State* l) {
  */
 int LuaContext::main_api_get_os(lua_State* l) {
 
-  const std::string& os = System::get_os();
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const std::string& os = System::get_os();
 
-  push_string(l, os);
-  return 1;
+    push_string(l, os);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sol.main.get_game().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::main_api_get_game(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    LuaContext& lua_context = get_lua_context(l);
+
+    Game* game = lua_context.get_main_loop().get_game();
+    if (game == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_game(l, game->get_savegame());
+    }
+    return 1;
+  });
 }
 
 /**

@@ -455,12 +455,13 @@ class LuaContext {
       main_api_set_quest_write_dir,
       main_api_load_settings,
       main_api_save_settings,
-      main_api_get_distance,  // TODO remove?
-      main_api_get_angle,     // TODO remove?
+      main_api_get_distance,
+      main_api_get_angle,
       main_api_get_resource_ids,
       main_api_get_type,
       main_api_get_metatable,
       main_api_get_os,
+      main_api_get_game,
 
       // Audio API.
       audio_api_get_sound_volume,
@@ -540,7 +541,7 @@ class LuaContext {
       timer_api_set_suspended_with_map,
       timer_api_get_remaining_time,
       timer_api_set_remaining_time,
-      // TODO remove is_with_sound, set_with_sound (do this in pure Lua, possibly with a second timer)
+      // TODO deprecate is_with_sound, set_with_sound (do this in pure Lua, possibly with a second timer)
 
       // Language API.
       language_api_get_language,
@@ -886,7 +887,7 @@ class LuaContext {
       entity_api_bring_sprite_to_back,
       entity_api_is_visible,
       entity_api_set_visible,
-      entity_api_get_movement,  // TODO some movement types are not in the Lua API
+      entity_api_get_movement,
       entity_api_stop_movement,
       entity_api_has_layer_independent_collisions,
       entity_api_set_layer_independent_collisions,
@@ -1060,8 +1061,10 @@ class LuaContext {
       userdata_meta_gc,
       userdata_meta_newindex_as_table,
       userdata_meta_index_as_table,
+
       // Lua backtrace error function
       l_backtrace;
+
   private:
 
     /**
