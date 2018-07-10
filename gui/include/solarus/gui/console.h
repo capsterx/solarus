@@ -38,6 +38,8 @@ public:
   explicit Console(QWidget* parent = nullptr);
 
   void clear();
+  void add_message(const QString& log_level, const QString& message);
+  void add_html(const QString& html);
 
   void set_quest_runner(QuestRunner& quest_runner);
 
