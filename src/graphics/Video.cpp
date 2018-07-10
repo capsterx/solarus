@@ -450,8 +450,10 @@ void render(const SurfacePtr& quest_surface) {
       //Shader can be draw directly to screen
       clearScreen();
       surface_to_render = nullptr; //Final SDL render is not nessesary
-      // OpenGL rendering with the current shader.
-      context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
+      context.screen_surface->request_render().with_target([&](SDL_Renderer*) { //Bind screen surface to account virtual surface dirtyness
+        // OpenGL rendering with the current shader.
+        context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
+      });
     }
   }
   //Render the final surface with sdl if necessary
