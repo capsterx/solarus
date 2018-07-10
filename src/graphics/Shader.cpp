@@ -171,10 +171,10 @@ void Shader::compile() {
   GLint linked;
 
   if (vertex_source.empty()) {
-    vertex_source = DEFAULT_VERTEX_SHADER;
+    vertex_source = DefaultShaders::get_default_vertex_source();
   }
   if (fragment_source.empty()) {
-    fragment_source = DEFAULT_FRAGMENT_SHADER;
+    fragment_source = DefaultShaders::get_default_fragment_source();
   }
 
   // Create the vertex and fragment shaders.
@@ -306,14 +306,6 @@ void Shader::check_gl_error() {
     Debug::error(std::string("GL_") + error.c_str() + std::string(" - "));
     gl_error = ctx.glGetError();
   }
-}
-
-std::string Shader::default_vertex_source() {
-  return DEFAULT_VERTEX_SHADER;
-}
-
-std::string Shader::default_fragment_source() {
-  return DEFAULT_FRAGMENT_SHADER;
 }
 
 /**
@@ -630,7 +622,7 @@ std::string Shader::get_vertex_source() const {
   if (!vertex_source.empty()) {
     return vertex_source;
   }
-  return default_vertex_source();
+  return DefaultShaders::get_default_vertex_source();
 }
 
 /**
@@ -642,7 +634,7 @@ std::string Shader::get_fragment_source() const {
   if (!fragment_source.empty()) {
     return fragment_source;
   }
-  return default_fragment_source();
+  return DefaultShaders::get_default_fragment_source();
 }
 
 /**

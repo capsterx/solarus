@@ -73,9 +73,6 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     std::string get_vertex_source() const;
     std::string get_fragment_source() const;
 
-    static std::string default_vertex_source();
-    static std::string default_fragment_source();
-
     double get_scaling_factor() const;
     void set_scaling_factor(double scaling_factor);
 
