@@ -51,9 +51,9 @@ COMPAT_VARYING vec2 sol_vtex_coord;
 COMPAT_VARYING vec4 sol_vcolor;
 
 void main() {
-  gl_Position = sol_mvp_matrix * vec4(sol_vertex, 0, 1);
-  sol_vcolor = sol_color;
-  sol_vtex_coord = (sol_uv_matrix * vec3(sol_tex_coord, 1)).xy;
+    gl_Position = sol_mvp_matrix * vec4(sol_vertex, 0, 1);
+    sol_vcolor = sol_color;
+    sol_vtex_coord = (sol_uv_matrix * vec3(sol_tex_coord, 1)).xy;
 }
     )";
   return source;
@@ -84,8 +84,8 @@ COMPAT_VARYING vec2 sol_vtex_coord;
 COMPAT_VARYING vec4 sol_vcolor;
 
 void main() {
-  vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
-  FragColor = tex_color * sol_vcolor;
+    vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
+    FragColor = tex_color * sol_vcolor;
 }
     )";
   return source;
