@@ -77,7 +77,7 @@ map{ id = "bugs/945_flying_enemies_fall_in_hole", description = "#945: Flying en
 map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no longer work after reusing a movement" }
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
-map{ id = "graphical/scale2x", description = "Test shader behaviour" }
+map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }
 map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
@@ -281,7 +281,12 @@ language{ id = "en", description = "English" }
 font{ id = "8_bit", description = "8 bit" }
 font{ id = "minecraftia", description = "Minecraftia" }
 
-shader{ id = "scale2x", description = "scale2x" }
+shader{ id = "scale2x", description = "Scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
+file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
+file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
+file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }
+file{ path = "shaders/sepia.dat", author = "Christopho", license = "GPL v3" }
+file{ path = "shaders/sepia.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "sounds/diarandor/solarus_logo.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
