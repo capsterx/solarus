@@ -28,6 +28,7 @@
 #include "solarus/graphics/DefaultShaders.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 namespace Solarus {
