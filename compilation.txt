@@ -77,7 +77,6 @@ The following libraries are required to compile and execute Solarus:
 - SDL2_image
 - SDL2_ttf
 - OpenGL or OpenGL ES
-- GLM
 - OpenAL
 - Vorbisfile
 - Ogg
@@ -134,7 +133,7 @@ Install a C++ compiler, Git and CMake.
 Solarus compiles fine with the MinGW compiler: http://www.mingw.org/
 and probably with other compilers too.
 
-We recommend QtCreator, which includes Qt libraries, MinGW, 
+We recommend QtCreator, which includes Qt libraries, MinGW,
 as well as Git and CMake integration.
 
 The directory libraries/win32/mingw32 of Solarus contains headers and compiled
@@ -331,7 +330,7 @@ To install the needed packages via the brew package manager:
 
 brew install cmake ninja sdl2 sdl2_image sdl2_ttf luajit libvorbis libmodplug physfs
 
-You will also need a copy of OS X SDK, which is included with XCode. XCode is 
+You will also need a copy of OS X SDK, which is included with XCode. XCode is
 freely available on the App Store.
 
 
@@ -349,8 +348,8 @@ $ cmake -DCMAKE_PREFIX_PATH="<path_to_Qt>/Qt/<version>/clang_64/lib/cmake" -Wno-
 
 If you want to deploy a quest on non-developer environment with a
 standalone bundle, the better way is to use the Solarus package provided on
-http://www.solarus-games.org/ and use a post-build script to replace 
-Solarus.app/Contents/Resources/solarus-run and 
+http://www.solarus-games.org/ and use a post-build script to replace
+Solarus.app/Contents/Resources/solarus-run and
 Solarus.app/Contents/Frameworks/libsolarus.dylib by ones just compiled.
 The bundle is made to run the data/ or data.solarus quest located into
 Solarus.app/Contents/Resources.
@@ -396,4 +395,3 @@ $ mkdir gcw-zero-build
 $ cd gcw-zero-build
 $ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/gcw-zero/.cmake ..
 $ make
-
