@@ -21,7 +21,6 @@ include_directories(SYSTEM
     "${OGG_INCLUDE_DIR}"
     "${LUA_INCLUDE_DIR}"
     "${PHYSFS_INCLUDE_DIR}"
-    "${GLM_INCLUDE_DIRS}"
 )
 
 if (OPENGL_INCLUDE_DIR)
