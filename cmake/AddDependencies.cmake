@@ -25,6 +25,10 @@ else()
   find_package(Lua51 REQUIRED)
 endif()
 
+# GLM_GTX_matrix_transform_2d needs the experimental flag
+# with some GLM versions.
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL=1)
+
 # Explicit link to libdl is needed for Lua on some systems.
 find_library(DL_LIBRARY dl)
 if("${DL_LIBRARY}" MATCHES DL_LIBRARY-NOTFOUND)
