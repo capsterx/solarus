@@ -530,6 +530,19 @@ inline bool operator==(const Rectangle& lhs, const Rectangle& rhs) {
 }
 
 /**
+ * @brief return the same rectangle with no negative width and height
+ * @return
+ */
+inline Rectangle Rectangle::positive() const {
+    return Rectangle(
+                std::min(get_left(),get_right()),
+                std::min(get_top(),get_bottom()),
+                std::abs(get_width()),
+                std::abs(get_height())
+                );
+}
+
+/**
  * \brief Compares two rectangles.
  * \param lhs first rectangle
  * \param rhs second rectangle

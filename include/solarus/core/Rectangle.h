@@ -22,6 +22,7 @@
 #include "solarus/core/Size.h"
 #include <SDL_rect.h>
 #include <iosfwd>
+#include <algorithm>
 
 namespace Solarus {
 
@@ -91,6 +92,8 @@ class Rectangle {
     bool overlaps(const Rectangle& other) const;
 
     Rectangle get_intersection(const Rectangle& other) const;
+    Rectangle positive() const;
+
 
     operator const SDL_Rect*() const;
     Rectangle operator|(const Rectangle& other) const;
