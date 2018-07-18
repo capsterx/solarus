@@ -5,6 +5,7 @@
 #include "solarus/graphics/BlendMode.h"
 #include "solarus/core/Scale.h"
 
+#include <SDL2/SDL_render.h>
 #include <array>
 #include <cmath>
 
@@ -49,7 +50,12 @@ struct DrawInfos {
     return Rectangle(
           tcenter + ototl*scale,
           tcenter + otobr*scale
-          );
+          ).positive();
+  }
+
+  inline SDL_RendererFlip flips() const {
+    return (SDL_RendererFlip)((scale.x < 0.f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE) |
+        (scale.y < 0.f ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE));
   }
 
   /**
@@ -61,7 +67,7 @@ struct DrawInfos {
   }
 
   inline bool should_use_ex() const {
-    return std::fabs(rotation) > 1e-3;
+    return std::fabs(rotation) > 1e-3 || scale.x < 0.0 || scale.y < 0.0;
   }
 
   const Rectangle& region; /**< The region of the source surface that will be drawn*/

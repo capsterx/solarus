@@ -99,7 +99,7 @@ void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& info
     SOLARUS_CHECK_SDL(SDL_SetTextureAlphaMod(texture.get_texture(),infos.opacity));
     if(infos.should_use_ex()) {
       SDL_Point origin= infos.sdl_origin();
-      SOLARUS_CHECK_SDL(SDL_RenderCopyEx(renderer,texture.get_texture(),infos.region,dst_rect,-infos.rotation*180/M_PI,&origin,SDL_FLIP_NONE));
+      SOLARUS_CHECK_SDL(SDL_RenderCopyEx(renderer,texture.get_texture(),infos.region,dst_rect,infos.rotation,&origin,infos.flips()));
     } else {
       SOLARUS_CHECK_SDL(SDL_RenderCopy(renderer,texture.get_texture(),infos.region,dst_rect));
     }
