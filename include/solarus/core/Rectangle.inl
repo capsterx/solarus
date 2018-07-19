@@ -487,8 +487,18 @@ inline Rectangle& Rectangle::operator&=(const Rectangle& other) {
 	return *this;
 }
 
+/**
+ * @brief implicit conversion of const Rectangle to its const SDL_Rect*
+ */
 inline Rectangle::operator const SDL_Rect*() const {
 	return get_internal_rect();
+}
+
+/**
+ * @brief implicit conversion of Rectangle to its SDL_Rect*
+ */
+inline Rectangle::operator SDL_Rect*() {
+        return get_internal_rect();
 }
 
 /**

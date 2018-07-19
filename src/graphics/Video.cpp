@@ -79,6 +79,7 @@ struct VideoContext {
   // Shaders.
   bool rendertarget_supported = false;      /**< True if rendering on texture is supported. */
   SDL_Texture* render_target = nullptr;     /**< The render texture used. */
+  bool valid_target = false;                /**< The validity of the bound target */
   bool shaders_enabled = false;             /**< True if shaded modes support is enabled. */
   ShaderPtr current_shader = nullptr;       /**< The shader currently used or nullptr. */
 
@@ -1080,9 +1081,20 @@ bool renderer_to_quest_coordinates(
  * @param a SDL texture with TARGET capabilities
  */
 void set_render_target(SDL_Texture* target) {
-  if(target != context.render_target) {
+  if(target != context.render_target || !context.valid_target) {
     SDL_SetRenderTarget(context.main_renderer,target);
     context.render_target=target;
+    context.valid_target = true;
+  }
+}
+
+/**
+ * @brief invalidate potential current target
+ * @param target the render target to invalidate
+ */
+void invalidate_target(SDL_Texture* target) {
+  if(context.render_target == target) {
+    context.valid_target = false;
   }
 }
 

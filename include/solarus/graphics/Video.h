@@ -109,6 +109,7 @@ namespace Video {
     void finish();
 
     void set_render_target(SDL_Texture* target);
+    void invalidate_target(SDL_Texture* target);
     SurfacePtr& get_screen_surface();
 
 }  // namespace Video
