@@ -96,6 +96,7 @@ class Rectangle {
 
 
     operator const SDL_Rect*() const;
+    operator SDL_Rect*();
     Rectangle operator|(const Rectangle& other) const;
     Rectangle operator&(const Rectangle& other) const;
     Rectangle& operator|=(const Rectangle& other);

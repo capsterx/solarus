@@ -58,6 +58,7 @@ public:
     void clear();
     void clear(const Rectangle& where);
     ~RenderTexture(){
+      Video::invalidate_target(target.get());
     }
 private:
     mutable bool surface_dirty = true; /**< is the surface not up to date*/
