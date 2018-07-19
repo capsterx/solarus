@@ -711,7 +711,7 @@ void Shader::draw(Surface& dst_surface, const Surface &src_surface, const DrawIn
         SDL_RenderDrawPoint(r,-100,-100); //Draw a point offscreen to force blendmode change
       }
 
-      bool flip_y =  !dst_surface.get_internal_surface().get_texture();
+      bool flip_y = !dst_surface.get_internal_surface().get_texture();
 
       //TODO fix this ugliness
       Shader* that = const_cast<Shader*>(this);
