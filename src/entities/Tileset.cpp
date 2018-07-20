@@ -66,7 +66,7 @@ void Tileset::add_tile_pattern(
   TilePattern* tile_pattern = nullptr;
 
   const std::vector<Rectangle>& frames = pattern_data.get_frames();
-  const TileScrolling scrolling = pattern_data.get_scrolling();
+  const PatternScrolling scrolling = pattern_data.get_scrolling();
   const Ground ground = pattern_data.get_ground();
 
   if (frames.size() == 1) {
@@ -83,19 +83,19 @@ void Tileset::add_tile_pattern(
 
     switch (scrolling) {
 
-    case TileScrolling::NONE:
+    case PatternScrolling::NONE:
       tile_pattern = new SimpleTilePattern(
           ground, frame.get_xy(), size
       );
       break;
 
-    case TileScrolling::PARALLAX:
+    case PatternScrolling::PARALLAX:
       tile_pattern = new ParallaxScrollingTilePattern(
           ground, frame.get_xy(), size
       );
       break;
 
-    case TileScrolling::SELF:
+    case PatternScrolling::SELF:
       tile_pattern = new SelfScrollingTilePattern(
           ground, frame.get_xy(), size
       );
@@ -104,12 +104,12 @@ void Tileset::add_tile_pattern(
   }
   else {
     // Multi-frame.
-    if (scrolling == TileScrolling::SELF) {
+    if (scrolling == PatternScrolling::SELF) {
       Debug::error("Multi-frame is not supported for self-scrolling tiles");
       return;
     }
 
-    bool parallax = scrolling == TileScrolling::PARALLAX;
+    bool parallax = scrolling == PatternScrolling::PARALLAX;
     AnimatedTilePattern::AnimationSequence sequence = (frames.size() == 3) ?
         AnimatedTilePattern::ANIMATION_SEQUENCE_012 : AnimatedTilePattern::ANIMATION_SEQUENCE_0121;
     tile_pattern = new AnimatedTilePattern(

@@ -34,23 +34,23 @@ namespace Solarus {
 /**
  * \brief Kind of scrolling applied to a tile pattern.
  */
-enum class TileScrolling {
+enum class PatternScrolling {
     NONE,               /**< No scrolling. */
+    SELF,               /**< Scrolling on itself. */
     PARALLAX,           /**< Parallax scrolling. */
-    SELF                /**< Scrolling on itself. */
 };
 
 template <>
-struct SOLARUS_API EnumInfoTraits<TileScrolling> {
+struct SOLARUS_API EnumInfoTraits<PatternScrolling> {
   static const std::string pretty_name;
 
-  static const EnumInfo<TileScrolling>::names_type names;
+  static const EnumInfo<PatternScrolling>::names_type names;
 };
 
 /**
  * \brief Kind of scrolling applied to a tile pattern.
  */
-enum class TilePatternRepeatMode {
+enum class PatternRepeatMode {
     ALL,                /**< Repeatable in both directions. */
     HORIZONTAL,         /**< Repeatable only horizontally. */
     VERTICAL,           /**< Repeatable only vertically. */
@@ -58,10 +58,10 @@ enum class TilePatternRepeatMode {
 };
 
 template <>
-struct SOLARUS_API EnumInfoTraits<TilePatternRepeatMode> {
+struct SOLARUS_API EnumInfoTraits<PatternRepeatMode> {
   static const std::string pretty_name;
 
-  static const EnumInfo<TilePatternRepeatMode>::names_type names;
+  static const EnumInfo<PatternRepeatMode>::names_type names;
 };
 
 /**
@@ -80,11 +80,11 @@ class SOLARUS_API TilePatternData {
     int get_default_layer() const;
     void set_default_layer(int default_layer);
 
-    TileScrolling get_scrolling() const;
-    void set_scrolling(TileScrolling scrolling);
+    PatternScrolling get_scrolling() const;
+    void set_scrolling(PatternScrolling scrolling);
 
-    TilePatternRepeatMode get_repeat_mode() const;
-    void set_repeat_mode(TilePatternRepeatMode repeat_mode);
+    PatternRepeatMode get_repeat_mode() const;
+    void set_repeat_mode(PatternRepeatMode repeat_mode);
 
     bool is_multi_frame() const;
     int get_num_frames() const;
@@ -98,8 +98,8 @@ class SOLARUS_API TilePatternData {
 
     Ground ground;                     /**< Terrain of this pattern. */
     int default_layer;                 /**< Initial layer when creating a tile. */
-    TileScrolling scrolling;           /**< Kind of scrolling if any. */
-    TilePatternRepeatMode repeat_mode; /**< How this patterns intends to be repeated. */
+    PatternScrolling scrolling;        /**< Kind of scrolling if any. */
+    PatternRepeatMode repeat_mode;     /**< How this patterns intends to be repeated. */
     std::vector<Rectangle> frames;     /**< Coordinates of the pattern's frame(s).
                                         * - 1 element: one frame (no animation).
                                         * - 3 elements: three frames, animated with 0-1-2-0.
