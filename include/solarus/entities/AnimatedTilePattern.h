@@ -59,10 +59,12 @@ class AnimatedTilePattern: public TilePattern {
                                        * of this tile pattern in the tileset image.
                                        * The frames should have the same width and height. */
     uint32_t frame_delay;             /**< Delay between frames in milliseconds. */
-    bool mirror_loop;                 /**< Whether to play the animation backwards when it loops. TODO-683 */
+    bool mirror_loop;                 /**< Whether to play the animation backwards when it loops. */
     bool parallax;                    /**< Indicates that the tile pattern also makes parallax scrolling */
 
-    int frame_index;                  /**< Index of the current frame. */
+    int frame_index;                  /**< Index of the current frame.
+                                       * - if no mirror loop: between 0 and frames.size() - 1
+                                       * - if mirror loop: between 0 and 2 * frames.size() - 3 */
     uint32_t next_frame_date;         /**< Date of the next frame change. */
 
 

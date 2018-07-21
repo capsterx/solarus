@@ -56,7 +56,12 @@ void AnimatedTilePattern::update() {
 
   uint32_t now = System::now();
   while (now >= next_frame_date) {
-    frame_index = (frame_index + 1) % frames.size();
+    if (!mirror_loop) {
+      frame_index = (frame_index + 1) % frames.size();
+    }
+    else {
+      frame_index = (frame_index + 1) % (2 * frames.size() - 2);
+    }
     next_frame_date += frame_delay;
   }
 }
@@ -76,7 +81,14 @@ void AnimatedTilePattern::draw(
     const Point& viewport
 ) const {
   const SurfacePtr& tileset_image = tileset.get_tiles_image();
-  const Rectangle& src = frames[frame_index];
+
+  int final_frame_index = frame_index;
+  int num_frames = frames.size();
+  if (mirror_loop && frame_index >= num_frames) {
+    final_frame_index = (2 * frames.size() - 2) - frame_index;
+  }
+  Debug::check_assertion(final_frame_index >= 0 && final_frame_index < num_frames, "Wrong frame index");
+  const Rectangle& src = frames[final_frame_index];
   Point dst = dst_position;
 
   if (parallax) {
