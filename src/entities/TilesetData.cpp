@@ -56,7 +56,9 @@ TilePatternData::TilePatternData(const Rectangle& frame) :
     default_layer(0),
     scrolling(PatternScrolling::NONE),
     repeat_mode(PatternRepeatMode::ALL),
-    frames() {
+    frames(),
+    frame_delay(default_frame_delay),
+    mirror_loop(false) {
 
   set_frame(frame);
 }
@@ -124,6 +126,26 @@ void TilePatternData::set_repeat_mode(PatternRepeatMode repeat_mode) {
 }
 
 /**
+ * \brief Returns the coordinates of each frame of this pattern in the tileset
+ * image file.
+ * \return The coordinates of the frame(s) of this pattern.
+ */
+const std::vector<Rectangle>& TilePatternData::get_frames() const {
+  return frames;
+}
+
+/**
+ * \brief Sets the coordinates of each frame of this pattern in the tileset
+ * image file.
+ * \param frames The coordinates of the frame(s) of this pattern.
+ */
+void TilePatternData::set_frames(const std::vector<Rectangle>& frames) {
+
+  Debug::check_assertion(!frames.empty(), "No frames");
+  this->frames = frames;
+}
+
+/**
  * \brief Returns whether this is a multi-frame pattern.
  * \return \c true if the pattern has more than one frame.
  */
@@ -133,10 +155,10 @@ bool TilePatternData::is_multi_frame() const {
 
 /**
  * \brief Returns the number of frames of this pattern.
- * \return The number of frames: 1, 3 or 4.
+ * \return The number of frames.
  */
 int TilePatternData::get_num_frames() const {
-  return (int) frames.size();
+  return static_cast<int>(frames.size());
 }
 
 /**
@@ -165,24 +187,43 @@ void TilePatternData::set_frame(const Rectangle& frame) {
 }
 
 /**
- * \brief Returns the coordinates of each frame of this pattern in the tileset
- * image file.
- * \return The coordinates of the frame(s) of this pattern.
+ * \brief Returns the delay between frames.
+ *
+ * This only has an effect for multi-frame patterns.
+ *
+ * \return The frame delay in milliseconds.
  */
-const std::vector<Rectangle>& TilePatternData::get_frames() const {
-  return frames;
+int TilePatternData::get_frame_delay() const {
+  return frame_delay;
 }
 
 /**
- * \brief Sets the coordinates of each frame of this pattern in the tileset
- * image file.
- * \param frames The coordinates of the frame(s) of this pattern.
+ * \brief Sets the delay between frames.
+ *
+ * This only has an effect for multi-frame patterns.
+ *
+ * \param frame_delay The frame delay in milliseconds.
  */
-void TilePatternData::set_frames(const std::vector<Rectangle>& frames) {
+void TilePatternData::set_frame_delay(int frame_delay) {
 
-  Debug::check_assertion(!frames.empty(), "No frames");
-  // TODO check number of elements
-  this->frames = frames;
+  Debug::check_assertion(frame_delay > 0, "Invalid frame delay");
+  this->frame_delay = frame_delay;
+}
+
+/**
+ * \brief Returns whether the animation plays backwards when looping.
+ * \return \c true if the animation should play backwards.
+ */
+bool TilePatternData::is_mirror_loop() const {
+  return mirror_loop;
+}
+
+/**
+ * \brief Sets whether the animation should play backwards when looping.
+ * \param mirror_loop \c true to play the animation backwards.
+ */
+void TilePatternData::set_mirror_loop(bool mirror_loop) {
+  this->mirror_loop = mirror_loop;
 }
 
 /**
@@ -509,60 +550,79 @@ int l_tile_pattern(lua_State* l) {
     );
     pattern_data.set_repeat_mode(repeat_mode);
 
-    const int width = LuaTools::check_int_field(l, 1, "width");
-    const int height = LuaTools::check_int_field(l, 1, "height");
-    // Start with the maximum number of frames.
-    std::vector<Rectangle> frames(4, Rectangle(0, 0, width, height));
+    const int frame_delay = LuaTools::opt_int_field(
+        l, 1, "frame_delay", TilePatternData::default_frame_delay
+    );
+    pattern_data.set_frame_delay(frame_delay);
 
-    int i = 0, j = 0;
+    std::vector<int> x;
     lua_settop(l, 1);
     lua_getfield(l, 1, "x");
     if (lua_isnumber(l, 2)) {
       // Single frame.
-      frames[0].set_x(LuaTools::check_int(l, 2));
-      i = 1;
+      x.push_back(LuaTools::check_int(l, 2));
     }
-    else {
+    else if (lua_istable(l, 2)) {
       // Multi-frame.
       lua_pushnil(l);
-      while (lua_next(l, 2) != 0 && i < 4) {
-        frames[i].set_x(LuaTools::check_int(l, 4));
-        ++i;
+      while (lua_next(l, 2) != 0) {
+        x.push_back(LuaTools::check_int(l, 4));
         lua_pop(l, 1);
       }
+    }
+    else {
+      LuaTools::type_error(l, 2, "number or table");
     }
     lua_pop(l, 1);
     Debug::check_assertion(lua_gettop(l) == 1, "Invalid stack when parsing tile pattern");
 
+    std::vector<int> y;
     lua_getfield(l, 1, "y");
     if (lua_isnumber(l, 2)) {
       // Single frame.
-      frames[0].set_y(LuaTools::check_int(l, 2));
-      j = 1;
+      y.push_back(LuaTools::check_int(l, 2));
     }
-    else {
+    else if (lua_istable(l, 2)) {
       // Multi-frame.
       lua_pushnil(l);
-      while (lua_next(l, 2) != 0 && j < 4) {
-        frames[j].set_y(LuaTools::check_int(l, 4));
-        ++j;
+      while (lua_next(l, 2) != 0) {
+        y.push_back(LuaTools::check_int(l, 4));
         lua_pop(l, 1);
       }
+    }
+    else {
+      LuaTools::type_error(l, 2, "number or table");
     }
     lua_pop(l, 1);
     Debug::check_assertion(lua_gettop(l) == 1, "Invalid stack when parsing tile pattern");
 
-    // Check data.
-    if (i != 1 && i != 3 && i != 4) {
-      LuaTools::arg_error(l, 1, "Invalid number of frames for x");
-    }
-    if (j != 1 && j != 3 && j != 4) {
-      LuaTools::arg_error(l, 1, "Invalid number of frames for y");
-    }
-    if (i != j) {
+    if (x.size() != y.size()) {
       LuaTools::arg_error(l, 1, "The length of x and y must match");
     }
-    frames.resize(i);
+    if (x.size() == 0) {
+      LuaTools::arg_error(l, 1, "Missing x and y frame coordinates");
+    }
+
+    const int width = LuaTools::check_int_field(l, 1, "width");
+    const int height = LuaTools::check_int_field(l, 1, "height");
+
+    std::vector<Rectangle> frames(x.size(), Rectangle(0, 0, width, height));
+    for (int i = 0; i < static_cast<int>(x.size()); ++i) {
+      frames[i].set_x(x[i]);
+      frames[i].set_y(y[i]);
+    }
+
+    bool mirror_loop = LuaTools::opt_boolean_field(
+        l, 1, "mirror_loop", false
+    );
+    // Detect 1.5 legacy mirror loop format
+    // and replace it by the mirror_loop boolean.
+    if (frames.size() == 4 && frames[1] == frames[3]) {
+      frames.pop_back();
+      mirror_loop = true;
+    }
+    pattern_data.set_mirror_loop(mirror_loop);
+
     pattern_data.set_frames(frames);
 
     tileset_data.add_pattern(id, pattern_data);
@@ -692,9 +752,15 @@ bool TilesetData::export_to_lua(std::ostream& out) const {
         << "  y = " << y.str() << ",\n"
         << "  width = " << width << ",\n"
         << "  height = " << height << ",\n";
+    if (pattern.is_multi_frame()) {
+      out << "  frame_delay = " << pattern.get_frame_delay() << ",\n";
+      if (pattern.is_mirror_loop()) {
+        out << "  mirror_loop = true,\n";
+      }
+    }
     if (pattern.get_scrolling() != PatternScrolling::NONE) {
-      const std::string& scolling_name = enum_to_name(pattern.get_scrolling());
-      out << "  scrolling = \"" << scolling_name << "\",\n";
+      const std::string& scrolling_name = enum_to_name(pattern.get_scrolling());
+      out << "  scrolling = \"" << scrolling_name << "\",\n";
     }
     if (pattern.get_repeat_mode() != PatternRepeatMode::ALL) {
       const std::string& repeat_mode_name = enum_to_name(pattern.get_repeat_mode());

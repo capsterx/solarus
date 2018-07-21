@@ -27,6 +27,7 @@ tile_pattern{
   y = { 56, 56, 56 },
   width = 16,
   height = 8,
+  frame_delay = 250,
 }
 
 tile_pattern{
@@ -37,6 +38,7 @@ tile_pattern{
   y = { 32, 32, 32 },
   width = 16,
   height = 24,
+  frame_delay = 250,
 }
 
 tile_pattern{
@@ -47,6 +49,7 @@ tile_pattern{
   y = { 32, 32, 32 },
   width = 32,
   height = 32,
+  frame_delay = 250,
 }
 
 tile_pattern{
@@ -257,6 +260,7 @@ tile_pattern{
   y = { 80, 80, 80 },
   width = 16,
   height = 16,
+  frame_delay = 250,
 }
 
 tile_pattern{
@@ -307,6 +311,7 @@ tile_pattern{
   y = { 96, 96, 96 },
   width = 16,
   height = 16,
+  frame_delay = 250,
 }
 
 tile_pattern{
@@ -333,10 +338,12 @@ tile_pattern{
   id = "51",
   ground = "shallow_water",
   default_layer = 0,
-  x = { 304, 320, 336, 320 },
-  y = { 96, 96, 96, 96 },
+  x = { 304, 320, 336 },
+  y = { 96, 96, 96 },
   width = 16,
   height = 8,
+  frame_delay = 250,
+  mirror_loop = true,
 }
 
 tile_pattern{
@@ -347,6 +354,7 @@ tile_pattern{
   y = { 112, 112, 112 },
   width = 32,
   height = 32,
+  frame_delay = 250,
 }
 
 tile_pattern{
