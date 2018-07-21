@@ -18,7 +18,6 @@
 #include "solarus/entities/AnimatedTilePattern.h"
 #include "solarus/entities/GroundInfo.h"
 #include "solarus/entities/TilePattern.h"
-#include "solarus/entities/TimeScrollingTilePattern.h"
 #include "solarus/graphics/Surface.h"
 #include <sstream>
 
@@ -86,29 +85,13 @@ Ground TilePattern::get_ground() const {
 }
 
 /**
- * \brief Initializes the tile pattern system.
- */
-void TilePattern::initialize() {
-  AnimatedTilePattern::initialize();
-  TimeScrollingTilePattern::initialize();
-}
-
-/**
- * \brief Cleans the tile pattern system.
- */
-void TilePattern::quit() {
-  AnimatedTilePattern::quit();
-  TimeScrollingTilePattern::quit();
-}
-
-/**
- * \brief Updates the tile pattern system.
+ * \brief Updates this tile pattern.
  *
- * This function is called repeatedly by the main loop.
+ * This function is called repeatedly by non-optimized tiles using the pattern.
+ *
+ * It does nothing by default.
  */
 void TilePattern::update() {
-  AnimatedTilePattern::update();
-  TimeScrollingTilePattern::update();
 }
 
 /**

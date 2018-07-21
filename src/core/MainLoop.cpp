@@ -157,7 +157,6 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Read the quest resource list from data.
   CurrentQuest::initialize();
-  TilePattern::initialize();
 
   // Read the quest general properties.
   load_quest_properties();
@@ -216,7 +215,6 @@ MainLoop::~MainLoop() {
   if (lua_context != nullptr) {
     lua_context->exit();
   }
-  TilePattern::quit();
   CurrentQuest::quit();
   QuestFiles::close_quest();
   System::quit();

@@ -201,7 +201,7 @@ class SOLARUS_API Map: public ExportableToLua {
     int max_layer;                /**< Highest layer of the map (0 or more). */
 
     std::string tileset_id;       /**< Id of the current tileset. */
-    const Tileset* tileset;       /**< Tileset of the map: every tile of this map
+    Tileset* tileset;             /**< Tileset of the map: every tile of this map
                                    * is extracted from this tileset. */
 
     std::string music_id;         /**< Id of the current music of the map:

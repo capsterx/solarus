@@ -47,15 +47,14 @@ class TilePattern {
     const Size& get_size() const;
     Ground get_ground() const;
 
-    static void initialize();
-    static void quit();
-    static void update();
     void fill_surface(
         const SurfacePtr& dst_surface,
         const Rectangle& dst_position,
         const Tileset& tileset,
         const Point& viewport
     ) const;
+
+    virtual void update();
 
     /**
      * \brief Draws the tile image on a surface.

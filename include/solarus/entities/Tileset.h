@@ -23,6 +23,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 struct lua_State;
 
@@ -52,6 +53,7 @@ class Tileset {
     const SurfacePtr& get_entities_image() const;
     const TilePattern& get_tile_pattern(const std::string& id) const;
     void set_images(const std::string& other_id);
+    void update();
 
   private:
 
@@ -63,6 +65,8 @@ class Tileset {
     const std::string id;          /**< Id of the tileset. */
     std::unordered_map<std::string, std::unique_ptr<TilePattern>>
         tile_patterns;             /**< Tile patterns in this tileset. */
+    std::vector<TilePattern*>
+        animated_tile_patterns;    /**< Subset of animated patterns. */
     Color background_color;        /**< Background color of the tileset. */
     SurfacePtr tiles_image;        /**< Image from which the tile patterns are extracted. */
     SurfacePtr entities_image;     /**< Image from which the tileset-dependent sprites are

@@ -22,7 +22,6 @@
 #include "solarus/entities/SimpleTilePattern.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/entities/TilesetData.h"
-#include "solarus/entities/TimeScrollingTilePattern.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/lua/LuaData.h"
 #include "solarus/lua/LuaTools.h"
@@ -66,8 +65,10 @@ void Tileset::add_tile_pattern(
   TilePattern* tile_pattern = nullptr;
 
   const std::vector<Rectangle>& frames = pattern_data.get_frames();
-  const PatternScrolling scrolling = pattern_data.get_scrolling();
   const Ground ground = pattern_data.get_ground();
+  const PatternScrolling scrolling = pattern_data.get_scrolling();
+  const uint32_t frame_delay = pattern_data.get_frame_delay();
+  bool mirror_loop = pattern_data.is_mirror_loop();
 
   if (frames.size() == 1) {
     // Single frame.
@@ -110,22 +111,18 @@ void Tileset::add_tile_pattern(
     }
 
     bool parallax = scrolling == PatternScrolling::PARALLAX;
-    AnimatedTilePattern::AnimationSequence sequence = (frames.size() == 3) ?
-        AnimatedTilePattern::ANIMATION_SEQUENCE_012 : AnimatedTilePattern::ANIMATION_SEQUENCE_0121;
     tile_pattern = new AnimatedTilePattern(
         ground,
-        sequence,
-        frames[0].get_size(),
-        frames[0].get_x(),
-        frames[0].get_y(),
-        frames[1].get_x(),
-        frames[1].get_y(),
-        frames[2].get_x(),
-        frames[2].get_y(),
+        frames,
+        frame_delay,
+        mirror_loop,
         parallax
     );
   }
 
+  if (tile_pattern->is_animated()) {
+    animated_tile_patterns.push_back(tile_pattern);
+  }
   tile_patterns.emplace(id, std::unique_ptr<TilePattern>(tile_pattern));
 }
 
@@ -234,6 +231,16 @@ void Tileset::set_images(const std::string& other_id) {
   entities_image = tmp_tileset.get_entities_image();
 
   background_color = tmp_tileset.get_background_color();
+}
+
+/**
+ * \brief Updates all patterns of this tileset.
+ */
+void Tileset::update() {
+
+  for (const auto& pattern : animated_tile_patterns) {
+    pattern->update();
+  }
 }
 
 }

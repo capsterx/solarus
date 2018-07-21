@@ -499,7 +499,7 @@ bool Map::notify_input(const InputEvent& event) {
 }
 
 /**
- * \brief Updates the animation and the position of each map elements, including the hero.
+ * \brief Updates the animation and the position of each map element, including the hero.
  */
 void Map::update() {
 
@@ -507,7 +507,7 @@ void Map::update() {
   check_suspended();
 
   // update the elements
-  TilePattern::update();
+  tileset->update();
   entities->update();
   get_lua_context().map_on_update(*this);
 }

@@ -36,7 +36,7 @@ void ResourceProvider::clear() {
  * \param tileset_id A tileset id.
  * \return The corresponding tileset.
  */
-const Tileset& ResourceProvider::get_tileset(const std::string& tileset_id) {
+Tileset& ResourceProvider::get_tileset(const std::string& tileset_id) {
 
   auto it = tileset_cache.find(tileset_id);
   if (it != tileset_cache.end()) {
