@@ -164,13 +164,13 @@ int TilePatternData::get_num_frames() const {
 /**
  * \brief Returns the coordinates of this pattern in the tileset image file.
  *
- * This only makes sense for single-frame patterns.
+ * If the pattern is multi-frame, returns the first frame.
  *
- * \return The coordinates of the single frame of this pattern.
- * Returns an empty rectangle if the pattern is nil.
+ * \return The coordinates of the first frame of this pattern.
  */
 Rectangle TilePatternData::get_frame() const {
 
+  Debug::check_assertion(!frames.empty(), "No pattern frames");
   return frames[0];
 }
 
