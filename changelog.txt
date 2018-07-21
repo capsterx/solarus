@@ -9,6 +9,7 @@ Engine changes
 * Solarus 1.5 quests are still supported by Solarus 1.6.
 * Add support of OpenGL shaders (#394) by stdgregwar, Vlag and Christopho.
 * Maps can now use multiple tilesets (#1174).
+* Animated tile patterns can now have any frame number and delay (#683).
 * Treasure dialogs are now optional (#1076).
 * Don't center the hero on non-blocking streams (#1063).
 * Allow pickables to follow streams (#1139).
@@ -76,6 +77,7 @@ Data files format changes
 * Maps: add support of custom properties for entities (#1094).
 * Maps: add property tileset to tiles and dynamic tiles (#1174).
 * Tilesets: add support of border sets (autotiles) (#1069).
+* Tilesets: add support of custom frame number and delay (#683).
 * Make the tileset entities image optional (#884).
 
 ___________________________
