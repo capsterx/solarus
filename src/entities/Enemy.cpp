@@ -111,14 +111,8 @@ Enemy::Enemy(
   nb_explosions(0),
   next_explosion_date(0) {
 
-  // All collision modes are potentially needed because of Enemy::set_attacking_collision_mode().
   set_collision_modes(
         CollisionMode::COLLISION_OVERLAPPING |  // Also for some entities like the boomerang.
-        CollisionMode::COLLISION_CONTAINING |
-        CollisionMode::COLLISION_ORIGIN |
-        CollisionMode::COLLISION_FACING |
-        CollisionMode::COLLISION_TOUCHING |
-        CollisionMode::COLLISION_CENTER |
         CollisionMode::COLLISION_SPRITE         // For collisions with the hero by default.
   );
   set_size(16, 16);
@@ -571,6 +565,10 @@ CollisionMode Enemy::get_attacking_collision_mode() const {
  */
 void Enemy::set_attacking_collision_mode(CollisionMode attacking_collision_mode) {
   this->attacking_collision_mode = attacking_collision_mode;
+  set_collision_modes(
+        CollisionMode::COLLISION_OVERLAPPING |
+        CollisionMode::COLLISION_SPRITE |
+        attacking_collision_mode);
 }
 
 /**
