@@ -1058,6 +1058,8 @@ class LuaContext {
       custom_entity_api_clear_collision_tests,
       custom_entity_api_get_modified_ground,
       custom_entity_api_set_modified_ground,
+      custom_entity_api_get_follow_streams,
+      custom_entity_api_set_follow_streams,
 
       // available to all userdata types
       userdata_meta_gc,

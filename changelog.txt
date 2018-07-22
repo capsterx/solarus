@@ -60,6 +60,7 @@ Changes that do not introduce incompatibilities:
 * Add methods entity:get_layer() and entity:set_layer().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
+* Add methods custom_entity:get/set_follow_streams() (#1221).
 * Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
 * Add a method sprite:get_frame_src_xy() (#1093).

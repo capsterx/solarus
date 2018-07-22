@@ -75,6 +75,7 @@ set(lua_test_maps
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
   "bugs/1214_blocks_in_water"
+  "bugs/1221_custom_entity_follow_stream"
 )
 
 # Test that should not fail when there are errors.

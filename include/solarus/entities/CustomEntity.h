@@ -167,6 +167,9 @@ class SOLARUS_API CustomEntity: public Entity {
     Ground get_modified_ground() const override;
     void set_modified_ground(Ground modified_ground);
 
+    bool get_follow_streams() const;
+    void set_follow_streams(bool follow_streams);
+
   private:
 
     /**
@@ -275,6 +278,8 @@ class SOLARUS_API CustomEntity: public Entity {
     bool ground_observer;              /**< Whether this custom entity is a ground observer. */
     Ground modified_ground;            /**< The ground defined by this custom
                                         * entity or GROUND_EMPTY. */
+
+    bool follow_streams;               /**< Whether this custom entity should follow streams. */
 };
 
 }

@@ -17,6 +17,7 @@ map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195
 map{ id = "bugs/1200_create_shader_from_source", description = "#1200: Create shader from source" }
 map{ id = "bugs/1210_shader_scaling_factor", description = "#1210: shader:get/set_shading_factor()" }
 map{ id = "bugs/1214_blocks_in_water", description = "#1214: Blocks cannot be pushed into water" }
+map{ id = "bugs/1221_custom_entity_follow_stream", description = "#1221: Allow custom entities to follow streams" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
