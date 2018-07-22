@@ -237,6 +237,18 @@ animation{
   },
 }
 animation{
+  name = "super_spin_attack",
+  src_image = "main_heroes/eldran_spin_attack.png",
+  frame_delay = 30,
+  frame_to_loop_on = 5,
+  directions = {
+    { x = 0, y = 0, frame_width = 64, frame_height = 64, origin_x = 32, origin_y = 39, num_frames = 22, num_columns = 15 },
+    { x = 0, y = 128, frame_width = 64, frame_height = 64, origin_x = 32, origin_y = 39, num_frames = 22, num_columns = 15 },
+    { x = 0, y = 256, frame_width = 64, frame_height = 64, origin_x = 32, origin_y = 39, num_frames = 22, num_columns = 15 },
+    { x = 0, y = 384, frame_width = 64, frame_height = 64, origin_x = 32, origin_y = 39, num_frames = 22, num_columns = 15 },
+  },
+}
+animation{
   name = "surprised",
   src_image = "main_heroes/eldran_miscellaneous.png",
   directions = {

@@ -10,6 +10,7 @@ map{ id = "bugs/1139_pickable_on_stream", description = "#1139: Allow pickables 
 map{ id = "bugs/1158_entity_timer_suspended", description = "#1158: timer:set_suspended_with_map(false) not working with entity timers" }
 map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
 map{ id = "bugs/1163_circular_movement_get_direction4", description = "#1163: circular_movement:get_direction4() not working" }
+map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix item:on_ability_used() not called with sword knowledge" }
 map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }

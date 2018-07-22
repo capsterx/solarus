@@ -71,6 +71,7 @@ set(lua_test_maps
   "bugs/1158_entity_timer_suspended"
   "bugs/1162_custom_entity_collision_wrong_order"
   "bugs/1163_circular_movement_get_direction4"
+  "bugs/1171_sword_knowledge_on_ability_used"
   "bugs/1181_hurt_enemy_after_custom_attack"
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
