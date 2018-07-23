@@ -7,6 +7,7 @@ set(lua_test_maps
   "surface_tests"
   "oriented_collisions"
   "teletransportation_tests/main"
+  "bugs/340_crash_map_get_hero/1"
   "bugs/486_diagonal_dynamic_tiles"
   "bugs/496_stream_speed_0"
   "bugs/526_get_entities_same_region"

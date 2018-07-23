@@ -41,7 +41,6 @@ namespace Solarus {
  * and the script file of the map. The data file must exist.
  */
 Map::Map(const std::string& id):
-  game(nullptr),
   savegame(),
   id(id),
   width8(0),
@@ -266,7 +265,6 @@ void Map::unload() {
     background_surface = nullptr;
     foreground_surface = nullptr;
     entities = nullptr;
-    game = nullptr;
 
     loaded = false;
   }
@@ -295,7 +293,6 @@ void Map::load(Game& game) {
   }
 
   // Initialize the map from the data just read.
-  this->game = &game;
   this->savegame = std::static_pointer_cast<Savegame>(
         game.get_savegame().shared_from_this());  // TODO make Game::get_savegame() return a shared_ptr.
   ResourceProvider& resource_provider = game.get_resource_provider();
@@ -334,14 +331,16 @@ LuaContext& Map::get_lua_context() {
 /**
  * \brief Returns the game that loaded this map.
  *
- * This function should not be called before the map is loaded into a game
+ * This function must not be called before the map is loaded into a game
  * or after the game is stopped.
+ * However, it can be called when the map is no longer active,
+ * as long as the game is still running.
  *
  * \return The game.
  */
 Game& Map::get_game() {
   Debug::check_assertion(is_game_running(), "The game of this map does not exist");
-  return *game;
+  return *savegame->get_game();
 }
 
 /**
@@ -530,7 +529,7 @@ bool Map::is_suspended() const {
 void Map::check_suspended() {
 
   Debug::check_assertion(is_game_running(), "The game of this map does not exist");
-  bool game_suspended = game->is_suspended();
+  bool game_suspended = get_game().is_suspended();
   if (suspended != game_suspended) {
     set_suspended(game_suspended);
   }
