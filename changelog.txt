@@ -25,7 +25,7 @@ Engine changes
 * Fix crash when opening a chest with a missing treasure dialog (#1089).
 * Fix crash when scrolling to the same map (#924) by stdgregwar.
 * Fix crash when scrolling to an invalid layer (#1015).
-* Fix crash when calling map:get_hero() after the map is finished (#340).
+* Fix crash when calling map:get_hero() after the map is finished (#1228).
 * Fix joypad deadzone issue (#672) by strycore.
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).

@@ -7,7 +7,6 @@ set(lua_test_maps
   "surface_tests"
   "oriented_collisions"
   "teletransportation_tests/main"
-  "bugs/340_crash_map_get_hero/1"
   "bugs/486_diagonal_dynamic_tiles"
   "bugs/496_stream_speed_0"
   "bugs/526_get_entities_same_region"
@@ -78,6 +77,7 @@ set(lua_test_maps
   "bugs/1195_enemy_dying_animation_never_finishes"
   "bugs/1214_blocks_in_water"
   "bugs/1221_custom_entity_follow_stream"
+  "bugs/1228_crash_map_get_hero/1"
 )
 
 # Test that should not fail when there are errors.
