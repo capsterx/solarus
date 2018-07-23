@@ -53,6 +53,13 @@ const Stream& StreamAction::get_stream() const {
 }
 
 /**
+ * \overload Non-const version.
+ */
+Stream& StreamAction::get_stream() {
+  return *stream;
+}
+
+/**
  * \brief Returns the entity this action is applied to.
  * \return The entity moved by the stream.
  */

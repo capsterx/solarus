@@ -889,6 +889,7 @@ class LuaContext {
       entity_api_bring_sprite_to_back,
       entity_api_is_visible,
       entity_api_set_visible,
+      entity_api_get_controlling_stream,
       entity_api_get_movement,
       entity_api_stop_movement,
       entity_api_has_layer_independent_collisions,

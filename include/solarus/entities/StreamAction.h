@@ -42,6 +42,7 @@ class StreamAction {
     StreamAction(Stream& stream, Entity& entity_moved);
 
     const Stream& get_stream() const;
+    Stream& get_stream();
     const Entity& get_entity_moved() const;
     bool is_active() const;
 

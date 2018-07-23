@@ -84,7 +84,7 @@ set(lua_test_maps_non_fatal_errors
   "bugs/1015_crash_scrolling_to_invalid_layer/map_1"
 )
 
-# Tests that requires showing the window.
+# Tests that require showing the window.
 set(lua_test_maps_with_window
   "bugs/1200_create_shader_from_source"
   "bugs/1210_shader_scaling_factor"

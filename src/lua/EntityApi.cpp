@@ -42,6 +42,7 @@
 #include "solarus/entities/Separator.h"
 #include "solarus/entities/ShopTreasure.h"
 #include "solarus/entities/Stream.h"
+#include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/entities/Tileset.h"
@@ -142,6 +143,7 @@ void LuaContext::register_entity_module() {
     common_methods.insert(common_methods.end(), {
         { "get_layer", entity_api_get_layer },
         { "set_layer", entity_api_set_layer },
+        { "get_controlling_stream", entity_api_get_controlling_stream },
         { "get_property", entity_api_get_property },
         { "set_property", entity_api_set_property },
         { "get_properties", entity_api_get_properties },
@@ -1492,6 +1494,27 @@ int LuaContext::entity_api_is_visible(lua_State* l) {
     const Entity& entity = *check_entity(l, 1);
 
     lua_pushboolean(l, entity.is_visible());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:entity_api_get_controlling_stream().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_controlling_stream(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+
+    StreamAction* stream_action = entity.get_stream_action();
+    if (stream_action == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_stream(l, stream_action->get_stream());
+    }
     return 1;
   });
 }
