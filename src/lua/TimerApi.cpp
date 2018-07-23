@@ -374,9 +374,14 @@ int LuaContext::timer_api_start(lua_State *l) {
 
     if (lua_type(l, 1) != LUA_TNUMBER) {
       // The first parameter is the context.
-      if (lua_type(l, 1) != LUA_TTABLE
-          && lua_type(l, 1) != LUA_TUSERDATA) {
-        LuaTools::type_error(l, 1, "table or userdata");
+      if (!is_main(l, 1) &&
+          !is_menu(l, 1) &&
+          !is_game(l, 1) &&
+          !is_item(l, 1) &&
+          !is_map(l, 1) &&
+          !is_entity(l, 1)
+      ) {
+        LuaTools::type_error(l, 1, "game, item, map, entity, menu or sol.main");
       }
     }
     else {

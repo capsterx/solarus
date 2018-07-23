@@ -680,10 +680,7 @@ int LuaContext::game_api_set_value(lua_State* l) {
       break;
 
     default:
-      LuaTools::arg_error(l, 3,
-          std::string("Expected string, number or boolean, got ")
-      + luaL_typename(l, 3)
-      );
+      LuaTools::type_error(l, 3, "string, number or boolean");
     }
 
     return 0;

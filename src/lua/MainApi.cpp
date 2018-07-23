@@ -96,6 +96,19 @@ void LuaContext::push_main(lua_State* l) {
 }
 
 /**
+ * \brief Returns whether a value is the sol.main table.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return \c true if the value at this index is sol.main.
+ */
+bool LuaContext::is_main(lua_State* l, int index) {
+  push_main(l);
+  bool result = lua_equal(l, index, -1);
+  lua_pop(l, 1);
+  return result;
+}
+
+/**
  * \brief Implementation of sol.main.get_solarus_version().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -386,17 +399,7 @@ int LuaContext::main_api_get_type(lua_State* l) {
   return LuaTools::exception_boundary_handle(l, [&] {
 
     luaL_checkany(l, 1);
-    std::string module_name;
-    if (!is_solarus_userdata(l, 1, module_name)) {
-      // Return the same thing as the usual Lua type() function.
-      std::string type_name = luaL_typename(l, 1);
-      push_string(l, type_name);
-    }
-    else {
-      // Remove the "sol." prefix.
-      push_string(l, module_name.substr(4));
-    }
-
+    push_string(l, LuaTools::get_type_name(l, 1));
     return 1;
   });
 }

@@ -195,6 +195,11 @@ class LuaContext {
         const char* function_name
     );
 
+    static bool is_solarus_userdata(
+        lua_State* l,
+        int index,
+        std::string& module_name
+    );
     bool userdata_has_field(
         const ExportableToLua& userdata,
         const char* key
@@ -284,7 +289,7 @@ class LuaContext {
     void main_on_draw(const SurfacePtr& dst_surface);
     bool main_on_input(const InputEvent& event);
 
-    //Video events
+    // Video events.
     void video_on_draw(const SurfacePtr& screen);
 
     // Menu events.
@@ -1174,18 +1179,15 @@ class LuaContext {
     static void push_enemy(lua_State* l, Enemy& enemy);
     static void push_custom_entity(lua_State* l, CustomEntity& entity);
 
-    // Getting userdata objects from Lua.
+    // Getting objects from Lua.
+    static bool is_main(lua_State* l, int index);
+    static bool is_menu(lua_State* l, int index);
     static bool is_userdata(lua_State* l, int index,
         const std::string& module_name);
     static const ExportableToLuaPtr& check_userdata(
         lua_State* l,
         int index,
         const std::string& module_name
-    );
-    static bool is_solarus_userdata(
-        lua_State* l,
-        int index,
-        std::string& module_name
     );
     static bool is_timer(lua_State* l, int index);
     static TimerPtr check_timer(lua_State* l, int index);
