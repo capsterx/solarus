@@ -4,7 +4,7 @@ local game = map:get_game()
 function map:on_started()
 
   hero:assert_position_equal(sensor_on_started)
-  hero:assert_state_ground_animation("jumping", "empty", "jumping")
+  hero:assert_state_ground_animation("jumping", "traversable", "jumping")
 end
 
 function map:on_opening_transition_finished()

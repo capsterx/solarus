@@ -652,7 +652,9 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
       map.get_entities().set_entity_layer(*this, layer);
       last_solid_ground_coords = get_xy();
       last_solid_ground_layer = get_layer();
+
       // Note that we keep the hero's state from the previous map.
+      check_position();  // Correctly initialize the ground.
     }
     else {
 

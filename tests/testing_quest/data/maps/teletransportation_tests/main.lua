@@ -24,7 +24,12 @@ end
 function hero:assert_state_ground_animation(state, ground, animation)
 
   assert_equal(hero:get_state(), state)
+
+  local map = hero:get_map()
+  local hero_x, hero_y, hero_layer = hero:get_ground_position()
+  assert_equal(map:get_ground(hero_x, hero_y, hero_layer), ground)
   assert_equal(hero:get_ground_below(), ground)
+
   assert_equal(hero:get_sprite("tunic"):get_animation(), animation)
 end
 

@@ -6,6 +6,9 @@ function map:on_started()
   game:set_ability("sword", 1)
 
   hero:assert_position_equal(sensor_on_started)
+
+  -- Empty ground because during scrolling from the right,
+  -- the hero is outside the map.
   hero:assert_state_ground_animation("running", "empty", "sword_loading_walking")
 end
 

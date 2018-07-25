@@ -6,6 +6,7 @@ local game = map:get_game()
 
 function map:on_started()
 
+  print("Start in hole map:on_started()")
   hero:assert_position_equal(hero, destination_1)
   hero:assert_state_ground_animation("free", "hole", "stopped")
 end
