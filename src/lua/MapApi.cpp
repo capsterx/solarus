@@ -1903,7 +1903,7 @@ int LuaContext::map_api_open_doors(lua_State* l) {
     const std::vector<EntityPtr>& doors = entities.get_entities_with_prefix(EntityType::DOOR, prefix);
     for (const EntityPtr& entity: doors) {
       Door& door = *std::static_pointer_cast<Door>(entity);
-      if (!door.is_open() || door.is_closing()) {
+      if (!door.is_open() && !door.is_opening()) {
         door.open();
         done = true;
       }
@@ -1935,7 +1935,7 @@ int LuaContext::map_api_close_doors(lua_State* l) {
     const std::vector<EntityPtr>& doors = entities.get_entities_with_prefix(EntityType::DOOR, prefix);
     for (const EntityPtr& entity: doors) {
       Door& door = *std::static_pointer_cast<Door>(entity);
-      if (door.is_open() || door.is_opening()) {
+      if (!door.is_closed() && !door.is_closing()) {
         door.close();
         done = true;
       }

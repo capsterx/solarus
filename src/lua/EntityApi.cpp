@@ -355,6 +355,13 @@ void LuaContext::register_entity_module() {
       { "is_closed", door_api_is_closed },
       { "is_closing", door_api_is_closing },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    door_methods.insert(door_methods.end(), {
+        { "open", door_api_open },
+        { "close", door_api_close },
+        { "set_open", door_api_set_open },
+    });
+  }
 
   door_methods.insert(door_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -457,8 +464,6 @@ void LuaContext::register_entity_module() {
       { "set_treasure", enemy_api_set_treasure },
       { "is_traversable", enemy_api_is_traversable },
       { "set_traversable", enemy_api_set_traversable },
-      { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
-      { "set_attacking_collision_mode", enemy_api_set_attacking_collision_mode },
       { "get_obstacle_behavior", enemy_api_get_obstacle_behavior },
       { "set_obstacle_behavior", enemy_api_set_obstacle_behavior },
       { "set_size", entity_api_set_size },
@@ -470,6 +475,12 @@ void LuaContext::register_entity_module() {
       { "remove_sprite", entity_api_remove_sprite },
       { "create_enemy", enemy_api_create_enemy },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    enemy_methods.insert(enemy_methods.end(), {
+        { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
+        { "set_attacking_collision_mode", enemy_api_set_attacking_collision_mode },
+    });
+  }
 
   enemy_methods.insert(enemy_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -500,9 +511,13 @@ void LuaContext::register_entity_module() {
       { "set_layer_independent_collisions", entity_api_set_layer_independent_collisions },
       { "get_modified_ground", custom_entity_api_get_modified_ground },
       { "set_modified_ground", custom_entity_api_set_modified_ground },
-      { "get_follow_streams", custom_entity_api_get_follow_streams },
-      { "set_follow_streams", custom_entity_api_set_follow_streams },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    custom_entity_methods.insert(custom_entity_methods.end(), {
+        { "get_follow_streams", custom_entity_api_get_follow_streams },
+        { "set_follow_streams", custom_entity_api_set_follow_streams },
+    });
+  }
 
   custom_entity_methods.insert(custom_entity_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -3822,6 +3837,61 @@ int LuaContext::door_api_is_closing(lua_State* l) {
 
     lua_pushboolean(l, door.is_closing());
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of door:open().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::door_api_open(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Door& door = *check_door(l, 1);
+
+    if (!door.is_open() && !door.is_opening()) {
+      door.open();
+      Sound::play("door_open");
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of door:close().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::door_api_close(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Door& door = *check_door(l, 1);
+
+    if (!door.is_closed() && !door.is_closing()) {
+      door.close();
+      Sound::play("door_closed");
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of door:set_open().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::door_api_set_open(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Door& door = *check_door(l, 1);
+    bool open = LuaTools::opt_boolean(l, 2, true);
+
+    door.set_open(open);
+
+    return 0;
   });
 }
 

@@ -58,7 +58,6 @@ void LuaContext::register_main_module() {
       { "get_os", main_api_get_os },
       { "get_game", main_api_get_game }
   };
-
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     functions.insert(functions.end(), {
         { "get_quest_version", main_api_get_quest_version },

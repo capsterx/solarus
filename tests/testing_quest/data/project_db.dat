@@ -1,5 +1,6 @@
 map{ id = "all_entities", description = "All entities" }
 map{ id = "basic_test", description = "Basic test" }
+map{ id = "bugs/1007_door_open_close", description = "#1007: door:open/close()" }
 map{ id = "bugs/1015_crash_scrolling_to_invalid_layer/map_1", description = "#1015: Crash when scrolling to an invalid layer" }
 map{ id = "bugs/1015_crash_scrolling_to_invalid_layer/map_2", description = "Map 2" }
 map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "#1042: Facing entity is random when multiple ones overlap" }
