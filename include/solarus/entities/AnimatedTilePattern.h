@@ -43,15 +43,15 @@ class AnimatedTilePattern: public TilePattern {
         bool parallax
     );
 
-    void update();
+    void update() override;
 
-    virtual void draw(
+    void draw(
         const SurfacePtr& dst_surface,
         const Point& dst_position,
         const Tileset& tileset,
         const Point& viewport
     ) const override;
-    virtual bool is_drawn_at_its_position() const override;
+    bool is_drawn_at_its_position() const override;
 
   private:
 
