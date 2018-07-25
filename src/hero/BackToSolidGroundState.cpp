@@ -82,6 +82,11 @@ void Hero::BackToSolidGroundState::start(const State* previous_state) {
   Debug::check_assertion(!target_position.is_empty(), "Missing solid ground callback");
   target_position.push();
   bool success = LuaTools::call_function(l, 0, 3, "Solid ground callback");
+  if (success &&
+      (!lua_isnumber(l, -3) || !lua_isnumber(l, -2))) {
+    Debug::error("The hero:save_solid_ground() callback did not return x and y coordinates");
+    success = false;
+  }
   if (!success) {
     // Fallback: use the last solid ground position.
     xy = hero.get_last_solid_ground_coords();
@@ -91,7 +96,7 @@ void Hero::BackToSolidGroundState::start(const State* previous_state) {
     // Normal case: use the result of the function.
     xy.x = LuaTools::check_int(l, -3);
     xy.y = LuaTools::check_int(l, -2);
-    layer = LuaTools::check_int(l, -1);
+    layer = LuaTools::opt_int(l, -1, hero.get_layer());
     lua_pop(l, 3);
   }
 
