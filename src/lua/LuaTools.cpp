@@ -815,14 +815,13 @@ int check_layer(
     int index,
     const Map& map
 ) {
+  if (!lua_isnumber(l, index)) {
+    type_error(l, index, "number");
+  }
+
   if (!is_layer(l, index, map)) {
     std::ostringstream oss;
-    if (!lua_isnumber(l, index)) {
-      oss << "Invalid layer";
-    }
-    else {
-      oss << "Invalid layer: " << lua_tonumber(l, index);
-    }
+    oss << "Invalid layer: " << lua_tonumber(l, index);
     arg_error(l, index, oss.str());
   }
 
