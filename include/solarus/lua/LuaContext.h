@@ -527,6 +527,8 @@ class LuaContext {
       file_api_exists,
       file_api_remove,
       file_api_mkdir,
+      file_api_is_dir,
+      file_api_list_dir,
 
       // Menu API.
       menu_api_start,

@@ -137,7 +137,7 @@ void LuaContext::register_entity_module() {
       { "is_visible", entity_api_is_visible },
       { "set_visible", entity_api_set_visible },
       { "get_movement", entity_api_get_movement },
-      { "stop_movement", entity_api_stop_movement }
+      { "stop_movement", entity_api_stop_movement },
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     common_methods.insert(common_methods.end(), {
@@ -147,7 +147,7 @@ void LuaContext::register_entity_module() {
         { "get_property", entity_api_get_property },
         { "set_property", entity_api_set_property },
         { "get_properties", entity_api_get_properties },
-        { "set_properties", entity_api_set_properties }
+        { "set_properties", entity_api_set_properties },
     });
   }
 

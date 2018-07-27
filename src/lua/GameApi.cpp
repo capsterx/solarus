@@ -162,7 +162,8 @@ int LuaContext::game_api_exists(lua_State* l) {
       LuaTools::error(l, "Cannot check savegame: no write directory was specified in quest.dat");
     }
 
-    bool exists = QuestFiles::data_file_exists(file_name);
+    bool exists = QuestFiles::data_file_exists(file_name) &&
+        !QuestFiles::data_file_is_dir(file_name);
 
     lua_pushboolean(l, exists);
     return 1;

@@ -154,7 +154,8 @@ bool Settings::load(const std::string& file_name) {
     return false;
   }
 
-  if (!QuestFiles::data_file_exists(file_name)) {
+  if (!QuestFiles::data_file_exists(file_name) ||
+      QuestFiles::data_file_is_dir(file_name)) {
     Debug::error("Cannot find settings file '" + file_name + "'");
     return false;
   }

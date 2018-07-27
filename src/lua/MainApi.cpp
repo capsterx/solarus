@@ -285,7 +285,8 @@ int LuaContext::main_api_load_settings(lua_State* l) {
     }
 
     bool success = false;
-    if (QuestFiles::data_file_exists(file_name)) {
+    if (QuestFiles::data_file_exists(file_name) &&
+        !QuestFiles::data_file_is_dir(file_name)) {
       Settings settings;
       success = settings.load(file_name);
       if (success) {

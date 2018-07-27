@@ -77,6 +77,12 @@ SOLARUS_API void data_file_save(
 );
 SOLARUS_API bool data_file_delete(const std::string& file_name);
 SOLARUS_API bool data_file_mkdir(const std::string& dir_name);
+SOLARUS_API bool data_file_is_dir(
+    const std::string& file_name
+);
+SOLARUS_API std::vector<std::string> data_file_list_dir(
+    const std::string& dir_path
+);
 
 // Writing files.
 SOLARUS_API std::string get_base_write_dir();

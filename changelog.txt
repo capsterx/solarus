@@ -37,6 +37,7 @@ Engine changes
 * Fix blocks not falling into water or lava (#1214).
 * Fix removed entity still drawn during scrolling transition (#1193).
 * Fix sprite parameters order in custom entity collision callback (#1162).
+* Fix sol.file.exists() returning false for directories.
 * Fix scripts failing to load if a directory exists with the same name (#1100).
 * Improve Lua error messages.
 
@@ -73,6 +74,7 @@ Changes that do not introduce incompatibilities:
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
+* Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 
 Data files format changes
 -------------------------

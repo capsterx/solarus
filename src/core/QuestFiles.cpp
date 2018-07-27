@@ -203,7 +203,9 @@ SOLARUS_API const std::string& get_quest_path() {
  */
 SOLARUS_API bool quest_exists() {
 
-  return data_file_exists("quest.dat");
+  const std::string file_name = "quest.dat";
+  return data_file_exists(file_name) &&
+      !data_file_is_dir(file_name);
 }
 
 /**
@@ -243,13 +245,13 @@ SOLARUS_API DataFileLocation data_file_get_location(
 }
 
 /**
- * \brief Returns whether a file exists in the quest data directory or
- * in Solarus write directory, and is not a directory.
+ * \brief Returns whether a file or directory exists
+ * in the quest data directory or in the quest write directory.
  * \param file_name A file name relative to the quest data directory,
  * to the current language directory or to Solarus write directory.
  * \param language_specific \c true if the file is relative to the current
  * language directory.
- * \return \c true if this file exists and is not a directory.
+ * \return \c true if this file exists.
  */
 SOLARUS_API bool data_file_exists(const std::string& file_name,
     bool language_specific) {
@@ -266,7 +268,7 @@ SOLARUS_API bool data_file_exists(const std::string& file_name,
     full_file_name = file_name;
   }
 
-  return PHYSFS_exists(full_file_name.c_str()) && !PHYSFS_isDirectory(full_file_name.c_str());
+  return PHYSFS_exists(full_file_name.c_str());
 }
 
 /**
@@ -295,6 +297,9 @@ SOLARUS_API std::string data_file_read(
   // open the file
   Debug::check_assertion(PHYSFS_exists(full_file_name.c_str()),
       std::string("Data file '") + full_file_name + "' does not exist"
+  );
+  Debug::check_assertion(!PHYSFS_isDirectory(full_file_name.c_str()),
+      std::string("Data file '") + full_file_name + "' is a directory"
   );
   PHYSFS_file* file = PHYSFS_openRead(full_file_name.c_str());
   Debug::check_assertion(file != nullptr,
@@ -365,6 +370,46 @@ SOLARUS_API bool data_file_mkdir(const std::string& dir_name) {
   }
 
   return true;
+}
+
+/**
+ * \brief Returns whether a directory exists in the quest data directory or
+ * in Solarus write directory and is a directory.
+ * \param file_name A file name relative to the quest data directory
+ * or to Solarus write directory.
+ * \return \c true if this file exists and is a directory.
+ */
+SOLARUS_API bool data_file_is_dir(const std::string& file_name) {
+
+  return PHYSFS_exists(file_name.c_str()) &&
+      PHYSFS_isDirectory(file_name.c_str());
+}
+
+/**
+ * \brief Lists files of a directory.
+ * \param dir_path Name of the directory to list, relative to the quest data
+ * directory or to the write directory.
+ * \return The files and directories in this directory.
+ * Returns an empty list if there is no such directory
+ * or if the directory is empty.
+ */
+SOLARUS_API std::vector<std::string> data_file_list_dir(
+    const std::string& dir_path
+) {
+  if (!data_file_is_dir(dir_path)) {
+    return {};
+  }
+
+  std::vector<std::string> result;
+  if (PHYSFS_exists(dir_path.c_str())) {
+    char** files = PHYSFS_enumerateFiles(dir_path.c_str());
+    for (char** file = files; *file != nullptr; ++file) {
+      result.push_back(std::string(*file));
+    }
+    PHYSFS_freeList(files);
+  }
+
+  return result;
 }
 
 /**

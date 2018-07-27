@@ -225,7 +225,8 @@ const QPixmap& QuestsModel::get_quest_logo(int quest_index) const {
     if (Solarus::QuestFiles::open_quest(program_name.toStdString(),
                                         quest.path.toStdString())) {
       std::string file_name = "logos/logo.png";
-      if (Solarus::QuestFiles::data_file_exists(file_name)) {
+      if (Solarus::QuestFiles::data_file_exists(file_name) &&
+          !Solarus::QuestFiles::data_file_is_dir(file_name)) {
         std::string buffer = Solarus::QuestFiles::data_file_read(file_name);
         QPixmap pixmap;
         if (pixmap.loadFromData((const uchar*) buffer.data(), (uint) buffer.size())) {
