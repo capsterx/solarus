@@ -28,9 +28,6 @@ Engine changes
 * Fix crash when scrolling to an invalid layer (#1015).
 * Fix entity:get_ground_below() from map:on_started() after scrolling (#925).
 * Fix crash when calling map:get_hero() after the map is finished (#1228).
-* Fix joypad deadzone issue (#672) by strycore.
-* Fix compilation error with Clang 3.9 in SNES_SPC.
-* Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix hero:on_movement_changed() not called (#1095).
 * Fix hero shield sprite directions in animation sword (#1185).
 * Fix facing entity randomly chosen when the hero faces multiple ones (#1042).
@@ -39,6 +36,9 @@ Engine changes
 * Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix sol.file.exists() returning false for directories.
 * Fix scripts failing to load if a directory exists with the same name (#1100).
+* Fix joypad deadzone issue (#672) by strycore.
+* Fix compilation error with Clang 3.9 in SNES_SPC.
+* Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Improve Lua error messages.
 
 Solarus launcher GUI changes
