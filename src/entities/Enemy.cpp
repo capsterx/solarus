@@ -212,10 +212,6 @@ void Enemy::notify_created() {
   for (const SpritePtr& sprite: get_sprites()) {
     sprite->set_current_direction(initial_direction);
   }
-
-  if (is_enabled()) {
-    restart();
-  }
 }
 
 /**

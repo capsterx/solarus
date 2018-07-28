@@ -32,6 +32,7 @@ Engine changes
 * Fix hero shield sprite directions in animation sword (#1185).
 * Fix facing entity randomly chosen when the hero faces multiple ones (#1042).
 * Fix blocks not falling into water or lava (#1214).
+* Fix enemy:on_restarted() called twice (#1179).
 * Fix removed entity still drawn during scrolling transition (#1193).
 * Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix sol.file.exists() returning false for directories.

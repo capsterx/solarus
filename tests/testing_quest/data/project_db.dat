@@ -13,6 +13,7 @@ map{ id = "bugs/1158_entity_timer_suspended", description = "#1158: timer:set_su
 map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
 map{ id = "bugs/1163_circular_movement_get_direction4", description = "#1163: circular_movement:get_direction4() not working" }
 map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix item:on_ability_used() not called with sword knowledge" }
+map{ id = "bugs/1179_enemy_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
 map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
@@ -278,6 +279,7 @@ item{ id = "item_no_dialog_sprite", description = "Item with no dialog and a spr
 item{ id = "non_saved_item", description = "Non-saved item" }
 item{ id = "sword", description = "Sword" }
 
+enemy{ id = "bugs/1179_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
 enemy{ id = "slime_green", description = "Green Slime" }
 enemy{ id = "test_enemy", description = "Test enemy" }
 enemy{ id = "test_flying_enemy", description = "Flying enemy" }
