@@ -65,6 +65,7 @@ set(lua_test_maps
   "bugs/954_entity_name_nil_after_removed"
   "bugs/971_sol_file_list"
   "bugs/1007_door_open_close"
+  "bugs/1024_custom_entity_set_origin"
   "bugs/1036_falling_again_after_bad_ground"
   "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"

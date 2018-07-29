@@ -1165,9 +1165,13 @@ const Point& Entity::get_origin() const {
 
 /**
  * \brief Sets the origin point of the entity,
- * relative to the top-left corner of its rectangle.
- * \param x x coordinate of the origin
- * \param y y coordinate of the origin
+ * relative to the uppper-left corner of its bounding box.
+ *
+ * The bounding box of the entity is shifted so that the result
+ * of get_xy() does not change.
+ *
+ * \param x X coordinate of the origin.
+ * \param y Y coordinate of the origin.
  */
 void Entity::set_origin(int x, int y) {
 
