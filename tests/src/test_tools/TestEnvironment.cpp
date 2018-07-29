@@ -135,6 +135,7 @@ std::shared_ptr<CustomEntity> TestEnvironment::make_entity<CustomEntity>(
      layer,
      xy,
      Size(16, 16),
+     Point(8, 13),
      "",
      ""
   );

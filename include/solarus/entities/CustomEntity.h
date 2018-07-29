@@ -46,6 +46,7 @@ class SOLARUS_API CustomEntity: public Entity {
         int layer,
         const Point& xy,
         const Size& size,
+        const Point& origin,
         const std::string& sprite_name,
         const std::string& model
     );

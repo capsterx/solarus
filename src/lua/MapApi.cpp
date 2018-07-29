@@ -1208,6 +1208,7 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy(),
         entity_creation_check_size(l, 1, data),
+        Point(data.get_integer("origin_x"), data.get_integer("origin_y")),
         data.get_string("sprite"),
         data.get_string("model")
     );

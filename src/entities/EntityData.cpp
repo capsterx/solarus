@@ -245,6 +245,8 @@ const std::map<EntityType, const EntityTypeDescription> entity_type_descriptions
         EntityType::CUSTOM, {
             { "width", OptionalFlag::MANDATORY, FieldValue(16) },
             { "height", OptionalFlag::MANDATORY, FieldValue(16) },
+            { "origin_x", OptionalFlag::OPTIONAL, FieldValue(8) },
+            { "origin_y", OptionalFlag::OPTIONAL, FieldValue(13) },
             { "direction", OptionalFlag::MANDATORY, FieldValue(0) },
             { "sprite", OptionalFlag::OPTIONAL, FieldValue("") },
             { "model", OptionalFlag::OPTIONAL, FieldValue("") },

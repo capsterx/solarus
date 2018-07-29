@@ -59,6 +59,7 @@ CustomEntity::CustomEntity(
     int layer,
     const Point& xy,
     const Size& size,
+    const Point& origin,
     const std::string& sprite_name,
     const std::string& model
 ):
@@ -75,7 +76,7 @@ CustomEntity::CustomEntity(
       CollisionMode::COLLISION_CUSTOM |
       CollisionMode::COLLISION_SPRITE
   );
-  set_origin(8, 13);
+  set_origin(origin);
 
   if (!sprite_name.empty()) {
     create_sprite(sprite_name);
