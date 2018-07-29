@@ -61,6 +61,8 @@ custom_entity{
   y = 96,
   width = 32,
   height = 32,
+  origin_x = 16,
+  origin_y = 16,
   direction = 0,
   sprite = "entities/platform",
 }
