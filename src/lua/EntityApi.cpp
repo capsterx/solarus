@@ -143,6 +143,8 @@ void LuaContext::register_entity_module() {
     common_methods.insert(common_methods.end(), {
         { "get_layer", entity_api_get_layer },
         { "set_layer", entity_api_set_layer },
+        { "set_size", entity_api_set_size },
+        { "set_origin", entity_api_set_origin },
         { "get_controlling_stream", entity_api_get_controlling_stream },
         { "get_property", entity_api_get_property },
         { "set_property", entity_api_set_property },
@@ -208,7 +210,6 @@ void LuaContext::register_entity_module() {
 
   // Camera.
   std::vector<luaL_Reg> camera_methods = {
-      { "set_size", entity_api_set_size },
       { "get_position_on_screen", camera_api_get_position_on_screen },
       { "set_position_on_screen", camera_api_set_position_on_screen },
       { "get_state", entity_api_get_state },
@@ -217,6 +218,11 @@ void LuaContext::register_entity_module() {
       { "get_position_to_track", camera_api_get_position_to_track },
       { "get_tracked_entity", camera_api_get_tracked_entity },
   };
+  if (CurrentQuest::is_format_at_most({ 1, 5 })) {
+    camera_methods.insert(camera_methods.end(), {
+        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+    });
+  }
 
   camera_methods.insert(camera_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -466,8 +472,6 @@ void LuaContext::register_entity_module() {
       { "set_traversable", enemy_api_set_traversable },
       { "get_obstacle_behavior", enemy_api_get_obstacle_behavior },
       { "set_obstacle_behavior", enemy_api_set_obstacle_behavior },
-      { "set_size", entity_api_set_size },
-      { "set_origin", entity_api_set_origin },
       { "restart", enemy_api_restart },
       { "hurt", enemy_api_hurt },
       { "immobilize", enemy_api_immobilize },
@@ -475,6 +479,12 @@ void LuaContext::register_entity_module() {
       { "remove_sprite", entity_api_remove_sprite },
       { "create_enemy", enemy_api_create_enemy },
   };
+  if (CurrentQuest::is_format_at_most({ 1, 5 })) {
+    enemy_methods.insert(enemy_methods.end(), {
+        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+        { "set_origin", entity_api_set_origin },
+    });
+  }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     enemy_methods.insert(enemy_methods.end(), {
         { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
@@ -512,6 +522,12 @@ void LuaContext::register_entity_module() {
       { "get_modified_ground", custom_entity_api_get_modified_ground },
       { "set_modified_ground", custom_entity_api_set_modified_ground },
   };
+  if (CurrentQuest::is_format_at_most({ 1, 5 })) {
+    custom_entity_methods.insert(custom_entity_methods.end(), {
+        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+        { "set_origin", entity_api_set_origin },
+    });
+  }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     custom_entity_methods.insert(custom_entity_methods.end(), {
         { "get_follow_streams", custom_entity_api_get_follow_streams },

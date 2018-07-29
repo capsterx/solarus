@@ -110,15 +110,15 @@ void StreamAction::recompute_movement() {
     target = stream->get_xy();
   }
 
-  // Stop 16 pixels after the stream.
+  // Stop after the stream.
   if (dx != 0) {
     // Horizontal stream.
-    target.x += dx > 0 ? 16 : -16;
+    target.x += stream->get_width() * (dx > 0 ? 1 : -1);
   }
 
   if (dy != 0) {
     // Vertical stream.
-    target.y += dy > 0 ? 16 : -16;
+    target.y += stream->get_height() * (dy > 0 ? 1 : -1);
   }
 
   if (stream->get_direction() % 2 != 0) {
