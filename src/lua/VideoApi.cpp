@@ -417,13 +417,17 @@ int LuaContext::video_api_set_shader(lua_State* l) {
 }
 
 /**
- * @brief call video:on_draw event if any
- * @param screen the destination surface representing the screen
+ * \brief Calls sol.video.on_draw() if it exists.
+ * @param screen The destination surface representing the screen.
  */
 void LuaContext::video_on_draw(const SurfacePtr &screen) {
+
+  if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
+    return;
+  }
   push_video(l);
   on_draw(screen);
-  lua_pop(l,1);
+  lua_pop(l, 1);
 }
 
 }

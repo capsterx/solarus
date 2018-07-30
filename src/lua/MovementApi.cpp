@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Game.h"
 #include "solarus/core/MainLoop.h"
@@ -193,12 +194,17 @@ void LuaContext::register_movement_module() {
       { "set_path", path_movement_api_set_path },
       { "get_speed", path_movement_api_get_speed },
       { "set_speed", path_movement_api_set_speed },
-      { "get_angle", path_movement_api_get_angle},
       { "get_loop", path_movement_api_get_loop },
       { "set_loop", path_movement_api_set_loop },
       { "get_snap_to_grid", path_movement_api_get_snap_to_grid },
-      { "set_snap_to_grid", path_movement_api_set_snap_to_grid }
+      { "set_snap_to_grid", path_movement_api_set_snap_to_grid },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    path_movement_methods.insert(path_movement_methods.end(), {
+        { "get_angle", path_movement_api_get_angle },
+    });
+  }
+
   path_movement_methods.insert(
         path_movement_methods.end(),
         movement_common_methods.begin(),
@@ -215,8 +221,12 @@ void LuaContext::register_movement_module() {
   std::vector<luaL_Reg> random_path_movement_methods = {
       { "get_speed", random_path_movement_api_get_speed },
       { "set_speed", random_path_movement_api_set_speed },
-      { "get_angle", random_path_movement_api_get_angle}
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    random_path_movement_methods.insert(random_path_movement_methods.end(), {
+        { "get_angle", random_path_movement_api_get_angle },
+    });
+  }
   random_path_movement_methods.insert(
         random_path_movement_methods.end(),
         movement_common_methods.begin(),
@@ -234,8 +244,12 @@ void LuaContext::register_movement_module() {
       { "set_target", path_finding_movement_api_set_target },
       { "get_speed", path_finding_movement_api_get_speed },
       { "set_speed", path_finding_movement_api_set_speed },
-      { "get_angle", path_finding_movement_api_get_angle}
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    path_finding_movement_methods.insert(path_finding_movement_methods.end(), {
+        { "get_angle", path_finding_movement_api_get_angle },
+    });
+  }
   path_finding_movement_methods.insert(
         path_finding_movement_methods.end(),
         movement_common_methods.begin(),

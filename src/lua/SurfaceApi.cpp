@@ -51,27 +51,27 @@ void LuaContext::register_surface_module() {
       { "get_blend_mode", drawable_api_get_blend_mode },
       { "set_blend_mode", drawable_api_set_blend_mode },
       { "get_opacity", drawable_api_get_opacity },
-      { "set_opacity", drawable_api_set_opacity},
+      { "set_opacity", drawable_api_set_opacity },
       { "fade_in", drawable_api_fade_in },
       { "fade_out", drawable_api_fade_out },
       { "get_xy", drawable_api_get_xy },
       { "set_xy", drawable_api_set_xy },
       { "get_movement", drawable_api_get_movement },
-      { "stop_movement", drawable_api_stop_movement }
+      { "stop_movement", drawable_api_stop_movement },
+      { "get_pixels", surface_api_get_pixels },
   };
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
-      { "get_pixels", surface_api_get_pixels },
       { "set_pixels", surface_api_set_pixels },
-      { "set_shader", drawable_api_set_shader},
-      { "get_shader", drawable_api_get_shader},
-      { "set_rotation", drawable_api_set_rotation},
-      { "get_rotation", drawable_api_get_rotation},
-      { "set_scale", drawable_api_set_scale},
-      { "get_scale", drawable_api_get_scale},
-      { "set_transformation_origin", drawable_api_set_transformation_origin},
-      { "get_transformation_origin", drawable_api_get_transformation_origin}
+      { "set_shader", drawable_api_set_shader },
+      { "get_shader", drawable_api_get_shader },
+      { "set_rotation", drawable_api_set_rotation },
+      { "get_rotation", drawable_api_get_rotation },
+      { "set_scale", drawable_api_set_scale },
+      { "get_scale", drawable_api_get_scale },
+      { "set_transformation_origin", drawable_api_set_transformation_origin },
+      { "get_transformation_origin", drawable_api_get_transformation_origin },
     });
   }
 

@@ -95,16 +95,16 @@ void LuaContext::register_text_surface_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
-      { "set_shader", drawable_api_set_shader},
-      { "get_shader", drawable_api_get_shader},
+      { "set_shader", drawable_api_set_shader },
+      { "get_shader", drawable_api_get_shader },
       { "get_opacity", drawable_api_get_opacity },
       { "set_opacity", drawable_api_set_opacity },
-      { "set_rotation", drawable_api_set_rotation},
-      { "get_rotation", drawable_api_get_rotation},
-      { "set_scale", drawable_api_set_scale},
-      { "get_scale", drawable_api_get_scale},
-      { "set_transformation_origin", drawable_api_set_transformation_origin},
-      { "get_transformation_origin", drawable_api_get_transformation_origin}
+      { "set_rotation", drawable_api_set_rotation },
+      { "get_rotation", drawable_api_get_rotation },
+      { "set_scale", drawable_api_set_scale },
+      { "get_scale", drawable_api_get_scale },
+      { "set_transformation_origin", drawable_api_set_transformation_origin },
+      { "get_transformation_origin", drawable_api_get_transformation_origin },
     });
   }
 
