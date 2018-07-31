@@ -22,7 +22,7 @@ struct DrawProxy;
  */
 struct DrawInfos {
   inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
-            BlendMode blend_mode, uint8_t opacity, float rotation, const Scale& scale,
+            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
             const DrawProxy& proxy):
     region(region),dst_position(dst_position), transformation_origin(transformation_origin),
     scale(scale),proxy(proxy),
@@ -67,7 +67,7 @@ struct DrawInfos {
   }
 
   inline bool should_use_ex() const {
-    return std::fabs(rotation) > 1e-3 || scale.x < 0.0 || scale.y < 0.0;
+    return std::fabs(rotation) > 1e-3 || scale.x < 0.f || scale.y < 0.f;
   }
 
   const Rectangle& region; /**< The region of the source surface that will be drawn*/

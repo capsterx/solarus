@@ -79,6 +79,8 @@ class Drawable: public ExportableToLua {
     void draw_region(const Rectangle& region,
                      const SurfacePtr& dst_surface, const Point& dst_position, const DrawProxy& proxy) const;
 
+    void draw_with_transition(const Rectangle& region, const SurfacePtr& dst_surface, const Point& dst_position, const Transition &trans) const;
+
     void set_shader(const ShaderPtr& shader);
     const ShaderPtr& get_shader() const;
 
@@ -131,7 +133,6 @@ class Drawable: public ExportableToLua {
     void set_transformation_origin(const Point& origin);
 
     Point get_full_origin() const;
-
 
     virtual Rectangle get_region() const = 0;
   protected:

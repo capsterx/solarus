@@ -296,6 +296,17 @@ void Drawable::draw_region(const Rectangle& region,
 }
 
 /**
+ * @brief Drawable::draw_with_transition
+ * \param region The rectangle to draw in this object.
+ * \param dst_surface The destination surface
+ * \param dst_position Position on this surface
+ * @param trans the Transition to use
+ */
+void Drawable::draw_with_transition(const Rectangle& region, const SurfacePtr& dst_surface, const Point& dst_position, const Transition& trans) const {
+  draw_region(region,dst_surface,dst_position,DrawProxyChain<2>(DrawProxyChain<2>::Proxies{{trans,terminal()}}));
+}
+
+/**
  * @brief set the shader used to draw this drawable
  * @param shader, the shader, must be a valid shader or nullptr
  */
