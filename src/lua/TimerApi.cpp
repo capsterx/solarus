@@ -145,13 +145,12 @@ void LuaContext::add_timer(
         || is_entity(l, context_index)
         || is_item(l, context_index)) {
 
-      bool initially_suspended = false;
+      timer->set_suspended_with_map(true);
 
+      bool initially_suspended = false;
       // By default, we want the timer to be automatically suspended when a
       // camera movement, a dialog or the pause menu starts.
       if (!is_entity(l, context_index)) {
-        // The timer normally gets suspended/resumed with the map.
-        timer->set_suspended_with_map(true);
 
         // But in the initial state, we override that rule.
         // We initially suspend the timer only during a dialog.
@@ -162,8 +161,6 @@ void LuaContext::add_timer(
       }
       else {
         // Entities are more complex: they also get suspended when disabled.
-        // Therefore, they don't simply follow
-        // the map suspended state.
         EntityPtr entity = check_entity(l, context_index);
         initially_suspended = entity->is_suspended() || !entity->is_enabled();
       }

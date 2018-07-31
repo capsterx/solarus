@@ -2374,7 +2374,7 @@ void Entity::set_enabled(bool enabled) {
       }
 
       if (is_on_map()) {
-        get_lua_context()->set_entity_timers_suspended(*this, false);
+        get_lua_context()->set_entity_timers_suspended_as_map(*this, false);
       }
     }
     notify_enabled(true);
@@ -2398,7 +2398,7 @@ void Entity::set_enabled(bool enabled) {
       }
 
       if (is_on_map()) {
-        get_lua_context()->set_entity_timers_suspended(*this, true);
+        get_lua_context()->set_entity_timers_suspended_as_map(*this, true);
       }
     }
     notify_enabled(false);

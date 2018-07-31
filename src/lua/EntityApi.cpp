@@ -60,7 +60,7 @@ namespace {
 
 /**
  * \brief Returns the Lua metatable names of each entity type.
- * \return The Lua metatable name of each entity types.
+ * \return The Lua metatable name of each entity type.
  */
 const std::map<EntityType, std::string>& get_entity_internal_type_names() {
 
