@@ -1593,7 +1593,8 @@ bool LuaContext::on_input(const InputEvent& event) {
       handled = on_mouse_button_released(event) || handled;
     }
   }
-  else if (event.is_finger_event()) {
+  else if (event.is_finger_event() &&
+           CurrentQuest::is_format_at_least({ 1, 6 })) {
     // Touch finger.
     if (event.is_finger_pressed()) {
       handled = on_finger_pressed(event) || handled;
