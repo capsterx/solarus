@@ -21,6 +21,7 @@ Engine changes
 * Fix timer:set_suspended_with_map() for entity timers (#1158, #1236).
 * Fix random movement giving the same path for all entities on Mac (#1083).
 * Fix circle_movement:get_direction4() not working (#1163).
+* Fix path_movement:get_path() and pixel_movement:get_trajectory() (#1136).
 * Fix possible crash when reloading very old savegame files (#1064).
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
@@ -42,6 +43,7 @@ Engine changes
 * Fix joypad deadzone issue (#672) by strycore.
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
+* Fix loading quests in non UTF-8 filesystems.
 * Improve Lua error messages.
 
 Solarus launcher GUI changes

@@ -1170,13 +1170,13 @@ int LuaContext::path_movement_api_get_path(lua_State* l) {
     const PathMovement& movement = *check_path_movement(l, 1);
 
     const std::string& path = movement.get_path();
-    // build a Lua array containing the path
+    // Build a Lua array containing the path.
     lua_settop(l, 1);
     lua_newtable(l);
     for (size_t i = 0; i < path.size(); i++) {
       int direction8 = path[i] - '0';
       lua_pushinteger(l, direction8);
-      lua_rawseti(l, 2, int(i));
+      lua_rawseti(l, 2, static_cast<int>(i + 1));
     }
 
     return 1;
@@ -1893,7 +1893,7 @@ int LuaContext::pixel_movement_api_get_trajectory(lua_State* l) {
     // build a Lua array containing the trajectory
     lua_settop(l, 1);
     lua_newtable(l);
-    int i = 0;
+    int i = 1;
     for (const Point& xy: trajectory) {
       lua_newtable(l);
       lua_pushinteger(l, xy.x);
