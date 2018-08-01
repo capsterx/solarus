@@ -71,8 +71,9 @@ Changes that do not introduce incompatibilities:
 * Add methods entity:get_property() and entity:set_property() (#1094).
 * Add methods entity:get_properties() and entity:set_properties() (#1144).
 * Add methods entity:get_layer() and entity:set_layer().
-* Add methods door:open(), door:close() and door:set_open() (#1007).
 * Add a method entity:get_controlling_stream() (#1204).
+* Add methods door:open(), door:close() and door:set_open() (#1007).
+* destructible:on_lifting() now gives a carried object parameter.
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
 * Add methods custom_entity:get/set_follow_streams() (#1221).

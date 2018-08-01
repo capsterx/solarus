@@ -26,6 +26,7 @@
 #include "solarus/core/Timer.h"
 #include "solarus/core/Treasure.h"
 #include "solarus/entities/Block.h"
+#include "solarus/entities/CarriedObject.h"
 #include "solarus/entities/Chest.h"
 #include "solarus/entities/CustomEntity.h"
 #include "solarus/entities/Destination.h"
@@ -2789,11 +2790,19 @@ void LuaContext::on_cut() {
 
 /**
  * \brief Calls the on_lifting() method of the object on top of the stack.
+ * \param carrier Entity that is lifting another one.
+ * \param carried_object Carried object created to replace
+ * the entity being lifted.
  */
-void LuaContext::on_lifting() {
+void LuaContext::on_lifting(
+    Entity& carrier,
+    CarriedObject& carried_object
+) {
 
   if (find_method("on_lifting")) {
-    call_function(1, 0, "on_lifting");
+    push_entity(l, carrier);
+    push_entity(l, carried_object);
+    call_function(3, 0, "on_lifting");
   }
 }
 

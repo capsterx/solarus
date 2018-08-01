@@ -48,6 +48,7 @@ namespace Solarus {
 
 class Block;
 class Camera;
+class CarriedObject;
 class Chest;
 class CircleMovement;
 class Color;
@@ -398,6 +399,9 @@ class LuaContext {
     bool entity_on_interaction(Entity& entity);
     bool entity_on_interaction_item(Entity& entity, EquipmentItem& item_used);
     void entity_on_state_changed(Entity& entity, const std::string& state_name);
+    void entity_on_lifting(Entity& entity,
+                           Entity& carrier,
+                           CarriedObject& carried_object);
     bool hero_on_taking_damage(Hero& hero, int damage);
     void destination_on_activated(Destination& destination);
     void teletransporter_on_activated(Teletransporter& teletransporter);
@@ -420,7 +424,6 @@ class LuaContext {
     void shop_treasure_on_bought(ShopTreasure& shop_treasure);
     void destructible_on_looked(Destructible& destructible);
     void destructible_on_cut(Destructible& destructible);
-    void destructible_on_lifting(Destructible& destructible);
     void destructible_on_exploded(Destructible& destructible);
     void destructible_on_regenerating(Destructible& destructible);
     void enemy_on_restarted(Enemy& enemy);
@@ -1351,7 +1354,9 @@ class LuaContext {
     void on_movement_finished();
     void on_looked();
     void on_cut();
-    void on_lifting();
+    void on_lifting(
+        Entity& carrier,
+        CarriedObject& carried_object);
     void on_exploded();
     void on_regenerating();
     void on_custom_attack_received(EnemyAttack attack, Sprite* sprite);

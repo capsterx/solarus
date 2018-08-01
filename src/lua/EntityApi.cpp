@@ -6221,6 +6221,31 @@ void LuaContext::entity_on_state_changed(
 }
 
 /**
+ * \brief Calls the on_lifting() method of a Lua entity.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param entity The entity being lifted.
+ * \param carrier Entity that is lifting the first one.
+ * \param carried_object Carried object created to replace
+ * the entity being lifted.
+ */
+void LuaContext::entity_on_lifting(
+    Entity& entity,
+    Entity& carrier,
+    CarriedObject& carried_object
+) {
+
+  if (!userdata_has_field(entity, "on_lifting")) {
+    return;
+  }
+
+  push_entity(l, entity);
+  on_lifting(carrier, carried_object);
+  lua_pop(l, 1);
+}
+
+/**
  * \brief Calls the on_taking_damage() method of a Lua hero.
  *
  * Does nothing if the method is not defined.
@@ -6620,24 +6645,6 @@ void LuaContext::destructible_on_cut(Destructible& destructible) {
 
   push_destructible(l, destructible);
   on_cut();
-  lua_pop(l, 1);
-}
-
-/**
- * \brief Calls the on_lifting() method of a Lua destructible.
- *
- * Does nothing if the method is not defined.
- *
- * \param destructible A destructible object.
- */
-void LuaContext::destructible_on_lifting(Destructible& destructible) {
-
-  if (!userdata_has_field(destructible, "on_lifting")) {
-    return;
-  }
-
-  push_destructible(l, destructible);
-  on_lifting();
   lua_pop(l, 1);
 }
 

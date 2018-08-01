@@ -398,14 +398,15 @@ bool Destructible::notify_action_command_pressed() {
     if (get_equipment().has_ability(Ability::LIFT, get_weight())) {
 
       uint32_t explosion_date = get_can_explode() ? System::now() + 6000 : 0;
-      get_hero().start_lifting(std::make_shared<CarriedObject>(
+      std::shared_ptr<CarriedObject> carried_object = std::make_shared<CarriedObject>(
           get_hero(),
           *this,
           get_animation_set_id(),
           get_destruction_sound(),
           get_damage_on_enemies(),
-          explosion_date)
+          explosion_date
       );
+      get_hero().start_lifting(carried_object);
 
       // Play the sound.
       Sound::play("lift");
@@ -423,7 +424,7 @@ bool Destructible::notify_action_command_pressed() {
       }
 
       // Notify Lua.
-      get_lua_context()->destructible_on_lifting(*this);
+      get_lua_context()->entity_on_lifting(*this, get_hero(), *carried_object);
     }
     else {
       // Cannot lift the object.

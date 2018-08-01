@@ -70,7 +70,7 @@ CarriedObject::CarriedObject(
     uint32_t explosion_date
 ):
   Entity("", 0, hero.get_layer(), Point(0, 0), Size(0, 0)),
-  hero(hero),
+  hero(std::static_pointer_cast<Hero>(hero.shared_from_this())),
   is_lifting(true),
   is_throwing(false),
   is_breaking(false),
@@ -133,6 +133,14 @@ bool CarriedObject::is_ground_observer() const {
 }
 
 /**
+ * \brief Returns the entity that is carrying this object.
+ * \return The carrier.
+ */
+EntityPtr CarriedObject::get_carrier() const {
+  return hero;
+}
+
+/**
  * \brief Returns the damage this item can cause to ennemies.
  * \return the damage on enemies
  */
@@ -186,7 +194,7 @@ void CarriedObject::throw_item(int direction) {
   shadow_sprite->start_animation();
 
   // set the movement of the item sprite
-  set_y(hero.get_y());
+  set_y(hero->get_y());
   std::shared_ptr<StraightMovement> movement =
       std::make_shared<StraightMovement>(false, false);
   movement->set_speed(200);
@@ -368,7 +376,7 @@ void CarriedObject::update() {
     // make the item follow the hero
     clear_movement();
     set_movement(std::make_shared<RelativeMovement>(
-        std::static_pointer_cast<Hero>(hero.shared_from_this()),
+        hero,
         0,
         -18,
         true
