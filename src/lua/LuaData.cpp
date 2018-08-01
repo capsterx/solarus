@@ -55,8 +55,10 @@ bool LuaData::import_from_buffer(
  * Unlike import_from_quest_file(), this function acts on a regular file on the
  * filesystem, independently of any notion of quest search path.
  *
+ * The content of the file must be encoded in UTF-8.
+ *
  * \param[in] file_name Path of the file to load.
- * The file must be encoded in UTF-8.
+ * The path must be encoded in system 8-bit encoding.
  * \return \c true in case of success, \c false if the file could not be loaded.
  */
 bool LuaData::import_from_file(const std::string& file_name) {
@@ -81,11 +83,13 @@ bool LuaData::import_from_file(const std::string& file_name) {
  * in the quest write directory or in the quest data archive (see QuestFiles).
  * This function does the search for you.
  *
+ * The content of the file must be encoded in UTF-8.
+ *
  * \param[in] quest_file_name Path of the file to load, relative to the quest
  * data path.
+ * The path must be encoded in system 8-bit encoding.
  * \param[in] language_specific \c true to search in the language-specific
  * directory of the current language.
- * The file must be encoded in UTF-8.
  * \return \c true in case of success, \c false if the file could not be loaded.
  */
 bool LuaData::import_from_quest_file(
@@ -123,8 +127,11 @@ bool LuaData::export_to_buffer(std::string& buffer) const {
 
 /**
  * \brief Saves the data into a Lua file.
+ *
+ * The content of the file will be encoded in UTF-8.
+ *
  * \param[in] file_name Path of the file to save.
- * The file will be encoded in UTF-8.
+ * The path must be encoded in system 8-bit encoding.
  * \return \c true in case of success, \c false if the data
  * could not be exported.
  */

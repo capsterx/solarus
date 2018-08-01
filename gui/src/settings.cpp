@@ -46,7 +46,7 @@ void Settings::export_to_quest(const QString& quest_path) const {
 
   QStringList arguments = QApplication::arguments();
   const QString& program_name = arguments.isEmpty() ? QString() : arguments.first();
-  if (!Solarus::QuestFiles::open_quest(program_name.toStdString(), quest_path.toStdString())) {
+  if (!Solarus::QuestFiles::open_quest(program_name.toLocal8Bit().toStdString(), quest_path.toLocal8Bit().toStdString())) {
     return;
   }
 
