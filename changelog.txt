@@ -40,6 +40,7 @@ Engine changes
 * Fix sprite parameters order in custom entity collision callback (#1162).
 * Fix sol.file.exists() returning false for directories.
 * Fix scripts failing to load if a directory exists with the same name (#1100).
+* Fix mouse API not working when the mouse is outside the window (#1018).
 * Fix joypad deadzone issue (#672) by strycore.
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).

@@ -1045,14 +1045,11 @@ Point window_to_quest_coordinates(const Point& window_xy) {
 /**
  * \brief Converts logical renderer coordinates to quest size coordinates.
  * \param[in] renderer_xy A position in renderer coordinates, without window scaling.
- * \param[out] quest_xy The corresponding value in quest coordinates.
- * \return \c false if the position is not inside the renderer.
+ * \return The corresponding value in quest coordinates.
  */
-bool renderer_to_quest_coordinates(
-    const Point& renderer_xy,
-    Point& quest_xy
+Point renderer_to_quest_coordinates(
+    const Point& renderer_xy
 ) {
-
   int renderer_width = 0;
   int renderer_height = 0;
   SDL_RenderGetLogicalSize(get_renderer(), &renderer_width, &renderer_height);
@@ -1060,25 +1057,15 @@ bool renderer_to_quest_coordinates(
   const double quest_width = context.quest_size.width;
   const double quest_height = context.quest_size.height;
 
-  quest_xy = {
+  return {
       (int) (renderer_xy.x * quest_width / renderer_width),
       (int) (renderer_xy.y * quest_height / renderer_height)
   };
-
-  if (quest_xy.x < 0
-      || quest_xy.y < 0
-      || quest_xy.x >= quest_width
-      || quest_xy.y >= quest_height
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 /**
- * @brief Conservatly set the current render target
- * @param a SDL texture with TARGET capabilities
+ * @brief Conservatly set the current render target.
+ * @param target An SDL texture with target capabilities.
  */
 void set_render_target(SDL_Texture* target) {
   if(target != context.render_target || !context.valid_target) {

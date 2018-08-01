@@ -283,7 +283,7 @@ class InputEvent {
     bool is_mouse_button_released(MouseButton button) const;
 
     MouseButton get_mouse_button() const;
-    bool get_mouse_position(Point& mouse_xy) const;
+    Point get_mouse_position() const;
 
     // touch finger
     bool is_finger_pressed() const;

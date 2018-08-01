@@ -221,16 +221,7 @@ int LuaContext::input_api_is_mouse_button_pressed(lua_State* l) {
 int LuaContext::input_api_get_mouse_position(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
-    Point mouse_xy = InputEvent::get_global_mouse_position();
-    const Size window_size = Video::get_window_size();
-
-    if (mouse_xy.x < 0
-        || mouse_xy.y < 0
-        || mouse_xy.x >= window_size.width
-        || mouse_xy.y >= window_size.height) {
-      lua_pushnil(l);
-      return 1;
-    }
+    const Point mouse_xy = InputEvent::get_global_mouse_position();
 
     lua_pushinteger(l, mouse_xy.x);
     lua_pushinteger(l, mouse_xy.y);

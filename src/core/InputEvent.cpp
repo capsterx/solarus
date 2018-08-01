@@ -299,6 +299,18 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
       }
     }
 
+    // Capture mouse movements outside the window
+    // only while dragging.
+    else if (internal_event.type == SDL_MOUSEBUTTONDOWN) {
+      SDL_CaptureMouse(SDL_TRUE);
+    }
+    else if (internal_event.type == SDL_MOUSEBUTTONUP) {
+      Uint32 buttons = SDL_GetMouseState(nullptr, nullptr);
+      if (buttons == 0) {
+        SDL_CaptureMouse(SDL_FALSE);  // No more buttons pressed.
+      }
+    }
+
     // Always return a Solarus event if an SDL event occurred, so that
     // multiple SDL events in the same frame are all treated.
     result = new InputEvent(internal_event);
@@ -1199,16 +1211,14 @@ InputEvent::MouseButton InputEvent::get_mouse_button() const {
 /**
  * \brief Gets the x and y position of this mouse event, if any.
  * Values are in quest size coordinates.
- * \param[out] mouse_xy The x and y position of the mouse in this mouse event.
- * \return \c false if the mouse was not inside the quest displaying during
- * this event.
+ * \return The x and y position of the mouse in this mouse event.
  */
-bool InputEvent::get_mouse_position(Point& mouse_xy) const {
+Point InputEvent::get_mouse_position() const {
 
   Debug::check_assertion(is_mouse_event(), "Event is not a mouse event");
 
   return Video::renderer_to_quest_coordinates(
-      Point(internal_event.button.x, internal_event.button.y), mouse_xy);
+      Point(internal_event.button.x, internal_event.button.y));
 }
 
 // touch finger

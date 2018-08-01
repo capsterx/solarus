@@ -103,7 +103,7 @@ namespace Video {
 
     Rectangle get_viewport();
     Point window_to_quest_coordinates(const Point& window_xy);
-    bool renderer_to_quest_coordinates(const Point& renderer_xy, Point& quest_xy);
+    Point renderer_to_quest_coordinates(const Point& renderer_xy);
 
     void render(const SurfacePtr& quest_surface);
     void finish();

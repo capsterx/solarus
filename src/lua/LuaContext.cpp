@@ -1839,30 +1839,26 @@ bool LuaContext::on_mouse_button_pressed(const InputEvent& event) {
   if (find_method("on_mouse_pressed")) {
 
     const std::string& button_name = enum_to_name(event.get_mouse_button());
-    Point mouse_xy;
-    bool in_quest = event.get_mouse_position(mouse_xy);
+    const Point mouse_xy = event.get_mouse_position();
 
-    // Don't call the Lua event if this button doesn't exist in the Solarus API
-    // or if the mouse position is not inside the quest display.
-    if (!button_name.empty() && in_quest) {
+    // Don't call the Lua event if this button doesn't exist in the Solarus API.
+    if (button_name.empty()) {
+      lua_pop(l, 2);  // Pop the object and the method.
+      return handled;
+    }
 
-      push_string(l, button_name);
-      lua_pushinteger(l, mouse_xy.x);
-      lua_pushinteger(l, mouse_xy.y);
+    push_string(l, button_name);
+    lua_pushinteger(l, mouse_xy.x);
+    lua_pushinteger(l, mouse_xy.y);
 
-      bool success = call_function(4, 1, "on_mouse_pressed");
-      if (!success) {
-        // Something was wrong in the script: don't propagate the input to other objects.
-        handled = true;
-      }
-      else {
-        handled = lua_toboolean(l, -1);
-        lua_pop(l, 1);
-      }
+    bool success = call_function(4, 1, "on_mouse_pressed");
+    if (!success) {
+      // Something was wrong in the script: don't propagate the input to other objects.
+      handled = true;
     }
     else {
-      // The method exists but parameters are not congruent.
-      lua_pop(l, 2);  // Pop the object and the method.
+      handled = lua_toboolean(l, -1);
+      lua_pop(l, 1);
     }
   }
   return handled;
@@ -1880,30 +1876,26 @@ bool LuaContext::on_mouse_button_released(const InputEvent& event) {
   if (find_method("on_mouse_released")) {
 
     const std::string& button_name = enum_to_name(event.get_mouse_button());
-    Point mouse_xy;
-    bool in_quest = event.get_mouse_position(mouse_xy);
+    Point mouse_xy = event.get_mouse_position();
 
-    // Don't call the Lua event if this button doesn't exist in the Solarus API
-    // or if the mouse position is not inside the quest display.
-    if (!button_name.empty() && in_quest) {
+    // Don't call the Lua event if this button doesn't exist in the Solarus API.
+    if (button_name.empty()) {
+      lua_pop(l, 2);  // Pop the object and the method.
+      return handled;
+    }
 
-      push_string(l, button_name);
-      lua_pushinteger(l, mouse_xy.x);
-      lua_pushinteger(l, mouse_xy.y);
+    push_string(l, button_name);
+    lua_pushinteger(l, mouse_xy.x);
+    lua_pushinteger(l, mouse_xy.y);
 
-      bool success = call_function(4, 1, "on_mouse_released");
-      if (!success) {
-        // Something was wrong in the script: don't propagate the input to other objects.
-        handled = true;
-      }
-      else {
-        handled = lua_toboolean(l, -1);
-        lua_pop(l, 1);
-      }
+    bool success = call_function(4, 1, "on_mouse_released");
+    if (!success) {
+      // Something was wrong in the script: don't propagate the input to other objects.
+      handled = true;
     }
     else {
-      // The method exists but parameters are not congruent.
-      lua_pop(l, 2);  // Pop the object and the method.
+      handled = lua_toboolean(l, -1);
+      lua_pop(l, 1);
     }
   }
   return handled;
