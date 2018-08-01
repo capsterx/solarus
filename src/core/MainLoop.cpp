@@ -104,7 +104,8 @@ std::string local_8bit_to_utf8(const std::string& input) {
   std::setlocale(LC_ALL, "");
   std::string locale_string = std::setlocale(LC_CTYPE, NULL);
 
-  if (locale_string.substr(locale_string.size() - 5) == ".1252") {
+  if (locale_string.size() > 5 &&
+      locale_string.substr(locale_string.size() - 5) == ".1252") {
     // Convert from Windows-1252/ISO-8859-1 to UTF-8.
     std::string output;
     for (uint8_t byte : input) {
