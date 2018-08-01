@@ -126,6 +126,8 @@ void LuaContext::register_entity_module() {
       { "snap_to_grid", entity_api_snap_to_grid },
       { "bring_to_front", entity_api_bring_to_front },
       { "bring_to_back", entity_api_bring_to_back },
+      { "is_drawn_in_y_order", entity_api_is_drawn_in_y_order },
+      { "set_drawn_in_y_order", entity_api_set_drawn_in_y_order },
       { "get_optimization_distance", entity_api_get_optimization_distance },
       { "set_optimization_distance", entity_api_set_optimization_distance },
       { "is_in_same_region", entity_api_is_in_same_region },
@@ -509,8 +511,6 @@ void LuaContext::register_entity_module() {
       { "set_direction", custom_entity_api_set_direction },
       { "create_sprite", entity_api_create_sprite },
       { "remove_sprite", entity_api_remove_sprite },
-      { "is_drawn_in_y_order", custom_entity_api_is_drawn_in_y_order },
-      { "set_drawn_in_y_order", custom_entity_api_set_drawn_in_y_order },
       { "set_traversable_by", custom_entity_api_set_traversable_by },
       { "set_can_traverse", custom_entity_api_set_can_traverse },
       { "can_traverse_ground", custom_entity_api_can_traverse_ground },
@@ -523,9 +523,12 @@ void LuaContext::register_entity_module() {
       { "set_modified_ground", custom_entity_api_set_modified_ground },
   };
   if (CurrentQuest::is_format_at_most({ 1, 5 })) {
+    // Available to all entities since 1.6.
     custom_entity_methods.insert(custom_entity_methods.end(), {
-        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+        { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
+        { "is_drawn_in_y_order", entity_api_is_drawn_in_y_order },
+        { "set_drawn_in_y_order", entity_api_set_drawn_in_y_order },
     });
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
@@ -1381,6 +1384,38 @@ int LuaContext::entity_api_bring_to_back(lua_State* l) {
     Entity& entity = *check_entity(l, 1);
 
     entity.get_map().get_entities().bring_to_back(entity);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of entity:is_drawn_in_y_order().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_is_drawn_in_y_order(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+
+    lua_pushboolean(l, entity.is_drawn_in_y_order());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_drawn_in_y_order().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_drawn_in_y_order(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    bool y_order = LuaTools::opt_boolean(l, 2, true);
+
+    entity.set_drawn_in_y_order(y_order);
 
     return 0;
   });
@@ -5585,38 +5620,6 @@ int LuaContext::custom_entity_api_set_direction(lua_State* l) {
     int direction = LuaTools::check_int(l, 2);
 
     entity.set_sprites_direction(direction);
-
-    return 0;
-  });
-}
-
-/**
- * \brief Implementation of custom_entity:is_drawn_in_y_order().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::custom_entity_api_is_drawn_in_y_order(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    const CustomEntity& entity = *check_custom_entity(l, 1);
-
-    lua_pushboolean(l, entity.is_drawn_in_y_order());
-    return 1;
-  });
-}
-
-/**
- * \brief Implementation of custom_entity:set_drawn_in_y_order().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::custom_entity_api_set_drawn_in_y_order(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    CustomEntity& entity = *check_custom_entity(l, 1);
-    bool y_order = LuaTools::opt_boolean(l, 2, true);
-
-    entity.set_drawn_in_y_order(y_order);
 
     return 0;
   });
