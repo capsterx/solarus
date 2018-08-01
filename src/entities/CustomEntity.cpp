@@ -1162,7 +1162,10 @@ void CustomEntity::notify_collision_with_enemy(
  */
 bool CustomEntity::notify_action_command_pressed() {
 
-  return get_lua_context()->entity_on_interaction(*this);
+  if (get_lua_context()->entity_on_interaction(*this)) {
+    return true;
+  }
+  return Entity::notify_action_command_pressed();
 }
 
 /**

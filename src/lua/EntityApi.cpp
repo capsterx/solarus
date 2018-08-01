@@ -147,6 +147,8 @@ void LuaContext::register_entity_module() {
         { "set_layer", entity_api_set_layer },
         { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
+        { "get_weight", entity_api_get_weight },
+        { "set_weight", entity_api_set_weight },
         { "get_controlling_stream", entity_api_get_controlling_stream },
         { "get_property", entity_api_get_property },
         { "set_property", entity_api_set_property },
@@ -222,7 +224,8 @@ void LuaContext::register_entity_module() {
   };
   if (CurrentQuest::is_format_at_most({ 1, 5 })) {
     camera_methods.insert(camera_methods.end(), {
-        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+        // Available to all entities since 1.6.
+        { "set_size", entity_api_set_size },
     });
   }
 
@@ -402,8 +405,6 @@ void LuaContext::register_entity_module() {
       { "set_treasure", destructible_api_set_treasure },
       { "get_destruction_sound", destructible_api_get_destruction_sound },
       { "set_destruction_sound", destructible_api_set_destruction_sound },
-      { "get_weight", destructible_api_get_weight },
-      { "set_weight", destructible_api_set_weight },
       { "get_can_be_cut", destructible_api_get_can_be_cut },
       { "set_can_be_cut", destructible_api_set_can_be_cut },
       { "get_can_explode", destructible_api_get_can_explode },
@@ -414,6 +415,13 @@ void LuaContext::register_entity_module() {
       { "set_damage_on_enemies", destructible_api_set_damage_on_enemies },
       { "get_modified_ground", destructible_api_get_modified_ground },
   };
+  if (CurrentQuest::is_format_at_most({ 1, 5 })) {
+    destructible_methods.insert(destructible_methods.end(), {
+        // Available to all entities since 1.6.
+        { "get_weight", entity_api_get_weight },
+        { "set_weight", entity_api_set_weight },
+    });
+  }
 
   destructible_methods.insert(destructible_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -483,7 +491,8 @@ void LuaContext::register_entity_module() {
   };
   if (CurrentQuest::is_format_at_most({ 1, 5 })) {
     enemy_methods.insert(enemy_methods.end(), {
-        { "set_size", entity_api_set_size },  // Already in all entities as of 1.6.
+        // Available to all entities since 1.6.
+        { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
     });
   }
@@ -1565,6 +1574,57 @@ int LuaContext::entity_api_is_visible(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of entity:set_visible().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_visible(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    bool visible = LuaTools::opt_boolean(l, 2, true);
+
+    entity.set_visible(visible);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of entity:get_weight().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_weight(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+
+    int weight = entity.get_weight();
+
+    lua_pushinteger(l, weight);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_weight().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_weight(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    int weight = LuaTools::check_int(l, 2);
+
+    entity.set_weight(weight);
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of entity:entity_api_get_controlling_stream().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -1582,23 +1642,6 @@ int LuaContext::entity_api_get_controlling_stream(lua_State* l) {
       push_stream(l, stream_action->get_stream());
     }
     return 1;
-  });
-}
-
-/**
- * \brief Implementation of entity:set_visible().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::entity_api_set_visible(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    Entity& entity = *check_entity(l, 1);
-    bool visible = LuaTools::opt_boolean(l, 2, true);
-
-    entity.set_visible(visible);
-
-    return 0;
   });
 }
 
@@ -4323,40 +4366,6 @@ int LuaContext::destructible_api_set_destruction_sound(lua_State* l) {
     }
 
     destructible.set_destruction_sound(destruction_sound_id);
-    return 0;
-  });
-}
-
-/**
- * \brief Implementation of destructible:get_weight().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::destructible_api_get_weight(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    const Destructible& destructible = *check_destructible(l, 1);
-
-    int weight = destructible.get_weight();
-
-    lua_pushinteger(l, weight);
-    return 1;
-  });
-}
-
-/**
- * \brief Implementation of destructible:set_weight().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::destructible_api_set_weight(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    Destructible& destructible = *check_destructible(l, 1);
-    int weight = LuaTools::check_int(l, 2);
-
-    destructible.set_weight(weight);
-
     return 0;
   });
 }

@@ -336,6 +336,9 @@ class SOLARUS_API Entity: public ExportableToLua {
         bool killed);
 
     // Interactions.
+    bool can_be_lifted() const;
+    int get_weight() const;
+    void set_weight(int weight);
     virtual bool notify_action_command_pressed();
     virtual bool notify_interaction_with_item(EquipmentItem& item);
     virtual bool start_movement_by_hero();
@@ -469,8 +472,6 @@ class SOLARUS_API Entity: public ExportableToLua {
                                                  * not represent the actual entity's coordinates and does not match necessarily
                                                  * the sprite's rectangle. */
 
-    // other data, used for some kinds of entities only
-
     std::string name;                           /**< Name of the entity or an empty string.
                                                  * The name uniquely identifies the entity in the map. */
 
@@ -492,6 +493,8 @@ class SOLARUS_API Entity: public ExportableToLua {
                                                  * (can be an OR combination of CollisionMode values). */
     bool layer_independent_collisions;          /**< Whether this entity detects collisions on all layers. */
 
+    int weight;                                 /**< Weight of this entity (level of "lift" ability required).
+                                                 * -1 means an entity that cannot be lifted. */
     std::unique_ptr<StreamAction>
         stream_action;                          /**< The stream effect currently applied if any. */
     std::vector<std::unique_ptr<StreamAction>>

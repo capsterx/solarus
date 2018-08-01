@@ -200,7 +200,6 @@ class Hero: public Entity {
     virtual void notify_collision_with_chest(Chest& chest) override;
     virtual void notify_collision_with_block(Block& block) override;
     virtual void notify_collision_with_separator(Separator& separator, CollisionMode collision_mode) override;
-    virtual void notify_collision_with_bomb(Bomb& bomb, CollisionMode collision_mode) override;
     virtual void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
     void avoid_collision(Entity& entity, int direction);
     bool is_striking_with_sword(Entity& entity) const;

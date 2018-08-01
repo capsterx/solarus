@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
 #include "solarus/core/Debug.h"
+#include "solarus/core/Equipment.h"
 #include "solarus/core/Game.h"
 #include "solarus/core/Geometry.h"
 #include "solarus/core/MainLoop.h"
@@ -78,6 +80,7 @@ Entity::Entity(
   facing_entity(nullptr),
   collision_modes(CollisionMode::COLLISION_NONE),
   layer_independent_collisions(false),
+  weight(-1),
   stream_action(nullptr),
   initialized(false),
   being_removed(false),
@@ -1829,6 +1832,45 @@ void Entity::set_layer_independent_collisions(bool independent) {
 }
 
 /**
+ * \brief Returns whether the hero can lift this entity.
+ */
+bool Entity::can_be_lifted() const {
+
+  return get_weight() >= 0 &&
+      get_equipment().has_ability(Ability::LIFT, get_weight());
+}
+
+/**
+ * \brief Returns the weight of this entity.
+ *
+ * This corresponds to the "lift" ability level required to lift the entity.
+ * Therefore, a value of 0 allows the hero to lift the entity unconditionally.
+ * A value of -1 means that the entity cannot be lifted.
+ *
+ * \return The weight of the entity or -1.
+ */
+int Entity::get_weight() const {
+  return weight;
+}
+
+/**
+ * \brief Sets the weight of this entity.
+ *
+ * This corresponds to the "lift" ability level required to lift the entity.
+ * Therefore, a value of 0 allows the hero to lift the entity unconditionally.
+ * A value of -1 means that the entity cannot be lifted.
+ *
+ * \param weight The weight of the entity or -1.
+ */
+void Entity::set_weight(int weight) {
+
+  this->weight = weight;
+  if (weight >= 0) {
+    add_collision_mode(CollisionMode::COLLISION_FACING);
+  }
+}
+
+/**
  * \brief Checks whether an entity collides with this detector.
  *
  * Only checks non pixel precise collisions.
@@ -3318,13 +3360,43 @@ void Entity::notify_attacked_enemy(
  * does not allow the hero to interact with the entity, like while he is
  * carrying an object.
  *
- * By default, nothing happens.
+ * By default, the entity is lifted if the player's lift ability allows it.
+ *
  * Redefine your function in the subclasses to make the hero interact with
- * this entity.
+ * this entity differently.
  *
  * \return \c true if an interaction happened.
  */
 bool Entity::notify_action_command_pressed() {
+
+  if (!can_be_lifted()) {
+    return false;
+  }
+
+  CommandsEffects::ActionKeyEffect effect = get_commands_effects().get_action_key_effect();
+  if (effect == CommandsEffects::ACTION_KEY_LIFT &&
+      get_hero().get_facing_entity() == this &&
+      get_hero().is_facing_point_in(get_bounding_box())) {
+
+    std::string sprite_id;
+    if (has_sprite()) {
+      sprite_id = get_sprite()->get_animation_set_id();
+    }
+    std::shared_ptr<CarriedObject> carried_object = std::make_shared<CarriedObject>(
+        get_hero(),
+        *this,
+        sprite_id,
+        "stone",
+        1,  // damage_on_enemies
+        0   // explosion_date
+    );
+    get_hero().start_lifting(carried_object);
+
+    Sound::play("lift");
+    remove_from_map();
+    get_lua_context()->entity_on_lifting(*this, get_hero(), *carried_object);
+  }
+
   return false;
 }
 

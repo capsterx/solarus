@@ -96,7 +96,6 @@ class SOLARUS_API Npc: public Entity {
     virtual bool notify_interaction_with_item(EquipmentItem& item) override;
     virtual void notify_position_changed() override;
     virtual void notify_movement_finished() override;
-    bool can_be_lifted() const;
 
   private:
 

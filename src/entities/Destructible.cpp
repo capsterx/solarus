@@ -63,7 +63,6 @@ Destructible::Destructible(
   can_be_cut(false),
   can_explode(false),
   can_regenerate(false),
-  weight(0),
   damage_on_enemies(1),
   is_being_cut(false),
   regeneration_date(0),
@@ -71,6 +70,7 @@ Destructible::Destructible(
 
   set_origin(8, 13);
   create_sprite(get_animation_set_id());
+  set_weight(0);
 
   update_collision_modes();
 }
@@ -135,34 +135,6 @@ const std::string& Destructible::get_destruction_sound() const {
  */
 void Destructible::set_destruction_sound(const std::string& destruction_sound_id) {
   this->destruction_sound_id = destruction_sound_id;
-}
-
-/**
- * \brief Returns the weight of this destructible object.
- *
- * This corresponds to the "lift" ability level required to lift the object.
- * Therefore, a value of 0 allows the hero to lift the item unconditionally.
- * A value of -1 means that the object cannot be lifted.
- *
- * \return The weight of the object or -1.
- */
-int Destructible::get_weight() const {
-  return weight;
-}
-
-/**
- * \brief Sets the weight of this destructible object.
- *
- * This corresponds to the "lift" ability level required to lift the object.
- * Therefore, a value of 0 allows the hero to lift the item unconditionally.
- * A value of -1 means that the object cannot be lifted.
- *
- * \param weight The weight of the object or -1.
- */
-void Destructible::set_weight(int weight) {
-
-  this->weight = weight;
-  update_collision_modes();
 }
 
 /**
@@ -330,10 +302,7 @@ void Destructible::notify_collision_with_hero(Hero& hero, CollisionMode /* colli
       && get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE
       && hero.is_free()) {
 
-    if (get_equipment().has_ability(Ability::LIFT, get_weight())) {
-      get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_LIFT);
-    }
-    else {
+    if (!get_equipment().has_ability(Ability::LIFT, get_weight())) {
       get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_LOOK);
     }
   }

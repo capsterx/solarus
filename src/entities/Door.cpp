@@ -584,7 +584,7 @@ bool Door::notify_action_command_pressed() {
     return true;
   }
 
-  return false;
+  return Entity::notify_action_command_pressed();
 }
 
 /**

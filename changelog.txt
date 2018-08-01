@@ -68,6 +68,7 @@ Changes that do not introduce incompatibilities:
 * Add methods entity:set_size() to all entities (#121, #528).
 * Add methods entity:set_origin() to all entities.
 * Add methods entity:is/set_drawn_in_y_order() to all entities (#1098, #1173).
+* Add methods entity:get/set_weight() to all entities to lift them (#1227).
 * Add methods entity:get_property() and entity:set_property() (#1094).
 * Add methods entity:get_properties() and entity:set_properties() (#1144).
 * Add methods entity:get_layer() and entity:set_layer().

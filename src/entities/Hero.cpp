@@ -771,11 +771,20 @@ Point Hero::get_facing_point() const {
  */
 void Hero::notify_facing_entity_changed(Entity* facing_entity) {
 
-  if (facing_entity == nullptr &&
-      get_commands_effects().is_action_key_acting_on_facing_entity()) {
-
-    // the hero just stopped facing an entity that was showing an action icon
-    get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
+  CommandsEffects& commands_effects = get_commands_effects();
+  if (facing_entity != nullptr) {
+    if (facing_entity->can_be_lifted() &&
+        is_free() &&
+        commands_effects.get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE) {
+      commands_effects.set_action_key_effect(CommandsEffects::ACTION_KEY_LIFT);
+    }
+  }
+  else {
+    // No more facing entity.
+    if (commands_effects.is_action_key_acting_on_facing_entity()) {
+      // The hero just stopped facing an entity that was showing an action icon.
+      commands_effects.set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
+    }
   }
 }
 
@@ -1924,26 +1933,6 @@ void Hero::notify_collision_with_separator(
   }
   if (camera->get_tracked_entity().get() == this) {
     camera->notify_tracked_entity_traversing_separator(separator);
-  }
-}
-
-/**
- * \brief This function is called when a bomb detects a collision with this entity.
- * \param bomb the bomb
- * \param collision_mode the collision mode that detected the event
- */
-void Hero::notify_collision_with_bomb(Bomb& bomb, CollisionMode collision_mode) {
-
-  if (collision_mode == COLLISION_FACING) {
-    // the hero is touching the bomb and is looking in its direction
-
-    if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE
-        && get_facing_entity() == &bomb
-        && is_free()) {
-
-      // we show the action icon
-      get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_LIFT);
-    }
   }
 }
 

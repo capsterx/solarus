@@ -102,7 +102,9 @@ CarriedObject::CarriedObject(
   );
   main_sprite = create_sprite(animation_set_id, "main");
   main_sprite->enable_pixel_collisions();
-  main_sprite->set_current_animation("stopped");
+  if (main_sprite->has_animation("stopped")) {
+    main_sprite->set_current_animation("stopped");
+  }
   set_default_sprite_name("main");
   set_movement(movement);
 
@@ -158,7 +160,9 @@ void CarriedObject::set_animation_stopped() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "stopped_explosion_soon" : "stopped";
-    main_sprite->set_current_animation(animation);
+    if (main_sprite->has_animation("animation")) {
+      main_sprite->set_current_animation(animation);
+    }
   }
 }
 
@@ -172,7 +176,9 @@ void CarriedObject::set_animation_walking() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "walking_explosion_soon" : "walking";
-    main_sprite->set_current_animation(animation);
+    if (main_sprite->has_animation("animation")) {
+      main_sprite->set_current_animation(animation);
+    }
   }
 }
 
@@ -190,7 +196,9 @@ void CarriedObject::throw_item(int direction) {
   Sound::play("throw");
 
   // Set up sprites.
-  main_sprite->set_current_animation("stopped");
+  if (main_sprite->has_animation("animation")) {
+    main_sprite->set_current_animation("stopped");
+  }
   shadow_sprite->start_animation();
 
   // set the movement of the item sprite
