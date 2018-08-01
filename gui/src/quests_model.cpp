@@ -128,8 +128,8 @@ bool QuestsModel::add_quest(const QString& quest_path) {
   // Open the quest to get its quest.dat file.
   QStringList arguments = QApplication::arguments();
   QString program_name = arguments.isEmpty() ? QString() : arguments.first();
-  if (!Solarus::QuestFiles::open_quest(program_name.toLocal8Bit().toStdString(),
-                                       quest_path.toLocal8Bit().toStdString())) {
+  if (!Solarus::QuestFiles::open_quest(program_name.toStdString(),
+                                       quest_path.toStdString())) {
     Solarus::QuestFiles::close_quest();
     return false;
   }
@@ -222,8 +222,8 @@ const QPixmap& QuestsModel::get_quest_logo(int quest_index) const {
 
     QStringList arguments = QApplication::arguments();
     QString program_name = arguments.isEmpty() ? QString() : arguments.first();
-    if (Solarus::QuestFiles::open_quest(program_name.toLocal8Bit().toStdString(),
-                                        quest.path.toLocal8Bit().toStdString())) {
+    if (Solarus::QuestFiles::open_quest(program_name.toStdString(),
+                                        quest.path.toStdString())) {
       std::string file_name = "logos/logo.png";
       if (Solarus::QuestFiles::data_file_exists(file_name) &&
           !Solarus::QuestFiles::data_file_is_dir(file_name)) {
@@ -270,8 +270,8 @@ void QuestsModel::load_icon(int quest_index) const {
 
   QStringList arguments = QApplication::arguments();
   QString program_name = arguments.isEmpty() ? QString() : arguments.first();
-  if (!Solarus::QuestFiles::open_quest(program_name.toLocal8Bit().toStdString(),
-                                       quest.path.toLocal8Bit().toStdString())) {
+  if (!Solarus::QuestFiles::open_quest(program_name.toStdString(),
+                                       quest.path.toStdString())) {
     Solarus::QuestFiles::close_quest();
     icon = get_quest_default_icon();
     return;

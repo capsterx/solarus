@@ -112,7 +112,7 @@ void set_solarus_write_dir(const std::string& solarus_write_dir) {
  *
  * \param program_name Program name passed as first command-line argument.
  * Necessary for the quest file management system.
- * \param quest_path Path of the quest to open.
+ * \param quest_path Path of the quest to open, in UTF-8 encoding.
  * \return \c true if the quest was found.
  */
 SOLARUS_API bool open_quest(const std::string& program_name, const std::string& quest_path) {
@@ -188,6 +188,7 @@ SOLARUS_API bool is_open() {
  * \brief Returns the path of the quest, relative to the current directory.
  * \return Path of the data/ directory, the data.solarus archive or the
  * data.solarus.zip archive, relative to the current directory.
+ * Encoded in UTF-8.
  */
 SOLARUS_API const std::string& get_quest_path() {
   return quest_path_;
