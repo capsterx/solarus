@@ -152,31 +152,6 @@ bool call_function(
 }
 
 /**
- * \brief Loads and executes some Lua code.
- * \param l A Lua state.
- * \param code The code to execute.
- * \param chunk_name A name describing the Lua chunk
- * (only used to print the error message if any).
- * \return \c true in case of success.
- */
-bool do_string(
-    lua_State* l,
-    const std::string& code,
-    const std::string& chunk_name
-) {
-  int load_result = luaL_loadstring(l, code.c_str());
-
-  if (load_result != 0) {
-    Debug::error(std::string("In ") + chunk_name + ": "
-        + lua_tostring(l, -1));
-    lua_pop(l, 1);
-    return false;
-  }
-
-  return call_function(l, 0, 0, chunk_name.c_str());
-}
-
-/**
  * \brief Similar to luaL_error() but throws a LuaException.
  *
  * This function never returns.

@@ -171,7 +171,7 @@ void LuaContext::initialize() {
   Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after initialization");
 
   // Execute the main file.
-  do_file_if_exists(l, "main");
+  do_file_if_exists("main");
 
   Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after running main.lua");
 
@@ -265,7 +265,7 @@ void LuaContext::run_map(Map& map, Destination* destination) {
   std::string file_name = std::string("maps/") + map.get_id();
 
   // Load the map's code.
-  bool load_success = load_file(l, file_name);
+  bool load_success = load_file(file_name);
                                   // map_fun
 
   // Set a special environment to access map entities like global variables.
@@ -325,7 +325,7 @@ void LuaContext::run_item(EquipmentItem& item) {
   std::string file_name = std::string("items/") + item.get_name();
 
   // Load the item's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the item userdata as parameter.
     push_item(l, item);
@@ -349,7 +349,7 @@ void LuaContext::run_enemy(Enemy& enemy) {
   std::string file_name = std::string("enemies/") + enemy.get_breed();
 
   // Load the enemy's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the enemy userdata as parameter.
     push_enemy(l, enemy);
@@ -380,7 +380,7 @@ void LuaContext::run_custom_entity(CustomEntity& custom_entity) {
   std::string file_name = std::string("entities/") + model;
 
   // Load the entity's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the entity userdata as parameter.
     push_custom_entity(l, custom_entity);
@@ -682,12 +682,11 @@ bool LuaContext::call_function(
  * If the file does not exist or has a syntax error,
  * the stack is left intact and false is returned.
  *
- * \param l A Lua state.
  * \param script_name File name of the script with or without extension,
  * relative to the data directory.
  * \return true if the file exists and was loaded.
  */
-bool LuaContext::load_file(lua_State* l, const std::string& script_name) {
+bool LuaContext::load_file(const std::string& script_name) {
 
   // Determine the file name (possibly adding ".lua").
   std::string file_name(script_name);
@@ -723,13 +722,12 @@ bool LuaContext::load_file(lua_State* l, const std::string& script_name) {
  * This function just calls load_file() and call_function().
  * The file must exist.
  *
- * \param l A Lua state.
  * \param script_name File name of the script without extension,
  * relative to the data directory.
  */
-void LuaContext::do_file(lua_State* l, const std::string& script_name) {
+void LuaContext::do_file(const std::string& script_name) {
 
-  if (!load_file(l, script_name)) {
+  if (!load_file(script_name)) {
     Debug::error("Failed to load script '" + script_name + "'");
   }
   else {
@@ -743,18 +741,87 @@ void LuaContext::do_file(lua_State* l, const std::string& script_name) {
  * This function just calls load_file_if_exists() and call_function().
  * Nothing is done if the file does not exists.
  *
- * \param l A Lua state.
  * \param script_name File name of the script without extension,
  * relative to the data directory.
  * \return true if the file exists and was successfully executed.
  */
-bool LuaContext::do_file_if_exists(lua_State* l, const std::string& script_name) {
+bool LuaContext::do_file_if_exists(const std::string& script_name) {
 
-  if (load_file(l, script_name)) {
+  if (load_file(script_name)) {
     LuaTools::call_function(l, 0, 0, script_name.c_str());
     return true;
   }
   return false;
+}
+
+/**
+ * \brief Loads and executes some Lua code.
+ * \param code The code to execute.
+ * \param chunk_name A name describing the Lua chunk
+ * (only used to print the error message if any).
+ * \return \c true in case of success.
+ */
+bool LuaContext::do_string(const std::string& code, const std::string& chunk_name) {
+  int load_result = luaL_loadstring(l, code.c_str());
+
+  if (load_result != 0) {
+    Debug::error(std::string("In ") + chunk_name + ": "
+        + lua_tostring(l, -1));
+    lua_pop(l, 1);
+    return false;
+  }
+
+  return LuaTools::call_function(l, 0, 0, chunk_name.c_str());
+}
+
+/**
+ * \brief Executes Lua code in an environment with easy access to game objects.
+ *
+ * The environment provides:
+ * - game,
+ * - map,
+ * - entities from their name,
+ * - tp (teletransportation function).
+ *
+ * \param code The code to execute.
+ * \param chunk_name A name describing the Lua chunk
+ * (only used to print the error message if any).
+ * \return \c true in case of success.
+ */
+bool LuaContext::do_string_with_easy_env(const std::string& code, const std::string& chunk_name) {
+
+  int load_result = luaL_loadstring(l, code.c_str());
+
+  if (load_result != 0) {
+    Debug::error(std::string("In ") + chunk_name + ": "
+        + lua_tostring(l, -1));
+    lua_pop(l, 1);
+    return false;
+  }
+
+  // Set an environment that provides easy access to game objects.
+                                  // code
+  lua_newtable(l);
+                                  // code env
+  lua_newtable(l);
+                                  // code env env_mt
+  // Set our special __index function.
+  lua_pushcfunction(l, l_easy_index);
+                                  // code env env_mt __index
+  lua_setfield(l, -2, "__index");
+                                  // code env env_mt
+  // We are changing the environment, so we need to also define __newindex
+  // with its usual setting (the global table).
+  lua_pushvalue(l, LUA_GLOBALSINDEX);
+                                  // code env env_mt _G
+  lua_setfield(l, -2, "__newindex");
+                                  // code env env_mt
+  lua_setmetatable(l, -2);
+                                  // code env
+  lua_setfenv(l, -2);
+                                  // code
+
+  return LuaTools::call_function(l, 0, 0, chunk_name.c_str());
 }
 
 /**
@@ -2972,7 +3039,7 @@ int LuaContext::l_loader(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& script_name = luaL_checkstring(l, 1);
-    bool load_success = load_file(l, script_name);
+    bool load_success = get_lua_context(l).load_file(script_name);
 
     if (!load_success) {
       std::ostringstream oss;

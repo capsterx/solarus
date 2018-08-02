@@ -185,9 +185,11 @@ class LuaContext {
     static void push_ref(lua_State* l, const ScopedLuaRef& ref);
 
     // Executing Lua code.
-    static bool load_file(lua_State* l, const std::string& script_name);
-    static void do_file(lua_State* l, const std::string& script_name);
-    static bool do_file_if_exists(lua_State* l, const std::string& script_name);
+    bool load_file(const std::string& script_name);
+    void do_file(const std::string& script_name);
+    bool do_file_if_exists(const std::string& script_name);
+    bool do_string(const std::string& code, const std::string& chunk_name);
+    bool do_string_with_easy_env(const std::string& code, const std::string& chunk_name);
 
     // Calling Lua functions.
     bool call_function(
@@ -1381,6 +1383,8 @@ class LuaContext {
       l_panic,
       l_loader,
       l_get_map_entity_or_global,
+      l_easy_index,
+      l_hero_teleport,
       l_entity_iterator_next,
       l_named_sprite_iterator_next,
       l_treasure_brandish_finished,

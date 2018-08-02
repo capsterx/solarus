@@ -481,7 +481,7 @@ void MainLoop::check_input() {
     for (const std::string& command : lua_commands) {
       std::cout << "\n";  // To make sure that the command delimiter starts on a new line.
       Logger::info("====== Begin Lua command #" + String::to_string(num_lua_commands_done) + " ======");
-      const bool success = LuaTools::do_string(get_lua_context().get_internal_state(), command, "Lua command");
+      const bool success = get_lua_context().do_string_with_easy_env(command, "Lua command");
       if (success) {
         std::cout << "\n";
         Logger::info("====== End Lua command #" + String::to_string(num_lua_commands_done) + ": success ======");

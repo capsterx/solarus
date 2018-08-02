@@ -55,11 +55,6 @@ bool call_function(
     int nb_results,
     const char* function_name
 );
-bool do_string(
-    lua_State* l,
-    const std::string& code,
-    const std::string& chunk_name
-);
 
 // Error handling.
 template<typename Callable>

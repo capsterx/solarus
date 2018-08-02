@@ -167,7 +167,7 @@ int LuaContext::main_api_load_file(lua_State *l) {
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
-    if (!load_file(l, file_name)) {
+    if (!get_lua_context(l).load_file(file_name)) {
       lua_pushnil(l);
     }
 
@@ -185,7 +185,7 @@ int LuaContext::main_api_do_file(lua_State *l) {
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
-    do_file(l, file_name);
+    get_lua_context(l).do_file(file_name);
 
     return 0;
   });

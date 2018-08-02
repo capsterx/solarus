@@ -16,6 +16,7 @@
  */
 #include "solarus/audio/Music.h"
 #include "solarus/audio/Sound.h"
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Equipment.h"
 #include "solarus/core/EquipmentItem.h"
@@ -1387,6 +1388,82 @@ int LuaContext::l_get_map_entity_or_global(lua_State* l) {
       lua_getglobal(l, name.c_str());
     }
     return 1;
+  });
+}
+
+/**
+ * \brief __index function of the easy environment for the console.
+ *
+ * See do_string_with_easy_env() for more details.
+ *
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::l_easy_index(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const std::string& name = LuaTools::check_string(l, 2);
+
+    LuaContext& lua_context = get_lua_context(l);
+    Game* game = lua_context.get_main_loop().get_game();
+
+    if (game != nullptr) {
+      // A game is running.
+      if (name == "game") {
+        push_game(l, game->get_savegame());
+        return 1;
+      }
+
+      if (game->has_current_map()) {
+        Map& map = game->get_current_map();
+        if (name == "map") {
+          push_map(l, map);
+          return 1;
+        }
+
+        if (name == "tp") {
+          push_hero(l, *game->get_hero());
+          lua_pushcclosure(l, l_hero_teleport, 1);
+          return 1;
+        }
+
+        EntityPtr entity = map.get_entities().find_entity(name);
+        if (entity != nullptr && !entity->is_being_removed()) {
+          push_entity(l, *entity);
+          return 1;
+        }
+      }
+    }
+
+    lua_getglobal(l, name.c_str());
+    return 1;
+  });
+}
+
+/**
+ * \brief Like hero:teleport(), but the hero is passed as an upvalue.
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::l_hero_teleport(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    lua_pushvalue(l, lua_upvalueindex(1));
+    Hero& hero = *check_hero(l, -1);
+    lua_pop(l, 1);
+    const std::string& map_id = LuaTools::check_string(l, 1);
+    const std::string& destination_name = LuaTools::opt_string(l, 2, "");
+    Transition::Style transition_style = LuaTools::opt_enum<Transition::Style>(
+        l, 3, Transition::Style::FADE);
+
+    if (!CurrentQuest::resource_exists(ResourceType::MAP, map_id)) {
+      LuaTools::arg_error(l, 2, std::string("No such map: '") + map_id + "'");
+    }
+
+    hero.get_game().set_current_map(map_id, destination_name, transition_style);
+
+    return 0;
   });
 }
 
