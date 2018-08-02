@@ -937,6 +937,7 @@ class LuaContext {
       hero_api_set_blinking,
       hero_api_is_invincible,
       hero_api_set_invincible,
+      hero_api_get_carried_object,
       hero_api_freeze,
       hero_api_unfreeze,
       hero_api_walk,
@@ -1020,6 +1021,10 @@ class LuaContext {
       destructible_api_get_modified_ground,
       dynamic_tile_api_get_pattern_id,
       dynamic_tile_api_get_modified_ground,
+      carried_object_api_get_destruction_sound,
+      carried_object_api_set_destruction_sound,
+      carried_object_api_get_damage_on_enemies,
+      carried_object_api_set_damage_on_enemies,
       enemy_api_get_breed,
       enemy_api_get_life,
       enemy_api_set_life,
@@ -1181,6 +1186,7 @@ class LuaContext {
     static void push_shop_treasure(lua_State* l, ShopTreasure& shop_treasure);
     static void push_pickable(lua_State* l, Pickable& pickable);
     static void push_destructible(lua_State* l, Destructible& destructible);
+    static void push_carried_object(lua_State* l, CarriedObject& carried_object);
     static void push_dynamic_tile(lua_State* l, DynamicTile& dynamic_tile);
     static void push_enemy(lua_State* l, Enemy& enemy);
     static void push_custom_entity(lua_State* l, CustomEntity& entity);
@@ -1261,6 +1267,8 @@ class LuaContext {
     static std::shared_ptr<Pickable> check_pickable(lua_State* l, int index);
     static bool is_destructible(lua_State* l, int index);
     static std::shared_ptr<Destructible> check_destructible(lua_State* l, int index);
+    static bool is_carried_object(lua_State* l, int index);
+    static std::shared_ptr<CarriedObject> check_carried_object(lua_State* l, int index);
     static bool is_dynamic_tile(lua_State* l, int index);
     static std::shared_ptr<DynamicTile> check_dynamic_tile(lua_State* l, int index);
     static bool is_enemy(lua_State* l, int index);

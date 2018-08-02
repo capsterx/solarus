@@ -151,6 +151,30 @@ int CarriedObject::get_damage_on_enemies() const {
 }
 
 /**
+ * \brief Sets the damage this object causes to enemies when thrown at them.
+ * \param damage_on_enemies The damage on enemies.
+ */
+void CarriedObject::set_damage_on_enemies(int damage_on_enemies) {
+  this->damage_on_enemies = damage_on_enemies;
+}
+
+/**
+ * \brief Returns the id of the sound to play when this object is destroyed.
+ * \return The destruction sound id or an empty string.
+ */
+const std::string& CarriedObject::get_destruction_sound() const {
+  return destruction_sound_id;
+}
+
+/**
+ * \brief Sets the id of the sound to play when this object is destroyed.
+ * \param destruction_sound_id The destruction sound id or an empty string.
+ */
+void CarriedObject::set_destruction_sound(const std::string& destruction_sound_id) {
+  this->destruction_sound_id = destruction_sound_id;
+}
+
+/**
  * \brief Makes the item sprite stop moving.
  *
  * This function is called when the hero stops walking while carrying the item.

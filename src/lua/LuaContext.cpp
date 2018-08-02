@@ -2801,7 +2801,7 @@ void LuaContext::on_lifting(
 
   if (find_method("on_lifting")) {
     push_entity(l, carrier);
-    push_entity(l, carried_object);
+    push_carried_object(l, carried_object);
     call_function(3, 0, "on_lifting");
   }
 }

@@ -6,6 +6,7 @@ custom_entity:set_traversable_by(false)
 function map:on_opening_transition_finished()
 
   -- Lift the pot.
+  assert_equal(hero:get_carried_object(), nil)
   assert_equal(game:get_command_effect("action"), "lift")
   game:simulate_command_pressed("action")
   assert_equal(game:get_command_effect("action"), "throw")
@@ -19,8 +20,24 @@ function pot:on_lifting(carrier, carried_object)
   assert(sprite ~= nil)
   assert_equal(sprite:get_animation_set(), "entities/pot")
 
+  assert_equal(carried_object:get_destruction_sound(), "stone")
+  assert_equal(carried_object:get_destruction_sound(), self:get_destruction_sound())
+  carried_object:set_destruction_sound(nil)
+  assert_equal(carried_object:get_destruction_sound(), nil)
+  carried_object:set_destruction_sound("splash")
+  assert_equal(carried_object:get_destruction_sound(), "splash")
+
+  assert_equal(carried_object:get_damage_on_enemies(), 1)
+  assert_equal(carried_object:get_damage_on_enemies(), self:get_damage_on_enemies())
+  carried_object:set_damage_on_enemies(0)
+  assert_equal(carried_object:get_damage_on_enemies(), 0)
+  carried_object:set_damage_on_enemies(4)
+  assert_equal(carried_object:get_damage_on_enemies(), 4)
+
   -- Throw the pot.
   sol.timer.start(map, 1000, function()
+    assert(hero:get_carried_object() ~= nil)
+    assert_equal(carried_object, hero:get_carried_object())
     assert_equal(game:get_command_effect("action"), "throw")
     game:simulate_command_pressed("action")
     assert_equal(game:get_command_effect("action"), nil)
@@ -51,6 +68,8 @@ function custom_entity:on_lifting(carrier, carried_object)
 
   -- Throw the custom entity.
   sol.timer.start(map, 1000, function()
+    assert(hero:get_carried_object() ~= nil)
+    assert_equal(carried_object, hero:get_carried_object())
     assert_equal(game:get_command_effect("action"), "throw")
     game:simulate_command_pressed("action")
     assert_equal(game:get_command_effect("action"), nil)

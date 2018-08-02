@@ -75,6 +75,9 @@ Changes that do not introduce incompatibilities:
 * Add a method entity:get_controlling_stream() (#1204).
 * Add methods door:open(), door:close() and door:set_open() (#1007).
 * destructible:on_lifting() now gives a carried object parameter.
+* Add a method hero:get_carried_object().
+* Add methods carried_object:get/set_damage_on_enemies().
+* Add methods carried_object:get/set_destruction_sound().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
 * Add methods custom_entity:get/set_follow_streams() (#1221).

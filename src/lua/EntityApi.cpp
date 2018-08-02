@@ -25,6 +25,7 @@
 #include "solarus/core/Savegame.h"
 #include "solarus/core/Timer.h"
 #include "solarus/entities/Block.h"
+#include "solarus/entities/CarriedObject.h"
 #include "solarus/entities/Chest.h"
 #include "solarus/entities/CustomEntity.h"
 #include "solarus/entities/Destination.h"
@@ -203,6 +204,11 @@ void LuaContext::register_entity_module() {
       { "start_running", hero_api_start_running },
       { "start_hurt", hero_api_start_hurt },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    hero_methods.insert(hero_methods.end(), {
+        { "get_carried_object", hero_api_get_carried_object },
+    });
+  }
 
   hero_methods.insert(hero_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -431,6 +437,26 @@ void LuaContext::register_entity_module() {
       metamethods
   );
 
+  // Carried object.
+  std::vector<luaL_Reg> carried_object_methods = {
+  };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    carried_object_methods.insert(carried_object_methods.end(), {
+        { "get_destruction_sound", carried_object_api_get_destruction_sound },
+        { "set_destruction_sound", carried_object_api_set_destruction_sound },
+        { "get_damage_on_enemies", carried_object_api_get_damage_on_enemies },
+        { "set_damage_on_enemies", carried_object_api_set_damage_on_enemies },
+    });
+  }
+
+  carried_object_methods.insert(carried_object_methods.end(), common_methods.begin(), common_methods.end());
+  register_type(
+      get_entity_internal_type_name(EntityType::CARRIED_OBJECT),
+      {},
+      carried_object_methods,
+      metamethods
+  );
+
   // Dynamic tile.
   std::vector<luaL_Reg> dynamic_tile_methods = {
       { "get_pattern_id", dynamic_tile_api_get_pattern_id },
@@ -557,7 +583,6 @@ void LuaContext::register_entity_module() {
 
   // Also register all other types of entities that have no specific methods.
   register_type(get_entity_internal_type_name(EntityType::TILE), {}, common_methods, metamethods);
-  register_type(get_entity_internal_type_name(EntityType::CARRIED_OBJECT), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::JUMPER), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::SENSOR), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::SEPARATOR), {}, common_methods, metamethods);
@@ -2398,6 +2423,27 @@ int LuaContext::hero_api_set_invincible(lua_State* l) {
     hero.set_invincible(invincible, duration);
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:get_carried_object().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_get_carried_object(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Hero& hero = *check_hero(l, 1);
+
+    const std::shared_ptr<CarriedObject>& carried_object = hero.get_carried_object();
+    if (carried_object == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_carried_object(l, *carried_object);
+    }
+    return 1;
   });
 }
 
@@ -4520,6 +4566,113 @@ int LuaContext::destructible_api_get_modified_ground(lua_State* l) {
 
     push_string(l, enum_to_name(modified_ground));
     return 1;
+  });
+}
+
+/**
+ * \brief Returns whether a value is a userdata of type carried object.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return \c true if the value at this index is a carried object.
+ */
+bool LuaContext::is_carried_object(lua_State* l, int index) {
+  return is_userdata(l, index, get_entity_internal_type_name(EntityType::CARRIED_OBJECT));
+}
+
+/**
+ * \brief Checks that the userdata at the specified index of the stack is a
+ * carried object and returns it.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The carried object.
+ */
+std::shared_ptr<CarriedObject> LuaContext::check_carried_object(lua_State* l, int index) {
+  return std::static_pointer_cast<CarriedObject>(check_userdata(
+      l, index, get_entity_internal_type_name(EntityType::CARRIED_OBJECT)
+  ));
+}
+
+/**
+ * \brief Pushes a carried object userdata onto the stack.
+ * \param l A Lua context.
+ * \param carried_object A carried object.
+ */
+void LuaContext::push_carried_object(lua_State* l, CarriedObject& carried_object) {
+  push_userdata(l, carried_object);
+}
+
+/**
+ * \brief Implementation of carried_object:get_destruction_sound().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_get_destruction_sound(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CarriedObject& carried_object = *check_carried_object(l, 1);
+
+    const std::string& destruction_sound_id = carried_object.get_destruction_sound();
+
+    if (destruction_sound_id.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, destruction_sound_id);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of carried_object:set_destruction_sound().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_set_destruction_sound(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CarriedObject& carried_object = *check_carried_object(l, 1);
+    std::string destruction_sound_id;
+    if (!lua_isnil(l, 2)) {
+      destruction_sound_id = LuaTools::check_string(l, 2);
+    }
+
+    carried_object.set_destruction_sound(destruction_sound_id);
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of carried_object:get_damage_on_enemies().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_get_damage_on_enemies(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CarriedObject& carried_object = *check_carried_object(l, 1);
+
+    int damage_on_enemies = carried_object.get_damage_on_enemies();
+
+    lua_pushinteger(l, damage_on_enemies);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of carried_object:set_damage_on_enemies().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_set_damage_on_enemies(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CarriedObject& carried_object = *check_carried_object(l, 1);
+    int damage_on_enemies = LuaTools::check_int(l, 2);
+
+    carried_object.set_damage_on_enemies(damage_on_enemies);
+
+    return 0;
   });
 }
 

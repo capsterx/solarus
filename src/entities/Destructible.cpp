@@ -122,7 +122,7 @@ const std::string& Destructible::get_animation_set_id() const {
 }
 
 /**
- * \brief Returns the id of the sound to play when this item is destroyed.
+ * \brief Returns the id of the sound to play when this object is destroyed.
  * \return The destruction sound id or an empty string.
  */
 const std::string& Destructible::get_destruction_sound() const {
@@ -130,7 +130,7 @@ const std::string& Destructible::get_destruction_sound() const {
 }
 
 /**
- * \brief Sets the id of the sound to play when this item is destroyed.
+ * \brief Sets the id of the sound to play when this object is destroyed.
  * \param destruction_sound_id The destruction sound id or an empty string.
  */
 void Destructible::set_destruction_sound(const std::string& destruction_sound_id) {

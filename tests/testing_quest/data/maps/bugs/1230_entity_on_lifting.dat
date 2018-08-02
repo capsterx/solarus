@@ -23,6 +23,7 @@ destructible{
   x = 40,
   y = 29,
   sprite = "entities/pot",
+  destruction_sound = "stone",
 }
 
 destination{

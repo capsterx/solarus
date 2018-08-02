@@ -239,6 +239,7 @@ class Hero: public Entity {
     bool is_free() const;
     bool is_using_item() const;
     EquipmentItemUsage& get_item_being_used();
+    std::shared_ptr<CarriedObject> get_carried_object();
     bool is_brandishing_treasure() const;
     bool is_grabbing_or_pulling() const;
     bool is_moving_grabbed_entity() const;
@@ -328,7 +329,6 @@ class Hero: public Entity {
     void try_snap_to_facing_entity();
     void apply_additional_ground_movement();
     std::shared_ptr<Teletransporter> get_delayed_teletransporter();
-    std::shared_ptr<CarriedObject> get_carried_object();
 
     // ground
     void update_ground_effects();
