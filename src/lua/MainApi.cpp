@@ -61,6 +61,10 @@ void LuaContext::register_main_module() {
     functions.insert(functions.end(), {
         { "get_quest_version", main_api_get_quest_version },
         { "get_resource_ids", main_api_get_resource_ids },
+        { "resource_exists", main_api_resource_exists },
+        { "get_resource_description", main_api_get_resource_description },
+        { "add_resource", main_api_add_resource },
+        { "remove_resource", main_api_remove_resource },
         { "get_game", main_api_get_game },
     });
   }
@@ -386,6 +390,98 @@ int LuaContext::main_api_get_resource_ids(lua_State* l) {
     }
 
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sol.main.resource_exists().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::main_api_resource_exists(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    ResourceType resource_type = LuaTools::check_enum<ResourceType>(l, 1);
+    const std::string& id = LuaTools::check_string(l, 2);
+
+    lua_pushboolean(l, CurrentQuest::resource_exists(resource_type, id));
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sol.main.get_resource_description().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::main_api_get_resource_description(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    ResourceType resource_type = LuaTools::check_enum<ResourceType>(l, 1);
+    const std::string& id = LuaTools::check_string(l, 2);
+
+    const QuestDatabase& database = CurrentQuest::get_database();
+    if (!database.resource_exists(resource_type, id)) {
+      LuaTools::arg_error(l, 2, "No such resource element: '" + id + "'");
+    }
+
+    const std::string& description = database.get_description(resource_type, id);
+    if (description.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, description);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sol.main.add_resource().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::main_api_add_resource(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    ResourceType resource_type = LuaTools::check_enum<ResourceType>(l, 1);
+    const std::string& id = LuaTools::check_string(l, 2);
+    const std::string& description = LuaTools::opt_string(l, 3, "");
+
+    QuestDatabase& database = CurrentQuest::get_database();
+    if (database.resource_exists(resource_type, id)) {
+      LuaTools::arg_error(l, 2, "Resource element already exists: '" + id + "'");
+    }
+
+    database.add(resource_type, id, description);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of sol.main.remove_resource().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::main_api_remove_resource(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    ResourceType resource_type = LuaTools::check_enum<ResourceType>(l, 1);
+    const std::string& id = LuaTools::check_string(l, 2);
+
+    QuestDatabase& database = CurrentQuest::get_database();
+    if (!database.resource_exists(resource_type, id)) {
+      LuaTools::arg_error(l, 2, "No such resource element: '" + id + "'");
+    }
+
+    database.remove(resource_type, id);
+
+    return 0;
   });
 }
 
