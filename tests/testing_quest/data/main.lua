@@ -15,10 +15,10 @@ function assert_equal(actual, expected)
   end
 end
 
-function sol.main.on_started()
+function sol.main:on_started()
 
-  sol.language.set_language("en")
-  assert(sol.main.get_game() == nil)
+  assert_equal(sol.language.get_language(), "en")
+  assert_equal(sol.main.get_game(), nil)
 end
 
 local game_meta = sol.main.get_metatable("game")

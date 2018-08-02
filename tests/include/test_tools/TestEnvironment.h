@@ -74,7 +74,7 @@ class TestEnvironment {
   private:
 
     Arguments arguments;
-    MainLoop main_loop;
+    std::unique_ptr<MainLoop> main_loop;
     std::string map_id;
 };
 

@@ -162,12 +162,18 @@ void LuaContext::initialize() {
   // This is not always the case by default.
   luaL_dostring(l, "io.stdout:setvbuf(\"line\")");
 
+  // Initially set the language if there is only one declared.
+  const std::map<std::string, std::string>& languages = CurrentQuest::get_resources(ResourceType::LANGUAGE);
+  if (languages.size() == 1) {
+    CurrentQuest::set_language(languages.begin()->first);
+  }
+
   Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after initialization");
 
   // Execute the main file.
   do_file_if_exists(l, "main");
 
-  Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua Lua stack after running main.lua");
+  Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after running main.lua");
 
   main_on_started();
 }

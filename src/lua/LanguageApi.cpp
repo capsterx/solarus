@@ -72,8 +72,8 @@ void LuaContext::register_language_module() {
 
 /**
  * \brief Implementation of sol.language.get_language().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::language_api_get_language(lua_State* l) {
 
@@ -92,8 +92,8 @@ int LuaContext::language_api_get_language(lua_State* l) {
 
 /**
  * \brief Implementation of sol.language.set_language().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::language_api_set_language(lua_State* l) {
 
@@ -111,8 +111,8 @@ int LuaContext::language_api_set_language(lua_State* l) {
 
 /**
  * \brief Implementation of sol.language.get_language_name().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::language_api_get_language_name(lua_State* l) {
 
@@ -164,13 +164,18 @@ int LuaContext::language_api_get_languages(lua_State* l) {
 
 /**
  * \brief Implementation of sol.language.get_string().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::language_api_get_string(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& key = LuaTools::check_string(l, 1);
+
+    const std::string& language = CurrentQuest::get_language();
+    if (language.empty()) {
+      LuaTools::error(l, "No language was set");
+    }
 
     if (!CurrentQuest::string_exists(key)) {
       lua_pushnil(l);
@@ -184,13 +189,18 @@ int LuaContext::language_api_get_string(lua_State* l) {
 
 /**
  * \brief Implementation of sol.language.get_dialog().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::language_api_get_dialog(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& dialog_id = LuaTools::check_string(l, 1);
+
+    const std::string& language = CurrentQuest::get_language();
+    if (language.empty()) {
+      LuaTools::error(l, "No language was set");
+    }
 
     if (!CurrentQuest::dialog_exists(dialog_id)) {
       lua_pushnil(l);

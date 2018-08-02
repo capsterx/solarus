@@ -434,6 +434,11 @@ int LuaContext::game_api_start_dialog(lua_State* l) {
     ScopedLuaRef info_ref;
     ScopedLuaRef callback_ref;
 
+    const std::string& language = CurrentQuest::get_language();
+    if (language.empty()) {
+      LuaTools::error(l, "Cannot start dialog: no language was set");
+    }
+
     if (!CurrentQuest::dialog_exists(dialog_id)) {
       LuaTools::arg_error(l, 2, std::string("No such dialog: '") + dialog_id + "'");
     }

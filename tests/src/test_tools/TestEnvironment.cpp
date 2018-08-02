@@ -31,7 +31,7 @@ namespace Solarus {
  */
 TestEnvironment::TestEnvironment(int argc, char** argv):
     arguments(argc, argv),
-    main_loop(arguments),
+    main_loop(),
     map_id("traversable") {
 
   bool fatal_errors = get_arguments().get_argument_value("-fatal-errors", "yes") == "yes";
@@ -39,6 +39,8 @@ TestEnvironment::TestEnvironment(int argc, char** argv):
   Debug::set_show_popup_on_die(false);
   Debug::set_die_on_error(fatal_errors);
   Debug::set_abort_on_die(true);
+
+  main_loop = std::unique_ptr<MainLoop>(new MainLoop(arguments));
 }
 
 /**
@@ -53,7 +55,7 @@ const Arguments& TestEnvironment::get_arguments() const {
  * \brief Returns the main loop.
  */
 MainLoop& TestEnvironment::get_main_loop() {
-  return main_loop;
+  return *main_loop;
 }
 
 /**
@@ -61,6 +63,7 @@ MainLoop& TestEnvironment::get_main_loop() {
  */
 Game& TestEnvironment::get_game() {
 
+  MainLoop& main_loop = get_main_loop();
   if (main_loop.get_game() == nullptr) {
     std::shared_ptr<Savegame> savegame = std::make_shared<Savegame>(
         main_loop, "save_initial.dat"
