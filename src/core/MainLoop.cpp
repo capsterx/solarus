@@ -34,6 +34,7 @@
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include <lua.hpp>
+#include <clocale>
 #include <sstream>
 #include <string>
 #include <thread>
