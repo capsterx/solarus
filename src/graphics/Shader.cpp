@@ -346,9 +346,6 @@ void Shader::render(const VertexArray& array, const Surface& texture, const glm:
     const GLuint texture_unit = kvp.second.unit;
     ctx.glActiveTexture(GL_TEXTURE0 + texture_unit);
     SDL_GL_BindTexture(kvp.second.surface->get_internal_surface().get_texture(),nullptr,nullptr);
-
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
 
   ctx.glDrawArrays((GLenum)array.get_primitive_type(),0,array.vertex_count());
