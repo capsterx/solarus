@@ -369,7 +369,11 @@ int LuaContext::timer_api_start(lua_State *l) {
     // Parameters: [context] delay callback.
     LuaContext& lua_context = get_lua_context(l);
 
-    if (lua_type(l, 1) != LUA_TNUMBER) {
+    bool use_default_context = false;
+    if (lua_type(l, 1) == LUA_TNUMBER) {
+      use_default_context = true;
+    }
+    else {
       // The first parameter is the context.
       if (!is_main(l, 1) &&
           !is_menu(l, 1) &&
@@ -378,11 +382,26 @@ int LuaContext::timer_api_start(lua_State *l) {
           !is_map(l, 1) &&
           !is_entity(l, 1)
       ) {
-        LuaTools::type_error(l, 1, "game, item, map, entity, menu or sol.main");
+        // Show an error message without raising a Lua error
+        // because this problem was not detected correctly before 1.6
+        // and a lot of existing games have it.
+        // We can survive this by just using a default context as fallback.
+        std::string message = "bad argument #1 to sol.timer.start (game, item, map, entity, menu or sol.main expected, got " +
+            LuaTools::get_type_name(l, 1) + "), will use a default context instead";
+        lua_pushcfunction(l, l_backtrace);
+        push_string(l, message);
+        LuaTools::call_function(l, 1, 1, "traceback");
+        std::string backtrace = LuaTools::check_string(l, -1);
+        lua_pop(l, 1);
+        Debug::error(backtrace);
+
+        lua_remove(l, 1);
+        use_default_context = true;
       }
     }
-    else {
-      // No context specified: set a default context:
+
+    if (use_default_context) {
+      // Set a default context:
       // - during a game: the current map,
       // - outside a game: sol.main.
 
@@ -391,9 +410,8 @@ int LuaContext::timer_api_start(lua_State *l) {
         push_map(l, game->get_current_map());
       }
       else {
-        LuaContext::push_main(l);
+        push_main(l);
       }
-
       lua_insert(l, 1);
     }
     // Now the first parameter is the context.

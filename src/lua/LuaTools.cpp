@@ -181,8 +181,8 @@ void arg_error(lua_State* l, int arg_index, const std::string& message) {
   lua_Debug info;
   if (!lua_getstack(l, 0, &info)) {
     // No stack frame.
-     oss << "bad argument #" << arg_index << " (" << message << ")";
-     error(l, oss.str());
+    oss << "bad argument #" << arg_index << " (" << message << ")";
+    error(l, oss.str());
   }
 
   lua_getinfo(l, "n", &info);
