@@ -129,6 +129,11 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
   }
 
   quest_path_ = quest_path;
+
+  //quest path is a file, try to open it directly
+  PHYSFS_addToSearchPath(quest_path.c_str(),1);
+
+  //quest path is a folder or anything else, do as usual
   std::string dir_quest_path = quest_path + "/data";
   std::string archive_quest_path_1 = quest_path + "/data.solarus";
   std::string archive_quest_path_2 = quest_path + "/data.solarus.zip";
@@ -140,6 +145,7 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
   PHYSFS_addToSearchPath((base_dir + "/" + dir_quest_path).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_1).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_2).c_str(), 1);
+
 
   // Set the engine root write directory.
   set_solarus_write_dir(SOLARUS_WRITE_DIR);

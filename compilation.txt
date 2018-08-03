@@ -250,7 +250,7 @@ If you don't specify it, it will be the current directory by default.
 
 The quest path is a directory containing the "data" subdirectory of your
 quest, or containing the "data.solarus" or "data.solarus.zip" archive of
-your quest.
+your quest, or an archive containing your quest files (content of the data directory).
 
 It means that if you run solarus-run without parameters, then a quest must
 exist in the current directory.

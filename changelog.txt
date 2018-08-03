@@ -46,12 +46,14 @@ Engine changes
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix loading quests in non UTF-8 filesystems.
 * Improve Lua error messages.
+* CLI can accept an archive's path as argument
 
 Solarus launcher GUI changes
 ----------------------------
 
 * Lua console: provide variables game, map, entities and tp function.
 * Clear the console when a quest is started.
+* FileDialog now expect a file, either quest.dat or an archive (.solarus, .zip)
 
 Lua API changes
 ---------------
