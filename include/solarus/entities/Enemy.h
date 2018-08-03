@@ -98,7 +98,6 @@ class Enemy: public Entity {
 
     virtual void notify_creating() override;
     virtual void notify_created() override;
-    virtual void notify_map_opening_transition_finished() override;
 
     // Enemy properties.
     const std::string& get_breed() const;

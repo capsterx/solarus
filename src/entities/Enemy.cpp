@@ -212,16 +212,8 @@ void Enemy::notify_created() {
   for (const SpritePtr& sprite: get_sprites()) {
     sprite->set_current_direction(initial_direction);
   }
-}
 
-/**
- * \brief Notifies this entity that its map has just become active.
- */
-void Enemy::notify_map_opening_transition_finished() {
-
-  Entity::notify_map_opening_transition_finished();
-
-  if (is_enabled() && is_in_normal_state()) {
+  if (is_enabled()) {
     restart();
   }
 }
