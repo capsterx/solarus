@@ -305,6 +305,8 @@ font{ id = "minecraftia", description = "Minecraftia" }
 shader{ id = "scale2x", description = "Scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
+file{ path = "fonts/8_bit.png", author = "usr_share, Christopho", license = "Public domain" }
+file{ path = "fonts/minecraftia.ttf", author = "Andrew Tyler", license = "Free for non-commercial use" }
 file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }
