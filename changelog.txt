@@ -82,6 +82,7 @@ Changes that do not introduce incompatibilities:
 * Add methods carried_object:get/set_damage_on_enemies().
 * Add methods carried_object:get/set_destruction_sound().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
+* Add method enemy:is_immobilized() (#1092).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
 * Add methods custom_entity:is/set_tiled() (#1105).
 * Add methods custom_entity:get/set_follow_streams() (#1221).

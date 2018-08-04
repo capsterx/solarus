@@ -1072,6 +1072,7 @@ class LuaContext {
       enemy_api_set_obstacle_behavior,
       enemy_api_restart,
       enemy_api_hurt,
+      enemy_api_is_immobilized,
       enemy_api_immobilize,
       enemy_api_create_enemy,
       custom_entity_api_get_model,

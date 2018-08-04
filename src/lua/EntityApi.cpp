@@ -524,6 +524,7 @@ void LuaContext::register_entity_module() {
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     enemy_methods.insert(enemy_methods.end(), {
+        { "is_immobilized", enemy_api_is_immobilized },
         { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
         { "set_attacking_collision_mode", enemy_api_set_attacking_collision_mode },
     });
@@ -5487,6 +5488,21 @@ int LuaContext::enemy_api_hurt(lua_State* l) {
     }
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of enemy:is_immobilized().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::enemy_api_is_immobilized(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Enemy& enemy = *check_enemy(l, 1);
+
+    lua_pushboolean(l, enemy.is_immobilized());
+    return 1;
   });
 }
 

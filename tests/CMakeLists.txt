@@ -73,6 +73,7 @@ set(lua_test_maps
   "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1076_treasure_dialog_optional"
+  "bugs/1092_enemy_is_immobilized"
   "bugs/1094_entity_properties"
   "bugs/1105_custom_entity_repeat"
   "bugs/1136_get_path_get_trajectory_missing_element"
