@@ -23,22 +23,7 @@
 #ifndef SOLARUS_COMMON_H
 #define SOLARUS_COMMON_H
 
-
-#ifdef ANDROID
-#ifndef SOLARUS_MAJOR_VERSION
-#define SOLARUS_MAJOR_VERSION 1
-#endif
-
-#ifndef SOLARUS_MINOR_VERSION
-#define SOLARUS_MINOR_VERSION 6
-#endif
-
-#ifndef SOLARUS_PATCH_VERSION
-#define SOLARUS_PATCH_VERSION 0
-#endif
-#else
 #include "solarus/core/config.h"
-#endif
 
 /**
  * \cond doxygen_ignore
