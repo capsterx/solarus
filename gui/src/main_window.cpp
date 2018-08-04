@@ -217,9 +217,9 @@ void MainWindow::on_action_add_quest_triggered() {
 
   //Sanitize path
   QString end("data/quest.dat");
-  if(quest_path.endsWith("data/quest.dat")) {
+  if(quest_path.endsWith(end)) {
     //Quest is a folder with a quest.dat
-    quest_path = quest_path.chopped(end.size());
+    quest_path.chop(end.size());
   }
 
   if (ui.quests_view->has_quest(quest_path)) {
