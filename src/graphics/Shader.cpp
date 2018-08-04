@@ -50,7 +50,7 @@ GlContext ctx;
  * \return \c true if GL 2D shaders are supported.
  */
 bool Shader::initialize() {
-#if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_ANDROID || SDL_VIDEO_DRIVER_PANDORA
+#if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
 #define SDL_PROC(ret,func,params) ctx.func=func;
 #else
 #define SDL_PROC(ret,func,params) \

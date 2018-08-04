@@ -72,8 +72,8 @@ static inline Interval axis_projection(const vec2& axis, const Vecs& points) {
   float max = -min;
   for(const auto& p : points) {
     float proj = dot(axis,p);
-    min = std::fmin(min,proj);
-    max = std::fmax(max,proj);
+    min = fmin(min,proj);
+    max = fmax(max,proj);
   }
   return std::make_pair(min,max);
 }
@@ -85,8 +85,8 @@ static inline Interval axis_projection(const vec2& axis, const Vecs& points) {
  * @return true if interval have an intersection
  */
 static inline bool interval_intersect(const Interval& a, const Interval& b) {
-  float max = std::fmin(a.second,b.second);
-  float min = std::fmax(a.first,b.first);
+  float max = fmin(a.second,b.second);
+  float min = fmax(a.first,b.first);
   return max>min;
 }
 
