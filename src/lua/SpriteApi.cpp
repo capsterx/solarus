@@ -55,6 +55,7 @@ void LuaContext::register_sprite_module() {
       { "get_origin", sprite_api_get_origin },
       { "is_paused", sprite_api_is_paused },
       { "set_paused", sprite_api_set_paused },
+      { "get_ignore_suspend", sprite_api_get_ignore_suspend },
       { "set_ignore_suspend", sprite_api_set_ignore_suspend },
       { "synchronize", sprite_api_synchronize },
       { "draw", drawable_api_draw },
@@ -583,6 +584,21 @@ int LuaContext::sprite_api_set_paused(lua_State* l) {
     sprite.set_paused(paused);
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of sprite:get_ignore_suspend().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::sprite_api_get_ignore_suspend(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    std::shared_ptr<Sprite> sprite = check_sprite(l, 1);
+
+    lua_pushboolean(l, sprite->get_ignore_suspend());
+    return 1;
   });
 }
 

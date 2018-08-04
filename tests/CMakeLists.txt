@@ -49,6 +49,7 @@ set(lua_test_maps
   "bugs/845_game_set_suspended"
   "bugs/851_entity_get_sprites"
   "bugs/855_hero_get_sprite_wrong"
+  "bugs/858_movement_get_set_ignore_suspend"
   "bugs/859_crash_game_start"
   "bugs/860_crash_remove_sprite"
   "bugs/861_sprite_set_animation_callback"

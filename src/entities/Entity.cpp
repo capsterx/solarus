@@ -3484,7 +3484,9 @@ void Entity::set_suspended(bool suspended) {
 
   // Suspend/unsuspend the movement.
   if (movement != nullptr) {
-    movement->set_suspended(suspended || !is_enabled());
+    if (!movement->get_ignore_suspend()) {
+      movement->set_suspended(suspended || !is_enabled());
+    }
   }
   if (stream_action != nullptr) {
     stream_action->set_suspended(suspended || !is_enabled());

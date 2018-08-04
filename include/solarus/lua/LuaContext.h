@@ -636,7 +636,8 @@ class LuaContext {
       sprite_api_get_frame_src_xy,
       sprite_api_is_paused,
       sprite_api_set_paused,
-      sprite_api_set_ignore_suspend,  // TODO rename to set_suspended_with_map() like timers
+      sprite_api_get_ignore_suspend,
+      sprite_api_set_ignore_suspend,
       sprite_api_synchronize,
 
       // Shader API.
@@ -656,6 +657,9 @@ class LuaContext {
       movement_api_create,
       movement_api_get_xy,
       movement_api_set_xy,
+      movement_api_is_suspended,
+      movement_api_get_ignore_suspend,
+      movement_api_set_ignore_suspend,
       movement_api_get_ignore_obstacles,
       movement_api_set_ignore_obstacles,
       movement_api_start,

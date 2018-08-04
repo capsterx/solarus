@@ -87,12 +87,15 @@ Changes that do not introduce incompatibilities:
 * Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
 * Add a method sprite:get_frame_src_xy() (#1093).
+* Add a method sprite:get_ignore_suspend().
 * sprite:get_num_frames() can now optionally take an animation and direction.
 * sprite:get_frame_delay() can now optionally take an animation.
 * sprite:get_size() can now optionally take an animation and direction.
 * sprite:get_origin() can now optionally take an animation and direction.
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
+* Add methode movement:is_suspended().
+* Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).

@@ -103,6 +103,9 @@ void LuaContext::register_movement_module() {
       { "set_xy", movement_api_set_xy },
       { "start", movement_api_start },
       { "stop", movement_api_stop },
+      { "is_suspended", movement_api_is_suspended },
+      { "get_ignore_suspend", movement_api_get_ignore_suspend },
+      { "set_ignore_suspend", movement_api_set_ignore_suspend },
       { "get_ignore_obstacles", movement_api_get_ignore_obstacles },
       { "set_ignore_obstacles", movement_api_set_ignore_obstacles },
       { "get_direction4", movement_api_get_direction4 }
@@ -693,6 +696,53 @@ int LuaContext::movement_api_stop(lua_State* l) {
         lua_context.stop_movement_on_point(movement);
       }
     }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of movement:is_suspended().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::movement_api_is_suspended(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+
+    lua_pushboolean(l, movement->is_suspended());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of movement:get_ignore_suspend().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::movement_api_get_ignore_suspend(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+
+    lua_pushboolean(l, movement->get_ignore_suspend());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of movement:set_ignore_suspend().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::movement_api_set_ignore_suspend(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+    bool ignore_suspend = LuaTools::opt_boolean(l, 2, true);
+
+    movement->set_ignore_suspend(ignore_suspend);
 
     return 0;
   });

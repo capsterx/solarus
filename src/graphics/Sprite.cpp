@@ -520,6 +520,15 @@ void Sprite::set_suspended(bool suspended) {
 }
 
 /**
+ * \brief Returns whether this sprite keeps playing when the game is suspended.
+ * \return \c true if the sprite continues its animation even when the game is
+ * suspended.
+ */
+bool Sprite::get_ignore_suspend() const {
+  return ignore_suspend;
+}
+
+/**
  * \brief Sets whether this sprite should keep playing its animation when the game is suspended.
  *
  * This will ignore subsequent calls to set_suspended().
