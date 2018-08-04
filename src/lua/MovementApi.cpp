@@ -839,10 +839,12 @@ int LuaContext::straight_movement_api_get_speed(lua_State* l) {
  */
 int LuaContext::straight_movement_api_set_speed(lua_State* l) {
 
-  StraightMovement& movement = *check_straight_movement(l, 1);
-  int speed = LuaTools::check_int(l, 2);
-  movement.set_speed(speed);
-  return 0;
+  return LuaTools::exception_boundary_handle(l, [&] {
+    StraightMovement& movement = *check_straight_movement(l, 1);
+    int speed = LuaTools::check_int(l, 2);
+    movement.set_speed(speed);
+    return 0;
+  });
 }
 
 /**

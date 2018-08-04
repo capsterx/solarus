@@ -22,6 +22,7 @@ Engine changes
 * Fix random movement giving the same path for all entities on Mac (#1083).
 * Fix circle_movement:get_direction4() not working (#1163).
 * Fix path_movement:get_path() and pixel_movement:get_trajectory() (#1136).
+* Fix straight_movement:set_speed() not handling errors correctly.
 * Fix possible crash when reloading very old savegame files (#1064).
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
