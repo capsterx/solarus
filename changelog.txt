@@ -46,14 +46,14 @@ Engine changes
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix loading quests in non UTF-8 filesystems.
 * Improve Lua error messages.
-* CLI can accept an archive's path as argument
+* CLI can accept an archive's path as argument.
 
 Solarus launcher GUI changes
 ----------------------------
 
 * Lua console: provide variables game, map, entities and tp function.
 * Clear the console when a quest is started.
-* FileDialog now expect a file, either quest.dat or an archive (.solarus, .zip)
+* FileDialog now expects a file, either quest.dat or an archive (.solarus, .zip)
 
 Lua API changes
 ---------------
@@ -83,6 +83,7 @@ Changes that do not introduce incompatibilities:
 * Add methods carried_object:get/set_destruction_sound().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
+* Add methods custom_entity:is/set_tiled() (#1105).
 * Add methods custom_entity:get/set_follow_streams() (#1221).
 * Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
@@ -94,7 +95,7 @@ Changes that do not introduce incompatibilities:
 * sprite:get_origin() can now optionally take an animation and direction.
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
-* Add methode movement:is_suspended().
+* Add method movement:is_suspended().
 * Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
 * Automatically set the language when there is only one in the quest (#1006).
@@ -107,6 +108,7 @@ Data files format changes
 * Maps: add support of custom properties for entities (#1094).
 * Maps: add property tileset to tiles and dynamic tiles (#1174).
 * Maps: add properties origin_x, origin_y to custom entities.
+* Maps: add property tiled to custom entities (#1105).
 * Tilesets: add support of border sets (autotiles) (#1069).
 * Tilesets: add support of custom frame number and delay (#683).
 * Make the tileset entities image optional (#884).

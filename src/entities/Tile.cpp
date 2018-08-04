@@ -36,6 +36,7 @@ Tile::Tile(
   tile_pattern(*tile_info.pattern),
   tileset(*tile_info.tileset) {
 
+  set_tiled(true);
 }
 
 /**

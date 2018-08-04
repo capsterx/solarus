@@ -49,6 +49,7 @@ DynamicTile::DynamicTile(
   tile_pattern(tileset.get_tile_pattern(tile_pattern_id)),
   tileset(tileset) {
 
+  set_tiled(true);
   set_enabled(enabled);
 }
 

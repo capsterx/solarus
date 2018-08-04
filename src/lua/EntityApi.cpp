@@ -568,6 +568,8 @@ void LuaContext::register_entity_module() {
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     custom_entity_methods.insert(custom_entity_methods.end(), {
+        { "is_tiled", custom_entity_api_is_tiled },
+        { "set_tiled", custom_entity_api_set_tiled },
         { "get_follow_streams", custom_entity_api_get_follow_streams },
         { "set_follow_streams", custom_entity_api_set_follow_streams },
     });
@@ -6038,6 +6040,38 @@ int LuaContext::custom_entity_api_set_modified_ground(lua_State* l) {
     }
 
     entity.set_modified_ground(modified_ground);
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of custom_entity:get_tiled().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::custom_entity_api_is_tiled(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomEntity& entity = *check_custom_entity(l, 1);
+
+    lua_pushboolean(l, entity.is_tiled());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of custom_entity:set_tiled().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::custom_entity_api_set_tiled(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomEntity& entity = *check_custom_entity(l, 1);
+    bool tiled = LuaTools::opt_boolean(l, 2, true);
+
+    entity.set_tiled(tiled);
+
     return 0;
   });
 }

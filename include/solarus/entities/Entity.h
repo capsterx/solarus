@@ -111,8 +111,6 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_ground_modifier() const;
     virtual Ground get_modified_ground() const;
     virtual bool can_be_drawn() const;
-    bool is_drawn_in_y_order() const;
-    void set_drawn_in_y_order(bool drawn_in_y_order);
     virtual bool is_drawn_at_its_position() const;
 
     virtual void notify_command_pressed(GameCommand command);
@@ -224,6 +222,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_sprite_animation_finished(Sprite& sprite, const std::string& animation);
     bool is_visible() const;
     void set_visible(bool visible);
+    bool is_tiled() const;
+    void set_tiled(bool tiled);
+    bool is_drawn_in_y_order() const;
+    void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
     void update_sprite(Sprite& sprite);
 
@@ -482,6 +484,7 @@ class SOLARUS_API Entity: public ExportableToLua {
         sprites;                                /**< Sprites representing the entity. */
     std::string default_sprite_name;            /**< Name of the sprite to get in get_sprite() without parameter. */
     bool visible;                               /**< Whether this entity's sprites are currently displayed. */
+    bool tiled;                                 /**< Whether sprites should be repeated with tiling. */
     bool drawn_in_y_order;                      /**< Whether this entity is drawn in Y order or in Z order. */
     std::shared_ptr<Movement> movement;         /**< Movement of the entity.
                                                  * nullptr indicates that the entity has no movement. */

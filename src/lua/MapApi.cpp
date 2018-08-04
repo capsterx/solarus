@@ -1213,6 +1213,7 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
         data.get_string("sprite"),
         data.get_string("model")
     );
+    entity->set_tiled(data.get_boolean("tiled"));
     entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {

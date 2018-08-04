@@ -74,6 +74,7 @@ Entity::Entity(
   sprites(),
   default_sprite_name(),
   visible(true),
+  tiled(false),
   drawn_in_y_order(false),
   movement(nullptr),
   movement_notifications_enabled(true),
@@ -255,32 +256,6 @@ void Entity::update_ground_below() {
  */
 bool Entity::can_be_drawn() const {
   return true;
-}
-
-/**
- * \brief Returns whether this entity has to be drawn in y order.
- *
- * This function returns whether an entity of this type should be drawn above
- * the hero and other entities having this property when it is in front of them.
- * This means that the displaying order of entities having this
- * feature depends on their y position. The entities without this feature
- * are drawn in the normal order (i.e. in the order of their creation),
- * and before the entities with this feature.
- *
- * \return \c true if this type of entity should be drawn at the same level
- * as the hero.
- */
-bool Entity::is_drawn_in_y_order() const {
-  return drawn_in_y_order;
-}
-
-/**
- * \brief Sets whether this entity should be drawn in y order.
- * \param drawn_in_y_order \c true to draw this entity at the same level
- * as the hero.
- */
-void Entity::set_drawn_in_y_order(bool drawn_in_y_order) {
-  this->drawn_in_y_order = drawn_in_y_order;
 }
 
 /**
@@ -1564,6 +1539,48 @@ bool Entity::is_visible() const {
  */
 void Entity::set_visible(bool visible) {
   this->visible = visible;
+}
+
+/**
+ * \brief Returns whether sprites this entity should repeat with tiling.
+ * \return \c true if sprites are tiled.
+ */
+bool Entity::is_tiled() const {
+  return tiled;
+}
+
+/**
+ * \brief Sets whether sprites this entity should repeat with tiling.
+ * \param tiled \c true to make sprites tiled.
+ */
+void Entity::set_tiled(bool tiled) {
+  this->tiled = tiled;
+}
+
+/**
+ * \brief Returns whether this entity has to be drawn in y order.
+ *
+ * This function returns whether an entity of this type should be drawn above
+ * the hero and other entities having this property when it is in front of them.
+ * This means that the displaying order of entities having this
+ * feature depends on their y position. The entities without this feature
+ * are drawn in the normal order (i.e. in the order of their creation),
+ * and before the entities with this feature.
+ *
+ * \return \c true if this type of entity should be drawn at the same level
+ * as the hero.
+ */
+bool Entity::is_drawn_in_y_order() const {
+  return drawn_in_y_order;
+}
+
+/**
+ * \brief Sets whether this entity should be drawn in y order.
+ * \param drawn_in_y_order \c true to draw this entity at the same level
+ * as the hero.
+ */
+void Entity::set_drawn_in_y_order(bool drawn_in_y_order) {
+  this->drawn_in_y_order = drawn_in_y_order;
 }
 
 /**
@@ -3645,13 +3662,33 @@ bool Entity::is_drawn_at_its_position() const {
  */
 void Entity::draw_on_map() {
 
+  const Point& xy = get_displayed_xy();
+  const Size& size = get_size();
+
   // Draw the sprites.
   for (const NamedSprite& named_sprite: sprites) {
     if (named_sprite.removed) {
       continue;
     }
     Sprite& sprite = *named_sprite.sprite;
-    get_map().draw_visual(sprite, get_displayed_xy());
+
+    if (!is_tiled()) {
+      get_map().draw_visual(sprite, xy);
+    }
+    else {
+      // Repeat the sprite with tiling.
+      const Size& sprite_size = sprite.get_size();
+      int x1 = xy.x;
+      int y1 = xy.y;
+      int x2 = x1 + size.width;
+      int y2 = y1 + size.height;
+
+      for (int y = y1; y < y2; y += sprite_size.height) {
+        for (int x = x1; x < x2; x += sprite_size.width) {
+          get_map().draw_visual(sprite, x, y);
+        }
+      }
+    }
   }
 }
 

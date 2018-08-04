@@ -40,6 +40,7 @@ CrystalBlock::CrystalBlock(Game& game, const std::string& name,
   Entity(name, 0, layer, xy, size),
   subtype(subtype) {
 
+  set_tiled(true);
   set_collision_modes(CollisionMode::COLLISION_OVERLAPPING);
   Sprite& sprite = *create_sprite("entities/crystal_block");
 
@@ -202,30 +203,6 @@ void CrystalBlock::update() {
   }
 
   Entity::update();
-}
-
-/**
- * \brief Draws the entity on the map.
- *
- * This is a redefinition of Entity::draw_on_map to repeat the block pattern.
- */
-void CrystalBlock::draw_on_map() {
-
-  const SpritePtr& sprite = get_sprite();
-  if (sprite == nullptr) {
-    return;
-  }
-
-  int x1 = get_top_left_x();
-  int y1 = get_top_left_y();
-  int x2 = x1 + get_width();
-  int y2 = y1 + get_height();
-
-  for (int y = y1; y < y2; y += 16) {
-    for (int x = x1; x < x2; x += 16) {
-      get_map().draw_visual(*sprite, x, y);
-    }
-  }
 }
 
 }

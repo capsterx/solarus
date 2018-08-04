@@ -249,6 +249,7 @@ const std::map<EntityType, const EntityTypeDescription> entity_type_descriptions
             { "origin_y", OptionalFlag::OPTIONAL, FieldValue(13) },
             { "direction", OptionalFlag::MANDATORY, FieldValue(0) },
             { "sprite", OptionalFlag::OPTIONAL, FieldValue("") },
+            { "tiled", OptionalFlag::OPTIONAL, FieldValue(false) },
             { "model", OptionalFlag::OPTIONAL, FieldValue("") },
         }
     },

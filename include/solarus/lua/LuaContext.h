@@ -1077,6 +1077,8 @@ class LuaContext {
       custom_entity_api_get_model,
       custom_entity_api_get_direction,
       custom_entity_api_set_direction,
+      custom_entity_api_is_tiled,
+      custom_entity_api_set_tiled,
       custom_entity_api_set_traversable_by,
       custom_entity_api_set_can_traverse,
       custom_entity_api_can_traverse_ground,
