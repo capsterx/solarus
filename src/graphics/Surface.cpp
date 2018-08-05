@@ -29,8 +29,8 @@
 #include "solarus/graphics/Shader.h"
 
 #include <algorithm>
-#include <memory>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 
 #include <SDL_render.h>
@@ -42,6 +42,7 @@ Surface::SurfaceDraw Surface::draw_proxy;
 
 namespace {
 
+std::mutex image_files_cache_mutex;
 std::map<std::string, SurfaceImplPtr> image_files_cache;
 
 }
@@ -81,8 +82,8 @@ Surface::Surface(int width, int height, bool premultiplied):
  *
  * \param surf The internal surface data.
  */
-Surface::Surface(SDL_Surface* surf, bool premultiplied)
-  : internal_surface(new Texture(surf))
+Surface::Surface(SDL_Surface_UniquePtr surf, bool premultiplied)
+  : internal_surface(new Texture(std::move(surf)))
 {
   internal_surface->set_premultiplied(premultiplied);
 }
@@ -125,7 +126,7 @@ SurfacePtr Surface::create(int width, int height, bool premultiplied) {
  * \param size The size in pixels.
  * \return The created surface.
  */
-SurfacePtr Surface::create(const Size& size,bool premultiplied) {
+SurfacePtr Surface::create(const Size& size, bool premultiplied) {
   SurfacePtr surface = std::make_shared<Surface>(size.width, size.height, premultiplied);
   return surface;
 }
@@ -144,13 +145,31 @@ SurfacePtr Surface::create(const std::string& file_name,
                            ImageDirectory base_directory,
                            bool premultiplied) {
 
-  SurfaceImplPtr surface = get_surface_from_file(file_name, base_directory);
+  SurfaceImplPtr impl = get_surface_from_file(file_name, base_directory);
 
-  if (surface == nullptr) {
+  if (impl == nullptr) {
     return nullptr;
   }
 
-  return std::make_shared<Surface>(surface, premultiplied);
+  return Surface::create(impl, premultiplied);
+}
+
+/**
+ * \brief Creates a surface form an existing surface implementation.
+ * \param impl The internal surface data.
+ * \return The surface created.
+ */
+SurfacePtr Surface::create(SurfaceImplPtr impl, bool premultiplied) {
+  return std::make_shared<Surface>(impl, premultiplied);
+}
+
+/**
+ * \brief Creates a surface form the specified SDL texture.
+ * \param surf The internal surface data.
+ * \return The surface created.
+ */
+SurfacePtr Surface::create(SDL_Surface_UniquePtr surf, bool premultiplied) {
+  return std::make_shared<Surface>(std::move(surf), premultiplied);
 }
 
 /**
@@ -158,9 +177,47 @@ SurfacePtr Surface::create(const std::string& file_name,
  *
  * The returned SDL surface has to be manually deleted.
  *
+ * \param file_name Name of the image file to load, relative to the quest data directory.
+ * \return The SDL surface created, or nullptr if it could not be read.
+ */
+SDL_Surface_UniquePtr Surface::create_sdl_surface_from_file(
+    const std::string& file_name) {
+
+  if (!QuestFiles::data_file_exists(file_name)) {
+    return nullptr;
+  }
+
+  const std::string& buffer = QuestFiles::data_file_read(file_name);
+  SDL_RWops* rw = SDL_RWFromMem(const_cast<char*>(buffer.data()), (int) buffer.size());
+  SDL_Surface_UniquePtr surface = SDL_Surface_UniquePtr(IMG_Load_RW(rw, 0));
+  SDL_RWclose(rw);
+
+  Debug::check_assertion(surface != nullptr,
+                         std::string("Cannot load image '") + file_name + "'");
+
+  SDL_PixelFormat* pixel_format = Video::get_rgba_format();
+  if (surface->format->format == pixel_format->format) {
+    return surface;
+  }
+
+  // Convert to the preferred pixel format.
+  uint8_t opacity;
+  SDL_GetSurfaceAlphaMod(surface.get(), &opacity);
+  SDL_Surface_UniquePtr converted_surface = SDL_Surface_UniquePtr(SDL_ConvertSurface(
+        surface.get(),
+        pixel_format,
+        0
+  ));
+  Debug::check_assertion(converted_surface != nullptr,
+                         std::string("Failed to convert software surface: ") + SDL_GetError());
+  return converted_surface;
+}
+
+/**
+ * \brief Creates a surface implemetation corresponding to the requested file.
  * \param file_name Name of the image file to load, relative to the base directory specified.
  * \param base_directory The base directory to use.
- * \return The SDL surface created.
+ * \return The surface created.
  */
 SurfaceImplPtr Surface::get_surface_from_file(
     const std::string& file_name,
@@ -186,37 +243,14 @@ SurfaceImplPtr Surface::get_surface_from_file(
 
   SurfaceImplPtr texture;
 
+  std::lock_guard<std::mutex> lock(image_files_cache_mutex);
+
   auto it = image_files_cache.find(actual_file_name);
   if (it != image_files_cache.end()) {
     texture = it->second;
   } else {
-    const std::string& buffer = QuestFiles::data_file_read(actual_file_name);
-    SDL_RWops* rw = SDL_RWFromMem(const_cast<char*>(buffer.data()), (int) buffer.size());
-    SDL_Surface* surface = IMG_Load_RW(rw, 0);
-    SDL_RWclose(rw);
-
-    Debug::check_assertion(surface != nullptr,
-                           std::string("Cannot load image '") + prefixed_file_name + "'");
-
-    SDL_PixelFormat* pixel_format = Video::get_rgba_format();
-    if (surface->format->format == pixel_format->format) {
-      texture = SurfaceImplPtr(new Texture(surface));
-    }
-    else {
-      // Convert to the preferred pixel format.
-      uint8_t opacity;
-      SDL_GetSurfaceAlphaMod(surface, &opacity);
-      SDL_Surface* converted_surface = SDL_ConvertSurface(
-            surface,
-            pixel_format,
-            0
-      );
-      Debug::check_assertion(converted_surface != nullptr,
-                             std::string("Failed to convert software surface: ") + SDL_GetError());
-      SDL_FreeSurface(surface);
-
-      texture = SurfaceImplPtr(new Texture(converted_surface));
-    }
+    texture = std::shared_ptr<SurfaceImpl>(
+          new Texture(create_sdl_surface_from_file(actual_file_name)));
     image_files_cache[actual_file_name] = texture;
   }
   return texture;
@@ -305,27 +339,26 @@ void Surface::set_pixels(const std::string& buffer) {
     internal_surface->upload_surface();
     return;
   }
-  //Backup strat, heavy recreation of surface impl, should never happen
+  // Backup strat, heavy recreation of surface impl, should never happen
   SDL_PixelFormat* format_rgba = Video::get_rgba_format();
-  SDL_Surface* rgba_surf = SDL_CreateRGBSurfaceFrom(
-                                    const_cast<char*>(buffer.data()),
-                                    get_width(),
-                                    get_height(),
-                                    format_rgba->BitsPerPixel,
-                                    format_rgba->BytesPerPixel * get_width(),
-                                    format_rgba->Rmask,
-                                    format_rgba->Gmask,
-                                    format_rgba->Bmask,
-                                    format_rgba->Amask
-                                    );
-  internal_surface.reset(new Texture(rgba_surf));
+  internal_surface = std::make_shared<Texture>(SDL_Surface_UniquePtr(SDL_CreateRGBSurfaceFrom(
+      const_cast<char*>(buffer.data()),
+      get_width(),
+      get_height(),
+      format_rgba->BitsPerPixel,
+      format_rgba->BytesPerPixel * get_width(),
+      format_rgba->Rmask,
+      format_rgba->Gmask,
+      format_rgba->Bmask,
+      format_rgba->Amask
+  )));
 }
 
 /**
  * @brief Ensure surfaceimpl is a RenderTexture, converting if necessary
  * @return a reference to the RenderTexture
  */
-RenderTexture &Surface::request_render() {
+RenderTexture& Surface::request_render() {
   SurfaceImpl* old = internal_surface.get();
   RenderTexture* rt = internal_surface->to_render_texture();
   if(old != rt) {

@@ -13,7 +13,7 @@ namespace Solarus {
 class Texture : public SurfaceImpl
 {
 public:
-    Texture(SDL_Surface* surface);
+    explicit Texture(SDL_Surface_UniquePtr surface);
     SDL_Texture* get_texture() const override;
     SDL_Surface* get_surface() const override;
 

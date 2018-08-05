@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/core/ResourceProvider.h"
+#include "solarus/core/QuestDatabase.h"
 
 namespace Solarus {
 
@@ -25,10 +27,43 @@ ResourceProvider::ResourceProvider() {
 }
 
 /**
+ * \brief Preloads resources in background in a separate thread.
+ */
+void ResourceProvider::start_preloading_resources() {
+
+  // Put all tilesets in the cache, without loading them yet.
+  const QuestDatabase& database = CurrentQuest::get_database();
+  const QuestDatabase::ResourceMap& tileset_ids = database.get_resource_elements(ResourceType::TILESET);
+  std::vector<std::shared_ptr<Tileset>> tilesets_to_preload;
+  for (const auto& pair : tileset_ids) {
+    const std::string& tileset_id = pair.first;
+    std::shared_ptr<Tileset> tileset = std::make_shared<Tileset>(tileset_id);
+    tileset_cache.emplace(tileset_id, tileset);
+    tilesets_to_preload.emplace_back(tileset);
+  }
+
+  // Start loading them in a separate thread.
+  preloader_thread = std::thread([this, tilesets_to_preload]() {
+
+    for (const std::shared_ptr<Tileset>& tileset : tilesets_to_preload) {
+      if (tileset_cache.empty()) {
+        // clear() was probably called in the meantime.
+        // No reason to continue.
+        return;
+      }
+      tileset->load();
+      std::this_thread::yield();
+    }
+  });
+}
+
+/**
  * \brief Clears all stored resources.
  */
 void ResourceProvider::clear() {
+
   tileset_cache.clear();
+  preloader_thread.join();
 }
 
 /**
@@ -38,18 +73,19 @@ void ResourceProvider::clear() {
  */
 Tileset& ResourceProvider::get_tileset(const std::string& tileset_id) {
 
+  std::shared_ptr<Tileset> tileset;
   auto it = tileset_cache.find(tileset_id);
-  if (it != tileset_cache.end()) {
-    return *it->second;
+  if (it->second != nullptr) {
+    tileset = it->second;
+  }
+  else {
+    tileset = std::make_shared<Tileset>(tileset_id);
+    tileset_cache.emplace(tileset_id, tileset);
   }
 
-  it = tileset_cache.emplace(
-        tileset_id,
-        std::unique_ptr<Tileset>(new Tileset(tileset_id))
-  ).first;
-  Tileset& tileset = *it->second;
-  tileset.load();
-  return tileset;
+  tileset->load();
+
+  return *tileset;
 }
 
 /**
@@ -67,7 +103,9 @@ void ResourceProvider::invalidate_resource_element(
   switch (resource_type) {
 
   case ResourceType::TILESET:
+  {
     tileset_cache.erase(element_id);
+  }
     break;
 
   default:
