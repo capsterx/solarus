@@ -218,7 +218,9 @@ const SurfacePtr& Tileset::get_tiles_image() const {
     if (tiles_image_soft == nullptr) {
       tiles_image = Surface::create(16, 16);
     }
-    tiles_image = Surface::create(std::move(tiles_image_soft));
+    else {
+      tiles_image = Surface::create(std::move(tiles_image_soft));
+    }
     tiles_image_soft = nullptr;
   }
 
@@ -236,8 +238,10 @@ const SurfacePtr& Tileset::get_entities_image() const {
     if (entities_image_soft == nullptr) {
       entities_image = Surface::create(16, 16);
     }
-    tiles_image = Surface::create(std::move(entities_image_soft));
-    tiles_image = nullptr;
+    else {
+      entities_image = Surface::create(std::move(entities_image_soft));
+    }
+    entities_image_soft = nullptr;
   }
   return entities_image;
 }
