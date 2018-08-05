@@ -503,7 +503,6 @@ void TextSurface::rebuild_ttf() {
 
   // create the text surface
 
-  SDL_Surface* internal_surface = nullptr;
   TTF_Font& internal_font = FontResource::get_outline_font(font_id, font_size);
   SDL_Color internal_color;
   text_color.get_components(
@@ -512,20 +511,15 @@ void TextSurface::rebuild_ttf() {
   switch (rendering_mode) {
 
   case RenderingMode::SOLID:
-    internal_surface = TTF_RenderUTF8_Solid(&internal_font, text.c_str(), internal_color);
+    surface = Surface::create(SDL_Surface_UniquePtr(
+        TTF_RenderUTF8_Solid(&internal_font, text.c_str(), internal_color)));
     break;
 
   case RenderingMode::ANTIALIASING:
-    internal_surface = TTF_RenderUTF8_Blended(&internal_font, text.c_str(), internal_color);
+    surface = Surface::create(SDL_Surface_UniquePtr(
+        TTF_RenderUTF8_Blended(&internal_font, text.c_str(), internal_color)));
     break;
   }
-
-  Debug::check_assertion(internal_surface != nullptr,
-      std::string("Cannot create the text surface for string '") + text + "': "
-      + SDL_GetError()
-  );
-
-  surface = std::make_shared<Surface>(internal_surface);
 }
 
 /**

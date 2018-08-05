@@ -157,6 +157,7 @@ std::string get_quest_path(const Arguments& args) {
  */
 MainLoop::MainLoop(const Arguments& args):
   lua_context(nullptr),
+  resource_provider(),
   root_surface(nullptr),
   game(nullptr),
   next_game(nullptr),
@@ -227,7 +228,10 @@ MainLoop::MainLoop(const Arguments& args):
     Logger::info("Turbo mode: no");
   }
 
-  // Finally show the window.
+  // Start loading resources in background.
+  resource_provider.start_preloading_resources();
+
+  // Show the window.
   Video::show_window();
 }
 
@@ -573,7 +577,6 @@ void MainLoop::load_quest_properties() {
       properties.get_min_quest_size(),
       properties.get_max_quest_size()
   );
-
 }
 
 /**

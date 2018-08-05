@@ -943,7 +943,8 @@ Size get_letter_box(const Size& basesize) {
  */
 void on_window_resized(const Size& size) {
   Size letter = get_letter_box(size);
-  context.screen_surface = std::make_shared<Surface>(new RenderTexture(nullptr,letter.width,letter.height));
+  SurfaceImplPtr surface_impl(new RenderTexture(nullptr, letter.width,letter.height));
+  context.screen_surface = Surface::create(surface_impl);
   context.logical_size = letter;
   SDL_RenderSetLogicalSize(
       context.main_renderer,

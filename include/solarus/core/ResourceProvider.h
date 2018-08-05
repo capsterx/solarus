@@ -23,6 +23,7 @@
 #include "solarus/entities/TilePattern.h"
 #include <map>
 #include <memory>
+#include <thread>
 #include <string>
 
 namespace Solarus {
@@ -42,12 +43,17 @@ class SOLARUS_API ResourceProvider {
 
     Tileset& get_tileset(const std::string& tileset_id);
     // TODO other types of resources
+    // TODO clear/update when the resource list changes dynamically
 
     void invalidate_resource_element(ResourceType resource_type, const std::string& element_id);
 
+    void start_preloading_resources();
+
   private:
 
-    std::map<std::string, std::unique_ptr<Tileset>> tileset_cache;          /**< Cache of loaded tilesets. */
+    std::thread preloader_thread;  /**< Thread that loads resources in background. */
+    std::map<std::string, std::shared_ptr<Tileset>>
+        tileset_cache;             /**< Cache of loaded tilesets. */
 };
 
 }

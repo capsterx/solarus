@@ -24,7 +24,6 @@
 #include "solarus/graphics/SurfaceImpl.h"
 #include "solarus/graphics/SDLPtrs.h"
 
-
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -47,9 +46,9 @@ class Surface;
 class Surface: public Drawable {
 
     friend class Shader;
-    friend class VertexArray; //TODO find cleaner way
+    friend class VertexArray; // TODO find cleaner way
+
   public:
-    using SurfaceImpl_UniquePtr = std::unique_ptr<SurfaceImpl>;
 
     /**
      * @brief terminal DrawProxy for simple surface draw
@@ -57,6 +56,7 @@ class Surface: public Drawable {
     struct SurfaceDraw : public DrawProxy {
       virtual void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& params) const override;
     };
+
     /**
      * \brief The base directory to use when opening image files.
      */
@@ -66,20 +66,22 @@ class Surface: public Drawable {
       DIR_LANGUAGE     /**< The language-specific image directory of the data package, for the current language. */
     };
 
+    explicit Surface(SurfaceImplPtr impl, bool premultiplied = false);
+    explicit Surface(SDL_Surface_UniquePtr surf, bool premultiplied = false);
     Surface(int width, int height, bool premultiplied = false);
-    explicit Surface(SurfaceImpl* impl, bool premultiplied = false);
-    Surface(SDL_Surface* surf, bool premultiplied = false);
+
     ~Surface();
 
-    // Surfaces should only created with std::make_shared.
-    // This is what create() functions do, so you should call them rather than
-    // constructors.
-    // This is because they are always reference-counted with shared_ptr
-    // internally for drawing.
     static SurfacePtr create(int width, int height, bool premultiplied = false);
     static SurfacePtr create(const Size& size, bool premultiplied = false);
     static SurfacePtr create(const std::string& file_name,
         ImageDirectory base_directory = DIR_SPRITES, bool premultiplied = false);
+    static SurfacePtr create(SurfaceImplPtr impl, bool premultiplied = false);
+    static SurfacePtr create(SDL_Surface_UniquePtr surf, bool premultiplied = false);
+
+    static SDL_Surface_UniquePtr create_sdl_surface_from_file(
+        const std::string& file_name
+    );
 
     int get_width() const;
     int get_height() const;
@@ -90,16 +92,16 @@ class Surface: public Drawable {
     void fill_with_color(const Color& color);
     void fill_with_color(const Color& color, const Rectangle& where);
 
-    SurfaceImpl &get_internal_surface();
-    const SurfaceImpl &get_internal_surface() const;
-    RenderTexture &request_render();
+    SurfaceImpl& get_internal_surface();
+    const SurfaceImpl& get_internal_surface() const;
+    RenderTexture& request_render();
 
     bool is_pixel_transparent(int index) const;
 
     std::string get_pixels() const;
     void set_pixels(const std::string& buffer);
 
-    void render(SDL_Renderer *&renderer);
+    void render(SDL_Renderer*& renderer);
 
     // Implementation from Drawable.
     virtual void raw_draw(
@@ -122,18 +124,17 @@ class Surface: public Drawable {
     const std::string& get_lua_type_name() const override;
 
     static SurfaceDraw draw_proxy;
+
   private:
+
     uint32_t get_pixel(int index) const;
     uint32_t get_color_value(const Color& color) const;
 
-
-    static SurfaceImpl* get_surface_from_file(
+    static SurfaceImplPtr get_surface_from_file(
         const std::string& file_name,
         ImageDirectory base_directory);
 
-
-    SurfaceImpl_UniquePtr
-        internal_surface;                 /**< The SDL_Surface encapsulated. */
+    SurfaceImplPtr internal_surface;                 /**< The SDL_Surface encapsulated. */
 };
 
 }

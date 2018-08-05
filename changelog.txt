@@ -8,6 +8,7 @@ Engine changes
 
 * Solarus 1.5 quests are still supported by Solarus 1.6.
 * Add support of OpenGL shaders (#394) by stdgregwar, Vlag and Christopho.
+* Improve the performance of loading images.
 * Maps can now use multiple tilesets (#1174).
 * Animated tile patterns can now have any frame number and delay (#683).
 * Treasure dialogs are now optional (#1076).

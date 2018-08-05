@@ -4,6 +4,7 @@
 #include "solarus/core/Point.h"
 
 #include <SDL_render.h>
+#include <memory>
 
 namespace Solarus {
 
@@ -63,12 +64,14 @@ public:
      * @brief return a, potentialy new, RenderTexture implementation
      * @return valid render texture
      */
-    virtual  RenderTexture* to_render_texture() = 0;
+    virtual RenderTexture* to_render_texture() = 0;
 
     bool is_premultiplied() const;
     void set_premultiplied(bool a_premultiplied);
 private:
     bool premultiplied = false;
 };
+
+using SurfaceImplPtr = std::shared_ptr<SurfaceImpl>;
 
 }
