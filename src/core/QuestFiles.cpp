@@ -239,16 +239,11 @@ SOLARUS_API DataFileLocation data_file_get_location(
     return DataFileLocation::LOCATION_WRITE_DIRECTORY;
   }
 
-  if (path.rfind("data") == path.size() - 4) {
+  if (path.rfind("/data") == path.size() - 5) {
     return DataFileLocation::LOCATION_DATA_DIRECTORY;
   }
 
-  if (path.rfind("data.solarus") == path.size() - 12
-      || path.rfind("data.solarus.zip") == path.size() - 16) {
-    return DataFileLocation::LOCATION_DATA_ARCHIVE;
-  }
-
-  Debug::die(std::string("Unexpected search path element: " + path));
+  return DataFileLocation::LOCATION_DATA_ARCHIVE;
 }
 
 /**
