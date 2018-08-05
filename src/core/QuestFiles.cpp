@@ -260,31 +260,21 @@ SOLARUS_API DataFileLocation data_file_get_location(
  * language directory.
  * \return \c true if this file exists.
  */
-SOLARUS_API bool data_file_exists(const std::string& file_name,
-    bool language_specific) {
-
-  std::string full_file_name;
-  if (language_specific) {
-    if (CurrentQuest::get_language().empty()) {
-      return false;
-    }
-    full_file_name = std::string("languages/") +
-        CurrentQuest::get_language() + "/" + file_name;
-  }
-  else {
-    full_file_name = file_name;
-  }
-
-  return PHYSFS_exists(full_file_name.c_str());
+SOLARUS_API bool data_file_exists(
+    const std::string& file_name,
+    bool language_specific
+) {
+  const std::string& actual_file_name = get_actual_file_name(file_name, language_specific);
+  return PHYSFS_exists(actual_file_name.c_str());
 }
 
 /**
- * \brief Opens a data file an loads its content into memory.
- * \param file_name Name of the file to open.
- * \param language_specific \c true if the file is specific to the current language.
- * \return The content of the file.
+ * \brief Returns a file name after resolving whether it is a language-specific one.
+ * \param file_name The file name possibly relative to the current language.
+ * \param language_specific \c true if the file name is relative to the current language.
+ * \return \c The actual file name.
  */
-SOLARUS_API std::string data_file_read(
+SOLARUS_API std::string get_actual_file_name(
     const std::string& file_name,
     bool language_specific
 ) {
@@ -301,19 +291,30 @@ SOLARUS_API std::string data_file_read(
     full_file_name = file_name;
   }
 
-  // open the file
-  Debug::check_assertion(PHYSFS_exists(full_file_name.c_str()),
-      std::string("Data file '") + full_file_name + "' does not exist"
+  return full_file_name;
+}
+
+/**
+ * \brief Opens a data file an loads its content into memory.
+ * \param file_name Name of the file to open.
+ * \return The content of the file.
+ */
+SOLARUS_API std::string data_file_read(
+    const std::string& file_name
+) {
+  // Open the file.
+  Debug::check_assertion(PHYSFS_exists(file_name.c_str()),
+      std::string("Data file '") + file_name + "' does not exist"
   );
-  Debug::check_assertion(!PHYSFS_isDirectory(full_file_name.c_str()),
-      std::string("Data file '") + full_file_name + "' is a directory"
+  Debug::check_assertion(!PHYSFS_isDirectory(file_name.c_str()),
+      std::string("Data file '") + file_name + "' is a directory"
   );
-  PHYSFS_file* file = PHYSFS_openRead(full_file_name.c_str());
+  PHYSFS_file* file = PHYSFS_openRead(file_name.c_str());
   Debug::check_assertion(file != nullptr,
-      std::string("Cannot open data file '") + full_file_name + "'"
+      std::string("Cannot open data file '") + file_name + "'"
   );
 
-  // load it into memory
+  // Load it into memory.
   size_t size =  static_cast<size_t>(PHYSFS_fileLength(file));
   std::vector<char> buffer(size);
 
@@ -321,6 +322,19 @@ SOLARUS_API std::string data_file_read(
   PHYSFS_close(file);
 
   return std::string(buffer.data(), size);
+}
+
+/**
+ * \brief Opens a data file an loads its content into memory.
+ * \param file_name Name of the file to open.
+ * \param language_specific \c true if the file is specific to the current language.
+ * \return The content of the file.
+ */
+SOLARUS_API std::string data_file_read(
+    const std::string& file_name,
+    bool language_specific
+) {
+  return data_file_read(get_actual_file_name(file_name, language_specific));
 }
 
 /**

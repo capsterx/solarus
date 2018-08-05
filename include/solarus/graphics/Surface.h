@@ -24,7 +24,6 @@
 #include "solarus/graphics/SurfaceImpl.h"
 #include "solarus/graphics/SDLPtrs.h"
 
-
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -47,9 +46,9 @@ class Surface;
 class Surface: public Drawable {
 
     friend class Shader;
-    friend class VertexArray; //TODO find cleaner way
+    friend class VertexArray; // TODO find cleaner way
+
   public:
-    using SurfaceImpl_UniquePtr = std::unique_ptr<SurfaceImpl>;
 
     /**
      * @brief terminal DrawProxy for simple surface draw
@@ -57,6 +56,7 @@ class Surface: public Drawable {
     struct SurfaceDraw : public DrawProxy {
       virtual void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& params) const override;
     };
+
     /**
      * \brief The base directory to use when opening image files.
      */
@@ -67,7 +67,7 @@ class Surface: public Drawable {
     };
 
     Surface(int width, int height, bool premultiplied = false);
-    explicit Surface(SurfaceImpl* impl, bool premultiplied = false);
+    explicit Surface(SurfaceImplPtr impl, bool premultiplied = false);
     Surface(SDL_Surface* surf, bool premultiplied = false);
     ~Surface();
 
@@ -122,18 +122,16 @@ class Surface: public Drawable {
     const std::string& get_lua_type_name() const override;
 
     static SurfaceDraw draw_proxy;
+
   private:
     uint32_t get_pixel(int index) const;
     uint32_t get_color_value(const Color& color) const;
 
-
-    static SurfaceImpl* get_surface_from_file(
+    static SurfaceImplPtr get_surface_from_file(
         const std::string& file_name,
         ImageDirectory base_directory);
 
-
-    SurfaceImpl_UniquePtr
-        internal_surface;                 /**< The SDL_Surface encapsulated. */
+    SurfaceImplPtr internal_surface;                 /**< The SDL_Surface encapsulated. */
 };
 
 }
