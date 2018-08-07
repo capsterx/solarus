@@ -140,7 +140,7 @@ bool call_function(
   lua_pushcfunction(l, &LuaContext::l_backtrace);
   lua_insert(l, base);
   int status = lua_pcall(l, nb_arguments, nb_results, base);
-  lua_remove(l,base);
+  lua_remove(l, base);
   if (status != 0) {
     Debug::error(std::string("In ") + function_name + ": "
         + lua_tostring(l, -1)

@@ -3059,20 +3059,18 @@ int LuaContext::l_loader(lua_State* l) {
 int LuaContext::l_backtrace(lua_State* l) {
 
   if (!lua_isstring(l, 1)) {
-    lua_pushnil(l);
+    push_string(l, "Unknown error");
     return 1;
   }
   lua_getglobal(l, "debug");
   if (!lua_istable(l, -1)) {
-      lua_pop(l, 1);
-      lua_pushnil(l);
-      return 1;
+    lua_pushvalue(l, 1);  // Return the original error message.
+    return 1;
   }
   lua_getfield(l, -1, "traceback");
   if (!lua_isfunction(l, -1)) {
-      lua_pop(l, 2);
-      lua_pushnil(l);
-      return 1;
+    lua_pushvalue(l, 1);  // Return the original error message.
+    return 1;
   }
   lua_pushvalue(l, 1);    // pass error message
   lua_call(l, 1, 1);      // call debug.traceback
