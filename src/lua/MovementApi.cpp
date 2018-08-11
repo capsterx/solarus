@@ -452,7 +452,6 @@ void LuaContext::start_movement_on_point(
                                   // ... movements movement xy 0
     lua_setfield(l, -2, "y");
                                   // ... movements movement xy
-    movement->set_y(0);
   }
   else {
                                   // ... movements movement xy y
@@ -466,6 +465,9 @@ void LuaContext::start_movement_on_point(
   lua_pop(l, 1);
                                   // ...
   movement->set_xy(x, y);
+
+  // Tell the movement it is now controlling this table.
+  movement->notify_object_controlled();
 }
 
 /**
