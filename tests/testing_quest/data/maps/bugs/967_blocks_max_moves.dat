@@ -2,7 +2,7 @@ properties{
   x = 0,
   y = 0,
   width = 320,
-  height = 320,
+  height = 240,
   min_layer = 0,
   max_layer = 2,
   tileset = "castle",
@@ -13,7 +13,7 @@ tile{
   x = 0,
   y = 0,
   width = 320,
-  height = 320,
+  height = 240,
   pattern = "3",
 }
 
@@ -37,7 +37,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 96,
+  x = 80,
   y = 176,
   width = 16,
   height = 16,
@@ -46,7 +46,7 @@ tile{
 
 tile{
   layer = 0,
-  x = 128,
+  x = 112,
   y = 224,
   width = 16,
   height = 16,
@@ -57,7 +57,7 @@ sensor{
   name = "block_target_4",
   layer = 0,
   x = 40,
-  y = 77,
+  y = 61,
   width = 16,
   height = 16,
 }
@@ -134,7 +134,7 @@ block{
   name = "block_4",
   layer = 0,
   x = 40,
-  y = 77,
+  y = 61,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
@@ -145,7 +145,7 @@ block{
   name = "block_5",
   layer = 0,
   x = 72,
-  y = 77,
+  y = 61,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
@@ -156,7 +156,7 @@ block{
   name = "block_6",
   layer = 0,
   x = 72,
-  y = 93,
+  y = 77,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
@@ -167,7 +167,7 @@ sensor{
   name = "block_target_5",
   layer = 0,
   x = 88,
-  y = 77,
+  y = 61,
   width = 16,
   height = 16,
 }
@@ -185,7 +185,7 @@ sensor{
   name = "block_target_7",
   layer = 0,
   x = 56,
-  y = 125,
+  y = 109,
   width = 16,
   height = 16,
 }
@@ -193,23 +193,14 @@ sensor{
 sensor{
   name = "block_target_8",
   layer = 0,
-  x = 120,
-  y = 125,
+  x = 104,
+  y = 109,
   width = 16,
   height = 16,
 }
 
 sensor{
   name = "block_target_9",
-  layer = 0,
-  x = 104,
-  y = 173,
-  width = 16,
-  height = 16,
-}
-
-sensor{
-  name = "block_target_10",
   layer = 0,
   x = 88,
   y = 173,
@@ -218,10 +209,19 @@ sensor{
 }
 
 sensor{
+  name = "block_target_10",
+  layer = 0,
+  x = 72,
+  y = 157,
+  width = 16,
+  height = 16,
+}
+
+sensor{
   name = "block_target_11",
   layer = 0,
-  x = 152,
-  y = 173,
+  x = 136,
+  y = 157,
   width = 16,
   height = 16,
 }
@@ -229,7 +229,7 @@ sensor{
 sensor{
   name = "block_target_12",
   layer = 0,
-  x = 136,
+  x = 120,
   y = 221,
   width = 16,
   height = 16,
@@ -239,40 +239,39 @@ block{
   name = "block_7",
   layer = 0,
   x = 56,
-  y = 125,
+  y = 109,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
-  maximum_moves = 0,
+  max_moves = 0,
 }
 
 block{
   name = "block_8",
   layer = 0,
   x = 88,
-  y = 125,
+  y = 109,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
-  maximum_moves = 1,
+  max_moves = 1,
 }
 
 block{
   name = "block_9",
   layer = 0,
-  x = 104,
-  y = 141,
+  x = 88,
+  y = 125,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
-  maximum_moves = 2,
 }
 
 block{
   name = "block_10",
   layer = 0,
-  x = 88,
-  y = 173,
+  x = 72,
+  y = 157,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
@@ -282,8 +281,8 @@ block{
 block{
   name = "block_11",
   layer = 0,
-  x = 120,
-  y = 173,
+  x = 104,
+  y = 157,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
@@ -293,11 +292,10 @@ block{
 block{
   name = "block_12",
   layer = 0,
-  x = 136,
-  y = 189,
+  x = 120,
+  y = 173,
   sprite = "entities/block",
   pushable = true,
   pullable = false,
   maximum_moves = 1,
 }
-

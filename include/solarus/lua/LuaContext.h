@@ -989,6 +989,8 @@ class LuaContext {
       block_api_set_pushable,
       block_api_is_pullable,
       block_api_set_pullable,
+      block_api_get_max_moves,
+      block_api_set_max_moves,
       block_api_get_maximum_moves,
       block_api_set_maximum_moves,
       switch_api_is_activated,

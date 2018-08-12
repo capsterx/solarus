@@ -41,8 +41,8 @@ namespace Solarus {
  * \param sprite_name animation set id of the sprite for this block
  * \param can_be_pushed true to allow the hero to push this block
  * \param can_be_pulled true to allow the hero to pull this block
- * \param maximum_moves indicates how many times the block can
- * be moved (0: none, 1: once, 2: infinite)
+ * \param max_moves indicates how many times the block can
+ * be moved (-1 means infinite).
  */
 Block::Block(
     const std::string& name,
@@ -52,20 +52,20 @@ Block::Block(
     const std::string& sprite_name,
     bool can_be_pushed,
     bool can_be_pulled,
-    int maximum_moves
+    int max_moves
 ):
   Entity(name, direction, layer, xy, Size(16, 16)),
-  maximum_moves(maximum_moves),
+  max_moves(max_moves),
   sound_played(false),
   when_can_move(System::now()),
   last_position(xy),
   initial_position(xy),
-  initial_maximum_moves(maximum_moves),
+  initial_max_moves(max_moves),
   can_be_pushed(can_be_pushed),
   can_be_pulled(can_be_pulled) {
 
-  Debug::check_assertion(maximum_moves >= 0 && maximum_moves <= 2,
-      "maximum_moves must be between 0 and 2");
+  Debug::check_assertion(max_moves >= -1,
+      "maxm_moves must be between postive, 0 or -1");
 
   set_collision_modes(CollisionMode::COLLISION_FACING);
   set_origin(8, 13);
@@ -228,7 +228,7 @@ bool Block::start_movement_by_hero() {
   }
 
   if (get_movement() != nullptr             // the block is already moving
-      || maximum_moves == 0                 // the block cannot move anymore
+      || max_moves == 0                     // the block cannot move anymore
       || System::now() < when_can_move      // the block cannot move for a while
       || (pulling && !can_be_pulled)        // the hero tries to pull a block that cannot be pulled
       || (!pulling && !can_be_pushed)       // the hero tries to push a block that cannot be pushed
@@ -316,8 +316,8 @@ void Block::stop_movement_by_hero() {
     // the block has moved
     last_position = get_xy(); // save the new position for next time
 
-    if (maximum_moves == 1) { // if the block could be moved only once,
-      maximum_moves = 0;      // then it cannot move anymore
+    if (max_moves > 0) {
+      --max_moves;
     }
   }
 }
@@ -350,7 +350,7 @@ void Block::reset() {
   }
 
   last_position = initial_position;
-  this->maximum_moves = initial_maximum_moves;
+  this->max_moves = initial_max_moves;
   set_xy(initial_position);
   notify_position_changed();
 }
@@ -392,31 +392,31 @@ void Block::set_pullable(bool pullable) {
 /**
  * \brief Returns the initial maximum moves of this block.
  *
- * This value is the one passed to the constructor or to set_maximum_moves,
+ * This value is the one passed to the constructor or to set_max_moves,
  * no matter if the block was already moved or not.
  *
  * \return How many times the block can be moved
- * (0: none, 1: once, 2: infinite).
+ * (-1 means infinite).
  */
-int Block::get_maximum_moves() const {
-  return initial_maximum_moves;
+int Block::get_max_moves() const {
+  return initial_max_moves;
 }
 
 /**
- * \brief Sets the maximum moves of this block.
+ * \brief Sets the maximum number of moves of this block.
  *
  * This resets the remaining allowed moves.
  *
- * \param maximum_moves How many times the block can be moved
- * (0: none, 1: once, 2: infinite).
+ * \param max_moves How many times the block can be moved
+ * (-1 means infinite).
  */
-void Block::set_maximum_moves(int maximum_moves) {
+void Block::set_max_moves(int max_moves) {
 
-  Debug::check_assertion(maximum_moves >= 0 && maximum_moves <= 2,
-        "maximum_moves must be between 0 and 2");
+  Debug::check_assertion(max_moves >= -1,
+        "max_moves must be positive, 0 or -1");
 
-  this->initial_maximum_moves = maximum_moves;
-  this->maximum_moves = maximum_moves;
+  this->initial_max_moves = max_moves;
+  this->max_moves = max_moves;
 }
 
 }

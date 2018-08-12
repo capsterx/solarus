@@ -14,6 +14,7 @@ Engine changes
 * Treasure dialogs are now optional (#1076).
 * Don't center the hero on non-blocking streams (#1063).
 * Allow pickables to follow streams (#1139).
+* Blocks can now be moved multiple times (#967).
 * Fix enemies unable to move on non-blocking streams.
 * Fix streams stopping when using the sword several times.
 * Fix non-blocking stream turns after going south (#648).
@@ -84,6 +85,8 @@ Changes that do not introduce incompatibilities:
 * Add a method hero:get_carried_object().
 * Add methods carried_object:get/set_damage_on_enemies().
 * Add methods carried_object:get/set_destruction_sound().
+* Add property max_moves in map:create_block() replacing maximum_moves (#967).
+* Add methods block:get/set_max_moves() replacing block:get/set_maximum_moves().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
 * Add method enemy:is_immobilized() (#1092).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
@@ -111,6 +114,8 @@ Data files format changes
 
 * Maps: add support of custom properties for entities (#1094).
 * Maps: add property tileset to tiles and dynamic tiles (#1174).
+* Maps: add property max_moves to blocks to allow multiple limited moves (#967).
+* Maps: property maximum_moves of blocks is now deprecated and optional (#967).
 * Maps: add properties origin_x, origin_y to custom entities.
 * Maps: add property tiled to custom entities (#1105).
 * Tilesets: add support of border sets (autotiles) (#1069).

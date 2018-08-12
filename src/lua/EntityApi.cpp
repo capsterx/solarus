@@ -317,6 +317,12 @@ void LuaContext::register_entity_module() {
       { "get_maximum_moves", block_api_get_maximum_moves },
       { "set_maximum_moves", block_api_set_maximum_moves },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    block_methods.insert(block_methods.end(), {
+      { "get_max_moves", block_api_get_max_moves },
+      { "set_max_moves", block_api_set_max_moves },
+    });
+  }
 
   block_methods.insert(block_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -3533,26 +3539,69 @@ int LuaContext::block_api_set_pullable(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of block:get_max_moves().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::block_api_get_max_moves(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Block& block = *check_block(l, 1);
+
+    const int max_moves = block.get_max_moves();
+
+    if (max_moves == -1) {
+      // -1 means no maximum.
+      lua_pushnil(l);
+    }
+    else {
+      lua_pushinteger(l, max_moves);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of block:set_max_moves().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::block_api_set_max_moves(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Block& block = *check_block(l, 1);
+    if (lua_type(l, 2) != LUA_TNUMBER && lua_type(l, 2) != LUA_TNIL) {
+      LuaTools::type_error(l, 2, "number or nil");
+    }
+
+    if (lua_isnumber(l, 2)) {
+      const int max_moves = LuaTools::check_int(l, 2);
+      if (max_moves < 0) {
+        LuaTools::arg_error(l, 2, "max_moves should be 0, positive or nil");
+      }
+      block.set_max_moves(max_moves);
+    }
+    else if (lua_isnil(l, 2)) {
+      // -1 means no maximum in C++.
+      block.set_max_moves(-1);
+    }
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of block:get_maximum_moves().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
 int LuaContext::block_api_get_maximum_moves(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    const Block& block = *check_block(l, 1);
-
-    const int maximum_moves = block.get_maximum_moves();
-
-    if (maximum_moves == 2) {
-      // 2 means no maximum in the side C++ side (for now).
-      lua_pushnil(l);
-    }
-    else {
-      lua_pushinteger(l, maximum_moves);
-    }
-    return 1;
-  });
+  get_lua_context(l).warning_deprecated(
+      { 1, 5 },
+      "block:get_maximum_moves()",
+      "Use block:get_max_moves() instead.");
+  return block_api_get_max_moves(l);
 }
 
 /**
@@ -3562,26 +3611,11 @@ int LuaContext::block_api_get_maximum_moves(lua_State* l) {
  */
 int LuaContext::block_api_set_maximum_moves(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    Block& block = *check_block(l, 1);
-    if (lua_type(l, 2) != LUA_TNUMBER && lua_type(l, 2) != LUA_TNIL) {
-      LuaTools::type_error(l, 2, "number or nil");
-    }
-
-    if (lua_isnumber(l, 2)) {
-      const int maximum_moves = LuaTools::check_int(l, 2);
-      if (maximum_moves < 0 || maximum_moves > 1) {
-        LuaTools::arg_error(l, 2, "maximum_moves should be 0, 1 or nil");
-      }
-      block.set_maximum_moves(maximum_moves);
-    }
-    else if (lua_isnil(l, 2)) {
-      // 2 means no maximum in C++.
-      block.set_maximum_moves(2);
-    }
-
-    return 0;
-  });
+  get_lua_context(l).warning_deprecated(
+      { 1, 5 },
+      "block:set_maximum_moves()",
+      "Use block:set_max_moves() instead.");
+  return block_api_set_max_moves(l);
 }
 
 /**

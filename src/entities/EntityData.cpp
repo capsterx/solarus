@@ -148,7 +148,8 @@ const std::map<EntityType, const EntityTypeDescription> entity_type_descriptions
             { "sprite", OptionalFlag::MANDATORY, FieldValue("entities/block") },
             { "pushable", OptionalFlag::MANDATORY, FieldValue(true) },
             { "pullable", OptionalFlag::MANDATORY, FieldValue(false) },
-            { "maximum_moves", OptionalFlag::MANDATORY, FieldValue(1) },
+            { "max_moves", OptionalFlag::OPTIONAL, FieldValue(-1) },
+            { "maximum_moves", OptionalFlag::OPTIONAL, FieldValue(-1) },
         }
     },
 

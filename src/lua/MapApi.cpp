@@ -791,12 +791,31 @@ int LuaContext::l_create_block(lua_State* l) {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
-    int maximum_moves = data.get_integer("maximum_moves");
-    if (maximum_moves < 0 || maximum_moves > 2) {
+    int max_moves = data.get_integer("max_moves");
+    if (max_moves < -1) {  // -1 means unset here.
       std::ostringstream oss;
-      oss << "Invalid maximum_moves: " << maximum_moves;
+      oss << "Invalid max_moves (should be 0, positive or nil): " << max_moves;
       LuaTools::arg_error(l, 1, oss.str());
     }
+
+    // Deprecated version.
+    int maximum_moves = data.get_integer("maximum_moves");
+    if (maximum_moves != -1) {
+      if (maximum_moves < 0 || maximum_moves > 2) {
+        std::ostringstream oss;
+        oss << "Invalid maximum_moves (should be 0, 1 or 2): " << maximum_moves;
+        LuaTools::arg_error(l, 1, oss.str());
+      }
+      if (max_moves != -1) {
+        LuaTools::arg_error(l, 1, "Only one of max_moves and maximum_moves can be set");
+      }
+      if (maximum_moves == 2) {
+        // Replace the old special value 2 by the new proper value to mean unlimited.
+        maximum_moves = -1;
+      }
+      max_moves = maximum_moves;
+    }
+
     std::shared_ptr<Block> entity = std::make_shared<Block>(
         data.get_name(),
         entity_creation_check_layer(l, 1, data, map),
@@ -805,7 +824,7 @@ int LuaContext::l_create_block(lua_State* l) {
         data.get_string("sprite"),
         data.get_boolean("pushable"),
         data.get_boolean("pullable"),
-        maximum_moves
+        max_moves
     );
     entity->set_user_properties(data.get_user_properties());
     map.get_entities().add_entity(entity);
