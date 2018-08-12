@@ -93,6 +93,7 @@ map{ id = "bugs/940_crash_bomb_on_stream", description = "#940: Crash when placi
 map{ id = "bugs/945_flying_enemies_fall_in_hole", description = "#945: Flying enemies fall in holes when the map starts" }
 map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no longer work after reusing a movement" }
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
+map{ id = "bugs/967_blocks_max_moves", description = "#967: Allow to choose any maximum number of moves for blocks" }
 map{ id = "bugs/971_sol_file_list", description = "#971: sol.file.list()" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "graphical/scale2x", description = "Scale2x shader test" }
