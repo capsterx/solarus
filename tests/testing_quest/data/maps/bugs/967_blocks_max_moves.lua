@@ -3,7 +3,7 @@ local game = map:get_game()
 
 -- Blocks 1, 2, 3: max moves set from the quest editor with old format.
 -- Blocks 4, 5, 6: max moves set from this script with old API.
--- Blocks 7, 8, 9: max moves set from this script with new format.
+-- Blocks 7, 8, 9: max moves set from the quest editor with new format.
 -- Blocks 10, 11, 12: max moves set from this script with new API.
 
 function map:on_started()
