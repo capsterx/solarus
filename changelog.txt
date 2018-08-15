@@ -49,6 +49,7 @@ Engine changes
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix loading quests in non UTF-8 filesystems.
+* Add support of .otf fonts.
 * Improve Lua error messages.
 * CLI can accept an archive's path as argument.
 
