@@ -55,6 +55,19 @@ CircleMovement::CircleMovement(bool ignore_obstacles):
 }
 
 /**
+ * \brief Returns the center of the circles.
+ * \return The center point.
+ */
+Point CircleMovement::get_center() const {
+
+  Point center = this->center_point;
+  if (center_entity != nullptr) {
+    center += center_entity->get_xy();
+  }
+  return center;
+}
+
+/**
  * \brief Sets the center of the circles.
  *
  * The movement will make circles around the specified fixed point.
@@ -396,11 +409,7 @@ void CircleMovement::update() {
  */
 void CircleMovement::recompute_position() {
 
-  Point center = this->center_point;
-  if (center_entity != nullptr) {
-    center += center_entity->get_xy();
-  }
-
+  Point center = get_center();
   Point xy = Geometry::get_xy(center, Geometry::degrees_to_radians(current_angle), current_radius);
   if (get_entity() == nullptr
       || !test_collision_with_obstacles(xy - get_entity()->get_xy())) {

@@ -78,6 +78,7 @@ set(lua_test_maps
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1075_straight_movement_set_max_distance_tables"
   "bugs/1076_treasure_dialog_optional"
+  "bugs/1091_circle_movement_get_center"
   "bugs/1092_enemy_is_immobilized"
   "bugs/1094_entity_properties"
   "bugs/1101_entity_enabled_at_start"

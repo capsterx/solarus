@@ -707,6 +707,7 @@ class LuaContext {
       path_finding_movement_api_get_speed,
       path_finding_movement_api_set_speed,
       path_finding_movement_api_get_angle,
+      circle_movement_api_get_center,
       circle_movement_api_set_center,
       circle_movement_api_get_radius,
       circle_movement_api_set_radius,

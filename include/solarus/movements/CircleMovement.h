@@ -46,6 +46,7 @@ class CircleMovement: public Movement {
     bool is_finished() const override;
 
     // properties
+    Point get_center() const;
     void set_center(const Point& center_point);
     void set_center(
         const EntityPtr& center_entity,

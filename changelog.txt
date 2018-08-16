@@ -71,7 +71,6 @@ Changes that do not introduce incompatibilities:
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_game() (#1212).
 * Add functions to get and set the resource elements (#959, #630).
-* Add an event game:on_world_changed() (#920).
 * Add methods game:simulate_key_pressed/released() by Vlag (#1034).
 * Add abilities push, grab and pull to game:get/set_ability() (#788).
 * Add methods entity:set_size() to all entities (#121, #528).
@@ -109,6 +108,7 @@ Changes that do not introduce incompatibilities:
 * Add method movement:is_suspended().
 * Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
+* Add method movement:get_center() (#1091).
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
