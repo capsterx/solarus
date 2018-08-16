@@ -380,6 +380,13 @@ void Game::update() {
  */
 void Game::update_transitions() {
 
+  Rectangle previous_map_location;
+  std::string previous_world;
+  if (current_map != nullptr) {
+    previous_map_location = current_map->get_location();
+    previous_world = current_map->get_world();
+  }
+
   if (transition != nullptr) {
     transition->update();
   }
@@ -400,9 +407,6 @@ void Game::update_transitions() {
       transition->start();
     }
   }
-
-  Rectangle previous_map_location = current_map->get_location();
-  std::string previous_world = current_map->get_world();
 
   // if a transition was playing and has just been finished
   if (transition != nullptr && transition->is_finished()) {
