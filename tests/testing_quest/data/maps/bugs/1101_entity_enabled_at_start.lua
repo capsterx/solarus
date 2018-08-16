@@ -11,5 +11,5 @@ function map:on_opening_transition_finished()
 
   assert(enabled_block:is_enabled())
   assert(not disabled_block:is_enabled())
---  sol.main.exit()
+  sol.main.exit()
 end
