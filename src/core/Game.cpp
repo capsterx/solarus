@@ -402,6 +402,7 @@ void Game::update_transitions() {
   }
 
   Rectangle previous_map_location = current_map->get_location();
+  std::string previous_world = current_map->get_world();
 
   // if a transition was playing and has just been finished
   if (transition != nullptr && transition->is_finished()) {
@@ -417,9 +418,10 @@ void Game::update_transitions() {
       this->savegame = nullptr;  // The new game is the owner.
     }
     else if (transition_direction == Transition::Direction::CLOSING) {
+      // The closing transition has just finished.
 
       bool world_changed = next_map != current_map &&
-          (!next_map->has_world() || next_map->get_world() != current_map->get_world());
+          (!next_map->has_world() || next_map->get_world() != previous_world);
 
       if (world_changed) {
         // Reset the crystal blocks.
@@ -489,7 +491,7 @@ void Game::update_transitions() {
             Transition::Direction::OPENING,
             this
         ));
-        if(needs_previous_surface) {
+        if (needs_previous_surface) {
           transition->set_previous_surface(previous_map_surface.get());
         }
         transition->start();
@@ -532,6 +534,11 @@ void Game::update_transitions() {
     transition->start();
     current_map->start();
     notify_map_changed();
+
+    std::string new_world = current_map->get_world();
+    if (previous_world.empty() || new_world.empty() || new_world != previous_world) {
+      get_lua_context().game_on_world_changed(*this, previous_world, new_world);
+    }
   }
 }
 

@@ -61,6 +61,7 @@ set(lua_test_maps
   "bugs/884_tileset_sprite_file_optional"
   "bugs/889_crash_use_non_saved_item"
   "bugs/898_entity_on_enabled"
+  "bugs/920_game_on_world_changed/1"
   "bugs/937_custom_entity_missing_direction"
   "bugs/940_crash_bomb_on_stream"
   "bugs/945_flying_enemies_fall_in_hole"

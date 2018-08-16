@@ -356,6 +356,11 @@ class LuaContext {
     void game_on_update(Game& game);
     void game_on_draw(Game& game, const SurfacePtr& dst_surface);
     void game_on_map_changed(Game& game, Map& map);
+    void game_on_world_changed(
+        Game& game,
+        const std::string& previous_world,
+        const std::string& new_world
+    );
     void game_on_paused(Game& game);
     void game_on_unpaused(Game& game);
     bool game_on_dialog_started(
@@ -756,7 +761,7 @@ class LuaContext {
       game_api_get_value,
       game_api_set_value,
       game_api_get_starting_location,
-      game_api_set_starting_location,  // TODO don't do it automatically, use on_map_changed
+      game_api_set_starting_location,
       game_api_get_life,
       game_api_set_life,
       game_api_add_life,
@@ -1358,6 +1363,7 @@ class LuaContext {
     void on_moving();
     void on_moved();
     void on_map_changed(Map& map);
+    void on_world_changed(const std::string& previous_world, const std::string& new_world);
     void on_pickable_created(Pickable& pickable);
     void on_variant_changed(int variant);
     void on_amount_changed(int amount);

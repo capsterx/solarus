@@ -2601,6 +2601,31 @@ void LuaContext::on_map_changed(Map& map) {
 }
 
 /**
+ * \brief Calls the on_game_changed() method of the object on top of the stack.
+ * \param previous_world The previous world or an empty string.
+ * \param new_world The new world or an empty string.
+ */
+void LuaContext::on_world_changed(const std::string& previous_world, const std::string& new_world) {
+
+  if (find_method("on_world_changed")) {
+    if (previous_world.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, previous_world);
+    }
+
+    if (new_world.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, new_world);
+    }
+    call_function(3, 0, "on_world_changed");
+  }
+}
+
+/**
  * \brief Calls the on_pickable_created() method of the object on top of the stack.
  * \param pickable A pickable treasure.
  */

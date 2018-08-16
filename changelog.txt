@@ -71,6 +71,7 @@ Changes that do not introduce incompatibilities:
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_game() (#1212).
 * Add functions to get and set the resource elements (#959, #630).
+* Add an event game:on_world_changed() (#920).
 * Add methods game:simulate_key_pressed/released() by Vlag (#1034).
 * Add abilities push, grab and pull to game:get/set_ability() (#788).
 * Add methods entity:set_size() to all entities (#121, #528).

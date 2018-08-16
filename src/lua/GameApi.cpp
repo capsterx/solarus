@@ -1628,7 +1628,7 @@ void LuaContext::game_on_draw(Game& game, const SurfacePtr& dst_surface) {
 }
 
 /**
- * \brief Calls the on_changed() method of a Lua game.
+ * \brief Calls the on_map_changed() method of a Lua game.
  *
  * Does nothing if the method is not defined.
  *
@@ -1643,6 +1643,35 @@ void LuaContext::game_on_map_changed(Game& game, Map& map) {
 
   push_game(l, game.get_savegame());
   on_map_changed(map);
+  lua_pop(l, 1);
+}
+
+/**
+ * \brief Calls the on_world_changed() method of a Lua game.
+ *
+ * Does nothing if the method is not defined
+ * or if the quest format is lower than 1.6.
+ *
+ * \param game A game.
+ * \param previous_world The previous world or an empty string.
+ * \param new_world The new world or an empty string.
+ */
+void LuaContext::game_on_world_changed(
+    Game& game,
+    const std::string& previous_world,
+    const std::string& new_world
+) {
+
+  if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
+    return;
+  }
+
+  if (!userdata_has_field(game.get_savegame(), "on_world_changed")) {
+    return;
+  }
+
+  push_game(l, game.get_savegame());
+  on_world_changed(previous_world, new_world);
   lua_pop(l, 1);
 }
 
