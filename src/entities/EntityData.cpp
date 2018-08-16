@@ -47,7 +47,6 @@ const std::map<EntityType, const EntityTypeDescription> entity_type_descriptions
             { "pattern", OptionalFlag::MANDATORY, FieldValue("") },
             { "width", OptionalFlag::MANDATORY, FieldValue(16) },
             { "height", OptionalFlag::MANDATORY, FieldValue(16) },
-            { "enabled_at_start", OptionalFlag::MANDATORY, FieldValue(true) },
             { "tileset", OptionalFlag::OPTIONAL, FieldValue("") }
         }
     },
@@ -381,14 +380,7 @@ bool FieldValue::operator!=(const FieldValue& other) const {
  * \brief Creates data for an entity of a default-constructed type.
  */
 EntityData::EntityData() :
-    type(),
-    name(),
-    layer(0),
-    xy(),
-    user_properties() ,
-    specific_properties() {
-
-  initialize_specific_properties();
+    EntityData(EntityType()) {
 }
 
 /**
@@ -400,6 +392,7 @@ EntityData::EntityData(EntityType type) :
     name(),
     layer(0),
     xy(),
+    enabled_at_start(true),
     user_properties(),
     specific_properties() {
 
@@ -500,6 +493,22 @@ Point EntityData::get_xy() const {
  */
 void EntityData::set_xy(const Point& xy) {
   this->xy = xy;
+}
+
+/**
+ * \brief Returns whether this entity is initially enabled.
+ * \return \c true if the entity is initially enabled.
+ */
+bool EntityData::is_enabled_at_start() const {
+  return enabled_at_start;
+}
+
+/**
+ * \brief Sets whether this entity should be initially enabled.
+ * \param enabled_at_start \c true to make the entity initially enabled.
+ */
+void EntityData::set_enabled_at_start(bool enabled_at_start) {
+  this->enabled_at_start = enabled_at_start;
 }
 
 /**
@@ -905,11 +914,13 @@ EntityData EntityData::check_entity_data(lua_State* l, int index, EntityType typ
   int layer = LuaTools::check_int_field(l, index, "layer");
   int x = LuaTools::check_int_field(l, index, "x");
   int y = LuaTools::check_int_field(l, index, "y");
+  bool enabled_at_start = LuaTools::opt_boolean_field(l, index, "enabled_at_start", true);
 
   EntityData entity(type);
   entity.set_name(name);
   entity.set_layer(layer);
   entity.set_xy({ x, y });
+  entity.set_enabled_at_start(enabled_at_start);
 
   // User-defined properties.
   lua_getfield(l, index, "properties");
@@ -1039,15 +1050,18 @@ bool EntityData::export_to_lua(std::ostream& out) const {
   // Entity type.
   out << get_type_name() << "{\n";
 
-  // Name.
+  // Common properties.
   if (has_name()) {
     out << "  name = \"" << escape_string(get_name()) << "\",\n";
   }
 
-  // Position on the map.
   out << "  layer = " << get_layer() << ",\n"
       << "  x = " << get_xy().x << ",\n"
       << "  y = " << get_xy().y << ",\n";
+
+  if (!is_enabled_at_start()) {
+    out << "  enabled_at_start = false,\n";
+  }
 
   // User-defined properties.
   export_user_properties(out);

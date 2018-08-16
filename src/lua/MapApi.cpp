@@ -480,6 +480,7 @@ int LuaContext::l_create_destination(lua_State* l) {
         entity_creation_check_enum<StartingLocationMode>(l, 1, data, "starting_location_mode");
     entity->set_starting_location_mode(starting_location_mode);
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -513,6 +514,7 @@ int LuaContext::l_create_teletransporter(lua_State* l) {
         data.get_string("destination")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -564,6 +566,7 @@ int LuaContext::l_create_pickable(lua_State* l) {
     }
 
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -605,6 +608,7 @@ int LuaContext::l_create_destructible(lua_State* l) {
     destructible->set_can_regenerate(data.get_boolean("can_regenerate"));
     destructible->set_damage_on_enemies(data.get_integer("damage_on_enemies"));
     destructible->set_user_properties(data.get_user_properties());
+    destructible->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(destructible);
     if (map.is_started()) {
       push_entity(l, *destructible);
@@ -670,6 +674,7 @@ int LuaContext::l_create_chest(lua_State* l) {
     chest->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     chest->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
     chest->set_user_properties(data.get_user_properties());
+    chest->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(chest);
     if (map.is_started()) {
       push_entity(l, *chest);
@@ -699,6 +704,7 @@ int LuaContext::l_create_jumper(lua_State* l) {
         data.get_integer("jump_length")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -739,6 +745,7 @@ int LuaContext::l_create_enemy(lua_State* l) {
       return 1;
     }
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -771,6 +778,7 @@ int LuaContext::l_create_npc(lua_State* l) {
         data.get_string("behavior")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -827,6 +835,7 @@ int LuaContext::l_create_block(lua_State* l) {
         max_moves
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -860,10 +869,10 @@ int LuaContext::l_create_dynamic_tile(lua_State* l) {
         data.get_xy(),
         entity_creation_check_size(l, 1, data),
         tileset,
-        data.get_string("pattern"),
-        data.get_boolean("enabled_at_start")
+        data.get_string("pattern")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -895,6 +904,7 @@ int LuaContext::l_create_switch(lua_State* l) {
         data.get_boolean("inactivate_when_leaving")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -927,6 +937,7 @@ int LuaContext::l_create_wall(lua_State* l) {
         data.get_boolean("stops_projectiles")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -954,6 +965,7 @@ int LuaContext::l_create_sensor(lua_State* l) {
         entity_creation_check_size(l, 1, data)
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -980,6 +992,7 @@ int LuaContext::l_create_crystal(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1010,6 +1023,7 @@ int LuaContext::l_create_crystal_block(lua_State* l) {
         CrystalBlock::Subtype(data.get_integer("subtype"))
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1052,6 +1066,7 @@ int LuaContext::l_create_shop_treasure(lua_State* l) {
     }
 
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1084,6 +1099,7 @@ int LuaContext::l_create_stream(lua_State* l) {
     stream->set_allow_attack(data.get_boolean("allow_attack"));
     stream->set_allow_item(data.get_boolean("allow_item"));
     stream->set_user_properties(data.get_user_properties());
+    stream->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(stream);
     if (map.is_started()) {
       push_stream(l, *stream);
@@ -1145,6 +1161,7 @@ int LuaContext::l_create_door(lua_State* l) {
     door->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     door->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
     door->set_user_properties(data.get_user_properties());
+    door->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(door);
     if (map.is_started()) {
       push_entity(l, *door);
@@ -1173,6 +1190,7 @@ int LuaContext::l_create_stairs(lua_State* l) {
         Stairs::Subtype(data.get_integer("subtype"))
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1200,6 +1218,7 @@ int LuaContext::l_create_separator(lua_State* l) {
         entity_creation_check_size(l, 1, data)
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1234,6 +1253,7 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
     );
     entity->set_tiled(data.get_boolean("tiled"));
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1260,6 +1280,7 @@ int LuaContext::l_create_bomb(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1288,6 +1309,7 @@ int LuaContext::l_create_explosion(lua_State* l) {
         with_damage
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1314,6 +1336,7 @@ int LuaContext::l_create_fire(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);

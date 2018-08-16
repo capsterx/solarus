@@ -77,6 +77,7 @@ set(lua_test_maps
   "bugs/1076_treasure_dialog_optional"
   "bugs/1092_enemy_is_immobilized"
   "bugs/1094_entity_properties"
+  "bugs/1101_entity_enabled_at_start"
   "bugs/1105_custom_entity_repeat"
   "bugs/1136_get_path_get_trajectory_missing_element"
   "bugs/1139_pickable_on_stream"

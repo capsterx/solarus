@@ -114,6 +114,8 @@ class SOLARUS_API EntityData : public LuaData {
     void set_layer(int layer);
     Point get_xy() const;
     void set_xy(const Point& xy);
+    bool is_enabled_at_start() const;
+    void set_enabled_at_start(bool enabled_at_start);
 
     static bool is_user_property_key_valid(const std::string& key);
     const std::vector<UserProperty>& get_user_properties() const;
@@ -160,6 +162,7 @@ class SOLARUS_API EntityData : public LuaData {
     std::string name;             /**< Unique name of the entity on the map. */
     int layer;                    /**< Layer of the entity on the map. */
     Point xy;                     /**< Entity position on the map. */
+    bool enabled_at_start;        /**< Whether the entity is initially enabled. */
     std::vector<UserProperty>
         user_properties;          /**< User-defined properties. */
 

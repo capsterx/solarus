@@ -114,6 +114,7 @@ Data files format changes
 -------------------------
 
 * Maps: add support of custom properties for entities (#1094).
+* Maps: add property enabled_at_start to all entities (#1101).
 * Maps: add property tileset to tiles and dynamic tiles (#1174).
 * Maps: add property max_moves to blocks to allow multiple limited moves (#967).
 * Maps: property maximum_moves of blocks is now deprecated and optional (#967).
