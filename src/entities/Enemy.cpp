@@ -909,8 +909,7 @@ void Enemy::draw_on_map() {
 }
 
 /**
- * \brief Notifies this entity that it was just enabled or disabled.
- * \param enabled true if the entity is now enabled
+ * \copydoc Entity::notify_enabled
  */
 void Enemy::notify_enabled(bool enabled) {
 
@@ -922,10 +921,6 @@ void Enemy::notify_enabled(bool enabled) {
 
   if (enabled) {
     restart();
-    get_lua_context()->entity_on_enabled(*this);
-  }
-  else {
-    get_lua_context()->entity_on_disabled(*this);
   }
 }
 

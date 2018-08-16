@@ -2468,7 +2468,7 @@ void Entity::set_enabled(bool enabled) {
  * \brief Notifies this entity that it was just enabled or disabled.
  * \param enabled \c true if the entity is now enabled.
  */
-void Entity::notify_enabled(bool /* enabled */) {
+void Entity::notify_enabled(bool enabled) {
 
   if (!is_on_map()) {
     return;
@@ -2478,6 +2478,14 @@ void Entity::notify_enabled(bool /* enabled */) {
     update_ground_observers();
   }
   update_ground_below();
+
+  if (enabled) {
+    get_lua_context()->entity_on_enabled(*this);
+  }
+  else {
+    get_lua_context()->entity_on_disabled(*this);
+  }
+
 }
 
 /**

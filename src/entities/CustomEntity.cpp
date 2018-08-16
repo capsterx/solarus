@@ -1266,21 +1266,6 @@ void CustomEntity::set_suspended(bool suspended) {
 }
 
 /**
- * \copydoc Entity::notify_enabled
- */
-void CustomEntity::notify_enabled(bool enabled) {
-
-  Entity::notify_enabled(enabled);
-
-  if (enabled) {
-    get_lua_context()->entity_on_enabled(*this);
-  }
-  else {
-    get_lua_context()->entity_on_disabled(*this);
-  }
-}
-
-/**
  * \copydoc Entity::draw_on_map
  */
 void CustomEntity::draw_on_map() {
