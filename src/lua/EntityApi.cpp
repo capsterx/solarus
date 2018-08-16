@@ -530,6 +530,8 @@ void LuaContext::register_entity_module() {
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     enemy_methods.insert(enemy_methods.end(), {
+        { "get_dying_sprite_id", enemy_api_get_dying_sprite_id },
+        { "set_dying_sprite_id", enemy_api_set_dying_sprite_id },
         { "is_immobilized", enemy_api_is_immobilized },
         { "get_attacking_collision_mode", enemy_api_get_attacking_collision_mode },
         { "set_attacking_collision_mode", enemy_api_set_attacking_collision_mode },
@@ -5050,6 +5052,52 @@ int LuaContext::enemy_api_set_hurt_style(lua_State* l) {
         l, 2, Enemy::hurt_style_names);
 
     enemy.set_hurt_style(hurt_style);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of enemy:get_dying_sprite_id().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::enemy_api_get_dying_sprite_id(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Enemy& enemy = *check_enemy(l, 1);
+
+    const std::string& dying_sprite_id = enemy.get_dying_sprite_id();
+
+    if (dying_sprite_id.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, dying_sprite_id);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of enemy:set_dying_sprite_id().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::enemy_api_set_dying_sprite_id(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Enemy& enemy = *check_enemy(l, 1);
+    std::string dying_sprite_id;
+
+    if (lua_isstring(l, 2)) {
+      dying_sprite_id = LuaTools::check_string(l, 2);
+    }
+    else if (!lua_isnil(l, 2)) {
+      LuaTools::type_error(l, 2, "string or nil");
+    }
+
+    enemy.set_dying_sprite_id(dying_sprite_id);
 
     return 0;
   });

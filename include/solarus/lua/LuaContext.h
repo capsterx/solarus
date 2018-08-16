@@ -1052,6 +1052,8 @@ class LuaContext {
       enemy_api_set_can_hurt_hero_running,
       enemy_api_get_hurt_style,
       enemy_api_set_hurt_style,
+      enemy_api_get_dying_sprite_id,
+      enemy_api_set_dying_sprite_id,
       enemy_api_get_can_attack,
       enemy_api_set_can_attack,
       enemy_api_get_minimum_shield_needed,

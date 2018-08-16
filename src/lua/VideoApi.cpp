@@ -418,7 +418,7 @@ int LuaContext::video_api_set_shader(lua_State* l) {
 
 /**
  * \brief Calls sol.video.on_draw() if it exists.
- * @param screen The destination surface representing the screen.
+ * \param screen The destination surface representing the screen.
  */
 void LuaContext::video_on_draw(const SurfacePtr &screen) {
 

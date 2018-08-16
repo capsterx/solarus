@@ -66,6 +66,7 @@ set(lua_test_maps
   "bugs/945_flying_enemies_fall_in_hole"
   "bugs/946_reused_movement_callback"
   "bugs/954_entity_name_nil_after_removed"
+  "bugs/955_enemy_get_set_dying_sprite_id"
   "bugs/967_blocks_max_moves"
   "bugs/971_sol_file_list"
   "bugs/1007_door_open_close"
