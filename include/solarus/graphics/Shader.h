@@ -20,17 +20,14 @@
 #include "solarus/core/Common.h"
 #include "solarus/core/Debug.h"
 #include "solarus/graphics/BlendMode.h"
+#include "solarus/graphics/Drawable.h"
 #include "solarus/graphics/ShaderData.h"
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/graphics/VertexArrayPtr.h"
+#include "solarus/lua/ExportableToLua.h"
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
-#include "solarus/lua/ExportableToLua.h"
-#include "solarus/lua/LuaContext.h"
-#include "solarus/lua/LuaTools.h"
-
-#include "solarus/graphics/Drawable.h"
-
+#include <map>
 #include <string>
 #include <unordered_map>
 
