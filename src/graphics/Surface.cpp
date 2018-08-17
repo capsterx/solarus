@@ -627,7 +627,7 @@ SDL_BlendMode Surface::make_sdl_blend_mode(const SurfaceImpl& dst_surface, const
  * \brief Renders this surface onto a hardware texture.
  */
 void Surface::render(SDL_Renderer*& renderer) {
-  SDL_RenderCopy(renderer,internal_surface->get_texture(),NULL,NULL);
+  SDL_RenderCopy(renderer,internal_surface->get_texture(),nullptr,nullptr);
 }
 
 void Surface::bind_as_texture() const {
@@ -635,7 +635,7 @@ void Surface::bind_as_texture() const {
 }
 
 void Surface::bind_as_target() {
-  SDL_SetRenderTarget(Video::get_renderer(),request_render().get_texture());
+  Video::set_render_target(request_render().get_texture());
 }
 
 /**
