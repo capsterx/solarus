@@ -18,5 +18,5 @@ if(OPENGL_FOUND)
   set(SOLARUS_HAVE_OPENGL 1)
 endif()
 
-#configure_file("${CMAKE_SOURCE_DIR}/include/solarus/core/config.h.in" "${CMAKE_BINARY_DIR}/include/solarus/core/config.h")
+configure_file("${CMAKE_SOURCE_DIR}/include/solarus/core/config.h.in" "${CMAKE_BINARY_DIR}/include/solarus/core/config.h")
 
