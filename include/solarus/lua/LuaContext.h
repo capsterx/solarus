@@ -603,6 +603,8 @@ class LuaContext {
       surface_api_set_opacity,
       surface_api_get_pixels,
       surface_api_set_pixels,
+      surface_api_bind_as_texture,
+      surface_api_bind_as_target,
 
       // Text surface API.
       text_surface_api_create,

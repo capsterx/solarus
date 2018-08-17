@@ -121,6 +121,9 @@ class Surface: public Drawable {
 
     static SDL_BlendMode make_sdl_blend_mode(const SurfaceImpl &dst_surface, const SurfaceImpl &src_surface, BlendMode blend_mode);
 
+    void bind_as_texture() const;
+    void bind_as_target();
+
     const std::string& get_lua_type_name() const override;
 
     static SurfaceDraw draw_proxy;
