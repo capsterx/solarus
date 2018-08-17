@@ -74,6 +74,7 @@ set(lua_test_maps
   "bugs/1024_custom_entity_set_origin"
   "bugs/1026_door_sprite_higher_than_16"
   "bugs/1036_falling_again_after_bad_ground"
+  "bugs/1037_stairs_methods"
   "bugs/1042_multiple_facing_entities_random_picked"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1075_straight_movement_set_max_distance_tables"

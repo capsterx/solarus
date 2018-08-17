@@ -42,6 +42,7 @@
 #include "solarus/entities/Sensor.h"
 #include "solarus/entities/Separator.h"
 #include "solarus/entities/ShopTreasure.h"
+#include "solarus/entities/Stairs.h"
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Switch.h"
@@ -394,6 +395,25 @@ void LuaContext::register_entity_module() {
       metamethods
   );
 
+
+  // Stairs.
+  std::vector<luaL_Reg> stairs_methods = {
+  };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    stairs_methods.insert(stairs_methods.end(), {
+        { "get_direction", stairs_api_get_direction },
+        { "is_inner", stairs_api_is_inner },
+    });
+  }
+
+  stairs_methods.insert(stairs_methods.end(), common_methods.begin(), common_methods.end());
+  register_type(
+      get_entity_internal_type_name(EntityType::STAIRS),
+      {},
+      stairs_methods,
+      metamethods
+  );
+
   // Pickable.
   std::vector<luaL_Reg> pickable_methods = {
       { "has_layer_independent_collisions", entity_api_has_layer_independent_collisions },
@@ -601,7 +621,6 @@ void LuaContext::register_entity_module() {
   register_type(get_entity_internal_type_name(EntityType::CRYSTAL), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::CRYSTAL_BLOCK), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::SHOP_TREASURE), {}, common_methods, metamethods);
-  register_type(get_entity_internal_type_name(EntityType::STAIRS), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::BOMB), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::EXPLOSION), {}, common_methods, metamethods);
   register_type(get_entity_internal_type_name(EntityType::FIRE), {}, common_methods, metamethods);
@@ -4071,6 +4090,68 @@ int LuaContext::door_api_set_open(lua_State* l) {
     door.set_open(open);
 
     return 0;
+  });
+}
+
+/**
+ * \brief Returns whether a value is a userdata of type stairs.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return true if the value at this index is a stairs.
+ */
+bool LuaContext::is_stairs(lua_State* l, int index) {
+  return is_userdata(l, index, get_entity_internal_type_name(EntityType::STAIRS));
+}
+
+/**
+ * \brief Checks that the userdata at the specified index of the stack is a
+ * stairs entity and returns it.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The stairs.
+ */
+std::shared_ptr<Stairs> LuaContext::check_stairs(lua_State* l, int index) {
+  return std::static_pointer_cast<Stairs>(check_userdata(
+      l, index, get_entity_internal_type_name(EntityType::STAIRS))
+  );
+}
+
+/**
+ * \brief Pushes a stairs userdata onto the stack.
+ * \param l A Lua context.
+ * \param stairs A stairs entity.
+ */
+void LuaContext::push_stairs(lua_State* l, Stairs& stairs) {
+  push_userdata(l, stairs);
+}
+
+/**
+ * \brief Implementation of stairs:get_direction().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::stairs_api_get_direction(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Stairs& stairs = *check_stairs(l, 1);
+
+    lua_pushinteger(l, stairs.get_direction());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of stairs:is_inner().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::stairs_api_is_inner(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Stairs& stairs = *check_stairs(l, 1);
+
+    lua_pushboolean(l, stairs.is_inside_floor());
+    return 1;
   });
 }
 

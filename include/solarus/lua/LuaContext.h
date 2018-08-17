@@ -83,6 +83,7 @@ class Shader;
 class ShopTreasure;
 class Sprite;
 class StraightMovement;
+class Stairs;
 class Stream;
 class Switch;
 class TargetMovement;
@@ -1021,6 +1022,8 @@ class LuaContext {
       door_api_open,
       door_api_close,
       door_api_set_open,
+      stairs_api_get_direction,
+      stairs_api_is_inner,
       pickable_api_get_followed_entity,
       pickable_api_get_falling_height,
       pickable_api_get_treasure,
@@ -1206,6 +1209,7 @@ class LuaContext {
     static void push_switch(lua_State* l, Switch& sw);
     static void push_stream(lua_State* l, Stream& stream);
     static void push_door(lua_State* l, Door& door);
+    static void push_stairs(lua_State* l, Stairs& stairs);
     static void push_shop_treasure(lua_State* l, ShopTreasure& shop_treasure);
     static void push_pickable(lua_State* l, Pickable& pickable);
     static void push_destructible(lua_State* l, Destructible& destructible);
@@ -1284,6 +1288,8 @@ class LuaContext {
     static std::shared_ptr<Stream> check_stream(lua_State* l, int index);
     static bool is_door(lua_State* l, int index);
     static std::shared_ptr<Door> check_door(lua_State* l, int index);
+    static bool is_stairs(lua_State* l, int index);
+    static std::shared_ptr<Stairs> check_stairs(lua_State* l, int index);
     static bool is_shop_treasure(lua_State* l, int index);
     static std::shared_ptr<ShopTreasure> check_shop_treasure(lua_State* l, int index);
     static bool is_pickable(lua_State* l, int index);

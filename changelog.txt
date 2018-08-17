@@ -83,6 +83,7 @@ Changes that do not introduce incompatibilities:
 * Add methods entity:get_layer() and entity:set_layer().
 * Add a method entity:get_controlling_stream() (#1204).
 * Add methods door:open(), door:close() and door:set_open() (#1007).
+* Add methods stairs:get_direction() and stairs:is_inner() (#1037).
 * destructible:on_lifting() now gives a carried object parameter.
 * Add a method hero:get_carried_object().
 * Add methods carried_object:get/set_damage_on_enemies().

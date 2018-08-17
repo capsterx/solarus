@@ -6,6 +6,7 @@ map{ id = "bugs/1015_crash_scrolling_to_invalid_layer/map_2", description = "Map
 map{ id = "bugs/1024_custom_entity_set_origin", description = "#1024: custom_entity:set_origin()" }
 map{ id = "bugs/1026_door_sprite_higher_than_16", description = "#1026: Door sprite higher than its bounding box" }
 map{ id = "bugs/1036_falling_again_after_bad_ground", description = "#1036: Hero falls again after bad ground" }
+map{ id = "bugs/1037_stairs_methods", description = "#1037: Stairs methods" }
 map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "#1042: Facing entity is random when multiple ones overlap" }
 map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
 map{ id = "bugs/1075_straight_movement_set_max_distance_tables", description = "#1075: straight_movement:set_max_distance() not working on tables" }
