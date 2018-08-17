@@ -72,8 +72,8 @@ void LuaContext::register_surface_module() {
       { "get_scale", drawable_api_get_scale },
       { "set_transformation_origin", drawable_api_set_transformation_origin },
       { "get_transformation_origin", drawable_api_get_transformation_origin },
-      { "bind_as_texture",surface_api_bind_as_texture},
-      { "bind_as_target",surface_api_bind_as_target}
+      { "gl_bind_as_texture", surface_api_gl_bind_as_texture},
+      { "gl_bind_as_target", surface_api_gl_bind_as_target}
     });
   }
 
@@ -248,11 +248,11 @@ int LuaContext::surface_api_set_pixels(lua_State* l) {
 }
 
 /**
- * \brief Implementation of surface:bind_as_texture().
+ * \brief Implementation of surface:gl_bind_as_texture().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::surface_api_bind_as_texture(lua_State* l) {
+int LuaContext::surface_api_gl_bind_as_texture(lua_State* l) {
   return LuaTools::exception_boundary_handle(l, [&] {
       const Surface& surface = *check_surface(l,1);
       surface.bind_as_texture();
@@ -261,11 +261,11 @@ int LuaContext::surface_api_bind_as_texture(lua_State* l) {
 }
 
 /**
- * \brief Implementation of surface:bind_as_target().
+ * \brief Implementation of surface:gl_bind_as_target().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::surface_api_bind_as_target(lua_State* l) {
+int LuaContext::surface_api_gl_bind_as_target(lua_State* l) {
   return LuaTools::exception_boundary_handle(l, [&] {
       Surface& surface = *check_surface(l,1);
       surface.bind_as_target();

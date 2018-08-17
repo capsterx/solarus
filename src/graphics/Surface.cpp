@@ -630,10 +630,16 @@ void Surface::render(SDL_Renderer*& renderer) {
   SDL_RenderCopy(renderer,internal_surface->get_texture(),nullptr,nullptr);
 }
 
+/**
+ * \brief Binds this texture to the current context for next OpenGL calls.
+ */
 void Surface::bind_as_texture() const {
-  SDL_GL_BindTexture(internal_surface->get_texture(),nullptr,nullptr);
+  SDL_GL_BindTexture(internal_surface->get_texture(), nullptr, nullptr);
 }
 
+/**
+ * \brief Makes this texture the target for next OpenGL calls.
+ */
 void Surface::bind_as_target() {
   Video::set_render_target(request_render().get_texture());
 }

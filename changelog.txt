@@ -106,6 +106,7 @@ Changes that do not introduce incompatibilities:
 * sprite:get_origin() can now optionally take an animation and direction.
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
+* Add methods surface:gl_bind_as_target/texture() by stdgregwar.
 * Add method movement:is_suspended().
 * Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
@@ -113,7 +114,6 @@ Changes that do not introduce incompatibilities:
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
-* Add methods surface:bind_as_target(), surface:bind_as_texture().
 
 Data files format changes
 -------------------------
