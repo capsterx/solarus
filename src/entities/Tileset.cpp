@@ -22,7 +22,6 @@
 #include "solarus/entities/SimpleTilePattern.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/entities/TilesetData.h"
-#include "solarus/entities/TimeScrollingTilePattern.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/lua/LuaData.h"
 #include "solarus/lua/LuaTools.h"
@@ -39,7 +38,8 @@ namespace Solarus {
 Tileset::Tileset(const std::string& id):
   id(id),
   tiles_image(nullptr),
-  entities_image(nullptr) {
+  entities_image(nullptr),
+  loaded(false) {
 }
 
 /**
@@ -66,8 +66,10 @@ void Tileset::add_tile_pattern(
   TilePattern* tile_pattern = nullptr;
 
   const std::vector<Rectangle>& frames = pattern_data.get_frames();
-  const TileScrolling scrolling = pattern_data.get_scrolling();
   const Ground ground = pattern_data.get_ground();
+  const PatternScrolling scrolling = pattern_data.get_scrolling();
+  const uint32_t frame_delay = pattern_data.get_frame_delay();
+  bool mirror_loop = pattern_data.is_mirror_loop();
 
   if (frames.size() == 1) {
     // Single frame.
@@ -83,19 +85,19 @@ void Tileset::add_tile_pattern(
 
     switch (scrolling) {
 
-    case TileScrolling::NONE:
+    case PatternScrolling::NONE:
       tile_pattern = new SimpleTilePattern(
           ground, frame.get_xy(), size
       );
       break;
 
-    case TileScrolling::PARALLAX:
+    case PatternScrolling::PARALLAX:
       tile_pattern = new ParallaxScrollingTilePattern(
           ground, frame.get_xy(), size
       );
       break;
 
-    case TileScrolling::SELF:
+    case PatternScrolling::SELF:
       tile_pattern = new SelfScrollingTilePattern(
           ground, frame.get_xy(), size
       );
@@ -104,35 +106,51 @@ void Tileset::add_tile_pattern(
   }
   else {
     // Multi-frame.
-    if (scrolling == TileScrolling::SELF) {
+    if (scrolling == PatternScrolling::SELF) {
       Debug::error("Multi-frame is not supported for self-scrolling tiles");
       return;
     }
 
-    bool parallax = scrolling == TileScrolling::PARALLAX;
-    AnimatedTilePattern::AnimationSequence sequence = (frames.size() == 3) ?
-        AnimatedTilePattern::ANIMATION_SEQUENCE_012 : AnimatedTilePattern::ANIMATION_SEQUENCE_0121;
+    bool parallax = scrolling == PatternScrolling::PARALLAX;
     tile_pattern = new AnimatedTilePattern(
         ground,
-        sequence,
-        frames[0].get_size(),
-        frames[0].get_x(),
-        frames[0].get_y(),
-        frames[1].get_x(),
-        frames[1].get_y(),
-        frames[2].get_x(),
-        frames[2].get_y(),
+        frames,
+        frame_delay,
+        mirror_loop,
         parallax
     );
   }
 
+  if (tile_pattern->is_animated()) {
+    animated_tile_patterns.push_back(tile_pattern);
+  }
   tile_patterns.emplace(id, std::unique_ptr<TilePattern>(tile_pattern));
 }
 
 /**
+ * \brief Returns whether this tileset is loaded.
+ * \return \c true if this tileset is loaded.
+ */
+bool Tileset::is_loaded() const {
+  return loaded;
+}
+
+/**
  * \brief Loads the tileset from its file by creating all tile patterns.
+ *
+ * Nothing happens if the tileset is already loaded.
  */
 void Tileset::load() {
+
+  if (is_loaded()) {
+    return;
+  }
+
+  std::lock_guard<std::mutex> lock(load_mutex);
+
+  if (is_loaded()) {
+    return;
+  }
 
   // Load the tileset data file.
   std::string file_name = std::string("tilesets/") + id + ".dat";
@@ -146,16 +164,17 @@ void Tileset::load() {
     }
   }
 
-  // Load the tileset images.
+  // Load the tileset images from disk but don't upload them
+  // to GPU yet because we can be in a separate thread here.
   file_name = std::string("tilesets/") + id + ".tiles.png";
-  tiles_image = Surface::create(file_name, Surface::DIR_DATA);
-  if (tiles_image == nullptr) {
+  tiles_image_soft = Surface::create_sdl_surface_from_file(file_name);
+  if (tiles_image_soft == nullptr) {
     Debug::error(std::string("Missing tiles image for tileset '") + id + "': " + file_name);
-    tiles_image = Surface::create(16, 16);
   }
-
   file_name = std::string("tilesets/") + id + ".entities.png";
-  entities_image = Surface::create(file_name, Surface::DIR_DATA);
+  entities_image_soft = Surface::create_sdl_surface_from_file(file_name);
+
+  loaded = true;
 }
 
 /**
@@ -164,9 +183,21 @@ void Tileset::load() {
  */
 void Tileset::unload() {
 
+  if (!is_loaded()) {
+    return;
+  }
+
+  std::lock_guard<std::mutex> lock(load_mutex);
+
+  if (!is_loaded()) {
+    return;
+  }
+
   tile_patterns.clear();
   tiles_image = nullptr;
   entities_image = nullptr;
+
+  loaded = false;
 }
 
 /**
@@ -178,18 +209,21 @@ const Color& Tileset::get_background_color() const {
 }
 
 /**
- * \brief Returns whether this tileset is loaded.
- * \return \c true if this tileset is loaded.
- */
-bool Tileset::is_loaded() const {
-  return tiles_image != nullptr;
-}
-
-/**
  * \brief Returns the image containing the tiles of this tileset.
  * \return The tiles image.
  */
 const SurfacePtr& Tileset::get_tiles_image() const {
+
+  if (tiles_image == nullptr) {
+    if (tiles_image_soft == nullptr) {
+      tiles_image = Surface::create(16, 16);
+    }
+    else {
+      tiles_image = Surface::create(std::move(tiles_image_soft));
+    }
+    tiles_image_soft = nullptr;
+  }
+
   return tiles_image;
 }
 
@@ -199,6 +233,16 @@ const SurfacePtr& Tileset::get_tiles_image() const {
  * Returns \c nullptr if it does not exist.
  */
 const SurfacePtr& Tileset::get_entities_image() const {
+
+  if (entities_image == nullptr) {
+    if (entities_image_soft == nullptr) {
+      entities_image = Surface::create(16, 16);
+    }
+    else {
+      entities_image = Surface::create(std::move(entities_image_soft));
+    }
+    entities_image_soft = nullptr;
+  }
   return entities_image;
 }
 
@@ -234,6 +278,16 @@ void Tileset::set_images(const std::string& other_id) {
   entities_image = tmp_tileset.get_entities_image();
 
   background_color = tmp_tileset.get_background_color();
+}
+
+/**
+ * \brief Updates all patterns of this tileset.
+ */
+void Tileset::update() {
+
+  for (const auto& pattern : animated_tile_patterns) {
+    pattern->update();
+  }
 }
 
 }

@@ -20,56 +20,53 @@
 #include "solarus/core/Common.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/entities/TilePattern.h"
+#include <cstdint>
+#include <vector>
 
 namespace Solarus {
 
 /**
- * \brief Animated tile pattern.
+ * \brief Multi-frame tile pattern.
  *
  * Unlike simple tile patterns that always display the same image,
- * an animated tile pattern displays three frames alternatively.
+ * an animated tile pattern displays successive frames.
  */
 class AnimatedTilePattern: public TilePattern {
 
   public:
 
-    /**
-     * \brief Tile animation sequence mode: 0-1-2 or 0-1-2-1.
-     */
-    enum AnimationSequence {
-      ANIMATION_SEQUENCE_012  = 1,
-      ANIMATION_SEQUENCE_0121 = 2
-    };
+    AnimatedTilePattern(
+        Ground ground,
+        const std::vector<Rectangle>& frames,
+        uint32_t frame_delay,
+        bool mirror_loop,
+        bool parallax
+    );
 
-    AnimatedTilePattern(Ground ground, AnimationSequence sequence,
-        const Size& size, int x1, int y1, int x2, int y2, int x3, int y3,
-        bool parallax);
+    void update() override;
 
-    static void initialize();
-    static void update();
-    static void quit();
-
-    virtual void draw(
+    void draw(
         const SurfacePtr& dst_surface,
         const Point& dst_position,
         const Tileset& tileset,
         const Point& viewport
     ) const override;
-    virtual bool is_drawn_at_its_position() const override;
+    bool is_drawn_at_its_position() const override;
 
   private:
 
-    // static variables to handle the animations of all tiles
-    static int frame_counter;         /**< Frame counter (0 to 11), increased every 250 ms. */
-    static int current_frames[3];     /**< Current frame (0 to 2) for both sequences. */
-    static uint32_t next_frame_date;  /**< Date of the next frame change. */
-
-    const AnimationSequence sequence; /**< Animation sequence type of this tile pattern: 0-1-2-1 or 0-1-2. */
-
-    Rectangle position_in_tileset[3]; /**< Array of 3 rectangles representing the 3 animation frames
+    std::vector<Rectangle> frames;    /**< List of rectangles representing the animation frames
                                        * of this tile pattern in the tileset image.
-                                       * The 3 frames should have the same width and height. */
+                                       * The frames should have the same width and height. */
+    uint32_t frame_delay;             /**< Delay between frames in milliseconds. */
+    bool mirror_loop;                 /**< Whether to play the animation backwards when it loops. */
     bool parallax;                    /**< Indicates that the tile pattern also makes parallax scrolling */
+
+    int frame_index;                  /**< Index of the current frame.
+                                       * - if no mirror loop: between 0 and frames.size() - 1
+                                       * - if mirror loop: between 0 and 2 * frames.size() - 3 */
+    uint32_t next_frame_date;         /**< Date of the next frame change. */
+
 
 };
 

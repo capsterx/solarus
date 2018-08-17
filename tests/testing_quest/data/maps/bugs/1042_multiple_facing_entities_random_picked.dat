@@ -1,0 +1,203 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+block{
+  name = "block_1",
+  layer = 0,
+  x = 40,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 0,
+}
+
+block{
+  name = "block_2",
+  layer = 0,
+  x = 48,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_3",
+  layer = 0,
+  x = 56,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_4",
+  layer = 0,
+  x = 64,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_5",
+  layer = 0,
+  x = 72,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_6",
+  layer = 0,
+  x = 80,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_7",
+  layer = 0,
+  x = 88,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_8",
+  layer = 0,
+  x = 96,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_9",
+  layer = 0,
+  x = 104,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_10",
+  layer = 0,
+  x = 112,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_11",
+  layer = 0,
+  x = 120,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_12",
+  layer = 0,
+  x = 128,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_13",
+  layer = 0,
+  x = 136,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_14",
+  layer = 0,
+  x = 144,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_15",
+  layer = 0,
+  x = 152,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_16",
+  layer = 0,
+  x = 160,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+

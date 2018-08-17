@@ -18,6 +18,7 @@
 #define SOLARUS_POINT_H
 
 #include "solarus/core/Common.h"
+#include "solarus/core/Size.h"
 #include <iosfwd>
 
 #include <glm/vec2.hpp>
@@ -38,6 +39,7 @@ class Point {
 
     constexpr Point();
     constexpr Point(int x, int y);
+    constexpr explicit Point(const Size& size);
 
     ////////////////////////////////////////////////////////////
     // Operators

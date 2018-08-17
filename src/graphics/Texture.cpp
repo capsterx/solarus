@@ -7,12 +7,12 @@ namespace Solarus {
 
 /**
  * @brief Texture::Texture
- * @param surface valid sdl surface, ownership is taken by the texture
+ * @param surface valid sdl surface
  */
-Texture::Texture(SDL_Surface *surface)
-    : surface(surface)
+Texture::Texture(SDL_Surface_UniquePtr surface)
+    : surface(std::move(surface))
 {
-  SDL_Texture* tex = SDL_CreateTextureFromSurface(Video::get_renderer(),surface);
+  SDL_Texture* tex = SDL_CreateTextureFromSurface(Video::get_renderer(), this->surface.get());
   Debug::check_assertion(tex != nullptr,
         std::string("Failed to convert surface to texture") + SDL_GetError());
   texture.reset(tex);
@@ -21,14 +21,14 @@ Texture::Texture(SDL_Surface *surface)
 /**
  * \copydoc SurfaceImpl::get_texture
  */
-SDL_Texture *Texture::get_texture() const {
+SDL_Texture* Texture::get_texture() const {
     return texture.get();
 }
 
 /**
  * \copydoc SurfaceImpl::get_surface
  */
-SDL_Surface *Texture::get_surface() const {
+SDL_Surface* Texture::get_surface() const {
     return surface.get();
 }
 
@@ -53,7 +53,9 @@ RenderTexture* Texture::to_render_texture() {
     RenderTexture* rt = new RenderTexture(get_width(),get_height());
     rt->draw_other(*this,DrawInfos(Rectangle(Point(),Size(get_width(),get_height())),
                                    Point(),
-                                   BlendMode::NONE,255,Surface::draw_proxy));
+                                   Point(),
+                                   BlendMode::NONE,255,
+                                   0,Scale(),Surface::draw_proxy));
     return rt;
 }
 

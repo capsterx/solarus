@@ -26,10 +26,11 @@
 #include "solarus/graphics/Hq3xFilter.h"
 #include "solarus/graphics/Hq4xFilter.h"
 #include "solarus/graphics/Scale2xFilter.h"
-#include "solarus/graphics/ShaderContext.h"
+#include "solarus/graphics/Shader.h"
 #include "solarus/graphics/SoftwareVideoMode.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Video.h"
+#include "solarus/graphics/RenderTexture.h"
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -37,6 +38,11 @@
 #include <SDL.h>
 #include <SDL_render.h>
 #include <SDL_hints.h>
+#ifdef SOLARUS_HAVE_OPENGL
+#  include <SDL_opengl.h>
+#else
+#  include <SDL_opengles2.h>
+#endif
 
 namespace Solarus {
 
@@ -52,6 +58,7 @@ struct VideoContext {
   SDL_PixelFormat* pixel_format = nullptr;  /**< The pixel color format to use. */
   SDL_PixelFormat* rgba_format = nullptr;
   SDL_Surface* software_surface = nullptr;
+
   std::string rendering_driver_name;        /**< The name of the rendering driver. */
   bool disable_window = false;              /**< Indicates that no window is displayed (used for unit tests). */
   bool fullscreen_window = false;           /**< True if the window is in fullscreen. */
@@ -67,10 +74,12 @@ struct VideoContext {
   Size window_size;                         /**< Size of the window. The quest size is stretched and
                                              * letterboxed to fit. In fullscreen, remembers the size
                                              * to use when returning to windowed mode. */
+  Size logical_size;                        /**< Size of the window minus the letterboxing black bars */
 
   // Shaders.
   bool rendertarget_supported = false;      /**< True if rendering on texture is supported. */
   SDL_Texture* render_target = nullptr;     /**< The render texture used. */
+  bool valid_target = false;                /**< The validity of the bound target */
   bool shaders_enabled = false;             /**< True if shaded modes support is enabled. */
   ShaderPtr current_shader = nullptr;       /**< The shader currently used or nullptr. */
 
@@ -82,7 +91,12 @@ struct VideoContext {
   const SoftwareVideoMode*
       default_video_mode = nullptr;         /**< Default software video mode. */
   SurfacePtr scaled_surface = nullptr;      /**< The screen surface used with software-scaled modes. */
+  SurfacePtr screen_surface = nullptr;      /**< Strange surface representing the window */
 
+  std::string opengl_version;
+  std::string shading_language_version;
+  std::string opengl_vendor;
+  std::string opengl_renderer;
 };
 
 VideoContext context;
@@ -96,10 +110,10 @@ void create_window() {
   Debug::check_assertion(context.main_window == nullptr, "Window already exists");
 
   // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
-  SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_OVERRIDE);
+  SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
 
   // Set the default OpenGL built-in shader (nearest).
-  SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "0");
+  SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "1");
 
   std::string title = std::string("Solarus ") + SOLARUS_VERSION;
   context.main_window = SDL_CreateWindow(
@@ -114,12 +128,12 @@ void create_window() {
   Debug::check_assertion(context.main_window != nullptr,
       std::string("Cannot create the window: ") + SDL_GetError());
 
+  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
   context.main_renderer = SDL_CreateRenderer(
-        context.main_window,
-        -1,
-        SDL_RENDERER_ACCELERATED
+      context.main_window,
+      -1,
+      SDL_RENDERER_ACCELERATED
   );
-
 
   if (context.main_renderer == nullptr) {
     // Try without acceleration.
@@ -128,9 +142,6 @@ void create_window() {
 
   Debug::check_assertion(context.main_renderer != nullptr,
       std::string("Cannot create the renderer: ") + SDL_GetError());
-
-  // Allow blending mode for direct drawing primitives.
-  SDL_SetRenderDrawBlendMode(context.main_renderer, SDL_BLENDMODE_BLEND);
 
   // Get the first renderer format which supports alpha channel and is not a unique format.
   SDL_RendererInfo renderer_info;
@@ -143,17 +154,27 @@ void create_window() {
       break;
     }
   }
-  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
-
   Debug::check_assertion(context.pixel_format != nullptr, "No compatible pixel format");
+  Logger::info("SDL Renderer: " + std::string(renderer_info.name));
+
+  context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+  context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
+  Logger::info(std::string("OpenGL: ") + context.opengl_version);
+  Logger::info(std::string("OpenGL vendor: ") + context.opengl_vendor);
+  Logger::info(std::string("OpenGL renderer: ") + context.opengl_renderer);
+  Logger::info(std::string("OpenGL shading language: ") + context.shading_language_version);
 
   // Check renderer's flags
   context.rendering_driver_name = renderer_info.name;
   context.rendertarget_supported = (renderer_info.flags & SDL_RENDERER_TARGETTEXTURE) != 0;
 
   // Decide whether we enable shaders.
-  context.shaders_enabled = context.rendertarget_supported &&
-      ShaderContext::initialize();
+  context.shaders_enabled =
+      context.rendertarget_supported &&
+      Shader::initialize();
 }
 
 /**
@@ -218,6 +239,12 @@ void initialize(const Arguments& args) {
   oss << "SDL: " << static_cast<int>(sdl_version.major) << "." << static_cast<int>(sdl_version.minor) << "." << static_cast<int>(sdl_version.patch);
   Logger::info(oss.str());
 
+  // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
+  SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
+
+  // Set the default OpenGL built-in shader (nearest).
+  SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "1");
+
   // Check the -no-video and the -quest-size options.
   const std::string& quest_size_string = args.get_argument_value("-quest-size");
   context.disable_window = args.has_argument("-no-video");
@@ -237,15 +264,16 @@ void initialize(const Arguments& args) {
     // Create a pixel format anyway to make surface and color operations work,
     // even though nothing will ever be rendered.
     context.pixel_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
-    context.software_surface = SDL_CreateRGBSurface(0,
-                                                320,
-                                                240,
-                                                32,
-                                                context.pixel_format->Rmask,
-                                                context.pixel_format->Gmask,
-                                                context.pixel_format->Bmask,
-                                                context.pixel_format->Amask
-                                                    );
+    context.software_surface = SDL_CreateRGBSurface(
+        0,
+        320,
+        240,
+        32,
+        context.pixel_format->Rmask,
+        context.pixel_format->Gmask,
+        context.pixel_format->Bmask,
+        context.pixel_format->Amask
+    );
     context.rgba_format = context.pixel_format;
     context.main_renderer = SDL_CreateSoftwareRenderer(context.software_surface);
   }
@@ -262,8 +290,6 @@ void quit() {
   if (!is_initialized()) {
     return;
   }
-
-  ShaderContext::quit();
 
   if (is_fullscreen()) {
     // Get back on desktop before destroy the window.
@@ -317,14 +343,6 @@ SDL_Renderer* get_renderer() {
 }
 
 /**
- * \brief Returns the render texture target, if any.
- * \return The render target, or nullptr.
- */
-SDL_Texture* get_render_target() {
-    return context.render_target;
-  }
-
-/**
  * \brief Returns the pixel format to use.
  * \return The pixel format to use.
  */
@@ -333,11 +351,27 @@ SDL_PixelFormat* get_pixel_format() {
 }
 
 /**
- * @brief Return the ABGR8888 format
- * @return
+ * @brief Return the ABGR8888 format.
+ * @return The ABGR8888 format.
  */
 SDL_PixelFormat* get_rgba_format() {
   return context.rgba_format;
+}
+
+/**
+ * \brief Returns the OpenGL version name.
+ * \return The OpenGL version name.
+ */
+const std::string& get_opengl_version() {
+  return context.opengl_version;
+}
+
+/**
+ * \brief Returns the shading language version.
+ * \return The shading language version.
+ */
+const std::string& get_shading_language_version() {
+  return context.shading_language_version;
 }
 
 /**
@@ -345,22 +379,25 @@ SDL_PixelFormat* get_rgba_format() {
  * \return a string containing the rendering driver name.
  */
 const std::string& get_rendering_driver_name() {
-
   return context.rendering_driver_name;
 }
 
 /**
- * \brief Show the window.
+ * \brief Shows the window if it is not disabled.
  */
 void show_window() {
-  SDL_ShowWindow(context.main_window);
+  if (!context.disable_window) {
+    SDL_ShowWindow(context.main_window);
+  }
 }
 
 /**
- * \brief hide_window
+ * \brief Hides the window.
  */
 void hide_window() {
-  SDL_HideWindow(context.main_window);
+  if (!context.disable_window) {
+    SDL_HideWindow(context.main_window);
+  }
 }
 
 /**
@@ -386,22 +423,61 @@ void render(const SurfacePtr& quest_surface) {
     surface_to_render = context.scaled_surface;
   }
 
-  if (context.current_shader != nullptr) {
-    // OpenGL rendering with the current shader.
-    SDL_SetRenderTarget(get_renderer(),nullptr);
-    SDL_RenderClear(get_renderer());
-    context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
-    SDL_GL_SwapWindow(Video::get_window());
-  }
-  else {
-    // SDL rendering.
-    SDL_SetRenderTarget(context.main_renderer,nullptr);
+  //Declare local clear screen routine
+  auto clearScreen = [&](){
+    set_render_target(nullptr);
     SDL_SetRenderDrawColor(context.main_renderer, 0, 0, 0, 255);
     SDL_RenderSetClipRect(context.main_renderer, nullptr);
     SDL_RenderClear(context.main_renderer);
-    SDL_RenderCopy(context.main_renderer, surface_to_render->get_internal_surface().get_texture(), nullptr, nullptr);
-    SDL_RenderPresent(context.main_renderer);
+  };
+
+  //See if there is a shader to apply
+  if (context.current_shader != nullptr) {
+    float scale_factor = context.current_shader->get_data().get_scaling_factor();
+    //See if the shader must be draw to a intermediate surface
+    if(scale_factor > 0.f) {
+      context.current_shader->draw(
+            *context.scaled_surface.get(),
+            *quest_surface,
+            DrawInfos(Rectangle(quest_surface->get_size()),
+                      Point(),
+                      Point(),
+                      BlendMode::BLEND,
+                      255,0,
+                      Scale(scale_factor),
+                      Surface::draw_proxy /*dont care about this anyway*/));
+      surface_to_render = context.scaled_surface;
+    } else {
+      //Shader can be draw directly to screen
+      clearScreen();
+      surface_to_render = nullptr; //Final SDL render is not nessesary
+      context.screen_surface->request_render().with_target([&](SDL_Renderer*) { //Bind screen surface to account virtual surface dirtyness
+        // OpenGL rendering with the current shader.
+        context.current_shader->render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
+      });
+    }
   }
+  //Render the final surface with sdl if necessary
+  if(surface_to_render) {
+    clearScreen();
+    // SDL rendering.
+    //Set blending mode to none to simply replace any on_screen material
+    context.screen_surface->request_render().with_target([&](SDL_Renderer*) { //Bind screen surface to account virtual surface dirtyness
+      SDL_SetTextureBlendMode(surface_to_render->get_internal_surface().get_texture(),SDL_BLENDMODE_NONE);
+      SDL_RenderCopy(context.main_renderer, surface_to_render->get_internal_surface().get_texture(), nullptr, nullptr);
+    });
+  }
+}
+
+/**
+ * @brief present the final result to the screen
+ */
+void finish() {
+  SDL_RenderPresent(context.main_renderer);
+}
+
+SurfacePtr& get_screen_surface() {
+  return context.screen_surface;
 }
 
 /**
@@ -508,16 +584,6 @@ void set_quest_size_range(
     context.quest_size = context.wanted_quest_size;
   }
 
-  // Initialize the render target.
-  context.render_target = SDL_CreateTexture(
-      context.main_renderer,
-      context.pixel_format->format,
-      SDL_TEXTUREACCESS_TARGET,
-      context.quest_size.width,
-      context.quest_size.height
-  );
-  SDL_SetTextureBlendMode(context.render_target, SDL_BLENDMODE_BLEND);
-
   // We know the quest size: we can initialize legacy video modes.
   initialize_software_video_modes();
 }
@@ -591,8 +657,20 @@ void set_shader(const ShaderPtr& shader) {
 
   context.current_shader = shader;
 
+  if (context.current_shader) {
+    float s = context.current_shader->get_data().get_scaling_factor();
+    if (s > 0.f) { // Create scaled surface if needed
+      context.scaled_surface = Surface::create(context.quest_size * Scale(s));
+    }
+  }
+
   if (shader != nullptr) {
-    Logger::info("Shader: " + shader->get_id());
+    if (!shader->get_id().empty()) {
+      Logger::info("Shader: '" + shader->get_id() + "'");
+    }
+    else {
+      Logger::info("Shader: active");
+    }
   }
   else {
     Logger::info("Shader: none");
@@ -714,11 +792,6 @@ bool set_video_mode(const SoftwareVideoMode& mode) {
       context.scaled_surface->fill_with_color(Color::black);  // To initialize the internal surface.
     }
 
-    SDL_RenderSetLogicalSize(
-        context.main_renderer,
-        render_size.width,
-        render_size.height);
-
     if (mode_changed) {
       reset_window_size();
     }
@@ -829,6 +902,7 @@ void set_window_size(const Size& size) {
           size.width,
           size.height
       );
+      on_window_resized(size);
       SDL_SetWindowPosition(
           context.main_window,
           SDL_WINDOWPOS_CENTERED,
@@ -846,6 +920,36 @@ void reset_window_size() {
   Debug::check_assertion(context.video_mode != nullptr, "No video mode");
 
   set_window_size(context.video_mode->get_initial_window_size());
+}
+
+/**
+ * @brief return a letter boxed size
+ * @param basesize window base size
+ * @return
+ */
+Size get_letter_box(const Size& basesize) {
+  float qratio = context.quest_size.width / (float) context.quest_size.height;
+  float wratio = basesize.width / (float) basesize.height;
+  if(qratio > wratio) {
+    return Size(basesize.width,basesize.width/qratio);
+  } else {
+    return Size(basesize.height*qratio, basesize.height);
+  }
+}
+
+/**
+ * @brief Window resize event
+ * @param size new window size
+ */
+void on_window_resized(const Size& size) {
+  Size letter = get_letter_box(size);
+  SurfaceImplPtr surface_impl(new RenderTexture(nullptr, letter.width,letter.height));
+  context.screen_surface = Surface::create(surface_impl);
+  context.logical_size = letter;
+  SDL_RenderSetLogicalSize(
+      context.main_renderer,
+      letter.width,
+      letter.height);
 }
 
 /**
@@ -942,14 +1046,11 @@ Point window_to_quest_coordinates(const Point& window_xy) {
 /**
  * \brief Converts logical renderer coordinates to quest size coordinates.
  * \param[in] renderer_xy A position in renderer coordinates, without window scaling.
- * \param[out] quest_xy The corresponding value in quest coordinates.
- * \return \c false if the position is not inside the renderer.
+ * \return The corresponding value in quest coordinates.
  */
-bool renderer_to_quest_coordinates(
-    const Point& renderer_xy,
-    Point& quest_xy
+Point renderer_to_quest_coordinates(
+    const Point& renderer_xy
 ) {
-
   int renderer_width = 0;
   int renderer_height = 0;
   SDL_RenderGetLogicalSize(get_renderer(), &renderer_width, &renderer_height);
@@ -957,20 +1058,32 @@ bool renderer_to_quest_coordinates(
   const double quest_width = context.quest_size.width;
   const double quest_height = context.quest_size.height;
 
-  quest_xy = {
+  return {
       (int) (renderer_xy.x * quest_width / renderer_width),
       (int) (renderer_xy.y * quest_height / renderer_height)
   };
+}
 
-  if (quest_xy.x < 0
-      || quest_xy.y < 0
-      || quest_xy.x >= quest_width
-      || quest_xy.y >= quest_height
-  ) {
-    return false;
+/**
+ * @brief Conservatly set the current render target.
+ * @param target An SDL texture with target capabilities.
+ */
+void set_render_target(SDL_Texture* target) {
+  if(target != context.render_target || !context.valid_target) {
+    SDL_SetRenderTarget(context.main_renderer,target);
+    context.render_target=target;
+    context.valid_target = true;
   }
+}
 
-  return true;
+/**
+ * @brief invalidate potential current target
+ * @param target the render target to invalidate
+ */
+void invalidate_target(SDL_Texture* target) {
+  if(context.render_target == target) {
+    context.valid_target = false;
+  }
 }
 
 }  // namespace Video

@@ -25,41 +25,57 @@ namespace Solarus {
  * \brief Creates an empty shader data.
  */
 ShaderData::ShaderData() :
-    vertex_source(),
-    fragment_source() {
+    vertex_file(),
+    fragment_file() {
 
 }
 
 /**
- * \brief Returns the vertex shader source.
- * \return The source of the vertex shader or an empty string.
+ * \brief Returns the vertex shader file name.
+ * \return The file of the vertex shader or an empty string.
  */
-const std::string& ShaderData::get_vertex_source() const {
-  return vertex_source;
+const std::string& ShaderData::get_vertex_file() const {
+  return vertex_file;
 }
 
 /**
- * \brief Sets the vertex shader source.
- * \param vertex_source The source of the vertex shader or an empty string.
+ * \brief Sets the vertex shader file.
+ * \param vertex_file The file of the vertex shader or an empty string.
  */
-void ShaderData::set_vertex_source(const std::string& vertex_source) {
-  this->vertex_source = vertex_source;
+void ShaderData::set_vertex_file(const std::string& vertex_file) {
+  this->vertex_file = vertex_file;
 }
 
 /**
- * \brief Returns the fragment shader source.
- * \return The source of the fragment shader or an empty string.
+ * \brief Returns the fragment shader file.
+ * \return The file of the fragment shader or an empty string.
  */
-const std::string& ShaderData::get_fragment_source() const {
-  return fragment_source;
+const std::string& ShaderData::get_fragment_file() const {
+  return fragment_file;
 }
 
 /**
- * \brief Sets the fragment shader source.
- * \param fragment_source The source of the fragment shader or an empty string.
+ * \brief Sets the fragment shader file.
+ * \param fragment_file The file of the fragment shader or an empty string.
  */
-void ShaderData::set_fragment_source(const std::string& fragment_source) {
-  this->fragment_source = fragment_source;
+void ShaderData::set_fragment_file(const std::string& fragment_file) {
+  this->fragment_file = fragment_file;
+}
+
+/**
+ * \brief Returns the scaling factor of this shader.
+ * \return The scaling factor (0.0 means none).
+ */
+double ShaderData::get_scaling_factor() const {
+  return scaling_factor;
+}
+
+/**
+ * \brief Sets the scaling factor of this shader.
+ * \param scaling_factor The scaling factor (0.0 means none).
+ */
+void ShaderData::set_scaling_factor(double scaling_factor) {
+  this->scaling_factor = scaling_factor;
 }
 
 /**
@@ -85,18 +101,22 @@ bool ShaderData::import_from_lua(lua_State* l) {
 bool ShaderData::export_to_lua(std::ostream& out) const {
 
   out << "shader{\n";
-
-  if (!vertex_source.empty()) {
-    export_multiline_string("vertex_source", vertex_source, out);
+  if (!vertex_file.empty()) {
+    out << "  vertex_file = \"" << escape_string(vertex_file) << "\",\n";
   }
-  out << '\n';
-  export_multiline_string("fragment_source", fragment_source, out);
+  if (!fragment_file.empty()) {
+    out << "  fragment_file = \"" << escape_string(fragment_file) << "\",\n";
+  }
+  if (scaling_factor != 0.0) {
+    out << "  scaling_factor = " << scaling_factor << ",\n";
+  }
+  out << "}\n";
 
   return true;
 }
 
 /**
- * \brief Function called by the Lua data file to define a shader.
+ * \brief Function called by the Lua data file to define the shader.
  *
  * - Argument 1 (table): properties of the shader.
  *
@@ -115,17 +135,15 @@ int ShaderData::l_shader(lua_State* l) {
     // Retrieve the shader properties from the table parameter.
     LuaTools::check_type(l, 1, LUA_TTABLE);
 
-    const std::string vertex_source =
-        LuaTools::opt_string_field(l, 1, "vertex_source", "");
-            /*"void main(){\n\
-             gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n\
-             gl_TexCoord[0] = gl_MultiTexCoord0;\n\
-           }");*/
-    const std::string fragment_source =
-        LuaTools::check_string_field(l, 1, "fragment_source");
+    const std::string vertex_file =
+        LuaTools::opt_string_field(l, 1, "vertex_file", "");
+    const std::string fragment_file =
+        LuaTools::opt_string_field(l, 1, "fragment_file", "");
+    double scaling_factor = LuaTools::opt_number_field(l, 1, "scaling_factor", 0.0);
 
-    shader_data->set_vertex_source(vertex_source);
-    shader_data->set_fragment_source(fragment_source);
+    shader_data->set_vertex_file(vertex_file);
+    shader_data->set_fragment_file(fragment_file);
+    shader_data->set_scaling_factor(scaling_factor);
 
     return 0;
   });

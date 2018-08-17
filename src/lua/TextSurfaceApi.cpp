@@ -64,7 +64,7 @@ void LuaContext::register_text_surface_module() {
   };
 
   // Methods of the text_surface type.
-  const std::vector<luaL_Reg> methods = {
+  std::vector<luaL_Reg> methods = {
       { "get_horizontal_alignment", text_surface_api_get_horizontal_alignment },
       { "set_horizontal_alignment", text_surface_api_set_horizontal_alignment },
       { "get_vertical_alignment", text_surface_api_get_vertical_alignment },
@@ -85,8 +85,6 @@ void LuaContext::register_text_surface_module() {
       { "draw_region", drawable_api_draw_region },
       { "get_blend_mode", drawable_api_get_blend_mode },
       { "set_blend_mode", drawable_api_set_blend_mode },
-      { "set_shader", drawable_api_set_shader},
-      { "get_shader", drawable_api_get_shader},
       { "fade_in", drawable_api_fade_in },
       { "fade_out", drawable_api_fade_out },
       { "get_xy", drawable_api_get_xy },
@@ -94,6 +92,21 @@ void LuaContext::register_text_surface_module() {
       { "get_movement", drawable_api_get_movement },
       { "stop_movement", drawable_api_stop_movement }
   };
+
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    methods.insert(methods.end(), {
+      { "set_shader", drawable_api_set_shader },
+      { "get_shader", drawable_api_get_shader },
+      { "get_opacity", drawable_api_get_opacity },
+      { "set_opacity", drawable_api_set_opacity },
+      { "set_rotation", drawable_api_set_rotation },
+      { "get_rotation", drawable_api_get_rotation },
+      { "set_scale", drawable_api_set_scale },
+      { "get_scale", drawable_api_get_scale },
+      { "set_transformation_origin", drawable_api_set_transformation_origin },
+      { "get_transformation_origin", drawable_api_get_transformation_origin },
+    });
+  }
 
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", drawable_meta_gc }

@@ -4,8 +4,7 @@ local game = map:get_game()
 function map:on_started()
 
   hero:assert_position_equal(sensor_on_started)
-  hero:assert_state_ground_animation("free", "empty", "stopped")
-  -- TODO fix initial ground after scrolling
+  hero:assert_state_ground_animation("free", "traversable", "stopped")
 end
 
 function map:on_opening_transition_finished()

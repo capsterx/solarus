@@ -15,14 +15,17 @@ function assert_equal(actual, expected)
   end
 end
 
-function sol.main.on_started()
+function sol.main:on_started()
 
-  sol.language.set_language("en")
+  assert_equal(sol.language.get_language(), "en")
+  assert_equal(sol.main.get_game(), nil)
 end
 
 local game_meta = sol.main.get_metatable("game")
 function game_meta:on_started()
 
+  assert(sol.main.get_game() ~= nil)
+  assert(sol.main.get_game() == self)
   local hero = self:get_hero()
   hero:set_tunic_sprite_id("main_heroes/eldran")
   self:set_max_life(40)

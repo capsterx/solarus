@@ -22,6 +22,7 @@
 #include "solarus/entities/EntityState.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Separator.h"
+#include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/TargetMovement.h"

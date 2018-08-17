@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -30,12 +31,18 @@ const std::string LuaContext::file_module_name = "sol.file";
  */
 void LuaContext::register_file_module() {
 
-  const std::vector<luaL_Reg> functions = {
+  std::vector<luaL_Reg> functions = {
       { "open", file_api_open },
       { "exists", file_api_exists },
       { "remove", file_api_remove },
-      { "mkdir", file_api_mkdir }
+      { "mkdir", file_api_mkdir },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    functions.insert(functions.end(), {
+        { "is_dir", file_api_is_dir },
+        { "list_dir", file_api_list_dir },
+    });
+  }
   register_functions(file_module_name, functions);
 
   // Store the original io.open function in the registry.
@@ -190,5 +197,49 @@ int LuaContext::file_api_mkdir(lua_State* l) {
   });
 }
 
+/**
+ * \brief Implementation of sol.file.is_dir().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::file_api_is_dir(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const std::string& file_name = LuaTools::check_string(l, 1);
+
+    lua_pushboolean(l, QuestFiles::data_file_is_dir(file_name));
+
+    return 1;
+  });
 }
 
+/**
+ * \brief Implementation of sol.file.list_dir().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::file_api_list_dir(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const std::string& dir_name = LuaTools::check_string(l, 1);
+    if (!QuestFiles::data_file_is_dir(dir_name)) {
+      lua_pushnil(l);
+      return 1;
+    }
+
+    const std::vector<std::string>& files = QuestFiles::data_file_list_dir(dir_name);
+
+    lua_createtable(l, files.size(), 0);
+    int i = 1;
+    for (const std::string& file : files) {
+      push_string(l, file);
+      lua_rawseti(l, -2, i);
+      ++i;
+    }
+
+    return 1;
+  });
+}
+
+}

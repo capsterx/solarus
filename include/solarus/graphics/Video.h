@@ -50,10 +50,13 @@ namespace Video {
     SDL_Window* get_window();
     SDL_Renderer* get_renderer();
 
-    SDL_Texture* get_render_target();
     SDL_PixelFormat* get_pixel_format();
     SDL_PixelFormat* get_rgba_format();
+
+    const std::string& get_opengl_version();
+    const std::string& get_shading_language_version();
     const std::string& get_rendering_driver_name();
+
     void show_window();
     void hide_window();
 
@@ -93,14 +96,21 @@ namespace Video {
     void set_window_size(const Size& size);
     void reset_window_size();
 
+    void on_window_resized(const Size& size);
+
     Size get_output_size();
     Size get_output_size_no_bars();
 
     Rectangle get_viewport();
     Point window_to_quest_coordinates(const Point& window_xy);
-    bool renderer_to_quest_coordinates(const Point& renderer_xy, Point& quest_xy);
+    Point renderer_to_quest_coordinates(const Point& renderer_xy);
 
     void render(const SurfacePtr& quest_surface);
+    void finish();
+
+    void set_render_target(SDL_Texture* target);
+    void invalidate_target(SDL_Texture* target);
+    SurfacePtr& get_screen_surface();
 
 }  // namespace Video
 

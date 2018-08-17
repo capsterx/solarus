@@ -154,7 +154,8 @@ bool Settings::load(const std::string& file_name) {
     return false;
   }
 
-  if (!QuestFiles::data_file_exists(file_name)) {
+  if (!QuestFiles::data_file_exists(file_name) ||
+      QuestFiles::data_file_is_dir(file_name)) {
     Debug::error("Cannot find settings file '" + file_name + "'");
     return false;
   }
@@ -288,7 +289,7 @@ void Settings::set_from_quest() {
   clear();
 
   if (Video::is_initialized()) {
-// TODO    set_string(key_video_mode, Video::get_shader_id());
+    set_string(key_video_mode, Video::get_video_mode().get_name());
     set_boolean(key_fullscreen, Video::is_fullscreen());
   }
   if (Sound::is_initialized()) {
@@ -314,12 +315,10 @@ void Settings::apply_to_quest() {
     // Video mode.
     auto video_mode_name = get_string(key_video_mode);
     if (video_mode_name.second) {
-      /* TODO
-      const VideoMode* video_mode = Video::get_video_mode_by_name(video_mode_name.first);
+      const SoftwareVideoMode* video_mode = Video::get_video_mode_by_name(video_mode_name.first);
       if (video_mode != nullptr) {
         Video::set_video_mode(*video_mode);
       }
-      */
     }
 
     // Fullscreen.

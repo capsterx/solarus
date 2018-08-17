@@ -49,6 +49,7 @@ Movement::Movement(bool ignore_obstacles):
   lua_notifications_enabled(true),
   suspended(false),
   when_suspended(0),
+  ignore_suspend(false),
   last_collision_box_on_obstacle(-1, -1),
   default_ignore_obstacles(ignore_obstacles),
   current_ignore_obstacles(ignore_obstacles),
@@ -390,6 +391,29 @@ void Movement::set_suspended(bool suspended) {
       when_suspended = now;
     }
   }
+}
+
+/**
+ * \brief Returns whether this movement continues when the game is suspended.
+ *
+ * Only makes sense for entity movements.
+ *
+ * \return \c true if the movement continues even when the game is suspended.
+ */
+bool Movement::get_ignore_suspend() const {
+  return ignore_suspend;
+}
+
+/**
+ * \brief Sets whether this movement continues when the game is suspended.
+ *
+ * Only makes sense for entity movements.
+ *
+ * \param ignore_suspend \c true to make the movement continue
+ * even when the game is suspended.
+ */
+void Movement::set_ignore_suspend(bool ignore_suspend) {
+  this->ignore_suspend = ignore_suspend;
 }
 
 /**

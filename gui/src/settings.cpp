@@ -52,7 +52,8 @@ void Settings::export_to_quest(const QString& quest_path) const {
 
   const std::string file_name = "settings.dat";
   Solarus::Settings solarus_settings;
-  if (Solarus::QuestFiles::data_file_exists(file_name)) {
+  if (Solarus::QuestFiles::data_file_exists(file_name) &&
+      !Solarus::QuestFiles::data_file_is_dir(file_name)) {
     // First, load the existing settings.dat to preserve unmodified values.
     solarus_settings.load(file_name);
   }

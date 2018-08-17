@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/audio/Sound.h"
 #include "solarus/core/Debug.h"
+#include "solarus/core/Equipment.h"
 #include "solarus/core/Game.h"
 #include "solarus/core/Geometry.h"
 #include "solarus/core/MainLoop.h"
@@ -62,6 +64,7 @@ Entity::Entity(
   main_loop(nullptr),
   map(nullptr),
   layer(layer),
+  z(0),
   bounding_box(xy, size),
   ground_below(Ground::EMPTY),
   origin(0, 0),
@@ -71,12 +74,14 @@ Entity::Entity(
   sprites(),
   default_sprite_name(),
   visible(true),
+  tiled(false),
   drawn_in_y_order(false),
   movement(nullptr),
   movement_notifications_enabled(true),
   facing_entity(nullptr),
   collision_modes(CollisionMode::COLLISION_NONE),
   layer_independent_collisions(false),
+  weight(-1),
   stream_action(nullptr),
   initialized(false),
   being_removed(false),
@@ -173,7 +178,7 @@ void Entity::update_ground_observers() {
   // Update overlapping entities that are sensible to their ground.
   const Rectangle& box = get_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  get_entities().get_entities_in_rectangle(box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (!entity_nearby->is_ground_observer()) {
@@ -251,32 +256,6 @@ void Entity::update_ground_below() {
  */
 bool Entity::can_be_drawn() const {
   return true;
-}
-
-/**
- * \brief Returns whether this entity has to be drawn in y order.
- *
- * This function returns whether an entity of this type should be drawn above
- * the hero and other entities having this property when it is in front of them.
- * This means that the displaying order of entities having this
- * feature depends on their y position. The entities without this feature
- * are drawn in the normal order (i.e. in the order of their creation),
- * and before the entities with this feature.
- *
- * \return \c true if this type of entity should be drawn at the same level
- * as the hero.
- */
-bool Entity::is_drawn_in_y_order() const {
-  return drawn_in_y_order;
-}
-
-/**
- * \brief Sets whether this entity should be drawn in y order.
- * \param drawn_in_y_order \c true to draw this entity at the same level
- * as the hero.
- */
-void Entity::set_drawn_in_y_order(bool drawn_in_y_order) {
-  this->drawn_in_y_order = drawn_in_y_order;
 }
 
 /**
@@ -456,17 +435,16 @@ const Game& Entity::get_game() const {
  * \brief Returns the entities of the current map.
  * \return The entities.
  */
-Entities& Entity::get_entities() {
-  Debug::check_assertion(map != nullptr, "No map was set");
+const Entities& Entity::get_entities() const {
+  SOLARUS_ASSERT(map != nullptr, "No map was set");
   return map->get_entities();
 }
 
 /**
- * \brief Returns the entities of the current map.
- * \return The entities.
+ * \overload Non-const version.
  */
-const Entities& Entity::get_entities() const {
-  Debug::check_assertion(map != nullptr, "No map was set");
+Entities& Entity::get_entities() {
+  SOLARUS_ASSERT(map != nullptr, "No map was set");
   return map->get_entities();
 }
 
@@ -560,14 +538,6 @@ void Entity::notify_being_removed() {
   if (get_hero().get_facing_entity() == this) {
     get_hero().set_facing_entity(nullptr);
   }
-}
-
-/**
- * \brief Returns the layer of the entity on the map.
- * \return The layer of the entity on the map.
- */
-int Entity::get_layer() const {
-  return layer;
 }
 
 /**
@@ -1173,9 +1143,13 @@ const Point& Entity::get_origin() const {
 
 /**
  * \brief Sets the origin point of the entity,
- * relative to the top-left corner of its rectangle.
- * \param x x coordinate of the origin
- * \param y y coordinate of the origin
+ * relative to the uppper-left corner of its bounding box.
+ *
+ * The bounding box of the entity is shifted so that the result
+ * of get_xy() does not change.
+ *
+ * \param x X coordinate of the origin.
+ * \param y Y coordinate of the origin.
  */
 void Entity::set_origin(int x, int y) {
 
@@ -1568,6 +1542,48 @@ void Entity::set_visible(bool visible) {
 }
 
 /**
+ * \brief Returns whether sprites this entity should repeat with tiling.
+ * \return \c true if sprites are tiled.
+ */
+bool Entity::is_tiled() const {
+  return tiled;
+}
+
+/**
+ * \brief Sets whether sprites this entity should repeat with tiling.
+ * \param tiled \c true to make sprites tiled.
+ */
+void Entity::set_tiled(bool tiled) {
+  this->tiled = tiled;
+}
+
+/**
+ * \brief Returns whether this entity has to be drawn in y order.
+ *
+ * This function returns whether an entity of this type should be drawn above
+ * the hero and other entities having this property when it is in front of them.
+ * This means that the displaying order of entities having this
+ * feature depends on their y position. The entities without this feature
+ * are drawn in the normal order (i.e. in the order of their creation),
+ * and before the entities with this feature.
+ *
+ * \return \c true if this type of entity should be drawn at the same level
+ * as the hero.
+ */
+bool Entity::is_drawn_in_y_order() const {
+  return drawn_in_y_order;
+}
+
+/**
+ * \brief Sets whether this entity should be drawn in y order.
+ * \param drawn_in_y_order \c true to draw this entity at the same level
+ * as the hero.
+ */
+void Entity::set_drawn_in_y_order(bool drawn_in_y_order) {
+  this->drawn_in_y_order = drawn_in_y_order;
+}
+
+/**
  * \brief Returns the current movement of the entity.
  * \return the entity's movement, or nullptr if there is no movement
  */
@@ -1695,7 +1711,20 @@ void Entity::start_stream_action(
  */
 void Entity::stop_stream_action() {
 
+  if (stream_action == nullptr) {
+    return;
+  }
+
+  old_stream_actions.emplace_back(std::move(stream_action));
   stream_action = nullptr;
+}
+
+/**
+ * \brief Destroys the old stream actions of this entity.
+ */
+void Entity::clear_old_stream_actions() {
+
+  old_stream_actions.clear();
 }
 
 /**
@@ -1817,6 +1846,45 @@ bool Entity::has_layer_independent_collisions() const {
  */
 void Entity::set_layer_independent_collisions(bool independent) {
   this->layer_independent_collisions = independent;
+}
+
+/**
+ * \brief Returns whether the hero can lift this entity.
+ */
+bool Entity::can_be_lifted() const {
+
+  return get_weight() >= 0 &&
+      get_equipment().has_ability(Ability::LIFT, get_weight());
+}
+
+/**
+ * \brief Returns the weight of this entity.
+ *
+ * This corresponds to the "lift" ability level required to lift the entity.
+ * Therefore, a value of 0 allows the hero to lift the entity unconditionally.
+ * A value of -1 means that the entity cannot be lifted.
+ *
+ * \return The weight of the entity or -1.
+ */
+int Entity::get_weight() const {
+  return weight;
+}
+
+/**
+ * \brief Sets the weight of this entity.
+ *
+ * This corresponds to the "lift" ability level required to lift the entity.
+ * Therefore, a value of 0 allows the hero to lift the entity unconditionally.
+ * A value of -1 means that the entity cannot be lifted.
+ *
+ * \param weight The weight of the entity or -1.
+ */
+void Entity::set_weight(int weight) {
+
+  this->weight = weight;
+  if (weight >= 0) {
+    add_collision_mode(CollisionMode::COLLISION_FACING);
+  }
 }
 
 /**
@@ -2365,7 +2433,7 @@ void Entity::set_enabled(bool enabled) {
       }
 
       if (is_on_map()) {
-        get_lua_context()->set_entity_timers_suspended(*this, false);
+        get_lua_context()->set_entity_timers_suspended_as_map(*this, false);
       }
     }
     notify_enabled(true);
@@ -2389,7 +2457,7 @@ void Entity::set_enabled(bool enabled) {
       }
 
       if (is_on_map()) {
-        get_lua_context()->set_entity_timers_suspended(*this, true);
+        get_lua_context()->set_entity_timers_suspended_as_map(*this, true);
       }
     }
     notify_enabled(false);
@@ -2400,7 +2468,7 @@ void Entity::set_enabled(bool enabled) {
  * \brief Notifies this entity that it was just enabled or disabled.
  * \param enabled \c true if the entity is now enabled.
  */
-void Entity::notify_enabled(bool /* enabled */) {
+void Entity::notify_enabled(bool enabled) {
 
   if (!is_on_map()) {
     return;
@@ -2410,6 +2478,14 @@ void Entity::notify_enabled(bool /* enabled */) {
     update_ground_observers();
   }
   update_ground_below();
+
+  if (enabled) {
+    get_lua_context()->entity_on_enabled(*this);
+  }
+  else {
+    get_lua_context()->entity_on_disabled(*this);
+  }
+
 }
 
 /**
@@ -3309,13 +3385,43 @@ void Entity::notify_attacked_enemy(
  * does not allow the hero to interact with the entity, like while he is
  * carrying an object.
  *
- * By default, nothing happens.
+ * By default, the entity is lifted if the player's lift ability allows it.
+ *
  * Redefine your function in the subclasses to make the hero interact with
- * this entity.
+ * this entity differently.
  *
  * \return \c true if an interaction happened.
  */
 bool Entity::notify_action_command_pressed() {
+
+  if (!can_be_lifted()) {
+    return false;
+  }
+
+  CommandsEffects::ActionKeyEffect effect = get_commands_effects().get_action_key_effect();
+  if (effect == CommandsEffects::ACTION_KEY_LIFT &&
+      get_hero().get_facing_entity() == this &&
+      get_hero().is_facing_point_in(get_bounding_box())) {
+
+    std::string sprite_id;
+    if (has_sprite()) {
+      sprite_id = get_sprite()->get_animation_set_id();
+    }
+    std::shared_ptr<CarriedObject> carried_object = std::make_shared<CarriedObject>(
+        get_hero(),
+        *this,
+        sprite_id,
+        "stone",
+        1,  // damage_on_enemies
+        0   // explosion_date
+    );
+    get_hero().start_lifting(carried_object);
+
+    Sound::play("lift");
+    remove_from_map();
+    get_lua_context()->entity_on_lifting(*this, get_hero(), *carried_object);
+  }
+
   return false;
 }
 
@@ -3403,7 +3509,9 @@ void Entity::set_suspended(bool suspended) {
 
   // Suspend/unsuspend the movement.
   if (movement != nullptr) {
-    movement->set_suspended(suspended || !is_enabled());
+    if (!movement->get_ignore_suspend()) {
+      movement->set_suspended(suspended || !is_enabled());
+    }
   }
   if (stream_action != nullptr) {
     stream_action->set_suspended(suspended || !is_enabled());
@@ -3411,7 +3519,7 @@ void Entity::set_suspended(bool suspended) {
 
   // Suspend/unsuspend timers.
   if (is_on_map()) {
-    get_lua_context()->set_entity_timers_suspended(*this, suspended || !is_enabled());
+    get_lua_context()->set_entity_timers_suspended_as_map(*this, suspended || !is_enabled());
   }
 
   if (!suspended) {
@@ -3476,13 +3584,15 @@ void Entity::update() {
   // Update the sprites.
   if (sprites.size() == 1) {
     // Special case just to avoid a copy of the vector.
-    update_sprite(*sprites[0].sprite);
+    if (!sprites[0].removed) {
+      update_sprite(*sprites[0].sprite);
+    }
   } else {
     // Iterate on a copy because the list might change during the iteration.
     std::vector<NamedSprite> sprites = this->sprites;
     for (const NamedSprite& named_sprite: sprites) {
       if (named_sprite.removed) {
-        return;
+        continue;
       }
       update_sprite(*named_sprite.sprite);
     }
@@ -3494,12 +3604,14 @@ void Entity::update() {
     movement->update();
   }
   clear_old_movements();
+
   if (stream_action != nullptr) {
     stream_action->update();
-    if (!get_stream_action()->is_active()) {
+    if (stream_action != nullptr && !get_stream_action()->is_active()) {
       stop_stream_action();
     }
   }
+  clear_old_stream_actions();
 
   // Update the state if any.
   update_state();
@@ -3558,13 +3670,33 @@ bool Entity::is_drawn_at_its_position() const {
  */
 void Entity::draw_on_map() {
 
+  const Point& xy = get_displayed_xy();
+  const Size& size = get_size();
+
   // Draw the sprites.
   for (const NamedSprite& named_sprite: sprites) {
     if (named_sprite.removed) {
       continue;
     }
     Sprite& sprite = *named_sprite.sprite;
-    get_map().draw_visual(sprite, get_displayed_xy());
+
+    if (!is_tiled()) {
+      get_map().draw_visual(sprite, xy);
+    }
+    else {
+      // Repeat the sprite with tiling.
+      const Size& sprite_size = sprite.get_size();
+      int x1 = xy.x;
+      int y1 = xy.y;
+      int x2 = x1 + size.width;
+      int y2 = y1 + size.height;
+
+      for (int y = y1; y < y2; y += sprite_size.height) {
+        for (int x = x1; x < x2; x += sprite_size.width) {
+          get_map().draw_visual(sprite, x, y);
+        }
+      }
+    }
   }
 }
 

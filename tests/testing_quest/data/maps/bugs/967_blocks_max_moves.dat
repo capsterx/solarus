@@ -1,0 +1,302 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 48,
+  y = 80,
+  width = 16,
+  height = 16,
+  pattern = "33",
+}
+
+tile{
+  layer = 0,
+  x = 64,
+  y = 128,
+  width = 16,
+  height = 16,
+  pattern = "33",
+}
+
+tile{
+  layer = 0,
+  x = 80,
+  y = 176,
+  width = 16,
+  height = 16,
+  pattern = "33",
+}
+
+tile{
+  layer = 0,
+  x = 112,
+  y = 224,
+  width = 16,
+  height = 16,
+  pattern = "33",
+}
+
+sensor{
+  name = "block_target_4",
+  layer = 0,
+  x = 40,
+  y = 61,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_1",
+  layer = 0,
+  x = 24,
+  y = 29,
+  width = 16,
+  height = 16,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 40,
+  y = 29,
+  direction = 0,
+}
+
+block{
+  name = "block_2",
+  layer = 0,
+  x = 56,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  maximum_moves = 1,
+}
+
+block{
+  name = "block_1",
+  layer = 0,
+  x = 24,
+  y = 29,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  maximum_moves = 0,
+}
+
+block{
+  name = "block_3",
+  layer = 0,
+  x = 56,
+  y = 45,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  maximum_moves = 2,
+}
+
+sensor{
+  name = "block_target_2",
+  layer = 0,
+  x = 72,
+  y = 29,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_3",
+  layer = 0,
+  x = 56,
+  y = 77,
+  width = 16,
+  height = 16,
+}
+
+block{
+  name = "block_4",
+  layer = 0,
+  x = 40,
+  y = 61,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_5",
+  layer = 0,
+  x = 72,
+  y = 61,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_6",
+  layer = 0,
+  x = 72,
+  y = 77,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+sensor{
+  name = "block_target_5",
+  layer = 0,
+  x = 88,
+  y = 61,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_6",
+  layer = 0,
+  x = 72,
+  y = 125,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_7",
+  layer = 0,
+  x = 56,
+  y = 109,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_8",
+  layer = 0,
+  x = 104,
+  y = 109,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_9",
+  layer = 0,
+  x = 88,
+  y = 173,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_10",
+  layer = 0,
+  x = 72,
+  y = 157,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_11",
+  layer = 0,
+  x = 136,
+  y = 157,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "block_target_12",
+  layer = 0,
+  x = 120,
+  y = 221,
+  width = 16,
+  height = 16,
+}
+
+block{
+  name = "block_7",
+  layer = 0,
+  x = 56,
+  y = 109,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 0,
+}
+
+block{
+  name = "block_8",
+  layer = 0,
+  x = 88,
+  y = 109,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_9",
+  layer = 0,
+  x = 88,
+  y = 125,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  name = "block_10",
+  layer = 0,
+  x = 72,
+  y = 157,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_11",
+  layer = 0,
+  x = 104,
+  y = 157,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_12",
+  layer = 0,
+  x = 120,
+  y = 173,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+

@@ -19,6 +19,8 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
+#include "solarus/entities/EntityPtr.h"
+#include "solarus/entities/HeroPtr.h"
 #include "solarus/graphics/SpritePtr.h"
 #include <string>
 
@@ -59,7 +61,11 @@ class CarriedObject: public Entity {
     EntityType get_type() const override;
     bool is_ground_observer() const override;
 
+    EntityPtr get_carrier() const;
     int get_damage_on_enemies() const;
+    void set_damage_on_enemies(int damage_on_enemies);
+    const std::string& get_destruction_sound() const;
+    void set_destruction_sound(const std::string& destruction_sound);
 
     void set_animation_stopped();
     void set_animation_walking();
@@ -113,7 +119,7 @@ class CarriedObject: public Entity {
     bool will_explode_soon() const;
 
     // game data
-    Hero& hero;                 /**< the hero, who is carrying or throwing this item */
+    HeroPtr hero;               /**< the hero, who is carrying or throwing this item */
 
     // state
     bool is_lifting;            /**< indicates that the hero is lifting this item */

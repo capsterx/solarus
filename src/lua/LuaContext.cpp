@@ -26,6 +26,7 @@
 #include "solarus/core/Timer.h"
 #include "solarus/core/Treasure.h"
 #include "solarus/entities/Block.h"
+#include "solarus/entities/CarriedObject.h"
 #include "solarus/entities/Chest.h"
 #include "solarus/entities/CustomEntity.h"
 #include "solarus/entities/Destination.h"
@@ -161,12 +162,18 @@ void LuaContext::initialize() {
   // This is not always the case by default.
   luaL_dostring(l, "io.stdout:setvbuf(\"line\")");
 
+  // Initially set the language if there is only one declared.
+  const std::map<std::string, std::string>& languages = CurrentQuest::get_resources(ResourceType::LANGUAGE);
+  if (languages.size() == 1) {
+    CurrentQuest::set_language(languages.begin()->first);
+  }
+
   Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after initialization");
 
   // Execute the main file.
-  do_file_if_exists(l, "main");
+  do_file_if_exists("main");
 
-  Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua Lua stack after running main.lua");
+  Debug::check_assertion(lua_gettop(l) == 0, "Non-empty Lua stack after running main.lua");
 
   main_on_started();
 }
@@ -258,7 +265,7 @@ void LuaContext::run_map(Map& map, Destination* destination) {
   std::string file_name = std::string("maps/") + map.get_id();
 
   // Load the map's code.
-  bool load_success = load_file(l, file_name);
+  bool load_success = load_file(file_name);
                                   // map_fun
 
   // Set a special environment to access map entities like global variables.
@@ -318,7 +325,7 @@ void LuaContext::run_item(EquipmentItem& item) {
   std::string file_name = std::string("items/") + item.get_name();
 
   // Load the item's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the item userdata as parameter.
     push_item(l, item);
@@ -342,7 +349,7 @@ void LuaContext::run_enemy(Enemy& enemy) {
   std::string file_name = std::string("enemies/") + enemy.get_breed();
 
   // Load the enemy's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the enemy userdata as parameter.
     push_enemy(l, enemy);
@@ -373,7 +380,7 @@ void LuaContext::run_custom_entity(CustomEntity& custom_entity) {
   std::string file_name = std::string("entities/") + model;
 
   // Load the entity's code.
-  if (load_file(l, file_name)) {
+  if (load_file(file_name)) {
 
     // Run it with the entity userdata as parameter.
     push_custom_entity(l, custom_entity);
@@ -675,12 +682,11 @@ bool LuaContext::call_function(
  * If the file does not exist or has a syntax error,
  * the stack is left intact and false is returned.
  *
- * \param l A Lua state.
  * \param script_name File name of the script with or without extension,
  * relative to the data directory.
  * \return true if the file exists and was loaded.
  */
-bool LuaContext::load_file(lua_State* l, const std::string& script_name) {
+bool LuaContext::load_file(const std::string& script_name) {
 
   // Determine the file name (possibly adding ".lua").
   std::string file_name(script_name);
@@ -716,13 +722,12 @@ bool LuaContext::load_file(lua_State* l, const std::string& script_name) {
  * This function just calls load_file() and call_function().
  * The file must exist.
  *
- * \param l A Lua state.
  * \param script_name File name of the script without extension,
  * relative to the data directory.
  */
-void LuaContext::do_file(lua_State* l, const std::string& script_name) {
+void LuaContext::do_file(const std::string& script_name) {
 
-  if (!load_file(l, script_name)) {
+  if (!load_file(script_name)) {
     Debug::error("Failed to load script '" + script_name + "'");
   }
   else {
@@ -736,18 +741,87 @@ void LuaContext::do_file(lua_State* l, const std::string& script_name) {
  * This function just calls load_file_if_exists() and call_function().
  * Nothing is done if the file does not exists.
  *
- * \param l A Lua state.
  * \param script_name File name of the script without extension,
  * relative to the data directory.
  * \return true if the file exists and was successfully executed.
  */
-bool LuaContext::do_file_if_exists(lua_State* l, const std::string& script_name) {
+bool LuaContext::do_file_if_exists(const std::string& script_name) {
 
-  if (load_file(l, script_name)) {
+  if (load_file(script_name)) {
     LuaTools::call_function(l, 0, 0, script_name.c_str());
     return true;
   }
   return false;
+}
+
+/**
+ * \brief Loads and executes some Lua code.
+ * \param code The code to execute.
+ * \param chunk_name A name describing the Lua chunk
+ * (only used to print the error message if any).
+ * \return \c true in case of success.
+ */
+bool LuaContext::do_string(const std::string& code, const std::string& chunk_name) {
+  int load_result = luaL_loadstring(l, code.c_str());
+
+  if (load_result != 0) {
+    Debug::error(std::string("In ") + chunk_name + ": "
+        + lua_tostring(l, -1));
+    lua_pop(l, 1);
+    return false;
+  }
+
+  return LuaTools::call_function(l, 0, 0, chunk_name.c_str());
+}
+
+/**
+ * \brief Executes Lua code in an environment with easy access to game objects.
+ *
+ * The environment provides:
+ * - game,
+ * - map,
+ * - entities from their name,
+ * - tp (teletransportation function).
+ *
+ * \param code The code to execute.
+ * \param chunk_name A name describing the Lua chunk
+ * (only used to print the error message if any).
+ * \return \c true in case of success.
+ */
+bool LuaContext::do_string_with_easy_env(const std::string& code, const std::string& chunk_name) {
+
+  int load_result = luaL_loadstring(l, code.c_str());
+
+  if (load_result != 0) {
+    Debug::error(std::string("In ") + chunk_name + ": "
+        + lua_tostring(l, -1));
+    lua_pop(l, 1);
+    return false;
+  }
+
+  // Set an environment that provides easy access to game objects.
+                                  // code
+  lua_newtable(l);
+                                  // code env
+  lua_newtable(l);
+                                  // code env env_mt
+  // Set our special __index function.
+  lua_pushcfunction(l, l_easy_index);
+                                  // code env env_mt __index
+  lua_setfield(l, -2, "__index");
+                                  // code env env_mt
+  // We are changing the environment, so we need to also define __newindex
+  // with its usual setting (the global table).
+  lua_pushvalue(l, LUA_GLOBALSINDEX);
+                                  // code env env_mt _G
+  lua_setfield(l, -2, "__newindex");
+                                  // code env env_mt
+  lua_setmetatable(l, -2);
+                                  // code env
+  lua_setfenv(l, -2);
+                                  // code
+
+  return LuaTools::call_function(l, 0, 0, chunk_name.c_str());
 }
 
 /**
@@ -1593,7 +1667,8 @@ bool LuaContext::on_input(const InputEvent& event) {
       handled = on_mouse_button_released(event) || handled;
     }
   }
-  else if (event.is_finger_event()) {
+  else if (event.is_finger_event() &&
+           CurrentQuest::is_format_at_least({ 1, 6 })) {
     // Touch finger.
     if (event.is_finger_pressed()) {
       handled = on_finger_pressed(event) || handled;
@@ -1838,30 +1913,26 @@ bool LuaContext::on_mouse_button_pressed(const InputEvent& event) {
   if (find_method("on_mouse_pressed")) {
 
     const std::string& button_name = enum_to_name(event.get_mouse_button());
-    Point mouse_xy;
-    bool in_quest = event.get_mouse_position(mouse_xy);
+    const Point mouse_xy = event.get_mouse_position();
 
-    // Don't call the Lua event if this button doesn't exist in the Solarus API
-    // or if the mouse position is not inside the quest display.
-    if (!button_name.empty() && in_quest) {
+    // Don't call the Lua event if this button doesn't exist in the Solarus API.
+    if (button_name.empty()) {
+      lua_pop(l, 2);  // Pop the object and the method.
+      return handled;
+    }
 
-      push_string(l, button_name);
-      lua_pushinteger(l, mouse_xy.x);
-      lua_pushinteger(l, mouse_xy.y);
+    push_string(l, button_name);
+    lua_pushinteger(l, mouse_xy.x);
+    lua_pushinteger(l, mouse_xy.y);
 
-      bool success = call_function(4, 1, "on_mouse_pressed");
-      if (!success) {
-        // Something was wrong in the script: don't propagate the input to other objects.
-        handled = true;
-      }
-      else {
-        handled = lua_toboolean(l, -1);
-        lua_pop(l, 1);
-      }
+    bool success = call_function(4, 1, "on_mouse_pressed");
+    if (!success) {
+      // Something was wrong in the script: don't propagate the input to other objects.
+      handled = true;
     }
     else {
-      // The method exists but parameters are not congruent.
-      lua_pop(l, 2);  // Pop the object and the method.
+      handled = lua_toboolean(l, -1);
+      lua_pop(l, 1);
     }
   }
   return handled;
@@ -1879,30 +1950,26 @@ bool LuaContext::on_mouse_button_released(const InputEvent& event) {
   if (find_method("on_mouse_released")) {
 
     const std::string& button_name = enum_to_name(event.get_mouse_button());
-    Point mouse_xy;
-    bool in_quest = event.get_mouse_position(mouse_xy);
+    Point mouse_xy = event.get_mouse_position();
 
-    // Don't call the Lua event if this button doesn't exist in the Solarus API
-    // or if the mouse position is not inside the quest display.
-    if (!button_name.empty() && in_quest) {
+    // Don't call the Lua event if this button doesn't exist in the Solarus API.
+    if (button_name.empty()) {
+      lua_pop(l, 2);  // Pop the object and the method.
+      return handled;
+    }
 
-      push_string(l, button_name);
-      lua_pushinteger(l, mouse_xy.x);
-      lua_pushinteger(l, mouse_xy.y);
+    push_string(l, button_name);
+    lua_pushinteger(l, mouse_xy.x);
+    lua_pushinteger(l, mouse_xy.y);
 
-      bool success = call_function(4, 1, "on_mouse_released");
-      if (!success) {
-        // Something was wrong in the script: don't propagate the input to other objects.
-        handled = true;
-      }
-      else {
-        handled = lua_toboolean(l, -1);
-        lua_pop(l, 1);
-      }
+    bool success = call_function(4, 1, "on_mouse_released");
+    if (!success) {
+      // Something was wrong in the script: don't propagate the input to other objects.
+      handled = true;
     }
     else {
-      // The method exists but parameters are not congruent.
-      lua_pop(l, 2);  // Pop the object and the method.
+      handled = lua_toboolean(l, -1);
+      lua_pop(l, 1);
     }
   }
   return handled;
@@ -2534,6 +2601,31 @@ void LuaContext::on_map_changed(Map& map) {
 }
 
 /**
+ * \brief Calls the on_game_changed() method of the object on top of the stack.
+ * \param previous_world The previous world or an empty string.
+ * \param new_world The new world or an empty string.
+ */
+void LuaContext::on_world_changed(const std::string& previous_world, const std::string& new_world) {
+
+  if (find_method("on_world_changed")) {
+    if (previous_world.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, previous_world);
+    }
+
+    if (new_world.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, new_world);
+    }
+    call_function(3, 0, "on_world_changed");
+  }
+}
+
+/**
  * \brief Calls the on_pickable_created() method of the object on top of the stack.
  * \param pickable A pickable treasure.
  */
@@ -2796,11 +2888,19 @@ void LuaContext::on_cut() {
 
 /**
  * \brief Calls the on_lifting() method of the object on top of the stack.
+ * \param carrier Entity that is lifting another one.
+ * \param carried_object Carried object created to replace
+ * the entity being lifted.
  */
-void LuaContext::on_lifting() {
+void LuaContext::on_lifting(
+    Entity& carrier,
+    CarriedObject& carried_object
+) {
 
   if (find_method("on_lifting")) {
-    call_function(1, 0, "on_lifting");
+    push_entity(l, carrier);
+    push_carried_object(l, carried_object);
+    call_function(3, 0, "on_lifting");
   }
 }
 
@@ -2964,7 +3064,7 @@ int LuaContext::l_loader(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const std::string& script_name = luaL_checkstring(l, 1);
-    bool load_success = load_file(l, script_name);
+    bool load_success = get_lua_context(l).load_file(script_name);
 
     if (!load_success) {
       std::ostringstream oss;
@@ -2977,25 +3077,29 @@ int LuaContext::l_loader(lua_State* l) {
 }
 
 /**
- * \brief A function that prints the stack trace of an error raised in lua
- * \param l The lua context
- * \return Number of values to return to lua
+ * \brief A function that prints the stack trace of an error raised in Lua.
+ * \param l The Lua context.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::l_backtrace(lua_State* l) {
-    if (!lua_isstring(l, 1)) return 1;
-    lua_getglobal(l, "debug");
-    if (!lua_istable(l, -1)) {
-        lua_pop(l, 1);
-        return 1;
-    }
-    lua_getfield(l, -1, "traceback");
-    if (!lua_isfunction(l, -1)) {
-        lua_pop(l, 2);
-        return 1;
-    }
-    lua_pushvalue(l, 1);    // pass error message
-    lua_call(l, 1, 1);      // call debug.traceback
+
+  if (!lua_isstring(l, 1)) {
+    push_string(l, "Unknown error");
     return 1;
+  }
+  lua_getglobal(l, "debug");
+  if (!lua_istable(l, -1)) {
+    lua_pushvalue(l, 1);  // Return the original error message.
+    return 1;
+  }
+  lua_getfield(l, -1, "traceback");
+  if (!lua_isfunction(l, -1)) {
+    lua_pushvalue(l, 1);  // Return the original error message.
+    return 1;
+  }
+  lua_pushvalue(l, 1);    // pass error message
+  lua_call(l, 1, 1);      // call debug.traceback
+  return 1;
 }
 
 }

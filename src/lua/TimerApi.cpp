@@ -145,13 +145,12 @@ void LuaContext::add_timer(
         || is_entity(l, context_index)
         || is_item(l, context_index)) {
 
-      bool initially_suspended = false;
+      timer->set_suspended_with_map(true);
 
+      bool initially_suspended = false;
       // By default, we want the timer to be automatically suspended when a
       // camera movement, a dialog or the pause menu starts.
       if (!is_entity(l, context_index)) {
-        // The timer normally gets suspended/resumed with the map.
-        timer->set_suspended_with_map(true);
 
         // But in the initial state, we override that rule.
         // We initially suspend the timer only during a dialog.
@@ -162,8 +161,6 @@ void LuaContext::add_timer(
       }
       else {
         // Entities are more complex: they also get suspended when disabled.
-        // Therefore, they don't simply follow
-        // the map suspended state.
         EntityPtr entity = check_entity(l, context_index);
         initially_suspended = entity->is_suspended() || !entity->is_enabled();
       }
@@ -291,6 +288,34 @@ void LuaContext::set_entity_timers_suspended(
 }
 
 /**
+ * \brief Suspends or resumes the timers attached to a map entity.
+ *
+ * This takes into account the Timer::is_suspended_with_map() property.
+ *
+ * \param entity A map entity.
+ * \param suspended \c true to suspend its timers
+ * (unless Timer::is_suspended_with_map() is false), \c false to resume them.
+ */
+void LuaContext::set_entity_timers_suspended_as_map(
+    Entity& entity, bool suspended
+) {
+  if (!suspended) {
+    set_entity_timers_suspended(entity, suspended);
+    return;
+  }
+
+  // Suspend timers except the ones that ignore the map being suspended.
+  for (const auto& kvp: timers) {
+    const TimerPtr& timer = kvp.first;
+    if (kvp.second.context == &entity) {
+      if (timer->is_suspended_with_map()) {
+        timer->set_suspended(suspended);
+      }
+    }
+  }
+}
+
+/**
  * \brief Executes the callback of a timer.
  *
  * Then, if the callback returns \c true, the timer is rescheduled,
@@ -344,15 +369,39 @@ int LuaContext::timer_api_start(lua_State *l) {
     // Parameters: [context] delay callback.
     LuaContext& lua_context = get_lua_context(l);
 
-    if (lua_type(l, 1) != LUA_TNUMBER) {
-      // The first parameter is the context.
-      if (lua_type(l, 1) != LUA_TTABLE
-          && lua_type(l, 1) != LUA_TUSERDATA) {
-        LuaTools::type_error(l, 1, "table or userdata");
-      }
+    bool use_default_context = false;
+    if (lua_type(l, 1) == LUA_TNUMBER) {
+      use_default_context = true;
     }
     else {
-      // No context specified: set a default context:
+      // The first parameter is the context.
+      if (!is_main(l, 1) &&
+          !is_menu(l, 1) &&
+          !is_game(l, 1) &&
+          !is_item(l, 1) &&
+          !is_map(l, 1) &&
+          !is_entity(l, 1)
+      ) {
+        // Show an error message without raising a Lua error
+        // because this problem was not detected correctly before 1.6
+        // and a lot of existing games have it.
+        // We can survive this by just using a default context as fallback.
+        std::string message = "bad argument #1 to sol.timer.start (game, item, map, entity, menu or sol.main expected, got " +
+            LuaTools::get_type_name(l, 1) + "), will use a default context instead";
+        lua_pushcfunction(l, l_backtrace);
+        push_string(l, message);
+        LuaTools::call_function(l, 1, 1, "traceback");
+        std::string backtrace = LuaTools::check_string(l, -1);
+        lua_pop(l, 1);
+        Debug::error(backtrace);
+
+        lua_remove(l, 1);
+        use_default_context = true;
+      }
+    }
+
+    if (use_default_context) {
+      // Set a default context:
       // - during a game: the current map,
       // - outside a game: sol.main.
 
@@ -361,9 +410,8 @@ int LuaContext::timer_api_start(lua_State *l) {
         push_map(l, game->get_current_map());
       }
       else {
-        LuaContext::push_main(l);
+        push_main(l);
       }
-
       lua_insert(l, 1);
     }
     // Now the first parameter is the context.

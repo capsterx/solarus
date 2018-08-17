@@ -88,6 +88,7 @@ Enemy::Enemy(
   damage_on_hero(1),
   life(1),
   hurt_style(HurtStyle::NORMAL),
+  dying_sprite_id("enemies/enemy_killed"),
   pushed_back_when_hurt(true),
   push_hero_on_sword(false),
   can_hurt_hero_running(false),
@@ -111,14 +112,8 @@ Enemy::Enemy(
   nb_explosions(0),
   next_explosion_date(0) {
 
-  // All collision modes are potentially needed because of Enemy::set_attacking_collision_mode().
   set_collision_modes(
         CollisionMode::COLLISION_OVERLAPPING |  // Also for some entities like the boomerang.
-        CollisionMode::COLLISION_CONTAINING |
-        CollisionMode::COLLISION_ORIGIN |
-        CollisionMode::COLLISION_FACING |
-        CollisionMode::COLLISION_TOUCHING |
-        CollisionMode::COLLISION_CENTER |
         CollisionMode::COLLISION_SPRITE         // For collisions with the hero by default.
   );
   set_size(16, 16);
@@ -220,18 +215,6 @@ void Enemy::notify_created() {
   }
 
   if (is_enabled()) {
-    restart();
-  }
-}
-
-/**
- * \brief Notifies this entity that its map has just become active.
- */
-void Enemy::notify_map_opening_transition_finished() {
-
-  Entity::notify_map_opening_transition_finished();
-
-  if (is_enabled() && is_in_normal_state()) {
     restart();
   }
 }
@@ -494,6 +477,22 @@ void Enemy::set_hurt_style(HurtStyle hurt_style) {
 }
 
 /**
+ * \brief Returns the id of the sprite to show during the normal dying animation.
+ * \return The dying sprite id or an empty string.
+ */
+std::string Enemy::get_dying_sprite_id() const {
+  return dying_sprite_id;
+}
+
+/**
+ * \brief Sets the id of the sprite to show during the normal dying animation.
+ * \param dying_sprite_id The dying sprite id or an empty string.
+ */
+void Enemy::set_dying_sprite_id(const std::string& dying_sprite_id) {
+  this->dying_sprite_id = dying_sprite_id;
+}
+
+/**
  * \brief Returns whether this enemy can currently attack the hero.
  * \return true if this enemy can currently attack the hero
  */
@@ -571,6 +570,10 @@ CollisionMode Enemy::get_attacking_collision_mode() const {
  */
 void Enemy::set_attacking_collision_mode(CollisionMode attacking_collision_mode) {
   this->attacking_collision_mode = attacking_collision_mode;
+  set_collision_modes(
+        CollisionMode::COLLISION_OVERLAPPING |
+        CollisionMode::COLLISION_SPRITE |
+        attacking_collision_mode);
 }
 
 /**
@@ -923,8 +926,7 @@ void Enemy::draw_on_map() {
 }
 
 /**
- * \brief Notifies this entity that it was just enabled or disabled.
- * \param enabled true if the entity is now enabled
+ * \copydoc Entity::notify_enabled
  */
 void Enemy::notify_enabled(bool enabled) {
 
@@ -936,10 +938,6 @@ void Enemy::notify_enabled(bool enabled) {
 
   if (enabled) {
     restart();
-    get_lua_context()->entity_on_enabled(*this);
-  }
-  else {
-    get_lua_context()->entity_on_disabled(*this);
   }
 }
 
@@ -1193,8 +1191,14 @@ void Enemy::try_hurt(EnemyAttack attack, Entity& source, Sprite* this_sprite) {
     return;
   }
 
-  invulnerable = true;
-  vulnerable_again_date = System::now() + 500;
+  if (reaction.type != EnemyReaction::ReactionType::LUA_CALLBACK) {
+      // Make the enemy invulnerable for a while except if the reaction
+      // is a callback, in which case the user decides what to do.
+      // Ideally, ReactionType::CUSTOM should not make the enemy invulnerable
+      // either, but we don't want to break the behavior of existing scripts.
+      invulnerable = true;
+      vulnerable_again_date = System::now() + 500;
+  }
 
   switch (reaction.type) {
 
@@ -1420,7 +1424,12 @@ void Enemy::kill() {
 
     if (!special_ground) {
       // Normal dying animation.
-      create_sprite("enemies/enemy_killed");
+      if (!dying_sprite_id.empty()) {
+        if (!QuestFiles::data_file_exists("sprites/" + dying_sprite_id + ".dat")) {
+          Debug::error("No such sprite for enemy dying animation: '" + dying_sprite_id + "'");
+        }
+        create_sprite(dying_sprite_id);
+      }
       Sound::play("enemy_killed");
     }
   }
@@ -1473,7 +1482,7 @@ bool Enemy::is_dying_animation_finished() const {
     return sprite->is_animation_finished();
   }
 
-  // There is no dying animation (case of holes, water and lava for now).
+  // There is no dying animation (case of bad ground or empty dying sprite id).
   return true;
 }
 

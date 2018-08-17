@@ -34,6 +34,7 @@
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include <lua.hpp>
+#include <clocale>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -90,14 +91,48 @@ void check_version_compatibility(const std::pair<int, int>& quest_version) {
 }
 
 /**
+ * \brief Converts a string from the local 8-bit encoding of the system to UTF-8.
+ *
+ * Simplistic implementation that only supports Windows-1252 or UTF-8 system encoding.
+ *
+ * \param input A string in system 8-bit encoding
+ * (only Windows-1252 and UTF-8 are supported for now).
+ * \return The corresponding UTF-8 string.
+ */
+std::string local_8bit_to_utf8(const std::string& input) {
+
+  // Get the locale of the system.
+  std::setlocale(LC_ALL, "");
+  std::string locale_string = std::setlocale(LC_CTYPE, NULL);
+
+  if (locale_string.size() > 5 &&
+      locale_string.substr(locale_string.size() - 5) == ".1252") {
+    // Convert from Windows-1252/ISO-8859-1 to UTF-8.
+    std::string output;
+    for (uint8_t byte : input) {
+      if (byte < 0x80) {
+       output.push_back(byte);
+      }
+      else {
+        output.push_back(0xc0 | byte >> 6);
+        output.push_back(0x80 | (byte & 0x3f));
+      }
+    }
+    return output;
+  }
+
+  return input;
+}
+
+/**
  * \brief Returns path of the quest to run.
  *
  * It may be the path defined as command-line argument,
  * the path defined during the build process, or the current directory
  * if nothing was specified.
  *
- * \param args Command-line arguments.
- * \return The quest path.
+ * \param args Command-line arguments in system 8-bit encoding.
+ * \return The quest path in UTF-8 encoding.
  */
 std::string get_quest_path(const Arguments& args) {
 
@@ -107,7 +142,7 @@ std::string get_quest_path(const Arguments& args) {
       && !options.back().empty()
       && options.back()[0] != '-') {
     // The last parameter is not an option: it is the quest path.
-    return options.back();
+    return local_8bit_to_utf8(options.back());
   }
 
   // The default quest path is defined during the build process.
@@ -122,6 +157,7 @@ std::string get_quest_path(const Arguments& args) {
  */
 MainLoop::MainLoop(const Arguments& args):
   lua_context(nullptr),
+  resource_provider(),
   root_surface(nullptr),
   game(nullptr),
   next_game(nullptr),
@@ -157,7 +193,6 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Read the quest resource list from data.
   CurrentQuest::initialize();
-  TilePattern::initialize();
 
   // Read the quest general properties.
   load_quest_properties();
@@ -193,7 +228,10 @@ MainLoop::MainLoop(const Arguments& args):
     Logger::info("Turbo mode: no");
   }
 
-  // Finally show the window.
+  // Start loading resources in background.
+  resource_provider.start_preloading_resources();
+
+  // Show the window.
   Video::show_window();
 }
 
@@ -207,6 +245,8 @@ MainLoop::~MainLoop() {
     game.reset();  // While deleting the game, the Lua world must still exist.
   }
 
+  resource_provider.clear();
+
   // Clear the surface while Lua still exists,
   // because it may point to other surfaces that have Lua movements.
   root_surface = nullptr;
@@ -214,7 +254,6 @@ MainLoop::~MainLoop() {
   if (lua_context != nullptr) {
     lua_context->exit();
   }
-  TilePattern::quit();
   CurrentQuest::quit();
   QuestFiles::close_quest();
   System::quit();
@@ -446,7 +485,7 @@ void MainLoop::check_input() {
     for (const std::string& command : lua_commands) {
       std::cout << "\n";  // To make sure that the command delimiter starts on a new line.
       Logger::info("====== Begin Lua command #" + String::to_string(num_lua_commands_done) + " ======");
-      const bool success = LuaTools::do_string(get_lua_context().get_internal_state(), command, "Lua command");
+      const bool success = get_lua_context().do_string_with_easy_env(command, "Lua command");
       if (success) {
         std::cout << "\n";
         Logger::info("====== End Lua command #" + String::to_string(num_lua_commands_done) + ": success ======");
@@ -471,6 +510,9 @@ void MainLoop::notify_input(const InputEvent& event) {
 
   if (event.is_window_closing()) {
     set_exiting();
+  }
+  else if (event.is_window_resizing()) {
+    Video::on_window_resized(event.get_window_size());
   }
   else if (event.is_keyboard_key_pressed()) {
     // A key was pressed.
@@ -503,6 +545,8 @@ void MainLoop::draw() {
   }
   lua_context->main_on_draw(root_surface);
   Video::render(root_surface);
+  lua_context->video_on_draw(Video::get_screen_surface());
+  Video::finish();
 }
 
 /**
@@ -533,7 +577,6 @@ void MainLoop::load_quest_properties() {
       properties.get_min_quest_size(),
       properties.get_max_quest_size()
   );
-
 }
 
 /**

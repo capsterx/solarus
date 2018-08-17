@@ -1,0 +1,8 @@
+image : stdgregwar/solarus-build-env 
+
+stages:
+  - build
+
+build:
+  stage: build
+  script: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make -j4  && xvfb-run -a --server-args "-screen 0 1920x1080x24" -e /dev/stderr ctest -V

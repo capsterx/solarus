@@ -47,8 +47,7 @@ class DynamicTile: public Entity {
         const Point& xy,
         const Size& size,
         const Tileset& tileset,
-        const std::string& tile_pattern_id,
-        bool enabled
+        const std::string& tile_pattern_id
     );
 
     virtual EntityType get_type() const override;

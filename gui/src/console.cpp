@@ -66,6 +66,28 @@ void Console::clear() {
 }
 
 /**
+ * @brief Adds a message to the console.
+ * @param log_level Log level of the message.
+ * @param message The text to add.
+ */
+void Console::add_message(const QString& log_level, const QString& message) {
+
+  QStringList lines = message.split("\n");
+  for (const QString& line : lines) {
+    add_html(colorize_output(log_level, line));
+  }
+}
+
+/**
+ * @brief Adds some HTML text to the console.
+ * @param html The content to add.
+ */
+void Console::add_html(const QString& html) {
+
+  ui.log_view->appendHtml(html);
+}
+
+/**
  * @brief Returns whether the Lua command input field is available.
  * @return @c true if the user can type Lua commands.
  */
@@ -203,7 +225,7 @@ void Console::parse_output(const QString& line) {
     // 4 captures expected: full line, time, log level, message.
     QStringList captures = match_result.capturedTexts();
     if (captures.size() != 4) {
-      ui.log_view->appendHtml(line.toHtmlEscaped());
+      add_html(line.toHtmlEscaped());
       return;
     }
 
@@ -223,7 +245,7 @@ void Console::parse_output(const QString& line) {
 
   if (log_level.isEmpty()) {
     // Not a line from Solarus, probably one from the quest.
-    ui.log_view->appendHtml(line.toHtmlEscaped());
+    add_html(line.toHtmlEscaped());
     return;
   }
 
@@ -241,7 +263,7 @@ void Console::parse_output(const QString& line) {
     return;
   }
 
-  ui.log_view->appendHtml(line_html);
+  add_html(line_html);
 }
 
 /**
@@ -272,7 +294,7 @@ bool Console::detect_command_result(
     // We show the command only when receiving its results,
     // to make sure it is displayed just before its results.
     QString command = pending_commands.take(output_command_id);
-    ui.log_view->appendHtml(QString("> %1").arg(command).toHtmlEscaped());
+    add_html(QString("> %1").arg(command).toHtmlEscaped());
 
     return true;
   }

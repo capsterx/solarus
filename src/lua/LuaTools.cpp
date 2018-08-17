@@ -66,6 +66,27 @@ bool is_valid_lua_identifier(const std::string& name) {
 }
 
 /**
+ * \brief Returns the type name of a value.
+ * Similar to the standard Lua function type(), except that for userdata
+ * known by Solarus, it returns the exact Solarus type name.
+ * \param l A Lua state.
+ * \param index An index in the stack.
+ * \return The type name.
+ */
+std::string get_type_name(lua_State*l, int index) {
+
+  std::string module_name;
+  if (!LuaContext::is_solarus_userdata(l, index, module_name)) {
+    // Return the same thing as the usual Lua type() function.
+    return luaL_typename(l, index);
+  }
+
+  // This is a Solarus type.
+  // Remove the "sol." prefix.
+  return module_name.substr(4);
+}
+
+/**
  * \brief Creates a reference to the Lua value on top of the stack and pops
  * this value.
  * \param l A Lua state.
@@ -119,7 +140,7 @@ bool call_function(
   lua_pushcfunction(l, &LuaContext::l_backtrace);
   lua_insert(l, base);
   int status = lua_pcall(l, nb_arguments, nb_results, base);
-  lua_remove(l,base);
+  lua_remove(l, base);
   if (status != 0) {
     Debug::error(std::string("In ") + function_name + ": "
         + lua_tostring(l, -1)
@@ -128,31 +149,6 @@ bool call_function(
     return false;
   }
   return true;
-}
-
-/**
- * \brief Loads and executes some Lua code.
- * \param l A Lua state.
- * \param code The code to execute.
- * \param chunk_name A name describing the Lua chunk
- * (only used to print the error message if any).
- * \return \c true in case of success.
- */
-bool do_string(
-    lua_State* l,
-    const std::string& code,
-    const std::string& chunk_name
-) {
-  int load_result = luaL_loadstring(l, code.c_str());
-
-  if (load_result != 0) {
-    Debug::error(std::string("In ") + chunk_name + ": "
-        + lua_tostring(l, -1));
-    lua_pop(l, 1);
-    return false;
-  }
-
-  return call_function(l, 0, 0, chunk_name.c_str());
 }
 
 /**
@@ -185,8 +181,8 @@ void arg_error(lua_State* l, int arg_index, const std::string& message) {
   lua_Debug info;
   if (!lua_getstack(l, 0, &info)) {
     // No stack frame.
-     oss << "bad argument #" << arg_index << " (" << message << ")";
-     error(l, oss.str());
+    oss << "bad argument #" << arg_index << " (" << message << ")";
+    error(l, oss.str());
   }
 
   lua_getinfo(l, "n", &info);
@@ -221,7 +217,7 @@ void type_error(
     const std::string& expected_type_name
 ) {
   arg_error(l, arg_index, std::string(expected_type_name) +
-      " expected, got " + luaL_typename(l, arg_index));
+      " expected, got " + get_type_name(l, arg_index));
 }
 
 /**
@@ -237,7 +233,7 @@ void check_type(
 ) {
   if (lua_type(l, arg_index) != expected_type) {
     arg_error(l, arg_index, std::string(lua_typename(l, expected_type)) +
-        " expected, got " + luaL_typename(l, arg_index));
+        " expected, got " + get_type_name(l, arg_index));
   }
 }
 
@@ -272,7 +268,7 @@ int check_int(
   if (!lua_isnumber(l, index)) {
     arg_error(l, index,
         std::string("integer expected, got ")
-            + luaL_typename(l, index) + ")"
+            + get_type_name(l, index) + ")"
     );
   }
 
@@ -298,7 +294,7 @@ int check_int_field(
   if (!lua_isnumber(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (integer expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -355,7 +351,7 @@ int opt_int_field(
   if (!lua_isnumber(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (integer expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   int value = (int) lua_tointeger(l, -1);
@@ -380,7 +376,7 @@ double check_number(
   if (!lua_isnumber(l, index)) {
     arg_error(l, index,
         std::string("number expected, got ")
-            + luaL_typename(l, index) + ")"
+            + get_type_name(l, index) + ")"
     );
   }
 
@@ -406,7 +402,7 @@ double check_number_field(
   if (!lua_isnumber(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (number expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -488,10 +484,9 @@ std::string check_string(
   if (!lua_isstring(l, index)) {
     arg_error(l, index,
         std::string("string expected, got ")
-            + luaL_typename(l, index) + ")"
+            + get_type_name(l, index) + ")"
     );
   }
-
   size_t size = 0;
   const char* data = lua_tolstring(l, index, &size);
   return {data, size};
@@ -516,7 +511,7 @@ std::string check_string_field(
   if (!lua_isstring(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (string expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -575,7 +570,7 @@ std::string opt_string_field(
   if (!lua_isstring(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (string expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   size_t size = 0;
@@ -601,7 +596,7 @@ bool check_boolean(
   if (!lua_isboolean(l, index)) {
     arg_error(l, index,
         std::string("boolean expected, got ")
-            + luaL_typename(l, index) + ")"
+            + get_type_name(l, index) + ")"
     );
   }
   return lua_toboolean(l, index);
@@ -623,7 +618,7 @@ bool check_boolean_field(
   if (lua_type(l, -1) != LUA_TBOOLEAN) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (boolean expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -676,7 +671,7 @@ bool opt_boolean_field(
   if (lua_type(l, -1) != LUA_TBOOLEAN) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (boolean expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   return lua_toboolean(l, -1);
@@ -715,7 +710,7 @@ ScopedLuaRef check_function_field(
   if (!lua_isfunction(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (function expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -759,7 +754,7 @@ ScopedLuaRef opt_function_field(
   if (!lua_isfunction(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (function expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   return create_ref(l);  // This also pops the function from the stack.
@@ -795,14 +790,13 @@ int check_layer(
     int index,
     const Map& map
 ) {
+  if (!lua_isnumber(l, index)) {
+    type_error(l, index, "number");
+  }
+
   if (!is_layer(l, index, map)) {
     std::ostringstream oss;
-    if (!lua_isnumber(l, index)) {
-      oss << "Invalid layer";
-    }
-    else {
-      oss << "Invalid layer: " << lua_tonumber(l, index);
-    }
+    oss << "Invalid layer: " << lua_tonumber(l, index);
     arg_error(l, index, oss.str());
   }
 
@@ -830,7 +824,7 @@ int check_layer_field(
   if (!is_layer(l, -1, map)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (layer expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -884,7 +878,7 @@ int opt_layer_field(
   if (!is_layer(l, -1, map)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (layer expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   int value = lua_tointeger(l, -1);
@@ -966,7 +960,7 @@ Color check_color_field(
   if (!is_color(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (color table expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
 
@@ -1016,7 +1010,7 @@ Color opt_color_field(
   if (!is_color(l, -1)) {
     arg_error(l, table_index,
         std::string("Bad field '") + key + "' (color expected, got "
-        + luaL_typename(l, -1) + ")"
+        + get_type_name(l, -1) + ")"
     );
   }
   const Color& color = check_color(l, -1);
@@ -1024,5 +1018,6 @@ Color opt_color_field(
   return color;
 }
 
-}
-}
+}  // namespace LuaTools
+
+}  // namespace Solarus

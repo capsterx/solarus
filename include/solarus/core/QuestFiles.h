@@ -67,9 +67,16 @@ SOLARUS_API bool data_file_exists(
     const std::string& file_name,
     bool language_specific = false
 );
+SOLARUS_API std::string get_actual_file_name(
+    const std::string& file_name,
+    bool language_specific
+);
+SOLARUS_API std::string data_file_read(
+    const std::string& file_name
+);
 SOLARUS_API std::string data_file_read(
     const std::string& file_name,
-    bool language_specific = false
+    bool language_specific
 );
 SOLARUS_API void data_file_save(
     const std::string& file_name,
@@ -77,6 +84,12 @@ SOLARUS_API void data_file_save(
 );
 SOLARUS_API bool data_file_delete(const std::string& file_name);
 SOLARUS_API bool data_file_mkdir(const std::string& dir_name);
+SOLARUS_API bool data_file_is_dir(
+    const std::string& file_name
+);
+SOLARUS_API std::vector<std::string> data_file_list_dir(
+    const std::string& dir_path
+);
 
 // Writing files.
 SOLARUS_API std::string get_base_write_dir();

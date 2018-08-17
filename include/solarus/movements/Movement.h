@@ -56,6 +56,8 @@ class SOLARUS_API Movement: public ExportableToLua {
     virtual void update(); // called repeatedly
     bool is_suspended() const;
     virtual void set_suspended(bool suspended);
+    bool get_ignore_suspend() const;
+    void set_ignore_suspend(bool ignore_suspend);
 
     // position
     int get_x() const;
@@ -124,6 +126,8 @@ class SOLARUS_API Movement: public ExportableToLua {
     // suspended
     bool suspended;                              /**< Indicates whether the movement is suspended. */
     uint32_t when_suspended;                     /**< Indicates when the movement was suspended. */
+    bool ignore_suspend;                         /**< Whether the movement continues when the game is suspended
+                                                  * (for entity movements only). */
 
     // obstacles (only when the movement is applied to an entity)
     mutable Rectangle

@@ -41,7 +41,6 @@ namespace Solarus {
  * and the script file of the map. The data file must exist.
  */
 Map::Map(const std::string& id):
-  game(nullptr),
   savegame(),
   id(id),
   width8(0),
@@ -266,7 +265,6 @@ void Map::unload() {
     background_surface = nullptr;
     foreground_surface = nullptr;
     entities = nullptr;
-    game = nullptr;
 
     loaded = false;
   }
@@ -295,7 +293,6 @@ void Map::load(Game& game) {
   }
 
   // Initialize the map from the data just read.
-  this->game = &game;
   this->savegame = std::static_pointer_cast<Savegame>(
         game.get_savegame().shared_from_this());  // TODO make Game::get_savegame() return a shared_ptr.
   ResourceProvider& resource_provider = game.get_resource_provider();
@@ -334,14 +331,16 @@ LuaContext& Map::get_lua_context() {
 /**
  * \brief Returns the game that loaded this map.
  *
- * This function should not be called before the map is loaded into a game
+ * This function must not be called before the map is loaded into a game
  * or after the game is stopped.
+ * However, it can be called when the map is no longer active,
+ * as long as the game is still running.
  *
  * \return The game.
  */
 Game& Map::get_game() {
   Debug::check_assertion(is_game_running(), "The game of this map does not exist");
-  return *game;
+  return *savegame->get_game();
 }
 
 /**
@@ -499,7 +498,7 @@ bool Map::notify_input(const InputEvent& event) {
 }
 
 /**
- * \brief Updates the animation and the position of each map elements, including the hero.
+ * \brief Updates the animation and the position of each map element, including the hero.
  */
 void Map::update() {
 
@@ -507,7 +506,7 @@ void Map::update() {
   check_suspended();
 
   // update the elements
-  TilePattern::update();
+  tileset->update();
   entities->update();
   get_lua_context().map_on_update(*this);
 }
@@ -530,7 +529,7 @@ bool Map::is_suspended() const {
 void Map::check_suspended() {
 
   Debug::check_assertion(is_game_running(), "The game of this map does not exist");
-  bool game_suspended = game->is_suspended();
+  bool game_suspended = get_game().is_suspended();
   if (suspended != game_suspended) {
     set_suspended(game_suspended);
   }
@@ -889,7 +888,7 @@ bool Map::test_collision_with_entities(
   }
 
   EntityVector entities_nearby;
-  get_entities().get_entities_in_rectangle(collision_box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(collision_box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity_nearby->overlaps(collision_box) &&
@@ -1114,7 +1113,7 @@ Ground Map::get_ground(
   // See if a dynamic entity changes the ground.
   const Rectangle box(xy, Size(1, 1));
   ConstEntityVector entities_nearby;
-  get_entities().get_entities_in_rectangle_sorted(box, entities_nearby);
+  get_entities().get_entities_in_rectangle_z_sorted(box, entities_nearby);
 
   const auto& rend = entities_nearby.rend();
   for (auto it = entities_nearby.rbegin(); it != rend; ++it) {
@@ -1311,7 +1310,7 @@ void Map::check_collision_with_detectors(Entity& entity) {
   // Extend the box because some collision tests work without overlapping.
   Rectangle box = entity.get_extended_bounding_box(8);
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity.is_being_removed()) {
@@ -1357,7 +1356,7 @@ void Map::check_collision_from_detector(Entity& detector) {
   // Check each entity with this detector.
   Rectangle box = detector.get_extended_bounding_box(8);
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (detector.is_being_removed()) {
@@ -1403,7 +1402,7 @@ void Map::check_collision_from_detector(Entity& detector, Sprite& detector_sprit
   // Check each entity with this detector.
   Rectangle box = detector.get_max_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (detector.is_being_removed()) {
@@ -1446,7 +1445,7 @@ void Map::check_collision_with_detectors(Entity& entity, Sprite& sprite) {
   // Check each detector.
   Rectangle box = entity.get_max_bounding_box();
   std::vector<EntityPtr> entities_nearby;
-  entities->get_entities_in_rectangle(box, entities_nearby);
+  entities->get_entities_in_rectangle_z_sorted(box, entities_nearby);
   for (const EntityPtr& entity_nearby: entities_nearby) {
 
     if (entity.is_being_removed()) {

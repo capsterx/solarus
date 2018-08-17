@@ -77,6 +77,12 @@ void FontResource::load_fonts() {
     else if (QuestFiles::data_file_exists(file_name_start + ".TTF")) {
       font.file_name = file_name_start + ".TTF";
     }
+    else if (QuestFiles::data_file_exists(file_name_start + ".otf")) {
+      font.file_name = file_name_start + ".otf";
+    }
+    else if (QuestFiles::data_file_exists(file_name_start + ".OTF")) {
+      font.file_name = file_name_start + ".OTF";
+    }
     else if (QuestFiles::data_file_exists(file_name_start + ".ttc")) {
       font.file_name = file_name_start + ".ttc";
     }
@@ -91,7 +97,7 @@ void FontResource::load_fonts() {
     }
     else {
       Debug::error(std::string("Cannot find font file 'fonts/")
-          + font_id + "' (tried with extensions .png, .ttf, .ttc and .fon)"
+          + font_id + "' (tried with extensions .png, .ttf, .otf, .ttc and .fon)"
       );
       continue;
     }

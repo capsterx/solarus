@@ -124,7 +124,7 @@ int add_quest(int argc, char* argv[]) {
   if (!QFile(canonical_path + "/data/quest.dat").exists() &&
       !QFile(canonical_path + "/data.solarus").exists() &&
       !QFile(canonical_path + "/data.solarus.zip").exists()) {
-    std::cerr << "Not a valid Solarus quest: " << new_path.toStdString() << std::endl;
+    std::cerr << "Not a valid Solarus quest: " << new_path.toLocal8Bit().toStdString() << std::endl;
     return 1;
   }
 
@@ -137,21 +137,21 @@ int add_quest(int argc, char* argv[]) {
   QStringList all_paths = settings.value("quests_paths").toStringList();
   for (const QString& path : all_paths) {
     if (QFileInfo(path).canonicalFilePath() == canonical_path) {
-      std::cout << "Nothing to do, quest already registered: " << new_path.toStdString() << std::endl;
+      std::cout << "Nothing to do, quest already registered: " << new_path.toLocal8Bit().toStdString() << std::endl;
       return 0;
     }
   }
 
   if (!settings.isWritable()) {
-    std::cerr << "Settings file is not writable: " << settings.fileName().toStdString() << std::endl;
+    std::cerr << "Settings file is not writable: " << settings.fileName().toLocal8Bit().toStdString() << std::endl;
     return 1;
   }
-  std::cout << "Writing settings file " << settings.fileName().toStdString() << std::endl;
+  std::cout << "Writing settings file " << settings.fileName().toLocal8Bit().toStdString() << std::endl;
 
   all_paths.prepend(canonical_path);
   settings.setValue("quests_paths", all_paths);
   settings.setValue("last_quest", new_path);
-  std::cout << "Quest successfully added to Solarus: " << new_path.toStdString() << std::endl;
+  std::cout << "Quest successfully added to Solarus: " << new_path.toLocal8Bit().toStdString() << std::endl;
 
   return 0;
 }

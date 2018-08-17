@@ -189,7 +189,6 @@ class SOLARUS_API Map: public ExportableToLua {
 
     // map properties
 
-    Game* game;                   /**< The game this map was started in.*/
     std::shared_ptr<Savegame>
         savegame;                 /**< The savegame associated to the game.
                                    * Persists even after the game is destroyed. */
@@ -201,7 +200,7 @@ class SOLARUS_API Map: public ExportableToLua {
     int max_layer;                /**< Highest layer of the map (0 or more). */
 
     std::string tileset_id;       /**< Id of the current tileset. */
-    const Tileset* tileset;       /**< Tileset of the map: every tile of this map
+    Tileset* tileset;             /**< Tileset of the map: every tile of this map
                                    * is extracted from this tileset. */
 
     std::string music_id;         /**< Id of the current music of the map:

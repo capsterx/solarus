@@ -225,7 +225,8 @@ const QPixmap& QuestsModel::get_quest_logo(int quest_index) const {
     if (Solarus::QuestFiles::open_quest(program_name.toStdString(),
                                         quest.path.toStdString())) {
       std::string file_name = "logos/logo.png";
-      if (Solarus::QuestFiles::data_file_exists(file_name)) {
+      if (Solarus::QuestFiles::data_file_exists(file_name) &&
+          !Solarus::QuestFiles::data_file_is_dir(file_name)) {
         std::string buffer = Solarus::QuestFiles::data_file_read(file_name);
         QPixmap pixmap;
         if (pixmap.loadFromData((const uchar*) buffer.data(), (uint) buffer.size())) {
@@ -288,8 +289,8 @@ void QuestsModel::load_icon(int quest_index) const {
     "logos/icon_1024.png",
   };
   for (const QString& file_name : file_names) {
-    if (Solarus::QuestFiles::data_file_exists(file_name.toStdString())) {
-      std::string buffer = Solarus::QuestFiles::data_file_read(file_name.toStdString());
+    if (Solarus::QuestFiles::data_file_exists(file_name.toLocal8Bit().toStdString())) {
+      std::string buffer = Solarus::QuestFiles::data_file_read(file_name.toLocal8Bit().toStdString());
       QPixmap pixmap;
       if (!pixmap.loadFromData((const uchar*) buffer.data(), (uint) buffer.size())) {
         continue;

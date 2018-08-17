@@ -70,6 +70,7 @@
 #include "solarus/movements/StraightMovement.h"
 #include <lua.hpp>
 #include <algorithm>
+#include <sstream>
 #include <utility>
 
 namespace Solarus {
@@ -199,6 +200,11 @@ void Hero::update() {
  * This function is called repeatedly by update().
  */
 void Hero::update_movement() {
+
+  if (!get_map().is_loaded()) {
+    // Can happen during transitions.
+    return;
+  }
 
   if (on_raised_blocks && !get_state().is_touching_ground()) {
     // If the hero was already over raised blocks, keep it that way while he
@@ -606,6 +612,15 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
     if (side != -1) {
 
       // Go to a side of the other map.
+      int layer = get_layer();
+      if (!map.is_valid_layer(layer)) {
+        std::ostringstream oss;
+        oss << "Layer " << layer << " does not exist on map '" << map.get_id()
+               + "'. Placing the hero on layer 0 instead.";
+        Debug::error(oss.str());
+        layer = 0;
+        set_layer(layer);
+      }
       place_on_map(map);
 
       switch (side) {
@@ -634,9 +649,12 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
         Debug::die("Invalid destination side");
       }
       map.get_entities().notify_entity_bounding_box_changed(*this);
+      map.get_entities().set_entity_layer(*this, layer);
       last_solid_ground_coords = get_xy();
       last_solid_ground_layer = get_layer();
+
       // Note that we keep the hero's state from the previous map.
+      check_position();  // Correctly initialize the ground.
     }
     else {
 
@@ -753,11 +771,20 @@ Point Hero::get_facing_point() const {
  */
 void Hero::notify_facing_entity_changed(Entity* facing_entity) {
 
-  if (facing_entity == nullptr &&
-      get_commands_effects().is_action_key_acting_on_facing_entity()) {
-
-    // the hero just stopped facing an entity that was showing an action icon
-    get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
+  CommandsEffects& commands_effects = get_commands_effects();
+  if (facing_entity != nullptr) {
+    if (facing_entity->can_be_lifted() &&
+        is_free() &&
+        commands_effects.get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE) {
+      commands_effects.set_action_key_effect(CommandsEffects::ACTION_KEY_LIFT);
+    }
+  }
+  else {
+    // No more facing entity.
+    if (commands_effects.is_action_key_acting_on_facing_entity()) {
+      // The hero just stopped facing an entity that was showing an action icon.
+      commands_effects.set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
+    }
   }
 }
 
@@ -1906,26 +1933,6 @@ void Hero::notify_collision_with_separator(
   }
   if (camera->get_tracked_entity().get() == this) {
     camera->notify_tracked_entity_traversing_separator(separator);
-  }
-}
-
-/**
- * \brief This function is called when a bomb detects a collision with this entity.
- * \param bomb the bomb
- * \param collision_mode the collision mode that detected the event
- */
-void Hero::notify_collision_with_bomb(Bomb& bomb, CollisionMode collision_mode) {
-
-  if (collision_mode == COLLISION_FACING) {
-    // the hero is touching the bomb and is looking in its direction
-
-    if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE
-        && get_facing_entity() == &bomb
-        && is_free()) {
-
-      // we show the action icon
-      get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_LIFT);
-    }
   }
 }
 

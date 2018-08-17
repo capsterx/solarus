@@ -380,6 +380,13 @@ void Game::update() {
  */
 void Game::update_transitions() {
 
+  Rectangle previous_map_location;
+  std::string previous_world;
+  if (current_map != nullptr) {
+    previous_map_location = current_map->get_location();
+    previous_world = current_map->get_world();
+  }
+
   if (transition != nullptr) {
     transition->update();
   }
@@ -401,8 +408,6 @@ void Game::update_transitions() {
     }
   }
 
-  Rectangle previous_map_location = current_map->get_location();
-
   // if a transition was playing and has just been finished
   if (transition != nullptr && transition->is_finished()) {
 
@@ -417,9 +422,10 @@ void Game::update_transitions() {
       this->savegame = nullptr;  // The new game is the owner.
     }
     else if (transition_direction == Transition::Direction::CLOSING) {
+      // The closing transition has just finished.
 
       bool world_changed = next_map != current_map &&
-          (!next_map->has_world() || next_map->get_world() != current_map->get_world());
+          (!next_map->has_world() || next_map->get_world() != previous_world);
 
       if (world_changed) {
         // Reset the crystal blocks.
@@ -471,6 +477,16 @@ void Game::update_transitions() {
         get_savegame().set_string(Savegame::KEY_STARTING_POINT, destination_name);
       }
 
+      // before closing the map, draw it on a backup surface for transition effects
+      // that want to display both maps at the same time
+      if (needs_previous_surface && current_map->get_camera() != nullptr) {
+        previous_map_surface = Surface::create(
+            current_map->get_camera()->get_size()
+        );
+        current_map->draw();
+        current_map->get_camera_surface()->draw(previous_map_surface);
+      }
+
       if (next_map == current_map) {
         // same map
         hero->place_on_destination(*current_map, previous_map_location);
@@ -479,23 +495,15 @@ void Game::update_transitions() {
             Transition::Direction::OPENING,
             this
         ));
+        if (needs_previous_surface) {
+          transition->set_previous_surface(previous_map_surface.get());
+        }
         transition->start();
         next_map = nullptr;
       }
       else {
-
         // change the map
         current_map->leave();
-
-        // before closing the map, draw it on a backup surface for transition effects
-        // that want to display both maps at the same time
-        if (needs_previous_surface && current_map->get_camera() != nullptr) {
-          previous_map_surface = Surface::create(
-              current_map->get_camera()->get_size()
-          );
-          current_map->draw();
-          current_map->get_camera_surface()->draw(previous_map_surface);
-        }
 
         // set the next map
         current_map->unload();
@@ -530,6 +538,11 @@ void Game::update_transitions() {
     transition->start();
     current_map->start();
     notify_map_changed();
+
+    std::string new_world = current_map->get_world();
+    if (previous_world.empty() || new_world.empty() || new_world != previous_world) {
+      get_lua_context().game_on_world_changed(*this, previous_world, new_world);
+    }
   }
 }
 
@@ -575,7 +588,11 @@ void Game::draw(const SurfacePtr& dst_surface) {
     if (camera != nullptr) {
       const SurfacePtr& camera_surface = camera->get_surface();
       if (transition != nullptr) {
-        transition->draw(*dst_surface,*camera_surface,DrawInfos(Rectangle(camera_surface->get_size()),camera->get_position_on_screen(),BlendMode::BLEND,255,Surface::draw_proxy));
+        camera_surface->draw_with_transition(Rectangle(camera_surface->get_size()),
+                                             dst_surface,
+                                             camera->get_position_on_screen(),
+                                             *transition);
+
       } else {
         camera_surface->draw(dst_surface, camera->get_position_on_screen());
       }

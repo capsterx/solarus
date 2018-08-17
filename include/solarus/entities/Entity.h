@@ -111,8 +111,6 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_ground_modifier() const;
     virtual Ground get_modified_ground() const;
     virtual bool can_be_drawn() const;
-    bool is_drawn_in_y_order() const;
-    void set_drawn_in_y_order(bool drawn_in_y_order);
     virtual bool is_drawn_at_its_position() const;
 
     virtual void notify_command_pressed(GameCommand command);
@@ -182,6 +180,9 @@ class SOLARUS_API Entity: public ExportableToLua {
     int get_optimization_distance2() const;
     void set_optimization_distance(int distance);
 
+    int get_z() const;
+    void set_z(int z);
+
     bool is_enabled() const;
     void set_enabled(bool enable);
     virtual void notify_enabled(bool enabled);
@@ -221,6 +222,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_sprite_animation_finished(Sprite& sprite, const std::string& animation);
     bool is_visible() const;
     void set_visible(bool visible);
+    bool is_tiled() const;
+    void set_tiled(bool tiled);
+    bool is_drawn_in_y_order() const;
+    void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
     void update_sprite(Sprite& sprite);
 
@@ -333,6 +338,9 @@ class SOLARUS_API Entity: public ExportableToLua {
         bool killed);
 
     // Interactions.
+    bool can_be_lifted() const;
+    int get_weight() const;
+    void set_weight(int weight);
     virtual bool notify_action_command_pressed();
     virtual bool notify_interaction_with_item(EquipmentItem& item);
     virtual bool start_movement_by_hero();
@@ -436,6 +444,7 @@ class SOLARUS_API Entity: public ExportableToLua {
 
     void finish_initialization();
     void clear_old_movements();
+    void clear_old_stream_actions();
     void clear_old_sprites();
 
     MainLoop* main_loop;                        /**< The Solarus main loop. */
@@ -443,6 +452,9 @@ class SOLARUS_API Entity: public ExportableToLua {
 
     int layer;                                  /**< Layer of the entity on the map.
                                                  * The layer is constant for the tiles and can change for the hero and the dynamic entities. */
+
+    int z;                                      /**< Z order of this entity on its layer.
+                                                 * This value is abitrary, it can be negative and the sequence can have holes. */
 
     Rectangle bounding_box;                     /**< This rectangle represents the position of the entity of the map and is
                                                  * used for the collision tests. It corresponds to the bounding box of the entity.
@@ -462,8 +474,6 @@ class SOLARUS_API Entity: public ExportableToLua {
                                                  * not represent the actual entity's coordinates and does not match necessarily
                                                  * the sprite's rectangle. */
 
-    // other data, used for some kinds of entities only
-
     std::string name;                           /**< Name of the entity or an empty string.
                                                  * The name uniquely identifies the entity in the map. */
 
@@ -474,6 +484,7 @@ class SOLARUS_API Entity: public ExportableToLua {
         sprites;                                /**< Sprites representing the entity. */
     std::string default_sprite_name;            /**< Name of the sprite to get in get_sprite() without parameter. */
     bool visible;                               /**< Whether this entity's sprites are currently displayed. */
+    bool tiled;                                 /**< Whether sprites should be repeated with tiling. */
     bool drawn_in_y_order;                      /**< Whether this entity is drawn in Y order or in Z order. */
     std::shared_ptr<Movement> movement;         /**< Movement of the entity.
                                                  * nullptr indicates that the entity has no movement. */
@@ -485,8 +496,12 @@ class SOLARUS_API Entity: public ExportableToLua {
                                                  * (can be an OR combination of CollisionMode values). */
     bool layer_independent_collisions;          /**< Whether this entity detects collisions on all layers. */
 
+    int weight;                                 /**< Weight of this entity (level of "lift" ability required).
+                                                 * -1 means an entity that cannot be lifted. */
     std::unique_ptr<StreamAction>
         stream_action;                          /**< The stream effect currently applied if any. */
+    std::vector<std::unique_ptr<StreamAction>>
+        old_stream_actions;                     /**< Old stream actions to destroy as soon as possible. */
 
     // state
     std::unique_ptr<State> state;               /**< The current internal state */
@@ -508,6 +523,34 @@ class SOLARUS_API Entity: public ExportableToLua {
         default_optimization_distance = 0;      /**< Default value. */
 
 };
+
+/**
+ * \brief Returns the layer of the entity on the map.
+ * \return The layer of the entity on the map.
+ */
+inline int Entity::get_layer() const {
+  return layer;
+}
+
+/**
+ * \brief Returns the Z order of this entity on its layer.
+ *
+ * This is an arbitrary value that can be used to compare the order of
+ * entities. It can be negative. The sequence can have holes.
+ *
+ * \return The Z order.
+ */
+inline int Entity::get_z() const {
+  return z;
+}
+
+/**
+ * \brief Sets the Z order of this entity on its layer.
+ * \param z The Z order.
+ */
+inline void Entity::set_z(int z) {
+  this->z = z;
+}
 
 /**
  * \brief Returns whether this entity is enabled.

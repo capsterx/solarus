@@ -80,10 +80,11 @@ bool Arguments::has_argument(const std::string& argument) const {
 /**
  * \brief If there is an argument of the form \c key=value, returns the value.
  * \param key The key to look for.
- * \return The value that was passed for this key, or an empty string if
+ * \param default_value Value to return if the argument is unset.
+ * \return The value that was passed for this key, or the default value if
  * no such argument was passed.
  */
-std::string Arguments::get_argument_value(const std::string& key) const {
+std::string Arguments::get_argument_value(const std::string& key, const std::string& default_value) const {
 
   for (const std::string& arg: args) {
     if (arg.size() > key.size()
@@ -92,7 +93,7 @@ std::string Arguments::get_argument_value(const std::string& key) const {
     }
   }
 
-  return "";
+  return default_value;
 }
 
 /**

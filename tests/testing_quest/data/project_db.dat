@@ -1,12 +1,44 @@
 map{ id = "all_entities", description = "All entities" }
 map{ id = "basic_test", description = "Basic test" }
+map{ id = "bugs/1007_door_open_close", description = "#1007: door:open/close()" }
+map{ id = "bugs/1015_crash_scrolling_to_invalid_layer/map_1", description = "#1015: Crash when scrolling to an invalid layer" }
+map{ id = "bugs/1015_crash_scrolling_to_invalid_layer/map_2", description = "Map 2" }
+map{ id = "bugs/1024_custom_entity_set_origin", description = "#1024: custom_entity:set_origin()" }
+map{ id = "bugs/1026_door_sprite_higher_than_16", description = "#1026: Door sprite higher than its bounding box" }
+map{ id = "bugs/1036_falling_again_after_bad_ground", description = "#1036: Hero falls again after bad ground" }
+map{ id = "bugs/1037_stairs_methods", description = "#1037: Stairs methods" }
+map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "#1042: Facing entity is random when multiple ones overlap" }
 map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
+map{ id = "bugs/1075_straight_movement_set_max_distance_tables", description = "#1075: straight_movement:set_max_distance() not working on tables" }
 map{ id = "bugs/1076_treasure_dialog_optional", description = "#1076: Treasure dialog should be optional" }
+map{ id = "bugs/1091_circle_movement_get_center", description = "#1091: circle_movement:get_center()" }
+map{ id = "bugs/1092_enemy_is_immobilized", description = "#1092: enemy:is_immobilized()" }
 map{ id = "bugs/1094_entity_properties", description = "#1094: Entity user-defined properties" }
+map{ id = "bugs/1101_entity_enabled_at_start", description = "#1101: Add enabled_at_start field to all entities" }
+map{ id = "bugs/1105_custom_entity_repeat", description = "#1105: Allow to repeat the sprite of custom entities" }
+map{ id = "bugs/1136_get_path_get_trajectory_missing_element", description = "#1136: Missing element in pixel_movement:get_trajectory() and path_movement:get_path()" }
+map{ id = "bugs/1139_pickable_on_stream", description = "#1139: Allow pickables to follow streams" }
+map{ id = "bugs/1158_entity_timer_suspended", description = "#1158: timer:set_suspended_with_map(false) not working with entity timers" }
 map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
+map{ id = "bugs/1163_circular_movement_get_direction4", description = "#1163: circular_movement:get_direction4() not working" }
+map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix item:on_ability_used() not called with sword knowledge" }
+map{ id = "bugs/1179_enemy_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
+map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
+map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
+map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
+map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195: Enemy dying animation never finishes" }
+map{ id = "bugs/1200_create_shader_from_source", description = "#1200: Create shader from source" }
+map{ id = "bugs/1210_shader_scaling_factor", description = "#1210: shader:get/set_shading_factor()" }
+map{ id = "bugs/1214_blocks_in_water", description = "#1214: Blocks cannot be pushed into water" }
+map{ id = "bugs/1221_custom_entity_follow_stream", description = "#1221: Allow custom entities to follow streams" }
+map{ id = "bugs/1228_crash_map_get_hero/1", description = "#1128: Crash in map:get_hero() after the map is closed" }
+map{ id = "bugs/1228_crash_map_get_hero/2", description = "Map 2" }
+map{ id = "bugs/1230_entity_on_lifting", description = "#1230: entity:on_lifting" }
+map{ id = "bugs/1236_entity_timer_not_suspended", description = "#1236: Entity timer continues when the map is suspended" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
+map{ id = "bugs/630_change_resources", description = "#630: Allow to change the resource list dynamically" }
 map{ id = "bugs/633_straight_movement_speed_zero", description = "#633: Straight movements resets speed to zero when reaching an obstacle" }
 map{ id = "bugs/656_map_set_world", description = "#656: map:set_world()" }
 map{ id = "bugs/664_chest_get_set_treasure", description = "#664: chest:get/set_treasure()" }
@@ -48,6 +80,7 @@ map{ id = "bugs/844_camera_on_state_changed", description = "#844: camera:on_sta
 map{ id = "bugs/845_game_set_suspended", description = "#845: game:set_suspended" }
 map{ id = "bugs/851_entity_get_sprites", description = "#851: entity:get_sprites()" }
 map{ id = "bugs/855_hero_get_sprite_wrong", description = "#855: hero:get_sprite() returns the wrong sprite" }
+map{ id = "bugs/858_movement_get_set_ignore_suspend", description = "#858: movement:get/set_ignore_suspend()" }
 map{ id = "bugs/859_crash_game_start", description = "#859: Crash when restarting game" }
 map{ id = "bugs/860_crash_remove_sprite", description = "#860: Crash when removing secondary sprite" }
 map{ id = "bugs/861_sprite_set_animation_callback", description = "#861: sprite:set_animation() callback parameter" }
@@ -58,13 +91,23 @@ map{ id = "bugs/880_custom_entity_set_origin", description = "#880: custom_entit
 map{ id = "bugs/883_collision_test_not_moving_sprite", description = "#883: Custom entity sprite collision not detected when not moving" }
 map{ id = "bugs/884_tileset_sprite_file_optional", description = "#884: Tileset sprite file sould be optional" }
 map{ id = "bugs/889_crash_use_non_saved_item", description = "#889: Crash when using a non saved item" }
+map{ id = "bugs/898_entity_on_enabled", description = "#898: dentity:on_enabled/disabled()" }
+map{ id = "bugs/920_game_on_world_changed/1", description = "#920: game:on_world_changed()" }
+map{ id = "bugs/920_game_on_world_changed/2", description = "world a" }
+map{ id = "bugs/920_game_on_world_changed/3", description = "world a" }
+map{ id = "bugs/920_game_on_world_changed/4", description = "world b" }
 map{ id = "bugs/937_custom_entity_missing_direction", description = "#937: Error when changing the animation of a custom entity if the direction is missing" }
 map{ id = "bugs/940_crash_bomb_on_stream", description = "#940: Crash when placing a bomb on a stream" }
 map{ id = "bugs/945_flying_enemies_fall_in_hole", description = "#945: Flying enemies fall in holes when the map starts" }
 map{ id = "bugs/946_reused_movement_callback", description = "#946: Callbacks no longer work after reusing a movement" }
 map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity name is nil after removed" }
+map{ id = "bugs/955_enemy_get_set_dying_sprite_id", description = "#955: enemy:get/set_dying_sprite_id" }
+map{ id = "bugs/967_blocks_max_moves", description = "#967: Allow to choose any maximum number of moves for blocks" }
+map{ id = "bugs/971_sol_file_list", description = "#971: sol.file.list()" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
+map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }
+map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
 map{ id = "teletransportation_tests/main", description = "Main map" }
 map{ id = "teletransportation_tests/start_in_deep_water_drown", description = "Start in deep water (drowning)" }
@@ -78,6 +121,7 @@ map{ id = "teletransportation_tests/start_scrolling", description = "Start by sc
 map{ id = "teletransportation_tests/start_scrolling_carrying", description = "Start by scrolling while carrying" }
 map{ id = "teletransportation_tests/start_scrolling_jumping", description = "Start by scrolling while jumping" }
 map{ id = "teletransportation_tests/start_scrolling_running", description = "Start by scrolling while running" }
+map{ id = "teletransportation_tests/start_scrolling_same_map", description = "Scroll to the other side of the same map" }
 map{ id = "teletransportation_tests/start_scrolling_sword_charged", description = "Start by scrolling while the sword is charged" }
 map{ id = "traversable", description = "Traversable test area" }
 
@@ -85,6 +129,8 @@ tileset{ id = "castle", description = "Castle" }
 tileset{ id = "castle_no_sprites_file", description = "Castle (no sprites file)" }
 tileset{ id = "overworld", description = "Overworld" }
 
+sprite{ id = "16x16", description = "16x16 sprite" }
+sprite{ id = "16x24", description = "16x24 sprite" }
 sprite{ id = "citizens/witch", description = "Witch" }
 sprite{ id = "enemies/enemy_killed", description = "Enemy killed" }
 sprite{ id = "enemies/slime_green", description = "Green Slime" }
@@ -98,11 +144,13 @@ sprite{ id = "entities/chest", description = "Chest" }
 sprite{ id = "entities/crystal", description = "Crystal" }
 sprite{ id = "entities/crystal_block", description = "Crystal block" }
 sprite{ id = "entities/door", description = "Door" }
+sprite{ id = "entities/door_16_24", description = "16x24 Door" }
 sprite{ id = "entities/explosion", description = "Explosion" }
 sprite{ id = "entities/fire", description = "Fire" }
 sprite{ id = "entities/grass", description = "Grass" }
 sprite{ id = "entities/hookshot", description = "Hookshot" }
 sprite{ id = "entities/items", description = "Items" }
+sprite{ id = "entities/platform", description = "Platform" }
 sprite{ id = "entities/pot", description = "Pot" }
 sprite{ id = "entities/rupee_icon", description = "Money icon" }
 sprite{ id = "entities/shadow", description = "Shadow" }
@@ -125,6 +173,7 @@ sprite{ id = "main_heroes/sword", description = "Sword" }
 sprite{ id = "main_heroes/sword_electricity", description = "Sword electricity" }
 sprite{ id = "main_heroes/trail", description = "Trail" }
 sprite{ id = "menus/solarus_logo", description = "Solarus logo" }
+sprite{ id = "pivot", description = "Pivot Test" }
 sprite{ id = "todo", description = "TODO image" }
 
 
@@ -254,6 +303,7 @@ item{ id = "item_no_dialog_sprite", description = "Item with no dialog and a spr
 item{ id = "non_saved_item", description = "Non-saved item" }
 item{ id = "sword", description = "Sword" }
 
+enemy{ id = "bugs/1179_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
 enemy{ id = "slime_green", description = "Green Slime" }
 enemy{ id = "test_enemy", description = "Test enemy" }
 enemy{ id = "test_flying_enemy", description = "Flying enemy" }
@@ -264,5 +314,16 @@ language{ id = "en", description = "English" }
 font{ id = "8_bit", description = "8 bit" }
 font{ id = "minecraftia", description = "Minecraftia" }
 
+shader{ id = "scale2x", description = "Scale2x" }
+shader{ id = "sepia", description = "Sepia" }
 
+file{ path = "fonts/8_bit.png", author = "usr_share, Christopho", license = "Public domain" }
+file{ path = "fonts/minecraftia.ttf", author = "Andrew Tyler", license = "Free for non-commercial use" }
+file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
+file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
+file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }
+file{ path = "shaders/sepia.dat", author = "Christopho", license = "GPL v3" }
+file{ path = "shaders/sepia.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "sounds/diarandor/solarus_logo.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/diarandor/enemy_killed.png", author = "Diarandor", license = "CC-BY-SA 4.0" }
+file{ path = "sprites/enemies/enemy_killed.dat", author = "Diarandor", license = "CC-BY-SA 4.0" }

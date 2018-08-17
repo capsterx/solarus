@@ -31,11 +31,14 @@ class SOLARUS_API ShaderData : public LuaData {
 
     ShaderData();
 
-    const std::string& get_vertex_source() const;
-    void set_vertex_source(const std::string& vertex_source);
+    const std::string& get_vertex_file() const;
+    void set_vertex_file(const std::string& vertex_file);
 
-    const std::string& get_fragment_source() const;
-    void set_fragment_source(const std::string& fragment_source);
+    const std::string& get_fragment_file() const;
+    void set_fragment_file(const std::string& fragment_file);
+
+    double get_scaling_factor() const;
+    void set_scaling_factor(double scaling_factor);
 
     bool import_from_lua(lua_State* l) override;
     bool export_to_lua(std::ostream& out) const override;
@@ -44,8 +47,9 @@ class SOLARUS_API ShaderData : public LuaData {
 
     static int l_shader(lua_State* l);
 
-    std::string vertex_source;    /**< Source code of the vertex shader. */
-    std::string fragment_source;  /**< Source code of the fragment shader. */
+    std::string vertex_file;    /**< Source file of the vertex shader. */
+    std::string fragment_file;  /**< Source file of the fragment shader. */
+    double scaling_factor;      /**< Scaling factor, or 0 if none. */
 };
 
 }

@@ -16,7 +16,6 @@
  */
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/graphics/Shader.h"
-#include "solarus/graphics/ShaderContext.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -49,7 +48,11 @@ void LuaContext::register_shader_module() {
   const std::vector<luaL_Reg> methods = {
       { "get_id", shader_api_get_id },
       { "get_vertex_file", shader_api_get_vertex_file },
+      { "get_vertex_source", shader_api_get_vertex_source },
       { "get_fragment_file", shader_api_get_fragment_file },
+      { "get_fragment_source", shader_api_get_fragment_source },
+      { "get_scaling_factor", shader_api_get_scaling_factor },
+      { "set_scaling_factor", shader_api_set_scaling_factor },
       { "set_uniform", shader_api_set_uniform },
   };
 
@@ -101,14 +104,30 @@ int LuaContext::shader_api_create(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& shader_id = LuaTools::check_string(l, 1);
+    ShaderPtr shader;
+    if (lua_isstring(l, 1)) {
+      const std::string& shader_id = LuaTools::check_string(l, 1);
 
-    ShaderPtr shader = ShaderContext::create_shader(shader_id);
-
-    if (!shader->is_valid()) {
-      LuaTools::error(l, "Failed to create shader '" + shader_id + "': " + shader->get_error());
+      shader = std::make_shared<Shader>(shader_id);
+      Debug::check_assertion(shader != nullptr, "Failed to create shader '" + shader_id + "'");
+      if (!shader->is_valid()) {
+        LuaTools::error(l, "Failed to create shader: '" + shader_id + "': " + shader->get_error());
+      }
+    }
+    else if (lua_istable(l, 1)) {
+      const std::string& vertex_source = LuaTools::opt_string_field(l, 1, "vertex_source", "");
+      const std::string& fragment_source = LuaTools::opt_string_field(l, 1, "fragment_source", "");
+      double scaling_factor = LuaTools::opt_number_field(l, 1, "scaling_factor", 0.0);
+      shader = std::make_shared<Shader>(vertex_source, fragment_source, scaling_factor);
+      if (!shader->is_valid()) {
+        LuaTools::error(l, "Failed to create shader: " + shader->get_error());
+      }
+    }
+    else {
+      LuaTools::type_error(l, 1, "string or table");
     }
 
+    Debug::check_assertion(shader != nullptr, "Missing shader");
     push_shader(l, *shader);
     return 1;
   });
@@ -123,7 +142,7 @@ int LuaContext::shader_api_get_opengl_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& opengl_version = ShaderContext::get_opengl_version();
+    const std::string& opengl_version = Video::get_opengl_version();
 
     push_string(l, opengl_version);
     return 1;
@@ -139,7 +158,7 @@ int LuaContext::shader_api_get_shading_language_version(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
 
-    const std::string& shading_language_version = ShaderContext::get_shading_language_version();
+    const std::string& shading_language_version = Video::get_shading_language_version();
 
     push_string(l, shading_language_version);
     return 1;
@@ -173,7 +192,29 @@ int LuaContext::shader_api_get_vertex_file(lua_State* l) {
 
     const Shader& shader = *check_shader(l, 1);
 
-    push_string(l, shader.get_data().get_vertex_source());
+    const std::string& vertex_file = shader.get_data().get_vertex_file();
+    if (vertex_file.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, vertex_file);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:get_vertex_source().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_vertex_source(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    push_string(l, shader.get_vertex_source());
     return 1;
   });
 }
@@ -189,8 +230,83 @@ int LuaContext::shader_api_get_fragment_file(lua_State* l) {
 
     const Shader& shader = *check_shader(l, 1);
 
-    push_string(l, shader.get_data().get_fragment_source());
+    const std::string& fragment_file = shader.get_data().get_fragment_file();
+    if (fragment_file.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, fragment_file);
+    }
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:get_fragment_source().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_fragment_source(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    push_string(l, shader.get_fragment_source());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:get_scaling_factor().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_get_scaling_factor(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    const Shader& shader = *check_shader(l, 1);
+
+    double scaling_factor = shader.get_data().get_scaling_factor();
+    if (scaling_factor == 0.0) {
+      lua_pushnil(l);
+    }
+    else {
+      lua_pushnumber(l, scaling_factor);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of shader:set_scaling_factor().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::shader_api_set_scaling_factor(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+
+    Shader& shader = *check_shader(l, 1);
+
+    double scaling_factor = 0.0;
+    if (lua_isnil(l, 2)) {
+      shader.set_scaling_factor(0.0);
+      return 0;
+    }
+
+    if (!lua_isnumber(l, 2)) {
+      LuaTools::type_error(l, 2, "number or nil");
+    }
+    scaling_factor = LuaTools::check_number(l, 2);
+
+    if (scaling_factor <= 0.0) {
+      LuaTools::arg_error(l, 2, "Scaling factor must be positive");
+    }
+
+    shader.set_scaling_factor(scaling_factor);
+    return 0;
   });
 }
 

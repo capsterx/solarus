@@ -175,6 +175,35 @@ void LuaContext::update_menus() {
 }
 
 /**
+ * \brief Returns whether a value is a menu.
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return \c true if the value at this index is a menu.
+ */
+bool LuaContext::is_menu(lua_State* l, int index) {
+
+  index = LuaTools::get_positive_index(l, index);
+
+  if (!lua_istable(l, index)) {
+    return false;
+  }
+
+  LuaContext& lua_context = get_lua_context(l);
+  for (LuaMenuData& menu: lua_context.menus) {
+    if (menu.ref.is_empty()) {
+      continue;
+    }
+    push_ref(l, menu.ref);
+    if (lua_equal(l, index, -1)) {
+      lua_pop(l, 1);
+      return true;
+    }
+    lua_pop(l, 1);
+  }
+  return false;
+}
+
+/**
  * \brief Implementation of sol.menu.start().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.

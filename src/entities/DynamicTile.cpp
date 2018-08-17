@@ -33,7 +33,6 @@ namespace Solarus {
  * \param size Size of the tile (the pattern can be repeated)
  * \param tileset The tileset to use.
  * \param tile_pattern_id id of the tile pattern in the tileset
- * \param enabled true to make the tile initially enabled.
  */
 DynamicTile::DynamicTile(
     const std::string& name,
@@ -41,15 +40,14 @@ DynamicTile::DynamicTile(
     const Point& xy,
     const Size& size,
     const Tileset& tileset,
-    const std::string& tile_pattern_id,
-    bool enabled
+    const std::string& tile_pattern_id
 ) :
   Entity(name, 0, layer, xy, size),
   tile_pattern_id(tile_pattern_id),
   tile_pattern(tileset.get_tile_pattern(tile_pattern_id)),
   tileset(tileset) {
 
-  set_enabled(enabled);
+  set_tiled(true);
 }
 
 /**

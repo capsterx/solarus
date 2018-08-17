@@ -49,6 +49,7 @@ Bomb::Bomb(const std::string& name, int layer, const Point& xy):
   set_size(16, 16);
   set_origin(8, 13);
   set_drawn_in_y_order(true);
+  set_weight(0);
 }
 
 /**

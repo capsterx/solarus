@@ -162,7 +162,8 @@ int LuaContext::game_api_exists(lua_State* l) {
       LuaTools::error(l, "Cannot check savegame: no write directory was specified in quest.dat");
     }
 
-    bool exists = QuestFiles::data_file_exists(file_name);
+    bool exists = QuestFiles::data_file_exists(file_name) &&
+        !QuestFiles::data_file_is_dir(file_name);
 
     lua_pushboolean(l, exists);
     return 1;
@@ -433,6 +434,11 @@ int LuaContext::game_api_start_dialog(lua_State* l) {
     ScopedLuaRef info_ref;
     ScopedLuaRef callback_ref;
 
+    const std::string& language = CurrentQuest::get_language();
+    if (language.empty()) {
+      LuaTools::error(l, "Cannot start dialog: no language was set");
+    }
+
     if (!CurrentQuest::dialog_exists(dialog_id)) {
       LuaTools::arg_error(l, 2, std::string("No such dialog: '") + dialog_id + "'");
     }
@@ -680,10 +686,7 @@ int LuaContext::game_api_set_value(lua_State* l) {
       break;
 
     default:
-      LuaTools::arg_error(l, 3,
-          std::string("Expected string, number or boolean, got ")
-      + luaL_typename(l, 3)
-      );
+      LuaTools::type_error(l, 3, "string, number or boolean");
     }
 
     return 0;
@@ -1625,7 +1628,7 @@ void LuaContext::game_on_draw(Game& game, const SurfacePtr& dst_surface) {
 }
 
 /**
- * \brief Calls the on_changed() method of a Lua game.
+ * \brief Calls the on_map_changed() method of a Lua game.
  *
  * Does nothing if the method is not defined.
  *
@@ -1640,6 +1643,35 @@ void LuaContext::game_on_map_changed(Game& game, Map& map) {
 
   push_game(l, game.get_savegame());
   on_map_changed(map);
+  lua_pop(l, 1);
+}
+
+/**
+ * \brief Calls the on_world_changed() method of a Lua game.
+ *
+ * Does nothing if the method is not defined
+ * or if the quest format is lower than 1.6.
+ *
+ * \param game A game.
+ * \param previous_world The previous world or an empty string.
+ * \param new_world The new world or an empty string.
+ */
+void LuaContext::game_on_world_changed(
+    Game& game,
+    const std::string& previous_world,
+    const std::string& new_world
+) {
+
+  if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
+    return;
+  }
+
+  if (!userdata_has_field(game.get_savegame(), "on_world_changed")) {
+    return;
+  }
+
+  push_game(l, game.get_savegame());
+  on_world_changed(previous_world, new_world);
   lua_pop(l, 1);
 }
 

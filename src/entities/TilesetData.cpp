@@ -23,21 +23,21 @@
 
 namespace Solarus {
 
-const std::string EnumInfoTraits<TileScrolling>::pretty_name = "tile scrolling";
+const std::string EnumInfoTraits<PatternScrolling>::pretty_name = "tile scrolling";
 
-const EnumInfo<TileScrolling>::names_type EnumInfoTraits<TileScrolling>::names = {
-    { TileScrolling::NONE, "" },
-    { TileScrolling::PARALLAX, "parallax" },
-    { TileScrolling::SELF, "self" },
+const EnumInfo<PatternScrolling>::names_type EnumInfoTraits<PatternScrolling>::names = {
+    { PatternScrolling::NONE, "" },
+    { PatternScrolling::PARALLAX, "parallax" },
+    { PatternScrolling::SELF, "self" },
 };
 
-const std::string EnumInfoTraits<TilePatternRepeatMode>::pretty_name = "tile pattern repeat mode";
+const std::string EnumInfoTraits<PatternRepeatMode>::pretty_name = "tile pattern repeat mode";
 
-const EnumInfo<TilePatternRepeatMode>::names_type EnumInfoTraits<TilePatternRepeatMode>::names = {
-    { TilePatternRepeatMode::ALL, "all" },
-    { TilePatternRepeatMode::HORIZONTAL, "horizontal" },
-    { TilePatternRepeatMode::VERTICAL, "vertical" },
-    { TilePatternRepeatMode::NONE, "none" },
+const EnumInfo<PatternRepeatMode>::names_type EnumInfoTraits<PatternRepeatMode>::names = {
+    { PatternRepeatMode::ALL, "all" },
+    { PatternRepeatMode::HORIZONTAL, "horizontal" },
+    { PatternRepeatMode::VERTICAL, "vertical" },
+    { PatternRepeatMode::NONE, "none" },
 };
 
 /**
@@ -54,9 +54,11 @@ TilePatternData::TilePatternData() :
 TilePatternData::TilePatternData(const Rectangle& frame) :
     ground(Ground::TRAVERSABLE),
     default_layer(0),
-    scrolling(TileScrolling::NONE),
-    repeat_mode(TilePatternRepeatMode::ALL),
-    frames() {
+    scrolling(PatternScrolling::NONE),
+    repeat_mode(PatternRepeatMode::ALL),
+    frames(),
+    frame_delay(default_frame_delay),
+    mirror_loop(false) {
 
   set_frame(frame);
 }
@@ -97,7 +99,7 @@ void TilePatternData::set_default_layer(int default_layer) {
  * \brief Returns the kind of scrolling of this pattern.
  * \return The scrolling property.
  */
-TileScrolling TilePatternData::get_scrolling() const {
+PatternScrolling TilePatternData::get_scrolling() const {
   return scrolling;
 }
 
@@ -105,63 +107,22 @@ TileScrolling TilePatternData::get_scrolling() const {
  * \brief Sets the kind of scrolling of this pattern.
  * \param scrolling The scrolling property.
  */
-void TilePatternData::set_scrolling(TileScrolling scrolling) {
+void TilePatternData::set_scrolling(PatternScrolling scrolling) {
   this->scrolling = scrolling;
 }
 
 /**
  * \brief Returns how this pattern is intended to be repeated.
  */
-TilePatternRepeatMode TilePatternData::get_repeat_mode() const {
+PatternRepeatMode TilePatternData::get_repeat_mode() const {
   return repeat_mode;
 }
 
 /**
  * \brief Sets how this pattern is intended to be repeated.
  */
-void TilePatternData::set_repeat_mode(TilePatternRepeatMode repeat_mode) {
+void TilePatternData::set_repeat_mode(PatternRepeatMode repeat_mode) {
   this->repeat_mode = repeat_mode;
-}
-
-/**
- * \brief Returns whether this is a multi-frame pattern.
- * \return \c true if the pattern has more than one frame.
- */
-bool TilePatternData::is_multi_frame() const {
-  return get_num_frames() > 1;
-}
-
-/**
- * \brief Returns the number of frames of this pattern.
- * \return The number of frames: 1, 3 or 4.
- */
-int TilePatternData::get_num_frames() const {
-  return (int) frames.size();
-}
-
-/**
- * \brief Returns the coordinates of this pattern in the tileset image file.
- *
- * This only makes sense for single-frame patterns.
- *
- * \return The coordinates of the single frame of this pattern.
- * Returns an empty rectangle if the pattern is nil.
- */
-Rectangle TilePatternData::get_frame() const {
-
-  return frames[0];
-}
-
-/**
- * \brief Sets the coordinates of this pattern in the tileset image file.
- *
- * The pattern will have a single frame.
- *
- * \param frame The coordinates of the single frame of this pattern.
- */
-void TilePatternData::set_frame(const Rectangle& frame) {
-  this->frames.clear();
-  this->frames.push_back(frame);
 }
 
 /**
@@ -181,8 +142,88 @@ const std::vector<Rectangle>& TilePatternData::get_frames() const {
 void TilePatternData::set_frames(const std::vector<Rectangle>& frames) {
 
   Debug::check_assertion(!frames.empty(), "No frames");
-  // TODO check number of elements
   this->frames = frames;
+}
+
+/**
+ * \brief Returns whether this is a multi-frame pattern.
+ * \return \c true if the pattern has more than one frame.
+ */
+bool TilePatternData::is_multi_frame() const {
+  return get_num_frames() > 1;
+}
+
+/**
+ * \brief Returns the number of frames of this pattern.
+ * \return The number of frames.
+ */
+int TilePatternData::get_num_frames() const {
+  return static_cast<int>(frames.size());
+}
+
+/**
+ * \brief Returns the coordinates of this pattern in the tileset image file.
+ *
+ * If the pattern is multi-frame, returns the first frame.
+ *
+ * \return The coordinates of the first frame of this pattern.
+ */
+Rectangle TilePatternData::get_frame() const {
+
+  Debug::check_assertion(!frames.empty(), "No pattern frames");
+  return frames[0];
+}
+
+/**
+ * \brief Sets the coordinates of this pattern in the tileset image file.
+ *
+ * The pattern will have a single frame.
+ *
+ * \param frame The coordinates of the single frame of this pattern.
+ */
+void TilePatternData::set_frame(const Rectangle& frame) {
+  this->frames.clear();
+  this->frames.push_back(frame);
+}
+
+/**
+ * \brief Returns the delay between frames.
+ *
+ * This only has an effect for multi-frame patterns.
+ *
+ * \return The frame delay in milliseconds.
+ */
+int TilePatternData::get_frame_delay() const {
+  return frame_delay;
+}
+
+/**
+ * \brief Sets the delay between frames.
+ *
+ * This only has an effect for multi-frame patterns.
+ *
+ * \param frame_delay The frame delay in milliseconds.
+ */
+void TilePatternData::set_frame_delay(int frame_delay) {
+
+  Debug::check_assertion(frame_delay > 0, "Invalid frame delay");
+  this->frame_delay = frame_delay;
+}
+
+/**
+ * \brief Returns whether the animation plays backwards when looping.
+ * \return \c true if the animation should play backwards.
+ */
+bool TilePatternData::is_mirror_loop() const {
+  return mirror_loop;
+}
+
+/**
+ * \brief Sets whether the animation should play backwards when looping.
+ * \param mirror_loop \c true to play the animation backwards.
+ */
+void TilePatternData::set_mirror_loop(bool mirror_loop) {
+  this->mirror_loop = mirror_loop;
 }
 
 /**
@@ -192,6 +233,15 @@ TilesetData::TilesetData() :
     background_color(Color::white),
     patterns() {
 
+}
+
+/**
+ * \brief Removes all content of this tileset.
+ */
+void TilesetData::clear() {
+  background_color = Color::white;
+  patterns.clear();
+  border_sets.clear();
 }
 
 /**
@@ -490,70 +540,89 @@ int l_tile_pattern(lua_State* l) {
     );
     pattern_data.set_default_layer(default_layer);
 
-    const TileScrolling scrolling = LuaTools::opt_enum_field<TileScrolling>(
-        l, 1, "scrolling", TileScrolling::NONE
+    const PatternScrolling scrolling = LuaTools::opt_enum_field<PatternScrolling>(
+        l, 1, "scrolling", PatternScrolling::NONE
     );
     pattern_data.set_scrolling(scrolling);
 
-    const TilePatternRepeatMode repeat_mode = LuaTools::opt_enum_field<TilePatternRepeatMode>(
-        l, 1, "repeat_mode", TilePatternRepeatMode::ALL
+    const PatternRepeatMode repeat_mode = LuaTools::opt_enum_field<PatternRepeatMode>(
+        l, 1, "repeat_mode", PatternRepeatMode::ALL
     );
     pattern_data.set_repeat_mode(repeat_mode);
 
-    const int width = LuaTools::check_int_field(l, 1, "width");
-    const int height = LuaTools::check_int_field(l, 1, "height");
-    // Start with the maximum number of frames.
-    std::vector<Rectangle> frames(4, Rectangle(0, 0, width, height));
+    const int frame_delay = LuaTools::opt_int_field(
+        l, 1, "frame_delay", TilePatternData::default_frame_delay
+    );
+    pattern_data.set_frame_delay(frame_delay);
 
-    int i = 0, j = 0;
+    std::vector<int> x;
     lua_settop(l, 1);
     lua_getfield(l, 1, "x");
     if (lua_isnumber(l, 2)) {
       // Single frame.
-      frames[0].set_x(LuaTools::check_int(l, 2));
-      i = 1;
+      x.push_back(LuaTools::check_int(l, 2));
     }
-    else {
+    else if (lua_istable(l, 2)) {
       // Multi-frame.
       lua_pushnil(l);
-      while (lua_next(l, 2) != 0 && i < 4) {
-        frames[i].set_x(LuaTools::check_int(l, 4));
-        ++i;
+      while (lua_next(l, 2) != 0) {
+        x.push_back(LuaTools::check_int(l, 4));
         lua_pop(l, 1);
       }
+    }
+    else {
+      LuaTools::type_error(l, 2, "number or table");
     }
     lua_pop(l, 1);
     Debug::check_assertion(lua_gettop(l) == 1, "Invalid stack when parsing tile pattern");
 
+    std::vector<int> y;
     lua_getfield(l, 1, "y");
     if (lua_isnumber(l, 2)) {
       // Single frame.
-      frames[0].set_y(LuaTools::check_int(l, 2));
-      j = 1;
+      y.push_back(LuaTools::check_int(l, 2));
     }
-    else {
+    else if (lua_istable(l, 2)) {
       // Multi-frame.
       lua_pushnil(l);
-      while (lua_next(l, 2) != 0 && j < 4) {
-        frames[j].set_y(LuaTools::check_int(l, 4));
-        ++j;
+      while (lua_next(l, 2) != 0) {
+        y.push_back(LuaTools::check_int(l, 4));
         lua_pop(l, 1);
       }
+    }
+    else {
+      LuaTools::type_error(l, 2, "number or table");
     }
     lua_pop(l, 1);
     Debug::check_assertion(lua_gettop(l) == 1, "Invalid stack when parsing tile pattern");
 
-    // Check data.
-    if (i != 1 && i != 3 && i != 4) {
-      LuaTools::arg_error(l, 1, "Invalid number of frames for x");
-    }
-    if (j != 1 && j != 3 && j != 4) {
-      LuaTools::arg_error(l, 1, "Invalid number of frames for y");
-    }
-    if (i != j) {
+    if (x.size() != y.size()) {
       LuaTools::arg_error(l, 1, "The length of x and y must match");
     }
-    frames.resize(i);
+    if (x.size() == 0) {
+      LuaTools::arg_error(l, 1, "Missing x and y frame coordinates");
+    }
+
+    const int width = LuaTools::check_int_field(l, 1, "width");
+    const int height = LuaTools::check_int_field(l, 1, "height");
+
+    std::vector<Rectangle> frames(x.size(), Rectangle(0, 0, width, height));
+    for (int i = 0; i < static_cast<int>(x.size()); ++i) {
+      frames[i].set_x(x[i]);
+      frames[i].set_y(y[i]);
+    }
+
+    bool mirror_loop = LuaTools::opt_boolean_field(
+        l, 1, "mirror_loop", false
+    );
+    // Detect 1.5 legacy mirror loop format
+    // and replace it by the mirror_loop boolean.
+    if (frames.size() == 4 && frames[1] == frames[3]) {
+      frames.pop_back();
+      mirror_loop = true;
+    }
+    pattern_data.set_mirror_loop(mirror_loop);
+
     pattern_data.set_frames(frames);
 
     tileset_data.add_pattern(id, pattern_data);
@@ -608,6 +677,7 @@ int l_border_set(lua_State* l) {
  */
 bool TilesetData::import_from_lua(lua_State* l) {
 
+  clear();
   lua_pushlightuserdata(l, this);
   lua_setfield(l, LUA_REGISTRYINDEX, "tileset");
   lua_register(l, "background_color", l_background_color);
@@ -682,11 +752,17 @@ bool TilesetData::export_to_lua(std::ostream& out) const {
         << "  y = " << y.str() << ",\n"
         << "  width = " << width << ",\n"
         << "  height = " << height << ",\n";
-    if (pattern.get_scrolling() != TileScrolling::NONE) {
-      const std::string& scolling_name = enum_to_name(pattern.get_scrolling());
-      out << "  scrolling = \"" << scolling_name << "\",\n";
+    if (pattern.is_multi_frame()) {
+      out << "  frame_delay = " << pattern.get_frame_delay() << ",\n";
+      if (pattern.is_mirror_loop()) {
+        out << "  mirror_loop = true,\n";
+      }
     }
-    if (pattern.get_repeat_mode() != TilePatternRepeatMode::ALL) {
+    if (pattern.get_scrolling() != PatternScrolling::NONE) {
+      const std::string& scrolling_name = enum_to_name(pattern.get_scrolling());
+      out << "  scrolling = \"" << scrolling_name << "\",\n";
+    }
+    if (pattern.get_repeat_mode() != PatternRepeatMode::ALL) {
       const std::string& repeat_mode_name = enum_to_name(pattern.get_repeat_mode());
       out << "  repeat_mode = \"" << repeat_mode_name << "\",\n";
     }

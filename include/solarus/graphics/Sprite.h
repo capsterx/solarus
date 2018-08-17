@@ -92,6 +92,7 @@ class Sprite: public Drawable {
     void stop_animation();
 
     virtual void set_suspended(bool suspended) override;
+    bool get_ignore_suspend() const;
     void set_ignore_suspend(bool ignore_suspend);
     bool is_paused() const;
     void set_paused(bool suspended);

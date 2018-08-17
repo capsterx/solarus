@@ -53,6 +53,13 @@ const Stream& StreamAction::get_stream() const {
 }
 
 /**
+ * \overload Non-const version.
+ */
+Stream& StreamAction::get_stream() {
+  return *stream;
+}
+
+/**
  * \brief Returns the entity this action is applied to.
  * \return The entity moved by the stream.
  */
@@ -103,15 +110,15 @@ void StreamAction::recompute_movement() {
     target = stream->get_xy();
   }
 
-  // Stop 16 pixels after the stream.
+  // Stop after the stream.
   if (dx != 0) {
     // Horizontal stream.
-    target.x += dx > 0 ? 16 : -16;
+    target.x += stream->get_width() * (dx > 0 ? 1 : -1);
   }
 
   if (dy != 0) {
     // Vertical stream.
-    target.y += dy > 0 ? 16 : -16;
+    target.y += stream->get_height() * (dy > 0 ? 1 : -1);
   }
 
   if (stream->get_direction() % 2 != 0) {
@@ -245,15 +252,16 @@ void StreamAction::update() {
       }
     }
 
-    entity_moved->set_xy(entity_moved->get_x() + dx, entity_moved->get_y() + dy);
-    entity_moved->notify_position_changed();
+    Point new_xy = entity_moved->get_xy() + Point(dx, dy);
 
     // See if the entity has come outside the stream,
     // in other words, if the movement is finished.
-    if (has_reached_target()) {
+    if (new_xy == target) {
       // The target point is reached: stop the stream.
       active = false;
     }
+    entity_moved->set_xy(new_xy);
+    entity_moved->notify_position_changed();
     recompute_movement();
   }
 }

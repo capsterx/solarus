@@ -487,8 +487,18 @@ inline Rectangle& Rectangle::operator&=(const Rectangle& other) {
 	return *this;
 }
 
+/**
+ * @brief implicit conversion of const Rectangle to its const SDL_Rect*
+ */
 inline Rectangle::operator const SDL_Rect*() const {
 	return get_internal_rect();
+}
+
+/**
+ * @brief implicit conversion of Rectangle to its SDL_Rect*
+ */
+inline Rectangle::operator SDL_Rect*() {
+        return get_internal_rect();
 }
 
 /**
@@ -527,6 +537,19 @@ inline Rectangle& Rectangle::operator|=(const Rectangle& other) {
 inline bool operator==(const Rectangle& lhs, const Rectangle& rhs) {
 	return lhs.get_xy() == rhs.get_xy()
 	    && lhs.get_size() == rhs.get_size();
+}
+
+/**
+ * @brief return the same rectangle with no negative width and height
+ * @return
+ */
+inline Rectangle Rectangle::positive() const {
+    return Rectangle(
+                std::min(get_left(),get_right()),
+                std::min(get_top(),get_bottom()),
+                std::abs(get_width()),
+                std::abs(get_height())
+                );
 }
 
 /**

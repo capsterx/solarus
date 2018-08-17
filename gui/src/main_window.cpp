@@ -206,13 +206,20 @@ bool MainWindow::confirm_close() {
  */
 void MainWindow::on_action_add_quest_triggered() {
 
-  QString quest_path = QFileDialog::getExistingDirectory(
+  QString quest_path = QFileDialog::getOpenFileName(
         this,
-        tr("Select quest directory")
+        tr("Select archive or quest.dat")
   );
 
   if (quest_path.isEmpty()) {
     return;
+  }
+
+  //Sanitize path
+  QString end("data/quest.dat");
+  if(quest_path.endsWith(end)) {
+    //Quest is a folder with a quest.dat
+    quest_path.chop(end.size());
   }
 
   if (ui.quests_view->has_quest(quest_path)) {

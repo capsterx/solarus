@@ -245,6 +245,40 @@ int LuaContext::drawable_api_get_shader(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of drawable:get_opacity().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_opacity(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+
+    uint8_t opacity = drawable.get_opacity();
+
+    lua_pushinteger(l, opacity);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_opacity().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_opacity(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    uint8_t opacity = (uint8_t) LuaTools::check_int(l, 2);
+
+    drawable.set_opacity(opacity);
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of drawable:fade_in().
  * \param l the Lua context that is calling this function
  * \return number of values to return to Lua
@@ -351,6 +385,110 @@ int LuaContext::drawable_api_set_xy(lua_State* l) {
     drawable.set_xy(Point(x, y));
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_rotation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_rotation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double rot = LuaTools::check_number(l, 2);
+
+    drawable.set_rotation(rot);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_rotation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_rotation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    double rot = drawable.get_rotation();
+
+    lua_pushnumber(l,rot);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_scale().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_scale(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double x = LuaTools::check_number(l, 2);
+    double y = LuaTools::check_number(l, 3);
+
+    drawable.set_scale(Scale(x, y));
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_scale().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_scale(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    const Scale& s = drawable.get_scale();
+
+    lua_pushnumber(l,s.x);
+    lua_pushnumber(l,s.y);
+
+    return 2;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_transform_origin().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_transformation_origin(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    double x = LuaTools::check_number(l, 2);
+    double y = LuaTools::check_number(l, 3);
+
+    drawable.set_transformation_origin(Point(x,y));
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:get_transform_origin().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_transformation_origin(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+    const Point& o = drawable.get_transformation_origin();
+
+    lua_pushnumber(l,o.x);
+    lua_pushnumber(l,o.y);
+    return 2;
   });
 }
 

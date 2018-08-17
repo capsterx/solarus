@@ -332,7 +332,6 @@ dynamic_tile{
   pattern = "83",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -342,7 +341,6 @@ dynamic_tile{
   pattern = "83",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -352,7 +350,6 @@ dynamic_tile{
   pattern = "82",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -362,7 +359,6 @@ dynamic_tile{
   pattern = "82",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -372,7 +368,6 @@ dynamic_tile{
   pattern = "83",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -382,7 +377,6 @@ dynamic_tile{
   pattern = "82",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -392,7 +386,6 @@ dynamic_tile{
   pattern = "84",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -402,7 +395,6 @@ dynamic_tile{
   pattern = "84",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -412,7 +404,6 @@ dynamic_tile{
   pattern = "84",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -422,7 +413,6 @@ dynamic_tile{
   pattern = "85",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -432,7 +422,6 @@ dynamic_tile{
   pattern = "85",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 
 dynamic_tile{
@@ -442,6 +431,5 @@ dynamic_tile{
   pattern = "85",
   width = 16,
   height = 16,
-  enabled_at_start = true,
 }
 

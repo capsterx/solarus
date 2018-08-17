@@ -299,6 +299,18 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
       }
     }
 
+    // Capture mouse movements outside the window
+    // only while dragging.
+    else if (internal_event.type == SDL_MOUSEBUTTONDOWN) {
+      SDL_CaptureMouse(SDL_TRUE);
+    }
+    else if (internal_event.type == SDL_MOUSEBUTTONUP) {
+      Uint32 buttons = SDL_GetMouseState(nullptr, nullptr);
+      if (buttons == 0) {
+        SDL_CaptureMouse(SDL_FALSE);  // No more buttons pressed.
+      }
+    }
+
     // Always return a Solarus event if an SDL event occurred, so that
     // multiple SDL events in the same frame are all treated.
     result = new InputEvent(internal_event);
@@ -1199,16 +1211,14 @@ InputEvent::MouseButton InputEvent::get_mouse_button() const {
 /**
  * \brief Gets the x and y position of this mouse event, if any.
  * Values are in quest size coordinates.
- * \param[out] mouse_xy The x and y position of the mouse in this mouse event.
- * \return \c false if the mouse was not inside the quest displaying during
- * this event.
+ * \return The x and y position of the mouse in this mouse event.
  */
-bool InputEvent::get_mouse_position(Point& mouse_xy) const {
+Point InputEvent::get_mouse_position() const {
 
   Debug::check_assertion(is_mouse_event(), "Event is not a mouse event");
 
   return Video::renderer_to_quest_coordinates(
-      Point(internal_event.button.x, internal_event.button.y), mouse_xy);
+      Point(internal_event.button.x, internal_event.button.y));
 }
 
 // touch finger
@@ -1467,8 +1477,24 @@ bool InputEvent::is_released() const {
  * \return true if this is a window closing event
  */
 bool InputEvent::is_window_closing() const {
-
   return internal_event.type == SDL_QUIT;
+}
+
+/**
+ * @brief Returns wheter this event corresponds to
+ * the user resizing the window.
+ * @return true if this is a window resize event
+ */
+bool InputEvent::is_window_resizing() const {
+  return internal_event.type == SDL_WINDOWEVENT && internal_event.window.event == SDL_WINDOWEVENT_RESIZED;
+}
+
+/**
+ * @brief Get the window size if the event is a window resized event
+ * @return the new window size
+ */
+Size InputEvent::get_window_size() const {
+  return {internal_event.window.data1,internal_event.window.data2};
 }
 
 }

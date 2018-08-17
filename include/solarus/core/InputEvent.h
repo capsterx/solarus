@@ -31,6 +31,7 @@ namespace Solarus {
 
 class Point;
 class Rectangle;
+class Size;
 
 /**
  * \brief Represents a low-level event.
@@ -282,7 +283,7 @@ class InputEvent {
     bool is_mouse_button_released(MouseButton button) const;
 
     MouseButton get_mouse_button() const;
-    bool get_mouse_position(Point& mouse_xy) const;
+    Point get_mouse_position() const;
 
     // touch finger
     bool is_finger_pressed() const;
@@ -306,6 +307,9 @@ class InputEvent {
 
     // window event
     bool is_window_closing() const;
+    bool is_window_resizing() const;
+
+    Size get_window_size() const;
 
   private:
 

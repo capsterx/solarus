@@ -24,7 +24,7 @@
 #include <fstream>
 #include <cstdlib>  // exit(), mkstemp(), tmpnam()
 #include <cstdio>   // remove()
-#ifdef HAVE_UNISTD_H
+#ifdef SOLARUS_HAVE_UNISTD_H
 #  include <unistd.h>  // close()
 #endif
 
@@ -112,7 +112,7 @@ void set_solarus_write_dir(const std::string& solarus_write_dir) {
  *
  * \param program_name Program name passed as first command-line argument.
  * Necessary for the quest file management system.
- * \param quest_path Path of the quest to open.
+ * \param quest_path Path of the quest to open, in UTF-8 encoding.
  * \return \c true if the quest was found.
  */
 SOLARUS_API bool open_quest(const std::string& program_name, const std::string& quest_path) {
@@ -129,6 +129,11 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
   }
 
   quest_path_ = quest_path;
+
+  //quest path is a file, try to open it directly
+  PHYSFS_addToSearchPath(quest_path.c_str(),1);
+
+  //quest path is a folder or anything else, do as usual
   std::string dir_quest_path = quest_path + "/data";
   std::string archive_quest_path_1 = quest_path + "/data.solarus";
   std::string archive_quest_path_2 = quest_path + "/data.solarus.zip";
@@ -140,6 +145,7 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
   PHYSFS_addToSearchPath((base_dir + "/" + dir_quest_path).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_1).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_2).c_str(), 1);
+
 
   // Set the engine root write directory.
   set_solarus_write_dir(SOLARUS_WRITE_DIR);
@@ -188,6 +194,7 @@ SOLARUS_API bool is_open() {
  * \brief Returns the path of the quest, relative to the current directory.
  * \return Path of the data/ directory, the data.solarus archive or the
  * data.solarus.zip archive, relative to the current directory.
+ * Encoded in UTF-8.
  */
 SOLARUS_API const std::string& get_quest_path() {
   return quest_path_;
@@ -203,7 +210,9 @@ SOLARUS_API const std::string& get_quest_path() {
  */
 SOLARUS_API bool quest_exists() {
 
-  return data_file_exists("quest.dat");
+  const std::string file_name = "quest.dat";
+  return data_file_exists(file_name) &&
+      !data_file_is_dir(file_name);
 }
 
 /**
@@ -230,52 +239,37 @@ SOLARUS_API DataFileLocation data_file_get_location(
     return DataFileLocation::LOCATION_WRITE_DIRECTORY;
   }
 
-  if (path.rfind("data") == path.size() - 4) {
+  if (path.rfind("/data") == path.size() - 5) {
     return DataFileLocation::LOCATION_DATA_DIRECTORY;
   }
 
-  if (path.rfind("data.solarus") == path.size() - 12
-      || path.rfind("data.solarus.zip") == path.size() - 16) {
-    return DataFileLocation::LOCATION_DATA_ARCHIVE;
-  }
-
-  Debug::die(std::string("Unexpected search path element: " + path));
+  return DataFileLocation::LOCATION_DATA_ARCHIVE;
 }
 
 /**
- * \brief Returns whether a file exists in the quest data directory or
- * in Solarus write directory, and is not a directory.
+ * \brief Returns whether a file or directory exists
+ * in the quest data directory or in the quest write directory.
  * \param file_name A file name relative to the quest data directory,
  * to the current language directory or to Solarus write directory.
  * \param language_specific \c true if the file is relative to the current
  * language directory.
- * \return \c true if this file exists and is not a directory.
+ * \return \c true if this file exists.
  */
-SOLARUS_API bool data_file_exists(const std::string& file_name,
-    bool language_specific) {
-
-  std::string full_file_name;
-  if (language_specific) {
-    if (CurrentQuest::get_language().empty()) {
-      return false;
-    }
-    full_file_name = std::string("languages/") +
-        CurrentQuest::get_language() + "/" + file_name;
-  }
-  else {
-    full_file_name = file_name;
-  }
-
-  return PHYSFS_exists(full_file_name.c_str()) && !PHYSFS_isDirectory(full_file_name.c_str());
+SOLARUS_API bool data_file_exists(
+    const std::string& file_name,
+    bool language_specific
+) {
+  const std::string& actual_file_name = get_actual_file_name(file_name, language_specific);
+  return PHYSFS_exists(actual_file_name.c_str());
 }
 
 /**
- * \brief Opens a data file an loads its content into memory.
- * \param file_name Name of the file to open.
- * \param language_specific \c true if the file is specific to the current language.
- * \return The content of the file.
+ * \brief Returns a file name after resolving whether it is a language-specific one.
+ * \param file_name The file name possibly relative to the current language.
+ * \param language_specific \c true if the file name is relative to the current language.
+ * \return \c The actual file name.
  */
-SOLARUS_API std::string data_file_read(
+SOLARUS_API std::string get_actual_file_name(
     const std::string& file_name,
     bool language_specific
 ) {
@@ -292,16 +286,30 @@ SOLARUS_API std::string data_file_read(
     full_file_name = file_name;
   }
 
-  // open the file
-  Debug::check_assertion(PHYSFS_exists(full_file_name.c_str()),
-      std::string("Data file '") + full_file_name + "' does not exist"
+  return full_file_name;
+}
+
+/**
+ * \brief Opens a data file an loads its content into memory.
+ * \param file_name Name of the file to open.
+ * \return The content of the file.
+ */
+SOLARUS_API std::string data_file_read(
+    const std::string& file_name
+) {
+  // Open the file.
+  Debug::check_assertion(PHYSFS_exists(file_name.c_str()),
+      std::string("Data file '") + file_name + "' does not exist"
   );
-  PHYSFS_file* file = PHYSFS_openRead(full_file_name.c_str());
+  Debug::check_assertion(!PHYSFS_isDirectory(file_name.c_str()),
+      std::string("Data file '") + file_name + "' is a directory"
+  );
+  PHYSFS_file* file = PHYSFS_openRead(file_name.c_str());
   Debug::check_assertion(file != nullptr,
-      std::string("Cannot open data file '") + full_file_name + "'"
+      std::string("Cannot open data file '") + file_name + "'"
   );
 
-  // load it into memory
+  // Load it into memory.
   size_t size =  static_cast<size_t>(PHYSFS_fileLength(file));
   std::vector<char> buffer(size);
 
@@ -309,6 +317,19 @@ SOLARUS_API std::string data_file_read(
   PHYSFS_close(file);
 
   return std::string(buffer.data(), size);
+}
+
+/**
+ * \brief Opens a data file an loads its content into memory.
+ * \param file_name Name of the file to open.
+ * \param language_specific \c true if the file is specific to the current language.
+ * \return The content of the file.
+ */
+SOLARUS_API std::string data_file_read(
+    const std::string& file_name,
+    bool language_specific
+) {
+  return data_file_read(get_actual_file_name(file_name, language_specific));
 }
 
 /**
@@ -365,6 +386,46 @@ SOLARUS_API bool data_file_mkdir(const std::string& dir_name) {
   }
 
   return true;
+}
+
+/**
+ * \brief Returns whether a directory exists in the quest data directory or
+ * in Solarus write directory and is a directory.
+ * \param file_name A file name relative to the quest data directory
+ * or to Solarus write directory.
+ * \return \c true if this file exists and is a directory.
+ */
+SOLARUS_API bool data_file_is_dir(const std::string& file_name) {
+
+  return PHYSFS_exists(file_name.c_str()) &&
+      PHYSFS_isDirectory(file_name.c_str());
+}
+
+/**
+ * \brief Lists files of a directory.
+ * \param dir_path Name of the directory to list, relative to the quest data
+ * directory or to the write directory.
+ * \return The files and directories in this directory.
+ * Returns an empty list if there is no such directory
+ * or if the directory is empty.
+ */
+SOLARUS_API std::vector<std::string> data_file_list_dir(
+    const std::string& dir_path
+) {
+  if (!data_file_is_dir(dir_path)) {
+    return {};
+  }
+
+  std::vector<std::string> result;
+  if (PHYSFS_exists(dir_path.c_str())) {
+    char** files = PHYSFS_enumerateFiles(dir_path.c_str());
+    for (char** file = files; *file != nullptr; ++file) {
+      result.push_back(std::string(*file));
+    }
+    PHYSFS_freeList(files);
+  }
+
+  return result;
 }
 
 /**
@@ -460,7 +521,7 @@ SOLARUS_API std::string create_temporary_file(const std::string& content) {
   // Determine the name of our temporary file.
   std::string file_name;
 
-#ifdef HAVE_MKSTEMP
+#ifdef SOLARUS_HAVE_MKSTEMP
   // mkstemp+close is safer than tmpnam, but POSIX only.
   char name_template[] = "/tmp/solarus.XXXXXX";
   int file_descriptor = mkstemp(name_template);

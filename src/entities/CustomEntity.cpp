@@ -32,6 +32,7 @@
 #include "solarus/entities/Separator.h"
 #include "solarus/entities/Stairs.h"
 #include "solarus/entities/Stream.h"
+#include "solarus/entities/StreamAction.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/graphics/Sprite.h"
@@ -58,6 +59,7 @@ CustomEntity::CustomEntity(
     int layer,
     const Point& xy,
     const Size& size,
+    const Point& origin,
     const std::string& sprite_name,
     const std::string& model
 ):
@@ -66,14 +68,15 @@ CustomEntity::CustomEntity(
   ),
   model(model),
   ground_observer(false),
-  modified_ground(Ground::EMPTY) {
+  modified_ground(Ground::EMPTY),
+  follow_streams(false) {
 
   set_collision_modes(
       CollisionMode::COLLISION_FACING |
       CollisionMode::COLLISION_CUSTOM |
       CollisionMode::COLLISION_SPRITE
   );
-  set_origin(8, 13);
+  set_origin(origin);
 
   if (!sprite_name.empty()) {
     create_sprite(sprite_name);
@@ -464,7 +467,7 @@ bool CustomEntity::is_stream_obstacle(Stream& stream) {
   if (!info.is_empty()) {
     return !info.is_traversable(*this, stream);
   }
-  return Entity::is_stream_obstacle(stream);
+  return false;
 }
 
 /**
@@ -1002,6 +1005,14 @@ void CustomEntity::notify_collision_with_teletransporter(
 void CustomEntity::notify_collision_with_stream(
     Stream& stream, int /* dx */, int /* dy */) {
 
+  if (get_follow_streams()) {
+    if (has_stream_action()) {
+      get_stream_action()->update();
+    }
+    if (!has_stream_action()) {
+      stream.activate(*this);
+    }
+  }
   notify_collision_from(stream);
 }
 
@@ -1151,7 +1162,10 @@ void CustomEntity::notify_collision_with_enemy(
  */
 bool CustomEntity::notify_action_command_pressed() {
 
-  return get_lua_context()->entity_on_interaction(*this);
+  if (get_lua_context()->entity_on_interaction(*this)) {
+    return true;
+  }
+  return Entity::notify_action_command_pressed();
 }
 
 /**
@@ -1252,21 +1266,6 @@ void CustomEntity::set_suspended(bool suspended) {
 }
 
 /**
- * \copydoc Entity::notify_enabled
- */
-void CustomEntity::notify_enabled(bool enabled) {
-
-  Entity::notify_enabled(enabled);
-
-  if (enabled) {
-    get_lua_context()->entity_on_enabled(*this);
-  }
-  else {
-    get_lua_context()->entity_on_disabled(*this);
-  }
-}
-
-/**
  * \copydoc Entity::draw_on_map
  */
 void CustomEntity::draw_on_map() {
@@ -1274,6 +1273,22 @@ void CustomEntity::draw_on_map() {
   get_lua_context()->entity_on_pre_draw(*this);
   Entity::draw_on_map();
   get_lua_context()->entity_on_post_draw(*this);
+}
+
+/**
+ * \brief Returns whether this entity is affected by streams.
+ * \return \c true if this entity follows streams.
+ */
+bool CustomEntity::get_follow_streams() const {
+  return follow_streams;
+}
+
+/**
+ * \brief Sets whether this entity is affected by streams.
+ * \param follow_streams \c true if this entity should follow streams.
+ */
+void CustomEntity::set_follow_streams(bool follow_streams) {
+  this->follow_streams = follow_streams;
 }
 
 /**

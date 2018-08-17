@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Debug.h"
 #include "solarus/core/System.h"
 #include "solarus/entities/AnimatedTilePattern.h"
 #include "solarus/entities/ParallaxScrollingTilePattern.h"
@@ -23,98 +24,45 @@
 namespace Solarus {
 
 /**
- * \brief Interval in millisecond between two frames of an animation.
- */
-static constexpr uint32_t TILE_FRAME_INTERVAL = 250;
-
-/**
- * \brief Gives the current frame depending on the sequence type and the frame counter.
- *
- * This array associates the current frame (0, 1 or 2) to
- * the sequence type and the frame counter (0 to 11).
- */
-static constexpr short frames[2][12] = {
-  {0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2}, // sequence 0-1-2
-  {0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1}, // sequence 0-1-2-1
-};
-
-int AnimatedTilePattern::frame_counter = 0;
-
-int AnimatedTilePattern::current_frames[3] = {0, 0, 0};
-
-uint32_t AnimatedTilePattern::next_frame_date = 0;
-
-/**
- * \brief Constructor.
+ * \brief Creates a multi-frame tile pattern.
  * \param ground Kind of ground of the tile pattern.
- * \param sequence animation sequence type
- * \param size Size of the pattern (the same for each frame of the animation)
- * \param x1 x position of the first frame in the tileset
- * \param y1 y position of the first frame in the tileset
- * \param x2 x position of the second frame in the tileset
- * \param y2 y position of the second frame in the tileset
- * \param x3 x position of the third frame in the tileset
- * \param y3 y position of the third frame in the tileset
- * \param parallax true to also set parallax scrolling to the tile pattern
+ * \param frames Rectangles in the tileset image.
+ * \param frame_delay Delay in milliseconds between each frame.
+ * \param mirror_loop Whether to play the animation backwards when it loops.
+ * \param parallax \c true to also set parallax scrolling to the tile pattern.
  */
-AnimatedTilePattern::AnimatedTilePattern(Ground ground,
-    AnimationSequence sequence,
-    const Size& size,
-    int x1, int y1,
-    int x2, int y2,
-    int x3, int y3,
-    bool parallax):
-  TilePattern(ground, size),
-  sequence(sequence),
-  parallax(parallax) {
+AnimatedTilePattern::AnimatedTilePattern(
+    Ground ground,
+    const std::vector<Rectangle>& frames,
+    uint32_t frame_delay,
+    bool mirror_loop,
+    bool parallax
+):
+  TilePattern(ground, frames[0].get_size()),
+  frames(frames),
+  frame_delay(frame_delay),
+  mirror_loop(mirror_loop),
+  parallax(parallax),
+  frame_index(0),
+  next_frame_date(System::now() + frame_delay) {
 
-  this->position_in_tileset[0] = Rectangle(x1, y1);
-  this->position_in_tileset[1] = Rectangle(x2, y2);
-  this->position_in_tileset[2] = Rectangle(x3, y3);
-
-  for (int i = 0; i < 3; i++) {
-    this->position_in_tileset[i].set_size(size);
-  }
+  Debug::check_assertion(!this->frames.empty(), "Missing frames for animated pattern");
 }
 
 /**
- * \brief Initializes the animated tile pattern system.
- */
-void AnimatedTilePattern::initialize() {
-  next_frame_date = System::now();
-  frame_counter = 0;
-  for (int i = 0; i < 3; ++i) {
-    current_frames[i] = 0;
-  }
-}
-
-/**
- * \brief Cleans the animated tile pattern system.
- */
-void AnimatedTilePattern::quit() {
-  next_frame_date = 0;
-  frame_counter = 0;
-  for (int i = 0; i < 3; ++i) {
-    current_frames[i] = 0;
-  }
-}
-
-/**
- * \brief Updates the current frame of all tiles.
- *
- * This function is called repeatedly by the map.
+ * \copydoc TilePattern::update
  */
 void AnimatedTilePattern::update() {
 
   uint32_t now = System::now();
-
   while (now >= next_frame_date) {
-
-    frame_counter = (frame_counter + 1) % 12;
-    current_frames[1] = frames[0][frame_counter];
-    current_frames[2] = frames[1][frame_counter];
-
-    next_frame_date += TILE_FRAME_INTERVAL; // the frame changes every 250 ms
+    if (!mirror_loop) {
+      frame_index = (frame_index + 1) % frames.size();
+    }
+    else {
+      frame_index = (frame_index + 1) % (2 * frames.size() - 2);
+    }
+    next_frame_date += frame_delay;
   }
 }
 
@@ -133,7 +81,14 @@ void AnimatedTilePattern::draw(
     const Point& viewport
 ) const {
   const SurfacePtr& tileset_image = tileset.get_tiles_image();
-  const Rectangle& src = position_in_tileset[current_frames[sequence]];
+
+  int final_frame_index = frame_index;
+  int num_frames = frames.size();
+  if (mirror_loop && frame_index >= num_frames) {
+    final_frame_index = (2 * frames.size() - 2) - frame_index;
+  }
+  Debug::check_assertion(final_frame_index >= 0 && final_frame_index < num_frames, "Wrong frame index");
+  const Rectangle& src = frames[final_frame_index];
   Point dst = dst_position;
 
   if (parallax) {

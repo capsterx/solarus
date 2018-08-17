@@ -18,6 +18,7 @@
 #define SOLARUS_PIXEL_BITS_H
 
 #include "solarus/core/Common.h"
+#include "solarus/core/Transform.h"
 #include <cstdint>
 #include <vector>
 
@@ -40,11 +41,16 @@ class PixelBits {
 
     PixelBits(const Surface& surface, const Rectangle& image_position);
 
-    bool test_collision(const PixelBits& other,
+    bool test_aligned_collision(const PixelBits& other,
         const Point& location1, const Point& location2) const;
 
-  private:
+    bool test_collision(const PixelBits &other,
+                        const Transform &transform1, const Transform &transform2) const;
 
+    bool test_oriented_collision(const PixelBits &other,
+                                 const Transform& transform1, const Transform& transform2) const;
+  private:
+    bool at(int x, int y) const;
     void print() const;
     void print_mask(uint32_t mask) const;
 

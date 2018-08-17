@@ -35,6 +35,7 @@
 #include <limits>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 namespace Solarus {
 
@@ -519,6 +520,15 @@ void Sprite::set_suspended(bool suspended) {
 }
 
 /**
+ * \brief Returns whether this sprite keeps playing when the game is suspended.
+ * \return \c true if the sprite continues its animation even when the game is
+ * suspended.
+ */
+bool Sprite::get_ignore_suspend() const {
+  return ignore_suspend;
+}
+
+/**
  * \brief Sets whether this sprite should keep playing its animation when the game is suspended.
  *
  * This will ignore subsequent calls to set_suspended().
@@ -667,7 +677,9 @@ bool Sprite::test_collision(const Sprite& other, int x1, int y1, int x2, int y2)
   location2 += other.get_xy();
   const PixelBits& pixel_bits2 = direction2.get_pixel_bits(other.current_frame);
 
-  return pixel_bits1.test_collision(pixel_bits2, location1, location2);
+  return pixel_bits1.test_collision(pixel_bits2,
+                                    Transform(location1,get_origin(),get_scale(),get_rotation()),
+                                    Transform(location2,other.get_origin(),other.get_scale(),other.get_rotation()));
 }
 
 /**
@@ -873,7 +885,7 @@ void Sprite::raw_draw_region(Surface& dst_surface, const DrawInfos& infos) const
           infos.dst_position,
           current_direction,
           current_frame,
-          DrawInfos(infos,DrawProxyChain<2>({cropProxy,infos.proxy})));
+          DrawInfos(infos,DrawProxyChain<2>(DrawProxyChain<2>::Proxies{{cropProxy,infos.proxy}})));
   }
 }
 

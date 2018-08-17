@@ -3,8 +3,11 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/graphics/BlendMode.h"
+#include "solarus/core/Scale.h"
 
+#include <SDL2/SDL_render.h>
 #include <array>
+#include <cmath>
 
 namespace Solarus {
 
@@ -14,30 +17,67 @@ struct DrawProxy;
  * @brief Struct used to pass drawing arguments trough the drawing pipeline
  *
  * It contains all the information needed to perform a draw of a drawable to another,
- * it could be updated in the future to support more parameters, such as rotation and scale
+ *
+ * it also provide some helper methods to extract useful informations from the drawing data
  */
 struct DrawInfos {
-  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position,
-            BlendMode blend_mode, uint8_t opacity,
+  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
+            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
             const DrawProxy& proxy):
-    region(region),dst_position(dst_position),
+    region(region),dst_position(dst_position), transformation_origin(transformation_origin),
+    scale(scale),proxy(proxy),
     blend_mode(blend_mode), opacity(opacity),
-    proxy(proxy) {}
+    rotation(rotation)
+     {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
-    DrawInfos(other.region,other.dst_position,other.blend_mode,other.opacity,proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Rectangle& region,
             const Point& dst_position) :
-    DrawInfos(region,dst_position,other.blend_mode,other.opacity,other.proxy) {}
+    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Point& dst_position) :
-    DrawInfos(other.region,dst_position,other.blend_mode,other.opacity,other.proxy) {}
+    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
-    DrawInfos(other.region,other.dst_position,other.blend_mode,opacity,other.proxy) {}
-  //TODO more helper constructors
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
+
+  /**
+   * @brief compute scaled destination rectangle
+   * @return
+   */
+  inline Rectangle dst_rectangle() const {
+    const Point& ototl = -transformation_origin;
+    Point otobr = Point(region.get_size()) - transformation_origin;
+    Point tcenter = dst_position+transformation_origin;
+    return Rectangle(
+          tcenter + ototl*scale,
+          tcenter + otobr*scale
+          ).positive();
+  }
+
+  inline SDL_RendererFlip flips() const {
+    return (SDL_RendererFlip)((scale.x < 0.f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE) |
+        (scale.y < 0.f ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE));
+  }
+
+  /**
+   * @brief compute sdl_origin for use with SDL_RenderCopyEx
+   * @return
+   */
+  inline SDL_Point sdl_origin() const {
+    return {(int)(transformation_origin.x*scale.x),(int)(transformation_origin.y*scale.y)};
+  }
+
+  inline bool should_use_ex() const {
+    return std::fabs(rotation) > 1e-3 || scale.x < 0.f || scale.y < 0.f;
+  }
+
   const Rectangle& region; /**< The region of the source surface that will be drawn*/
   const Point& dst_position; /**< The position in the target surface where the surface will be drawn */
+  const Point transformation_origin; /** < The origin of the rotation and scale */
+  const Scale& scale; /** < The object scale */
+  const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
   BlendMode blend_mode; /**< blend mode that will be used */
   uint8_t   opacity; /**< opacity modulator */
-  const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
+  double rotation; /**< The object rotation */
 };
 
 /**

@@ -70,7 +70,7 @@ CarriedObject::CarriedObject(
     uint32_t explosion_date
 ):
   Entity("", 0, hero.get_layer(), Point(0, 0), Size(0, 0)),
-  hero(hero),
+  hero(std::static_pointer_cast<Hero>(hero.shared_from_this())),
   is_lifting(true),
   is_throwing(false),
   is_breaking(false),
@@ -102,7 +102,9 @@ CarriedObject::CarriedObject(
   );
   main_sprite = create_sprite(animation_set_id, "main");
   main_sprite->enable_pixel_collisions();
-  main_sprite->set_current_animation("stopped");
+  if (main_sprite->has_animation("stopped")) {
+    main_sprite->set_current_animation("stopped");
+  }
   set_default_sprite_name("main");
   set_movement(movement);
 
@@ -133,11 +135,43 @@ bool CarriedObject::is_ground_observer() const {
 }
 
 /**
+ * \brief Returns the entity that is carrying this object.
+ * \return The carrier.
+ */
+EntityPtr CarriedObject::get_carrier() const {
+  return hero;
+}
+
+/**
  * \brief Returns the damage this item can cause to ennemies.
  * \return the damage on enemies
  */
 int CarriedObject::get_damage_on_enemies() const {
   return damage_on_enemies;
+}
+
+/**
+ * \brief Sets the damage this object causes to enemies when thrown at them.
+ * \param damage_on_enemies The damage on enemies.
+ */
+void CarriedObject::set_damage_on_enemies(int damage_on_enemies) {
+  this->damage_on_enemies = damage_on_enemies;
+}
+
+/**
+ * \brief Returns the id of the sound to play when this object is destroyed.
+ * \return The destruction sound id or an empty string.
+ */
+const std::string& CarriedObject::get_destruction_sound() const {
+  return destruction_sound_id;
+}
+
+/**
+ * \brief Sets the id of the sound to play when this object is destroyed.
+ * \param destruction_sound_id The destruction sound id or an empty string.
+ */
+void CarriedObject::set_destruction_sound(const std::string& destruction_sound_id) {
+  this->destruction_sound_id = destruction_sound_id;
 }
 
 /**
@@ -150,7 +184,9 @@ void CarriedObject::set_animation_stopped() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "stopped_explosion_soon" : "stopped";
-    main_sprite->set_current_animation(animation);
+    if (main_sprite->has_animation("animation")) {
+      main_sprite->set_current_animation(animation);
+    }
   }
 }
 
@@ -164,7 +200,9 @@ void CarriedObject::set_animation_walking() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "walking_explosion_soon" : "walking";
-    main_sprite->set_current_animation(animation);
+    if (main_sprite->has_animation("animation")) {
+      main_sprite->set_current_animation(animation);
+    }
   }
 }
 
@@ -182,11 +220,13 @@ void CarriedObject::throw_item(int direction) {
   Sound::play("throw");
 
   // Set up sprites.
-  main_sprite->set_current_animation("stopped");
+  if (main_sprite->has_animation("animation")) {
+    main_sprite->set_current_animation("stopped");
+  }
   shadow_sprite->start_animation();
 
   // set the movement of the item sprite
-  set_y(hero.get_y());
+  set_y(hero->get_y());
   std::shared_ptr<StraightMovement> movement =
       std::make_shared<StraightMovement>(false, false);
   movement->set_speed(200);
@@ -368,7 +408,7 @@ void CarriedObject::update() {
     // make the item follow the hero
     clear_movement();
     set_movement(std::make_shared<RelativeMovement>(
-        std::static_pointer_cast<Hero>(hero.shared_from_this()),
+        hero,
         0,
         -18,
         true

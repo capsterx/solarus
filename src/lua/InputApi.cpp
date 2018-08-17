@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/core/InputEvent.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/graphics/Video.h"
@@ -32,7 +33,7 @@ const std::string LuaContext::input_module_name = "sol.input";
  */
 void LuaContext::register_input_module() {
 
-  const std::vector<luaL_Reg> functions = {
+  std::vector<luaL_Reg> functions = {
       { "is_joypad_enabled", input_api_is_joypad_enabled },
       { "set_joypad_enabled", input_api_set_joypad_enabled },
       { "is_key_pressed", input_api_is_key_pressed },
@@ -42,13 +43,16 @@ void LuaContext::register_input_module() {
       { "get_joypad_hat_direction", input_api_get_joypad_hat_direction },
       { "is_mouse_button_pressed", input_api_is_mouse_button_pressed },
       { "get_mouse_position", input_api_get_mouse_position },
-      { "is_finger_pressed", input_api_is_finger_pressed },
-      { "is_finger_released", input_api_is_finger_released },
-      { "get_finger_position", input_api_get_finger_position },
-      { "get_finger_pressure", input_api_get_finger_pressure },
-      { "simulate_key_pressed", input_api_simulate_key_pressed },
-      { "simulate_key_released", input_api_simulate_key_released }
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    functions.insert(functions.end(), {
+        { "is_finger_pressed", input_api_is_finger_pressed },
+        { "get_finger_position", input_api_get_finger_position },
+        { "get_finger_pressure", input_api_get_finger_pressure },
+        { "simulate_key_pressed", input_api_simulate_key_pressed },
+        { "simulate_key_released", input_api_simulate_key_released },
+    });
+  }
 
   register_functions(input_module_name, functions);
 }
@@ -210,27 +214,6 @@ int LuaContext::input_api_is_mouse_button_pressed(lua_State* l) {
 }
 
 /**
- * \brief Implementation of sol.input.is_mouse_button_released().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::input_api_is_mouse_button_released(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    const std::string& button_name = LuaTools::check_string(l, 1);
-    InputEvent::MouseButton button = name_to_enum(button_name, InputEvent::MouseButton::NONE);
-
-    if (button == InputEvent::MouseButton::NONE) {
-      LuaTools::arg_error(l, 1, std::string(
-          "Unknown mouse button name: '") + button_name + "'");
-    }
-
-    lua_pushboolean(l, !InputEvent::is_mouse_button_down(button));
-    return 1;
-  });
-}
-
-/**
  * \brief Implementation of sol.input.get_mouse_position().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -238,16 +221,7 @@ int LuaContext::input_api_is_mouse_button_released(lua_State* l) {
 int LuaContext::input_api_get_mouse_position(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
-    Point mouse_xy = InputEvent::get_global_mouse_position();
-    const Size window_size = Video::get_window_size();
-
-    if (mouse_xy.x < 0
-        || mouse_xy.y < 0
-        || mouse_xy.x >= window_size.width
-        || mouse_xy.y >= window_size.height) {
-      lua_pushnil(l);
-      return 1;
-    }
+    const Point mouse_xy = InputEvent::get_global_mouse_position();
 
     lua_pushinteger(l, mouse_xy.x);
     lua_pushinteger(l, mouse_xy.y);
@@ -266,25 +240,6 @@ int LuaContext::input_api_is_finger_pressed(lua_State* l) {
     int finger_id = LuaTools::check_int(l, 1);
 
     lua_pushboolean(l, InputEvent::is_finger_down(finger_id));
-    return 1;
-  });
-}
-
-/**
- * \brief Implementation of sol.input.is_finger_released().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::input_api_is_finger_released(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    int finger_id = LuaTools::check_int(l, 1);
-
-    if (finger_id == -1) {
-      LuaTools::arg_error(l, 1, std::string("Unknown finger id: -1"));
-    }
-
-    lua_pushboolean(l, !InputEvent::is_finger_down(finger_id));
     return 1;
   });
 }

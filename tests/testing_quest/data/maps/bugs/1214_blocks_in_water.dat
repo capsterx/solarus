@@ -1,0 +1,150 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "overworld",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 64,
+  y = 40,
+  width = 32,
+  height = 32,
+  pattern = "25",
+}
+
+tile{
+  layer = 0,
+  x = 40,
+  y = 16,
+  width = 16,
+  height = 16,
+  pattern = "30",
+}
+
+tile{
+  layer = 0,
+  x = 24,
+  y = 32,
+  width = 16,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 40,
+  y = 32,
+  width = 16,
+  height = 16,
+  pattern = "36",
+}
+
+tile{
+  layer = 0,
+  x = 24,
+  y = 16,
+  width = 16,
+  height = 16,
+  pattern = "28",
+}
+
+tile{
+  layer = 0,
+  x = 40,
+  y = 80,
+  width = 32,
+  height = 32,
+  pattern = "6",
+}
+
+block{
+  name = "block_2",
+  layer = 0,
+  x = 56,
+  y = 61,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 40,
+  y = 77,
+  direction = 1,
+}
+
+block{
+  name = "block_1",
+  layer = 0,
+  x = 40,
+  y = 61,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+block{
+  name = "block_3",
+  layer = 0,
+  x = 56,
+  y = 77,
+  sprite = "entities/block",
+  pushable = true,
+  pullable = false,
+  max_moves = 1,
+}
+
+wall{
+  layer = 0,
+  x = 32,
+  y = 32,
+  width = 16,
+  height = 16,
+  stops_hero = true,
+}
+
+wall{
+  layer = 0,
+  x = 64,
+  y = 48,
+  width = 16,
+  height = 16,
+  stops_hero = true,
+}
+
+wall{
+  layer = 0,
+  x = 48,
+  y = 80,
+  width = 16,
+  height = 16,
+  stops_hero = true,
+}
+
+sensor{
+  name = "expected_final_position_sensor",
+  layer = 0,
+  x = 56,
+  y = 77,
+  width = 16,
+  height = 16,
+}
+

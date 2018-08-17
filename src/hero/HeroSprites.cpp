@@ -1298,7 +1298,7 @@ void HeroSprites::set_animation_sword_tapping() {
 }
 
 /**
- * \brief Starts (or restarts) the "spin_attck" animation of the hero's sprites.
+ * \brief Starts (or restarts) the "spin_attack" animation of the hero's sprites.
  */
 void HeroSprites::set_animation_spin_attack() {
 
@@ -1310,7 +1310,7 @@ void HeroSprites::set_animation_spin_attack() {
 }
 
 /**
- * \brief Starts (or restarts) the "super_spin_attck" animation of the hero's sprites.
+ * \brief Starts (or restarts) the "super_spin_attack" animation of the hero's sprites.
  */
 void HeroSprites::set_animation_super_spin_attack() {
 

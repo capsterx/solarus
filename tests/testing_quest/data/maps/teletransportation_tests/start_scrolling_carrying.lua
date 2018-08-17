@@ -4,6 +4,9 @@ local game = map:get_game()
 function map:on_started()
 
   hero:assert_position_equal(sensor_on_started)
+
+  -- Empty ground because during scrolling from the right,
+  -- the hero is outside the map.
   hero:assert_state_ground_animation("carrying", "empty", "carrying_stopped")
 end
 

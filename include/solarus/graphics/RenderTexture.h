@@ -4,9 +4,20 @@
 #include "solarus/graphics/Color.h"
 #include "solarus/graphics/SDLPtrs.h"
 #include "solarus/graphics/Video.h"
+#include "solarus/core/Debug.h"
 #include "DrawProxies.h"
 
+
 namespace Solarus {
+
+#ifdef DEBUG
+#define SOLARUS_CHECK_SDL_HIGHER(expr,bound) if((expr) < bound) Debug::error(std::string(SDL_GetError()) + "! " + __FILE__ + ":" + std::to_string(__LINE__));
+#else
+#define SOLARUS_CHECK_SDL_HIGHER(expr,bound) expr
+#endif
+
+#define SOLARUS_CHECK_SDL(expr) SOLARUS_CHECK_SDL_HIGHER(expr,0)
+
 
 /**
  * @brief SurfaceImpl representing mutable surface data
@@ -18,6 +29,7 @@ class RenderTexture : public SurfaceImpl
 {
 public:
     RenderTexture(int width, int height);
+    RenderTexture(SDL_Texture* texture, int width, int height);
     SDL_Texture* get_texture() const override;
     SDL_Surface* get_surface() const override;
 
@@ -29,7 +41,7 @@ public:
     void with_target(Func closure) const {
       surface_dirty = true;
       auto renderer = Video::get_renderer();
-      SDL_SetRenderTarget(renderer,target.get());
+      Video::set_render_target(target.get());
       closure(renderer);
     }
 
@@ -46,6 +58,7 @@ public:
     void clear();
     void clear(const Rectangle& where);
     ~RenderTexture(){
+      Video::invalidate_target(target.get());
     }
 private:
     mutable bool surface_dirty = true; /**< is the surface not up to date*/

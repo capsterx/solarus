@@ -24,7 +24,7 @@ namespace Solarus {
  * Vertex is used as assembly data for every interaction
  * with shaders and opengl
  */
-struct Vertex {
+struct SOLARUS_API Vertex {
   Vertex(const glm::vec2& position,
          const Color& color,
          const glm::vec2& texcoords
@@ -56,7 +56,7 @@ enum PrimitiveType {
  *
  * VerticeView is used to manipulate parts of a vertex array
  */
-class VerticeView
+class SOLARUS_API VerticeView
 {
 public:
     VerticeView(VertexArray& array, off_t offset, size_t size):
@@ -83,10 +83,9 @@ private:
  *
  * A vertex array is a set of vertices that can be drawn
  */
-class VertexArray
+class SOLARUS_API VertexArray
 {
-  friend class GlShader;
-  friend class GlArbShader;
+  friend class Shader;
   friend class VerticeView;
 public:
     VertexArray(PrimitiveType type = TRIANGLES);

@@ -1,0 +1,45 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 16,
+  width = 96,
+  height = 32,
+  pattern = "67",
+}
+
+teletransporter{
+  layer = 0,
+  x = 8,
+  y = 24,
+  width = 16,
+  height = 16,
+  destination_map = "bugs/1228_crash_map_get_hero/2",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 16,
+  y = 37,
+  direction = 3,
+}
+
