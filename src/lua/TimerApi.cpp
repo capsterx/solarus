@@ -337,14 +337,30 @@ void LuaContext::do_timer_callback(const TimerPtr& timer) {
     const bool success = call_function(0, 1, "timer callback");
 
     bool repeat = false;
+    int interval = timer->get_duration();
     if (success) {
-      repeat = lua_isboolean(l, -1) && lua_toboolean(l, -1);
+
+      if (lua_isnumber(l, -1)) {
+        interval = lua_tointeger(l, -1);
+        if (interval < 0) {
+          std::ostringstream oss;
+          oss << "Invalid timer delay: " + oss.str();
+          Debug::error(oss.str());
+        }
+        else {
+          repeat = true;
+        }
+      }
+      else if (lua_isboolean(l, -1)) {
+        repeat = lua_toboolean(l, -1);
+      }
       lua_pop(l, 1);
     }
 
     if (repeat) {
       // The callback returned true: reschedule the timer.
-      timer->set_expiration_date(timer->get_expiration_date() + timer->get_initial_duration());
+      timer->set_duration(interval);
+      timer->set_expiration_date(timer->get_expiration_date() + interval);
       if (timer->is_finished()) {
         // Already finished: this is possible if the duration is smaller than
         // the main loop stepsize.

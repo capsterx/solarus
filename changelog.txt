@@ -119,6 +119,7 @@ New features:
 * Add methods circle_movement:get/set_angle_from_center() in radians (#1116).
 * Add methods circle_movement:get/set_angular_speed() in radians (#1116).
 * Add methods sol.menu.bring_to_front/back() (#1107).
+* Repeated timers can now change their next delay by returning a number (#983).
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.

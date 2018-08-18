@@ -124,11 +124,22 @@ bool Timer::is_finished() const {
 }
 
 /**
- * \brief Returns the initial duration of this timer.
- * \return The initial duration in milliseconds.
+ * \brief Returns the duration of this timer.
+ * \return The duration in milliseconds.
  */
-uint32_t Timer::get_initial_duration() const {
+uint32_t Timer::get_duration() const {
   return duration;
+}
+
+/**
+ * \brief Sets the duration of this timer.
+ *
+ * This does not change the current expiration date if the timer is running.
+ *
+ * \param duration The duration in milliseconds.
+ */
+void Timer::set_duration(uint32_t duration) {
+  this->duration = duration;
 }
 
 /**

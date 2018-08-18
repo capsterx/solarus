@@ -41,7 +41,8 @@ class Timer: public ExportableToLua {
     bool is_suspended_with_map() const;
     void set_suspended_with_map(bool suspend_with_map);
     bool is_finished() const;
-    uint32_t get_initial_duration() const;
+    uint32_t get_duration() const;
+    void set_duration(uint32_t duration);
     uint32_t get_expiration_date() const;
     void set_expiration_date(uint32_t expiration_date);
 
@@ -53,7 +54,7 @@ class Timer: public ExportableToLua {
   private:
 
     uint32_t expiration_date;        /**< Date when the timer is finished. */
-    uint32_t duration;               /**< Initial duration of this timer. */
+    uint32_t duration;               /**< Duration of this timer. */
     bool finished;                   /**< Whether the timer is finished. */
     bool suspended_with_map;         /**< Whether the timer should be suspended when the map is. */
     bool suspended;                  /**< Whether the timer is suspended. */

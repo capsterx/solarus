@@ -107,6 +107,7 @@ map{ id = "bugs/954_entity_name_nil_after_removed", description = "#954: Entity 
 map{ id = "bugs/955_enemy_get_set_dying_sprite_id", description = "#955: enemy:get/set_dying_sprite_id" }
 map{ id = "bugs/967_blocks_max_moves", description = "#967: Allow to choose any maximum number of moves for blocks" }
 map{ id = "bugs/971_sol_file_list", description = "#971: sol.file.list()" }
+map{ id = "bugs/983_timer_delay", description = "#983: Allow to change the delay of timers" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }
