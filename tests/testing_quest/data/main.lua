@@ -25,6 +25,17 @@ function assert_equal_approx(actual, expected)
   end
 end
 
+function assert_equal_color(actual_rgba, expected_rgba)
+
+  assert_equal(actual_rgba[1], expected_rgba[1])
+  assert_equal(actual_rgba[2], expected_rgba[2])
+  assert_equal(actual_rgba[3], expected_rgba[3])
+  local alpha = expected_rgba[4] or 255
+  if #actual_rgba > 3 then
+    assert_equal(actual_rgba[4], alpha)
+  end
+end
+
 function sol.main:on_started()
 
   assert_equal(sol.language.get_language(), "en")

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
@@ -34,12 +35,18 @@ const std::string LuaContext::menu_module_name = "sol.menu";
 void LuaContext::register_menu_module() {
 
   // Functions of sol.menu.
-  const std::vector<luaL_Reg> functions = {
+  std::vector<luaL_Reg> functions = {
       { "start", menu_api_start },
       { "stop", menu_api_stop },
       { "stop_all", menu_api_stop_all },
-      { "is_started", menu_api_is_started }
+      { "is_started", menu_api_is_started },
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    functions.insert(functions.end(), {
+        { "bring_to_front", menu_api_bring_to_front },
+        { "bring_to_back", menu_api_bring_to_back },
+    });
+  }
 
   register_functions(menu_module_name, functions);
 }
@@ -304,6 +311,69 @@ int LuaContext::menu_api_is_started(lua_State* l) {
     lua_pushboolean(l, found);
 
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sol.menu.bring_to_front().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::menu_api_bring_to_front(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    LuaContext& lua_context = get_lua_context(l);
+
+    LuaTools::check_type(l, 1, LUA_TTABLE);
+
+    std::list<LuaMenuData>& menus = lua_context.menus;
+    for (auto it = menus.begin();
+         it != menus.end();
+         ++it
+    ) {
+      LuaMenuData menu = *it;
+      push_ref(l, menu.ref);
+      if (lua_equal(l, 1, -1)) {
+        menus.erase(it);
+        menus.push_back(menu);
+        lua_pop(l, 1);
+      }
+      lua_pop(l, 1);
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of sol.menu.bring_to_back().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::menu_api_bring_to_back(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    LuaContext& lua_context = get_lua_context(l);
+
+    LuaTools::check_type(l, 1, LUA_TTABLE);
+
+    std::list<LuaMenuData>& menus = lua_context.menus;
+    for (auto it = menus.begin();
+         it != menus.end();
+         ++it
+    ) {
+      LuaMenuData menu = *it;
+      push_ref(l, menu.ref);
+      if (lua_equal(l, 1, -1)) {
+        menus.erase(it);
+        menus.push_front(menu);
+        lua_pop(l, 1);
+        break;
+      }
+      lua_pop(l, 1);
+    }
+
+    return 0;
   });
 }
 
