@@ -61,7 +61,7 @@ void Hero::SpinAttackState::start(const State* previous_state) {
     movement->set_center(hero.get_xy());
     movement->set_radius_speed(128);
     movement->set_radius(24);
-    movement->set_angular_speed(Geometry::degrees_to_radians(540));
+    movement->set_angular_speed(Geometry::degrees_to_radians(1000));
     movement->set_max_rotations(3);
     movement->set_clockwise(true);
     hero.set_movement(movement);
