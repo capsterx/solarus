@@ -57,11 +57,11 @@ void Hero::SpinAttackState::start(const State* previous_state) {
   if (get_equipment().has_ability(Ability::SWORD_KNOWLEDGE)) {
     get_sprites().set_animation_super_spin_attack();
     std::shared_ptr<CircleMovement> movement =
-        std::make_shared<CircleMovement>(false);
+        std::make_shared<CircleMovement>();
     movement->set_center(hero.get_xy());
     movement->set_radius_speed(128);
     movement->set_radius(24);
-    movement->set_angle_speed(540);
+    movement->set_angular_speed(Geometry::degrees_to_radians(540));
     movement->set_max_rotations(3);
     movement->set_clockwise(true);
     hero.set_movement(movement);

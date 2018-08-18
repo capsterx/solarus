@@ -63,7 +63,10 @@ Solarus launcher GUI changes
 Lua API changes
 ---------------
 
-Changes that do not introduce incompatibilities:
+This release adds new features and deprecates a few ones
+but does not introduce any incompatibility.
+
+New features:
 
 * Add a shader API.
 * Video mode functions are now deprecated. Use shader functions instead.
@@ -111,10 +114,27 @@ Changes that do not introduce incompatibilities:
 * Add method movement:is_suspended().
 * Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
-* Add method movement:get_center() (#1091).
+* Add method circle_movement:get_center() (#1091).
+* Add methods circle_movement:get/set_angle_from_center() in radians (#1116).
+* Add methods circle_movement:get/set_angular_speed() in radians (#1116).
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
+
+Deprecated functions:
+
+* Built-in video modes API: use shaders instead.
+  * sol.video.get_mode()
+  * sol.video.set_mode()
+  * sol.video.switch_mode()
+  * sol.video.is_mode_supported()
+  * sol.video.get_modes()
+  * sol.video.reset_window_size()
+* Property maximum_moves of map:create_block(): use max_moves instead.
+* block:get/set_maximum_moves(): use get/set_max_moves() instead.
+* Angle functions in degrees: use new functions with radians instead.
+  * circle_movement:get/set_initial_angle()
+  * circle_movement:get/set_angle_speed()
 
 Data files format changes
 -------------------------

@@ -16,6 +16,7 @@ map{ id = "bugs/1092_enemy_is_immobilized", description = "#1092: enemy:is_immob
 map{ id = "bugs/1094_entity_properties", description = "#1094: Entity user-defined properties" }
 map{ id = "bugs/1101_entity_enabled_at_start", description = "#1101: Add enabled_at_start field to all entities" }
 map{ id = "bugs/1105_custom_entity_repeat", description = "#1105: Allow to repeat the sprite of custom entities" }
+map{ id = "bugs/1116_angle_functions_radians", description = "#1116: Use radians for angle functions" }
 map{ id = "bugs/1136_get_path_get_trajectory_missing_element", description = "#1136: Missing element in pixel_movement:get_trajectory() and path_movement:get_path()" }
 map{ id = "bugs/1139_pickable_on_stream", description = "#1139: Allow pickables to follow streams" }
 map{ id = "bugs/1158_entity_timer_suspended", description = "#1158: timer:set_suspended_with_map(false) not working with entity timers" }

@@ -15,6 +15,16 @@ function assert_equal(actual, expected)
   end
 end
 
+function assert_equal_approx(actual, expected)
+
+  local tolerance = 0.00001
+  if math.abs(actual - expected) > tolerance then
+    error("equality assertion failed: expected " ..
+        format_value(expected) .. ", got " ..
+        format_value(actual) .. "")
+  end
+end
+
 function sol.main:on_started()
 
   assert_equal(sol.language.get_language(), "en")

@@ -17,6 +17,7 @@
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Game.h"
+#include "solarus/core/Geometry.h"
 #include "solarus/core/MainLoop.h"
 #include "solarus/core/Map.h"
 #include "solarus/entities/Entities.h"
@@ -288,6 +289,10 @@ void LuaContext::register_movement_module() {
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     circle_movement_methods.insert(circle_movement_methods.end(), {
         { "get_center", circle_movement_api_get_center },
+        { "get_angle_from_center", circle_movement_api_get_angle_from_center },
+        { "set_angle_from_center", circle_movement_api_set_angle_from_center },
+        { "get_angular_speed", circle_movement_api_get_angular_speed },
+        { "set_angular_speed", circle_movement_api_set_angular_speed },
     });
   }
   circle_movement_methods.insert(
@@ -573,7 +578,7 @@ int LuaContext::movement_api_create(lua_State* l) {
       movement = path_finding_movement;
     }
     else if (type == "circle") {
-      movement = std::make_shared<CircleMovement>(false);
+      movement = std::make_shared<CircleMovement>();
     }
     else if (type == "jump") {
       movement = std::make_shared<JumpMovement>(0, 0, 0, false);
@@ -1678,6 +1683,20 @@ int LuaContext::circle_movement_api_set_clockwise(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of circle_movement:get_angle_from_center().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_get_angle_from_center(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CircleMovement& movement = *check_circle_movement(l, 1);
+    lua_pushnumber(l, movement.get_angle_from_center());
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of circle_movement:get_initial_angle().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -1685,9 +1704,32 @@ int LuaContext::circle_movement_api_set_clockwise(lua_State* l) {
 int LuaContext::circle_movement_api_get_initial_angle(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
+
+    get_lua_context(l).warning_deprecated(
+        { 1, 6 },
+        "circle_movement:get_initial_angle()",
+        "Use circle_movement:get_angle_from_center() in radians instead."
+    );
+
     const CircleMovement& movement = *check_circle_movement(l, 1);
-    lua_pushinteger(l, movement.get_initial_angle());
+    int degrees = Geometry::radians_to_degrees(movement.get_initial_angle());
+    lua_pushinteger(l, degrees);
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:set_angle_from_center().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_set_angle_from_center(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CircleMovement& movement = *check_circle_movement(l, 1);
+    double angle_from_center = LuaTools::check_number(l, 2);
+    movement.set_angle_from_center(angle_from_center);
+    return 0;
   });
 }
 
@@ -1699,10 +1741,32 @@ int LuaContext::circle_movement_api_get_initial_angle(lua_State* l) {
 int LuaContext::circle_movement_api_set_initial_angle(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
+
+    get_lua_context(l).warning_deprecated(
+        { 1, 6 },
+        "circle_movement:set_initial_angle()",
+        "Use circle_movement:set_angle_from_center() in radians instead."
+    );
+
     CircleMovement& movement = *check_circle_movement(l, 1);
-    int initial_angle = LuaTools::check_int(l, 2);
-    movement.set_initial_angle(initial_angle);
+    int initial_angle_degrees = LuaTools::check_int(l, 2);
+    movement.set_angle_from_center(Geometry::degrees_to_radians(initial_angle_degrees));
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:get_angular_speed().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_get_angular_speed(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CircleMovement& movement = *check_circle_movement(l, 1);
+
+    lua_pushnumber(l, movement.get_angular_speed());
+    return 1;
   });
 }
 
@@ -1714,9 +1778,36 @@ int LuaContext::circle_movement_api_set_initial_angle(lua_State* l) {
 int LuaContext::circle_movement_api_get_angle_speed(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
+
+    get_lua_context(l).warning_deprecated(
+        { 1, 6 },
+        "circle_movement:get_angle_speed()",
+        "Use circle_movement:get_angular_speed() in radians instead."
+    );
+
     const CircleMovement& movement = *check_circle_movement(l, 1);
-    lua_pushinteger(l, movement.get_angle_speed());
+
+    int degrees_per_second = Geometry::radians_to_degrees(movement.get_angular_speed());
+
+    lua_pushinteger(l, degrees_per_second);
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:set_angular_speed().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_set_angular_speed(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CircleMovement& movement = *check_circle_movement(l, 1);
+    double angular_speed = LuaTools::check_number(l, 2);
+
+    movement.set_angular_speed(angular_speed);
+
+    return 0;
   });
 }
 
@@ -1728,9 +1819,18 @@ int LuaContext::circle_movement_api_get_angle_speed(lua_State* l) {
 int LuaContext::circle_movement_api_set_angle_speed(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
+
+    get_lua_context(l).warning_deprecated(
+        { 1, 6 },
+        "circle_movement:set_angle_speed()",
+        "Use circle_movement:set_angular_speed() in radians instead."
+    );
+
     CircleMovement& movement = *check_circle_movement(l, 1);
-    int angle_speed = LuaTools::check_int(l, 2);
-    movement.set_angle_speed(angle_speed);
+    int angle_speed_degrees = LuaTools::check_int(l, 2);
+
+    movement.set_angular_speed(Geometry::degrees_to_radians(angle_speed_degrees));
+
     return 0;
   });
 }
