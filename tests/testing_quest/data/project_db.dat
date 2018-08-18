@@ -19,6 +19,7 @@ map{ id = "bugs/1105_custom_entity_repeat", description = "#1105: Allow to repea
 map{ id = "bugs/1136_get_path_get_trajectory_missing_element", description = "#1136: Missing element in pixel_movement:get_trajectory() and path_movement:get_path()" }
 map{ id = "bugs/1139_pickable_on_stream", description = "#1139: Allow pickables to follow streams" }
 map{ id = "bugs/1158_entity_timer_suspended", description = "#1158: timer:set_suspended_with_map(false) not working with entity timers" }
+map{ id = "bugs/1159_entity_overlaps_sprites", description = "#1159: Add sprites parameters to entity:overlaps()" }
 map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
 map{ id = "bugs/1163_circular_movement_get_direction4", description = "#1163: circular_movement:get_direction4() not working" }
 map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix item:on_ability_used() not called with sword knowledge" }

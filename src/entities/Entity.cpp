@@ -2066,9 +2066,17 @@ void Entity::check_collision(Sprite& this_sprite, Entity& other) {
  * collision test.
  * \param entity The entity.
  * \param collision_mode The collision test to perform.
+ * \param this_sprite Sprite of this entity to test (only for sprite collision mode),
+ * or nullptr to test all of them.
+ * \param other_sprite Sprite of the other entity to test (only for sprite collision mode),
+ * or nullptr to test all of them.
  * \return \c true if there is a collision.
  */
-bool Entity::test_collision(Entity& entity, CollisionMode collision_mode) {
+bool Entity::test_collision(
+    Entity& entity,
+    CollisionMode collision_mode,
+    const SpritePtr& this_sprite,
+    const SpritePtr& other_sprite) {
 
   if (get_layer() != entity.get_layer() && !has_layer_independent_collisions()) {
     // Not the same layer: no collision.
@@ -2102,7 +2110,7 @@ bool Entity::test_collision(Entity& entity, CollisionMode collision_mode) {
     return test_collision_custom(entity);
 
   case CollisionMode::COLLISION_SPRITE:
-    return test_collision_sprites(entity);
+    return test_collision_sprites(entity, this_sprite, other_sprite);
   }
 
   return false;
@@ -2201,25 +2209,43 @@ bool Entity::test_collision_center(const Entity& entity) const {
  * The test is pixel-precise.
  *
  * \param entity The entity.
+ * \param this_sprite Sprite of this entity to test, or nullptr to test all of them.
+ * \param other_sprite Sprite of the other entity to test, or nullptr to test all of them.
  * \return \c true if sprites of both entities overlap.
  */
-bool Entity::test_collision_sprites(Entity& entity) {
+bool Entity::test_collision_sprites(
+    Entity& entity,
+    const SpritePtr& this_sprite,
+    const SpritePtr& other_sprite) {
 
-  for (const NamedSprite& this_named_sprite: sprites) {
-
-    if (this_named_sprite.removed) {
-      continue;
-    }
-    Sprite& this_sprite = *this_named_sprite.sprite;
-    this_sprite.enable_pixel_collisions();
-    for (const NamedSprite& other_named_sprite: entity.sprites) {
-
-      if (other_named_sprite.removed) {
-        continue;
+  // Select the sprites to check depending on paramaters.
+  std::vector<SpritePtr> this_sprites;
+  if (this_sprite != nullptr) {
+    this_sprites.push_back(this_sprite);
+  } else {
+    for (const NamedSprite& this_named_sprite: this->sprites) {
+      if (!this_named_sprite.removed) {
+        this_sprites.push_back(this_named_sprite.sprite);
       }
-      Sprite& other_sprite = *other_named_sprite.sprite;
-      other_sprite.enable_pixel_collisions();
-      if (this_sprite.test_collision(other_sprite, get_x(), get_y(), entity.get_x(), entity.get_y())) {
+    }
+  }
+  std::vector<SpritePtr> other_sprites;
+  if (other_sprite != nullptr) {
+    other_sprites.push_back(other_sprite);
+  } else {
+    for (const NamedSprite& other_named_sprite: entity.sprites) {
+      if (!other_named_sprite.removed) {
+        other_sprites.push_back(other_named_sprite.sprite);
+      }
+    }
+  }
+
+  // Test the selected sprites.
+  for (const SpritePtr& this_sprite : this_sprites) {
+    this_sprite->enable_pixel_collisions();
+    for (const SpritePtr& other_sprite : other_sprites) {
+      other_sprite->enable_pixel_collisions();
+      if (this_sprite->test_collision(*other_sprite, get_x(), get_y(), entity.get_x(), entity.get_y())) {
         return true;
       }
     }

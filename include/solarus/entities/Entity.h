@@ -295,15 +295,21 @@ class SOLARUS_API Entity: public ExportableToLua {
     void check_collision(Entity& other);
     void check_collision(Entity& other, Sprite& other_sprite);
     void check_collision(Sprite& this_sprite, Entity& other);
-    // TODO void check_collision(Sprite& this_sprite, Entity& other, Sprite& other_sprite);
-    bool test_collision(Entity& entity, CollisionMode collision_mode);
+    bool test_collision(
+        Entity& entity,
+        CollisionMode collision_mode,
+        const SpritePtr& this_sprite,
+        const SpritePtr& other_sprite);
     bool test_collision_rectangle(const Entity& entity) const;
     bool test_collision_inside(const Entity& entity) const;
     bool test_collision_origin_point(const Entity& entity) const;
     bool test_collision_facing_point(const Entity& entity) const;
     bool test_collision_touching(const Entity& entity) const;
     bool test_collision_center(const Entity& entity) const;
-    bool test_collision_sprites(Entity& entity);
+    bool test_collision_sprites(
+        Entity& entity,
+        const SpritePtr& this_sprite,
+        const SpritePtr& other_sprite);
     virtual bool test_collision_custom(Entity& entity);
 
     // Being detected by other entities.

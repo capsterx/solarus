@@ -1249,6 +1249,8 @@ int LuaContext::entity_api_overlaps(lua_State* l) {
     if (is_entity(l, 2)) {
       Entity& other_entity = *check_entity(l, 2);
       std::string collision_mode_name = LuaTools::opt_string(l, 3, "overlapping");
+      SpritePtr entity_sprite;
+      SpritePtr other_entity_sprite;
 
       CollisionMode collision_mode = CollisionMode::COLLISION_NONE;
       if (collision_mode_name == "overlapping") {
@@ -1271,6 +1273,12 @@ int LuaContext::entity_api_overlaps(lua_State* l) {
       }
       else if (collision_mode_name == "sprite") {
         collision_mode = CollisionMode::COLLISION_SPRITE;
+        if (!lua_isnoneornil(l, 4)) {
+          entity_sprite = check_sprite(l, 4);
+        }
+        if (!lua_isnoneornil(l, 5)) {
+          other_entity_sprite = check_sprite(l, 5);
+        }
       }
       else {
         LuaTools::arg_error(l, 3,
@@ -1278,14 +1286,17 @@ int LuaContext::entity_api_overlaps(lua_State* l) {
         );
       }
 
-      overlaps = entity.test_collision(other_entity, collision_mode);
+      overlaps = entity.test_collision(other_entity, collision_mode, entity_sprite, other_entity_sprite);
     }
-    else {
+    else if (lua_isnumber(l, 2)) {
       int x = LuaTools::check_int(l, 2);
       int y = LuaTools::check_int(l, 3);
       int width = LuaTools::opt_int(l, 4, 1);
       int height = LuaTools::opt_int(l, 5, 1);
       overlaps = entity.overlaps(Rectangle(x, y, width, height));
+    }
+    else {
+      LuaTools::type_error(l, 2, "entity or integer");
     }
 
     lua_pushboolean(l, overlaps);
@@ -1979,7 +1990,7 @@ int LuaContext::entity_api_set_properties(lua_State* l) {
  * \brief Returns whether a value is a userdata of type hero.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a hero.
+ * \return \c true if the value at this index is a hero.
  */
 bool LuaContext::is_hero(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::HERO));
@@ -2853,7 +2864,7 @@ int LuaContext::l_treasure_brandish_finished(lua_State* l) {
  * \brief Returns whether a value is a userdata of type camera.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a camera.
+ * \return \c true if the value at this index is a camera.
  */
 bool LuaContext::is_camera(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::CAMERA));
@@ -3255,7 +3266,7 @@ int LuaContext::teletransporter_api_set_destination_name(lua_State* l) {
  * \brief Returns whether a value is a userdata of type NPC.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is an NPC.
+ * \return \c true if the value at this index is an NPC.
  */
 bool LuaContext::is_npc(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::NPC));
@@ -3320,7 +3331,7 @@ int LuaContext::npc_api_set_traversable(lua_State* l) {
  * \brief Returns whether a value is a userdata of type chest.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a chest.
+ * \return \c true if the value at this index is a chest.
  */
 bool LuaContext::is_chest(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::CHEST));
@@ -3451,7 +3462,7 @@ int LuaContext::chest_api_set_treasure(lua_State* l) {
  * \brief Returns whether a value is a userdata of type block.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a block.
+ * \return \c true if the value at this index is a block.
  */
 bool LuaContext::is_block(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::BLOCK));
@@ -3643,7 +3654,7 @@ int LuaContext::block_api_set_maximum_moves(lua_State* l) {
  * \brief Returns whether a value is a userdata of type switch.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a switch.
+ * \return \c true if the value at this index is a switch.
  */
 bool LuaContext::is_switch(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::SWITCH));
@@ -3754,7 +3765,7 @@ int LuaContext::switch_api_is_walkable(lua_State* l) {
  * \brief Returns whether a value is a userdata of type stream.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a stream.
+ * \return \c true if the value at this index is a stream.
  */
 bool LuaContext::is_stream(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::STREAM));
@@ -3950,7 +3961,7 @@ int LuaContext::stream_api_set_allow_item(lua_State* l) {
  * \brief Returns whether a value is a userdata of type door.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a door.
+ * \return \c true if the value at this index is a door.
  */
 bool LuaContext::is_door(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::DOOR));
@@ -4097,7 +4108,7 @@ int LuaContext::door_api_set_open(lua_State* l) {
  * \brief Returns whether a value is a userdata of type stairs.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a stairs.
+ * \return \c true if the value at this index is a stairs entity.
  */
 bool LuaContext::is_stairs(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::STAIRS));
@@ -4159,7 +4170,7 @@ int LuaContext::stairs_api_is_inner(lua_State* l) {
  * \brief Returns whether a value is a userdata of type shop treasure.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a shop treasure.
+ * \return \c true if the value at this index is a shop treasure.
  */
 bool LuaContext::is_shop_treasure(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::SHOP_TREASURE));
@@ -4310,7 +4321,7 @@ int LuaContext::l_shop_treasure_question_dialog_finished(lua_State* l) {
  * \brief Returns whether a value is a userdata of type pickable.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a pickable.
+ * \return \c true if the value at this index is a pickable.
  */
 bool LuaContext::is_pickable(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::PICKABLE));
@@ -4866,7 +4877,7 @@ int LuaContext::dynamic_tile_api_get_modified_ground(lua_State* l) {
  * \brief Returns whether a value is a userdata of type enemy.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is an enemy.
+ * \return \c true if the value at this index is an enemy.
  */
 bool LuaContext::is_enemy(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::ENEMY));
@@ -5768,7 +5779,7 @@ int LuaContext::enemy_api_create_enemy(lua_State* l) {
  * \brief Returns whether a value is a userdata of type custom entity.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a custom entity.
+ * \return \c true if the value at this index is a custom entity.
  */
 bool LuaContext::is_custom_entity(lua_State* l, int index) {
   return is_userdata(l, index, get_entity_internal_type_name(EntityType::CUSTOM));
