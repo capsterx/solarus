@@ -52,7 +52,7 @@ void EquipmentItemUsage::start() {
       + "' without having it");
 
   this->finished = false;
-  item.set_being_used(!finished);
+  item.set_being_used(true);
   item.notify_using();
 }
 
@@ -75,7 +75,7 @@ bool EquipmentItemUsage::is_finished() {
  */
 void EquipmentItemUsage::set_finished() {
   this->finished = true;
-  item.set_being_used(!finished);
+  item.set_being_used(false);
 }
 
 }

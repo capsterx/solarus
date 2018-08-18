@@ -337,7 +337,7 @@ int LuaContext::item_api_set_assignable(lua_State* l) {
 int LuaContext::item_api_is_being_used(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
-    EquipmentItem& item = *check_item(l, 1);
+    const EquipmentItem& item = *check_item(l, 1);
 
     lua_pushboolean(l, item.is_being_used());
     return 1;
