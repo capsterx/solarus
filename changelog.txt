@@ -70,7 +70,6 @@ but does not introduce any incompatibility.
 New features:
 
 * Add a shader API.
-* Video mode functions are now deprecated. Use shader functions instead.
 * Add an event sol.video:on_draw(screen) to draw to the scaled screen (#1216).
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_game() (#1212).
@@ -126,18 +125,10 @@ New features:
 
 Deprecated functions:
 
-* Built-in video modes API: use shaders instead.
-  * sol.video.get_mode()
-  * sol.video.set_mode()
-  * sol.video.switch_mode()
-  * sol.video.is_mode_supported()
-  * sol.video.get_modes()
-  * sol.video.reset_window_size()
+* Built-in video mode functions: use shaders instead.
 * Property maximum_moves of map:create_block(): use max_moves instead.
 * block:get/set_maximum_moves(): use get/set_max_moves() instead.
-* Angle functions in degrees: use new functions with radians instead.
-  * circle_movement:get/set_initial_angle()
-  * circle_movement:get/set_angle_speed()
+* Angles in degrees in circle movement: use functions with radians instead.
 
 Data files format changes
 -------------------------
