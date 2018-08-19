@@ -82,31 +82,6 @@ QPushButton#play_button {
            <property name="spacing">
             <number>6</number>
            </property>
-           <item row="0" column="0" rowspan="2">
-            <widget class="SolarusGui::QuestsView" name="quests_view">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="showDropIndicator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="movement">
-              <enum>QListView::Static</enum>
-             </property>
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="uniformItemSizes">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1" rowspan="3">
             <widget class="QScrollArea" name="quest_info_scrollarea">
              <property name="sizePolicy">
@@ -574,6 +549,40 @@ QPushButton#play_button {
              </item>
             </layout>
            </item>
+           <item row="0" column="0" rowspan="2">
+            <widget class="SolarusGui::QuestsView" name="quests_view">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <attribute name="horizontalHeaderDefaultSectionSize">
+              <number>80</number>
+             </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderMinimumSectionSize">
+              <number>80</number>
+             </attribute>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderDefaultSectionSize">
+              <number>50</number>
+             </attribute>
+             <attribute name="verticalHeaderMinimumSectionSize">
+              <number>50</number>
+             </attribute>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -791,7 +800,7 @@ QPushButton#play_button {
   </customwidget>
   <customwidget>
    <class>SolarusGui::QuestsView</class>
-   <extends>QListView</extends>
+   <extends>QTableView</extends>
    <header>solarus/gui/quests_view.h</header>
   </customwidget>
  </customwidgets>
@@ -803,6 +812,7 @@ QPushButton#play_button {
   <tabstop>quest_info_scrollarea</tabstop>
  </tabstops>
  <resources>
+  <include location="../resources/images.qrc"/>
   <include location="../resources/images.qrc"/>
  </resources>
  <connections/>

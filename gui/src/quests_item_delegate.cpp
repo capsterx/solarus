@@ -28,17 +28,21 @@
 
 namespace SolarusGui {
 
-QuestsItemDelegate::QuestsItemDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), _iconSize(32, 32) {}
+QuestsItemDelegate::QuestsItemDelegate(QObject* parent)
+    : QStyledItemDelegate(parent),
+      icon_size(32, 32) {
 
-QuestsItemDelegate::~QuestsItemDelegate() {}
+}
 
-void QuestsItemDelegate::paint(QPainter *painter,
-                               const QStyleOptionViewItem &option,
-                               const QModelIndex &index) const {
+void QuestsItemDelegate::paint(QPainter* painter,
+                               const QStyleOptionViewItem& option,
+                               const QModelIndex& index) const {
 
-  // Paint the default background
-  //QStyledItemDelegate::paint(painter, option, index);
+  if (index.column() != 0) {
+    // Default paint for columns other than 0.
+    QStyledItemDelegate::paint(painter, option, index);
+    return;
+  }
 
   // Save painter initial state before any modification
   painter->save();
@@ -80,11 +84,11 @@ void QuestsItemDelegate::paint(QPainter *painter,
   // Paint icon
   QRect icon_rect(
       global_rect.left() + padding * 2,
-      global_rect.top() + (global_rect.height() - _iconSize.height()) / 2,
-      _iconSize.width(),
-      _iconSize.height());
+      global_rect.top() + (global_rect.height() - icon_size.height()) / 2,
+      icon_size.width(),
+      icon_size.height());
   QIcon::Mode icon_mode = enabled ? QIcon::Normal : QIcon::Disabled;
-  const QPixmap& pixmap = quest_info.icon.pixmap(_iconSize, icon_mode, QIcon::On);
+  const QPixmap& pixmap = quest_info.icon.pixmap(icon_size, icon_mode, QIcon::On);
   painter->drawPixmap(icon_rect, pixmap);
 
   // Compute title font
@@ -148,46 +152,29 @@ void QuestsItemDelegate::paint(QPainter *painter,
   const QColor& author_pen_color =
       palette.brush(QPalette::Disabled, pen_color_role).color();
 
-  // Paint author text
-  QString separator = QString(" %1 ").arg(QChar(0x2022)); // bullet
+  // Paint secondary text
+  QString secondary_text = quest_info.path;
+  QString secondary_elided_text = author_font_metrics.elidedText(
+      secondary_text, Qt::ElideRight, author_rect_width);
+  painter->setPen(author_pen_color);
+  painter->setFont(author_font);
+  painter->drawText(author_rect, secondary_elided_text);
 
-  QStringList secondary_info;
-  QString author_text =
-          QString::fromStdString(quest_info.properties.get_author());
-  QString date_string =
-          QString::fromStdString(quest_info.properties.get_release_date());
-  QDate date = QDate::fromString(date_string, "yyyyMMdd");
-  QString date_text = date.toString("yyyy");
-  if (!date_text.isEmpty()) {
-    secondary_info << date_text;
-  }
-  if (!author_text.isEmpty()) {
-    secondary_info << author_text;
-  }
-
-  if (!secondary_info.isEmpty()){
-    QString secondary_text = secondary_info.join(separator);
-    QString secondary_elided_text = author_font_metrics.elidedText(
-        secondary_text, Qt::ElideRight, author_rect_width);
-    painter->setPen(author_pen_color);
-    painter->setFont(author_font);
-    painter->drawText(author_rect, secondary_elided_text);
-  }
   // Restore painter initial state
   painter->restore();
 }
 
-QSize QuestsItemDelegate::sizeHint(const QStyleOptionViewItem &,
-                             const QModelIndex &) const {
-  return QSize(150, _iconSize.height() + 16);
+QSize QuestsItemDelegate::sizeHint(const QStyleOptionViewItem&,
+                             const QModelIndex&) const {
+  return QSize(150, icon_size.height() + 16);
 }
 
-const QSize &QuestsItemDelegate::iconSize() const {
-  return _iconSize;
+const QSize& QuestsItemDelegate::get_icon_size() const {
+  return icon_size;
 }
 
-void QuestsItemDelegate::setIconSize(const QSize &iconSize) {
-  _iconSize = iconSize;
+void QuestsItemDelegate::set_icon_size(const QSize& icon_size) {
+  this->icon_size = icon_size;
 }
 
 } // namespace SolarusGui

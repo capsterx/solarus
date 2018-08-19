@@ -17,6 +17,7 @@
 #include "solarus/gui/quests_model.h"
 #include "solarus/gui/quests_view.h"
 #include "solarus/gui/quests_item_delegate.h"
+#include <QHeaderView>
 
 namespace SolarusGui {
 
@@ -25,14 +26,21 @@ namespace SolarusGui {
  * @param parent Parent object or nullptr.
  */
 QuestsView::QuestsView(QWidget* parent) :
-  QListView(parent),
-  model(nullptr), itemDelegate(nullptr) {
+  QTableView(parent),
+  quests_model(nullptr),
+  proxy_model(nullptr),
+  item_delegate(nullptr) {
 
-  model = new QuestsModel(this);
-  itemDelegate = new QuestsItemDelegate(this);
-  itemDelegate->setIconSize(QSize(32,32));
-  setItemDelegate(itemDelegate);
-  setModel(model);
+  quests_model = new QuestsModel(this);
+  proxy_model = new QSortFilterProxyModel(this);
+  proxy_model->setSourceModel(quests_model);
+  item_delegate = new QuestsItemDelegate(this);
+  item_delegate->set_icon_size(QSize(32, 32));
+  setItemDelegate(item_delegate);
+  setModel(proxy_model);
+
+  horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
 }
 
 /**
@@ -42,7 +50,8 @@ QuestsView::QuestsView(QWidget* parent) :
  */
 int QuestsView::path_to_index(const QString& path) const {
 
-  return model->path_to_index(path);
+  QModelIndex source_index = quests_model->index(quests_model->path_to_index(path), 0);
+  return proxy_model->mapFromSource(source_index).row();
 }
 
 /**
@@ -52,7 +61,8 @@ int QuestsView::path_to_index(const QString& path) const {
  */
 QString QuestsView::index_to_path(int index) const {
 
-  return model->index_to_path(index);
+  QModelIndex source_index = proxy_model->mapToSource(proxy_model->index(index, 0));
+  return quests_model->index_to_path(source_index.row());
 }
 
 /**
@@ -61,7 +71,7 @@ QString QuestsView::index_to_path(int index) const {
  */
 int QuestsView::get_num_quests() const {
 
-  return model->rowCount();
+  return proxy_model->rowCount();
 }
 
 /**
@@ -70,7 +80,7 @@ int QuestsView::get_num_quests() const {
  */
 QStringList QuestsView::get_paths() const {
 
-  return model->get_paths();
+  return quests_model->get_paths();
 }
 
 /**
@@ -80,7 +90,7 @@ QStringList QuestsView::get_paths() const {
  */
 bool QuestsView::has_quest(const QString& path) {
 
-  return model->has_quest(path);
+  return quests_model->has_quest(path);
 }
 
 /**
@@ -90,7 +100,7 @@ bool QuestsView::has_quest(const QString& path) {
  */
 bool QuestsView::add_quest(const QString& path) {
 
-  return model->add_quest(path);
+  return quests_model->add_quest(path);
 }
 
 /**
@@ -101,7 +111,8 @@ bool QuestsView::add_quest(const QString& path) {
  */
 bool QuestsView::remove_quest(int index) {
 
-  return model->remove_quest(index);
+  QModelIndex source_index = proxy_model->mapToSource(proxy_model->index(index, 0));
+  return quests_model->remove_quest(source_index.row());
 }
 
 /**
@@ -125,7 +136,8 @@ Solarus::QuestProperties QuestsView::get_selected_quest_properties() const {
  */
 Solarus::QuestProperties QuestsView::get_quest_properties(int index) const {
 
-  return model->get_quest_properties(index);
+  QModelIndex source_index = proxy_model->mapToSource(proxy_model->index(index, 0));
+  return quests_model->get_quest_properties(source_index.row());
 }
 
 /**
@@ -136,7 +148,7 @@ const QPixmap& QuestsView::get_selected_logo() const {
 
   int index = get_selected_index();
   if (index == -1) {
-    return model->get_quest_default_logo();
+    return quests_model->get_quest_default_logo();
   }
   return get_quest_logo(index);
 }
@@ -148,7 +160,8 @@ const QPixmap& QuestsView::get_selected_logo() const {
  */
 const QPixmap& QuestsView::get_quest_logo(int index) const {
 
-  return model->get_quest_logo(index);
+  QModelIndex source_index = proxy_model->mapToSource(proxy_model->index(index, 0));
+  return quests_model->get_quest_logo(source_index.row());
 }
 
 /**
@@ -183,7 +196,9 @@ void QuestsView::select_quest(int index) {
     return;
   }
 
-  selectionModel()->select(model->index(index, 0), QItemSelectionModel::ClearAndSelect);
+  selectionModel()->select(
+        proxy_model->index(index, 0),
+        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 /**
