@@ -52,7 +52,7 @@ int QuestsModel::rowCount(const QModelIndex& parent) const {
 int QuestsModel::columnCount(const QModelIndex& parent) const {
 
   Q_UNUSED(parent);
-  return 1;
+  return 2;
 }
 
 /**
@@ -69,8 +69,12 @@ QVariant QuestsModel::headerData(
 
   if (role == Qt::DisplayRole) {
     switch (section) {
-    case 0:
+
+    case QUEST_COLUMN:
       return tr("Quest");
+
+    case FORMAT_COLUMN:
+      return tr("Format");
     }
   }
 
@@ -89,15 +93,34 @@ QVariant QuestsModel::data(const QModelIndex& index, int role) const {
     return QVariant();
   }
 
+  const QuestInfo& quest_info = quests.at(index.row());
+
   switch (role) {
 
   case Qt::ItemDataRole::DisplayRole:
-    load_icon(index.row());
-    return QVariant::fromValue(quests.at(index.row()));
+    switch (index.column()) {
+
+    case QUEST_COLUMN:
+      load_icon(index.row());
+      return QVariant::fromValue(quest_info);
+
+    case FORMAT_COLUMN:
+      return QString::fromStdString(quest_info.properties.get_solarus_version());
+
+    default:
+      return QVariant();
+    }
 
   case Qt::ItemDataRole::ToolTipRole:
+    switch (index.column()) {
+
+    case QUEST_COLUMN:
     return QString::fromStdString(
-            quests.at(index.row()).properties.get_title());
+            quest_info.properties.get_title());
+
+    default:
+      return QVariant();
+    }
 
   default:
     return QVariant();

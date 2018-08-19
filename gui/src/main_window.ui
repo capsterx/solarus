@@ -560,7 +560,16 @@ QPushButton#play_button {
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
              </property>
-             <attribute name="horizontalHeaderStretchLastSection">
+             <attribute name="horizontalHeaderDefaultSectionSize">
+              <number>80</number>
+             </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderMinimumSectionSize">
+              <number>80</number>
+             </attribute>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>true</bool>
              </attribute>
              <attribute name="verticalHeaderVisible">

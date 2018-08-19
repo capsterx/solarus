@@ -19,6 +19,7 @@
 
 #include "solarus/gui/gui_common.h"
 #include "solarus/core/QuestProperties.h"
+#include <QSortFilterProxyModel>
 #include <QTableView>
 
 namespace SolarusGui {
@@ -57,7 +58,8 @@ public:
 
 private:
 
-  QuestsModel* model;
+  QuestsModel* quests_model;
+  QSortFilterProxyModel* proxy_model;
   QuestsItemDelegate* item_delegate;
 };
 

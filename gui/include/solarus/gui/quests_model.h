@@ -32,17 +32,20 @@ class SOLARUS_GUI_API QuestsModel : public QAbstractTableModel {
 
 public:
 
-    /**
-     * @brief Info of a quest from the list.
-     */
-    struct QuestInfo {
-      QString path;               /**< Path to the quest directory. */
-      QString directory_name;     /**< Name of the quest directory. */
-      QIcon icon;                 /**< Icon of the quest. */
-      QPixmap logo;               /**< Logo of the quest (recommended: 200x140). */
-      Solarus::QuestProperties
-          properties;             /**< All properties from quest.dat. */
-    };
+  constexpr static int QUEST_COLUMN = 0;
+  constexpr static int FORMAT_COLUMN = 1;
+
+  /**
+   * @brief Info of a quest from the list.
+   */
+  struct QuestInfo {
+    QString path;               /**< Path to the quest directory. */
+    QString directory_name;     /**< Name of the quest directory. */
+    QIcon icon;                 /**< Icon of the quest. */
+    QPixmap logo;               /**< Logo of the quest (recommended: 200x140). */
+    Solarus::QuestProperties
+        properties;             /**< All properties from quest.dat. */
+  };
 
   explicit QuestsModel(QObject* parent = nullptr);
 

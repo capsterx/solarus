@@ -57,6 +57,7 @@ Engine changes
 Solarus launcher GUI changes
 ----------------------------
 
+* Show the path and the compatibility format of each quest (#1129).
 * Lua console: provide variables game, map, entities and tp function.
 * Clear the console when a quest is started.
 * FileDialog now expects a file, either quest.dat or an archive (.solarus, .zip)
