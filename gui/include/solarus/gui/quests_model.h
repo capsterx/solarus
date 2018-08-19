@@ -19,7 +19,7 @@
 
 #include "solarus/gui/gui_common.h"
 #include "solarus/core/QuestProperties.h"
-#include <QAbstractListModel>
+#include <QAbstractTableModel>
 #include <QIcon>
 #include <QMetaType>
 
@@ -28,18 +28,9 @@ namespace SolarusGui {
 /**
  * @brief List of quests added to Solarus.
  */
-class SOLARUS_GUI_API QuestsModel : public QAbstractListModel {
+class SOLARUS_GUI_API QuestsModel : public QAbstractTableModel {
 
 public:
-
-    /**
-     * @brief Ways to sort the quests in the list. More convenient than columns.
-     */
-    enum class QuestSort {
-      SortByName = 0,
-      SortByAuthor = 1,
-      SortByDate = 2
-    };
 
     /**
      * @brief Info of a quest from the list.
@@ -55,8 +46,12 @@ public:
 
   explicit QuestsModel(QObject* parent = nullptr);
 
-  // QAbstractListModel API
+  // QAbstractTableModel API
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  QVariant headerData(int section,
+                      Qt::Orientation orientation,
+                      int role = Qt::DisplayRole) const override;
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
   // QuestsModel API
@@ -75,12 +70,8 @@ public:
 
   const QIcon& get_quest_default_icon() const;
 
-  void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
-  void sort(QuestSort sort, Qt::SortOrder order = Qt::AscendingOrder);
-
 private:
 
-  void do_sort(QuestSort sort, Qt::SortOrder order = Qt::AscendingOrder);
   void load_icon(int quest_index) const;
 
   mutable std::vector<QuestInfo>

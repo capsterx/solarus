@@ -29,9 +29,10 @@
 namespace SolarusGui {
 
 QuestsItemDelegate::QuestsItemDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), _iconSize(32, 32) {}
+    : QStyledItemDelegate(parent),
+      icon_size(32, 32) {
 
-QuestsItemDelegate::~QuestsItemDelegate() {}
+}
 
 void QuestsItemDelegate::paint(QPainter *painter,
                                const QStyleOptionViewItem &option,
@@ -80,11 +81,11 @@ void QuestsItemDelegate::paint(QPainter *painter,
   // Paint icon
   QRect icon_rect(
       global_rect.left() + padding * 2,
-      global_rect.top() + (global_rect.height() - _iconSize.height()) / 2,
-      _iconSize.width(),
-      _iconSize.height());
+      global_rect.top() + (global_rect.height() - icon_size.height()) / 2,
+      icon_size.width(),
+      icon_size.height());
   QIcon::Mode icon_mode = enabled ? QIcon::Normal : QIcon::Disabled;
-  const QPixmap& pixmap = quest_info.icon.pixmap(_iconSize, icon_mode, QIcon::On);
+  const QPixmap& pixmap = quest_info.icon.pixmap(icon_size, icon_mode, QIcon::On);
   painter->drawPixmap(icon_rect, pixmap);
 
   // Compute title font
@@ -179,15 +180,15 @@ void QuestsItemDelegate::paint(QPainter *painter,
 
 QSize QuestsItemDelegate::sizeHint(const QStyleOptionViewItem &,
                              const QModelIndex &) const {
-  return QSize(150, _iconSize.height() + 16);
+  return QSize(150, icon_size.height() + 16);
 }
 
-const QSize &QuestsItemDelegate::iconSize() const {
-  return _iconSize;
+const QSize& QuestsItemDelegate::get_icon_size() const {
+  return icon_size;
 }
 
-void QuestsItemDelegate::setIconSize(const QSize &iconSize) {
-  _iconSize = iconSize;
+void QuestsItemDelegate::set_icon_size(const QSize &icon_size) {
+  this->icon_size = icon_size;
 }
 
 } // namespace SolarusGui

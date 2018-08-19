@@ -19,7 +19,7 @@
 
 #include "solarus/gui/gui_common.h"
 #include "solarus/core/QuestProperties.h"
-#include <QListView>
+#include <QTableView>
 
 namespace SolarusGui {
 
@@ -29,7 +29,7 @@ class QuestsItemDelegate;
 /**
  * @brief A widget where the user can select a quest.
  */
-class SOLARUS_GUI_API QuestsView : public QListView {
+class SOLARUS_GUI_API QuestsView : public QTableView {
 
 public:
 
@@ -58,7 +58,7 @@ public:
 private:
 
   QuestsModel* model;
-  QuestsItemDelegate* itemDelegate;
+  QuestsItemDelegate* item_delegate;
 };
 
 }

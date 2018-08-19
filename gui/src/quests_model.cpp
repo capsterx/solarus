@@ -28,7 +28,7 @@ namespace SolarusGui {
  * @param parent Parent object or nullptr.
  */
 QuestsModel::QuestsModel(QObject* parent) :
-  QAbstractListModel(parent),
+  QAbstractTableModel(parent),
   quests() {
 
 }
@@ -42,6 +42,39 @@ int QuestsModel::rowCount(const QModelIndex& parent) const {
 
   Q_UNUSED(parent);
   return quests.size();
+}
+
+/**
+ * @brief Returns the number of columns.
+ * @param parent Parent index.
+ * @return The number of columns.
+ */
+int QuestsModel::columnCount(const QModelIndex& parent) const {
+
+  Q_UNUSED(parent);
+  return 1;
+}
+
+/**
+ * @brief Returns the header data of a column.
+ * @param section Index of the section.
+ * @param orientation Vertical or horizontal.
+ * @param role Kind of data to get.
+ * @return The header data.
+ */
+QVariant QuestsModel::headerData(
+    int section,
+    Qt::Orientation orientation,
+    int role) const {
+
+  if (role == Qt::DisplayRole) {
+    switch (section) {
+    case 0:
+      return tr("Quest");
+    }
+  }
+
+  return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 /**
@@ -303,51 +336,6 @@ void QuestsModel::load_icon(int quest_index) const {
   if (icon.isNull()) {
     icon = get_quest_default_icon();
   }
-}
-
-/**
- * @brief Sort the quests and notify the view (more convenient than sort(int, order).
- * @param sortType Way to sort the quests in the list by
- * @param order Order to the quests in the list by
- */
-void QuestsModel::sort(QuestSort sortType, Qt::SortOrder order) {
-
-  do_sort(sortType, order);
-}
-
-/**
- * @brief Sort the quests and notify the view
- * @param column int value of a QuestSort value, column to sort the quests by
- * @param order Order to the quests in the list by
- */
-void QuestsModel::sort(int column, Qt::SortOrder order) {
-
-  do_sort(static_cast<QuestSort>(column), order);
-}
-
-/**
- * @brief Do the actual sort, without notifying the view
- * @param sortType Way to sort the quests in the list by
- * @param order Order to sort the quests in the list by
- */
-void QuestsModel::do_sort(QuestSort sortType, Qt::SortOrder order) {
-
-  std::sort(quests.begin(), quests.end(),
-    [sortType, order](const QuestInfo& a, const QuestInfo& b) {
-      const bool ascending = order == Qt::AscendingOrder;
-      switch (sortType) {
-      case QuestSort::SortByAuthor:
-        return ascending ? a.properties.get_author() < b.properties.get_author()
-                         : a.properties.get_author() > b.properties.get_author();
-      case QuestSort::SortByDate:
-        return ascending ? a.properties.get_release_date() < b.properties.get_release_date()
-                         : a.properties.get_release_date() > b.properties.get_release_date();
-      case QuestSort::SortByName:
-      default:
-        return ascending ? a.properties.get_title() < b.properties.get_title()
-                         : a.properties.get_title() > b.properties.get_title();
-      }
-    });
 }
 
 } // namespace SolarusGui

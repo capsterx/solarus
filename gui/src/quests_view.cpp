@@ -25,13 +25,14 @@ namespace SolarusGui {
  * @param parent Parent object or nullptr.
  */
 QuestsView::QuestsView(QWidget* parent) :
-  QListView(parent),
-  model(nullptr), itemDelegate(nullptr) {
+  QTableView(parent),
+  model(nullptr),
+  item_delegate(nullptr) {
 
   model = new QuestsModel(this);
-  itemDelegate = new QuestsItemDelegate(this);
-  itemDelegate->setIconSize(QSize(32,32));
-  setItemDelegate(itemDelegate);
+  item_delegate = new QuestsItemDelegate(this);
+  item_delegate->set_icon_size(QSize(32,32));
+  setItemDelegate(item_delegate);
   setModel(model);
 }
 
