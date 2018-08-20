@@ -28,6 +28,10 @@
 #  include <unistd.h>  // close()
 #endif
 
+#ifdef ANDROID
+#include <SDL_filesystem.h>
+#endif
+
 #if defined(SOLARUS_OSX) || defined(SOLARUS_IOS)
 #   include "solarus/core/AppleInterface.h"
 #endif
@@ -506,6 +510,11 @@ SOLARUS_API std::string get_base_write_dir() {
 
 #if defined(SOLARUS_OSX) || defined(SOLARUS_IOS)
   return get_user_application_support_directory();
+#elif defined(ANDROID)
+          char *base_path = SDL_GetPrefPath("org.solarus-games.solarus", "solarus");
+          std::string path(base_path);
+          SDL_free(base_path);
+          return path;
 #else
   return std::string(PHYSFS_getUserDir());
 #endif

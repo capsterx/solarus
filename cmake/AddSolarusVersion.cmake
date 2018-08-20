@@ -3,3 +3,4 @@ set(SOLARUS_MINOR_VERSION 6)
 set(SOLARUS_PATCH_VERSION 0)
 set(SOLARUS_VERSION_STRING ${SOLARUS_MAJOR_VERSION}.${SOLARUS_MINOR_VERSION}.${SOLARUS_PATCH_VERSION})
 
+#note : version information should also be updated in AndroidConfig.h

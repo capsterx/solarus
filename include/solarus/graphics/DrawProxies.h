@@ -5,7 +5,7 @@
 #include "solarus/graphics/BlendMode.h"
 #include "solarus/core/Scale.h"
 
-#include <SDL2/SDL_render.h>
+#include <SDL_render.h>
 #include <array>
 #include <cmath>
 

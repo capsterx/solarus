@@ -23,7 +23,11 @@
 #ifndef SOLARUS_COMMON_H
 #define SOLARUS_COMMON_H
 
+#ifdef ANDROID
+#include "solarus/core/AndroidConfig.h"
+#else
 #include "solarus/core/config.h"
+#endif
 
 /**
  * \cond doxygen_ignore
