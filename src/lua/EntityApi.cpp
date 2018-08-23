@@ -136,6 +136,8 @@ void LuaContext::register_entity_module() {
       { "test_obstacles", entity_api_test_obstacles },
       { "get_sprite", entity_api_get_sprite },
       { "get_sprites", entity_api_get_sprites },
+      { "create_sprite", entity_api_create_sprite },
+      { "remove_sprite", entity_api_remove_sprite },
       { "bring_sprite_to_front", entity_api_bring_sprite_to_front },
       { "bring_sprite_to_back", entity_api_bring_sprite_to_back },
       { "is_visible", entity_api_is_visible },
@@ -537,8 +539,6 @@ void LuaContext::register_entity_module() {
       { "restart", enemy_api_restart },
       { "hurt", enemy_api_hurt },
       { "immobilize", enemy_api_immobilize },
-      { "create_sprite", entity_api_create_sprite },
-      { "remove_sprite", entity_api_remove_sprite },
       { "create_enemy", enemy_api_create_enemy },
   };
   if (CurrentQuest::is_format_at_most({ 1, 5 })) {
@@ -546,6 +546,8 @@ void LuaContext::register_entity_module() {
         // Available to all entities since 1.6.
         { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
+        { "create_sprite", entity_api_create_sprite },
+        { "remove_sprite", entity_api_remove_sprite },
     });
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
@@ -573,8 +575,6 @@ void LuaContext::register_entity_module() {
       { "set_origin", entity_api_set_origin },
       { "get_direction", custom_entity_api_get_direction },
       { "set_direction", custom_entity_api_set_direction },
-      { "create_sprite", entity_api_create_sprite },
-      { "remove_sprite", entity_api_remove_sprite },
       { "set_traversable_by", custom_entity_api_set_traversable_by },
       { "set_can_traverse", custom_entity_api_set_can_traverse },
       { "can_traverse_ground", custom_entity_api_can_traverse_ground },
@@ -593,6 +593,8 @@ void LuaContext::register_entity_module() {
         { "set_origin", entity_api_set_origin },
         { "is_drawn_in_y_order", entity_api_is_drawn_in_y_order },
         { "set_drawn_in_y_order", entity_api_set_drawn_in_y_order },
+        { "create_sprite", entity_api_create_sprite },
+        { "remove_sprite", entity_api_remove_sprite },
     });
   }
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
@@ -1535,7 +1537,7 @@ int LuaContext::entity_api_get_sprites(lua_State* l) {
 }
 
 /**
- * \brief Implementation of enemy:create_sprite().
+ * \brief Implementation of entity:create_sprite().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
@@ -1545,6 +1547,11 @@ int LuaContext::entity_api_create_sprite(lua_State* l) {
     Entity& entity = *check_entity(l, 1);
     const std::string& animation_set_id = LuaTools::check_string(l, 2);
     const std::string& sprite_name = LuaTools::opt_string(l, 3, "");
+
+    if (!sprite_name.empty() &&
+        entity.get_sprite(sprite_name) != nullptr) {
+      LuaTools::arg_error(l, 3, "This entity already has a sprite named '" + sprite_name + "'");
+    }
 
     const SpritePtr& sprite = entity.create_sprite(animation_set_id, sprite_name);
     sprite->enable_pixel_collisions();
@@ -1558,7 +1565,7 @@ int LuaContext::entity_api_create_sprite(lua_State* l) {
 }
 
 /**
- * \brief Implementation of enemy:remove_sprite() and custom_entity:remove_sprite().
+ * \brief Implementation of entity:remove_sprite().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */

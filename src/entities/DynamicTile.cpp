@@ -103,6 +103,8 @@ void DynamicTile::draw_on_map() {
       tileset,
       camera_position.get_xy()
   );
+
+  Entity::draw_on_map();
 }
 
 }

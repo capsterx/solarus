@@ -234,6 +234,8 @@ void ShopTreasure::draw_on_map() {
   rupee_icon_sprite->draw(map_surface,
       x - camera->get_top_left_x(),
       y + 22 - camera->get_top_left_y());
+
+  Entity::draw_on_map();
 }
 
 }

@@ -48,6 +48,7 @@ set(lua_test_maps
   "bugs/844_camera_on_state_changed"
   "bugs/845_game_set_suspended"
   "bugs/851_entity_get_sprites"
+  "bugs/852_entity_create_sprite"
   "bugs/855_hero_get_sprite_wrong"
   "bugs/858_movement_get_set_ignore_suspend"
   "bugs/859_crash_game_start"

@@ -80,6 +80,7 @@ New features:
 * Add a method item:is_being_used() by alexander-b (#879).
 * Add methods entity:set_size() to all entities (#121, #528).
 * Add methods entity:set_origin() to all entities.
+* Add methods entity:create/remove_sprite() to all entities (#852).
 * Add methods entity:is/set_drawn_in_y_order() to all entities (#1098, #1173).
 * Add event entity:on_enabled/disabled() to all entities (#898).
 * Add methods entity:get/set_weight() to all entities to lift them (#1227).

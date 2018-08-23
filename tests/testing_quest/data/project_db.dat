@@ -82,6 +82,7 @@ map{ id = "bugs/830_entity_get_ground_position", description = "#830: entity:get
 map{ id = "bugs/844_camera_on_state_changed", description = "#844: camera:on_state_changed()" }
 map{ id = "bugs/845_game_set_suspended", description = "#845: game:set_suspended" }
 map{ id = "bugs/851_entity_get_sprites", description = "#851: entity:get_sprites()" }
+map{ id = "bugs/852_entity_create_sprite", description = "#852: entity:create/remove_sprite()" }
 map{ id = "bugs/855_hero_get_sprite_wrong", description = "#855: hero:get_sprite() returns the wrong sprite" }
 map{ id = "bugs/858_movement_get_set_ignore_suspend", description = "#858: movement:get/set_ignore_suspend()" }
 map{ id = "bugs/859_crash_game_start", description = "#859: Crash when restarting game" }
