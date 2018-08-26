@@ -26,7 +26,7 @@ State methods:
 - state:get/set_are_collisions_ignored()
 - state:get/set_can_traverse_ground(ground)
 - state:get/set_can_avoid(entity_type)  -- teletransporter, stream, sensor, explosion, switch
-- state:get/set_can_avoid_traverse(entity_type)
+- state:get/set_can_traverse(entity_type)
 - state:is/set_teletransporter_delayed()
 - state:get/set_can_persist_on_stream()
 - state:get/set_sword_damage_factor()
