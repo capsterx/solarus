@@ -1,0 +1,67 @@
+New custom entity state API draft
+
+- There will be a new Lua type state.
+- sol.state.create([name]) creates a custom state
+- hero:start_state(state) starts the specified custom state on the hero
+- hero:get_state() still returns a string for compatibility: "custom"
+- hero:get_custom_state() returns the Lua state object
+- Only the hero supports state for now, but it might be generalized to
+  other entities later.
+
+State methods:
+
+- state:get_name()
+- state:get_entity()
+- state:get_map()
+- state:get_game()
+- state:is_current()
+- state:is_stopping()
+- state:is/set_visible()
+- state:is/set_direction_locked()
+- state:get/set_can_control_movement()
+- state:get/set_wanted_movement_direction8()
+- state:get/set_can_avoid_bad_ground(ground)  -- deep water, hole, ice, lava, prickles
+- state:get/set_is_touching_ground()
+- state:get/set_can_come_from_bad_ground()
+- state:get/set_are_collisions_ignored()
+- state:get/set_can_traverse_ground(ground)
+- state:get/set_can_avoid(entity_type)  -- teletransporter, stream, sensor, explosion, switch
+- state:get/set_can_avoid_traverse(entity_type)
+- state:is/set_teletransporter_delayed()
+- state:get/set_can_persist_on_stream()
+- state:get/set_sword_damage_factor()
+- state:get/set_can_be_hurt()
+- state:get/set_can_use_sword()
+- state:get/set_can_use_shield()
+- state:get/set_can_use_item()
+- state:get/set_can_pick_treasure()
+- state:get/set_can_take_stairs()
+- state:get/set_can_take_jumper()
+- state:get/set_previous_carried_object_behavior()  -- throw, destroy, keep
+
+State events:
+
+- state:on_started(previous_state_name, [previous_state])
+- state:on_finished(next_state_name, [next_state])
+- state:on_update()
+- state:on_pre_draw()
+- state:on_post_draw()
+- state:on_draw()
+- state:on_suspended()
+- state:on_unsuspended()
+- state:on_position_changed()
+- state:on_layer_changed()
+- state:on_ground_changed()
+- state:on_movement_changed()
+- state:on_movement_finished()
+- state:on_obstacle_reached()
+- state:on_walking_speed_changed()
+- state:on_attacked_enemy(attack, victim, victim_sprite, reaction)
+- state:on_jumper_activated(jumper)
+- state:on_command/key/joypad/mouse/finger_*()
+
+Other API changes:
+
+- entity:on_pre_draw()
+- entity:on_post_draw()
+- entity:on_draw()
