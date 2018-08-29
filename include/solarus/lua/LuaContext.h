@@ -1319,8 +1319,6 @@ class LuaContext {
     void on_finished();
     void on_update();
     void on_draw(const SurfacePtr& dst_surface);
-    void on_pre_draw(const SurfacePtr& dst_surface);
-    void on_post_draw(const SurfacePtr& dst_surface);
     void on_suspended(bool suspended);
     void on_paused();
     void on_unpaused();
