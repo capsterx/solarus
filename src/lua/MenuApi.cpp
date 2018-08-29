@@ -337,6 +337,7 @@ int LuaContext::menu_api_bring_to_front(lua_State* l) {
         menus.erase(it);
         menus.push_back(menu);
         lua_pop(l, 1);
+        break;
       }
       lua_pop(l, 1);
     }
