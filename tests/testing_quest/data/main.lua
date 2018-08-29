@@ -1,5 +1,4 @@
-local function format_value(value)
-
+function format_value(value)
   if type(value) == "string" then
     return "'" .. value .. "'"
   end
