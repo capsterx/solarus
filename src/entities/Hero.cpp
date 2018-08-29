@@ -123,9 +123,6 @@ Hero::Hero(Equipment& equipment):
   // sprites
   set_drawn_in_y_order(true);
   sprites = std::unique_ptr<HeroSprites>(new HeroSprites(*this, equipment));
-
-  // state
-  set_state(std::make_shared<FreeState>(*this));
 }
 
 /**

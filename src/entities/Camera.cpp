@@ -232,9 +232,6 @@ Camera::Camera(Map& map):
 
   create_surface();
   set_map(map);
-  const HeroPtr& hero = get_game().get_hero();
-  Debug::check_assertion(hero != nullptr, "Missing hero when initializing camera");
-  start_tracking(hero);
 }
 
 /**
