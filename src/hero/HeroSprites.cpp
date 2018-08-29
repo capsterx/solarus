@@ -1646,7 +1646,10 @@ void HeroSprites::create_ground(Ground ground) {
  */
 void HeroSprites::destroy_ground() {
 
-  ground_sprite = nullptr;
+  if (ground_sprite != nullptr) {
+    hero.remove_sprite(*ground_sprite);
+    ground_sprite = nullptr;
+  }
 }
 
 /**
