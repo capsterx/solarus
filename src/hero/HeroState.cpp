@@ -31,7 +31,7 @@ namespace Solarus {
 HeroState::HeroState(Hero& hero, const std::string& state_name):
   HeroState(state_name) {
 
-  set_entity(std::static_pointer_cast<Hero>(hero.shared_from_this()));
+  set_entity(hero);
 }
 
 /**

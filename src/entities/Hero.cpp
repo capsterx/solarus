@@ -45,6 +45,7 @@
 #include "solarus/hero/BoomerangState.h"
 #include "solarus/hero/BowState.h"
 #include "solarus/hero/CarryingState.h"
+#include "solarus/hero/CustomState.h"
 #include "solarus/hero/FallingState.h"
 #include "solarus/hero/ForcedWalkingState.h"
 #include "solarus/hero/FreeState.h"
@@ -2809,6 +2810,16 @@ void Hero::start_state_from_ground() {
     start_free_carrying_loading_or_running();
     break;
   }
+}
+
+/**
+ * @brief Starts the given custom Lua state.
+ * @param custom_state The Lua state object.
+ */
+void Hero::start_custom_state(const std::shared_ptr<CustomState>& custom_state) {
+
+  custom_state->set_entity(*this);
+  set_state(custom_state);
 }
 
 }

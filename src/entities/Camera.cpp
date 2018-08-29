@@ -75,7 +75,7 @@ TrackingState::TrackingState(Camera& camera, const EntityPtr& tracked_entity) :
 
   Debug::check_assertion(tracked_entity != nullptr,
       "Missing tracked entity");
-  set_entity(std::static_pointer_cast<Camera>(camera.shared_from_this()));
+  set_entity(camera);
 }
 
 /**
@@ -216,7 +216,7 @@ public:
  */
 ManualState::ManualState(Camera& camera) :
   Entity::State("manual") {
-  set_entity(std::static_pointer_cast<Camera>(camera.shared_from_this()));
+  set_entity(camera);
 }
 
 }  // Anonymous namespace.

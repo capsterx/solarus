@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/CurrentQuest.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/hero/CustomState.h"
@@ -29,6 +30,10 @@ const std::string LuaContext::state_module_name = "sol.state";
  * \brief Initializes the state features provided to Lua.
  */
 void LuaContext::register_state_module() {
+
+  if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
+    return;
+  }
 
   // Functions of sol.state.
   const std::vector<luaL_Reg> functions = {

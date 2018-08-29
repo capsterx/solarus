@@ -42,6 +42,14 @@ class Entity::State : public ExportableToLua {
     // creation and destruction
     virtual ~State();
     const std::string& get_name() const;
+
+    template<typename T>
+    T& get_entity();
+    template<typename T>
+    const T& get_entity() const;
+    void set_entity(Entity& entity);
+    bool has_entity() const;
+
     virtual void start(const State* previous_state);
     virtual void stop(const State* next_state);
 
@@ -163,12 +171,6 @@ class Entity::State : public ExportableToLua {
     const GameCommands& get_commands() const;
     virtual Entity& get_entity();
     virtual const Entity& get_entity() const;
-
-    template<typename T>
-    T& get_entity();
-    template<typename T>
-    const T& get_entity() const;
-    void set_entity(const EntityPtr& entity);
 
   private:
 

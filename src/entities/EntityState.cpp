@@ -98,15 +98,22 @@ const Entity& Entity::State::get_entity() const {
  * \brief Sets the entity to control with this state.
  * \param entity The entity to control with this state.
  */
-void Entity::State::set_entity(const EntityPtr& entity) {
+void Entity::State::set_entity(Entity& entity) {
 
-  Debug::check_assertion(entity != nullptr, "Missing entity");
   Debug::check_assertion(this->entity == nullptr,
                          "This state is already associated to an entity");
-  this->entity = entity;
-  if (entity->is_on_map()) {
-    this->map = std::static_pointer_cast<Map>(entity->get_map().shared_from_this());
+  this->entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
+  if (entity.is_on_map()) {
+    this->map = std::static_pointer_cast<Map>(entity.get_map().shared_from_this());
   }
+}
+
+/**
+ * \brief Returns whether this state is already associated to an entity.
+ * \return \c true if an entity was set.
+ */
+bool Entity::State::has_entity() const {
+  return this->entity != nullptr;
 }
 
 /**
