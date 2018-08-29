@@ -17,6 +17,7 @@ State methods:
 - state:is_current()
 - state:is_stopping()
 - state:is/set_visible()
+- state:get/set_draw_override()
 - state:is/set_direction_locked()
 - state:get/set_can_control_movement()
 - state:get/set_wanted_movement_direction8()
@@ -44,11 +45,9 @@ State events:
 - state:on_started(previous_state_name, [previous_state])
 - state:on_finished(next_state_name, [next_state])
 - state:on_update()
-- state:on_pre_draw()
-- state:on_post_draw()
-- state:on_draw()
-- state:on_suspended()
-- state:on_unsuspended()
+- state:on_pre_draw(camera)
+- state:on_post_draw(camera)
+- state:on_suspended(suspended)
 - state:on_map_changed()
 - state:on_map_finished()
 - state:on_map_started()
@@ -66,6 +65,7 @@ State events:
 
 Other API changes:
 
-- entity:on_pre_draw()
-- entity:on_post_draw()
-- entity:on_draw()
+- entity:get/set_draw_override()
+- entity:on_pre_draw(camera)
+- entity:on_post_draw(camera)
+- entity:on_suspended(suspended)
