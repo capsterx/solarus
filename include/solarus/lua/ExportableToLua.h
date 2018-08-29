@@ -45,12 +45,7 @@ class ExportableToLua:
     void set_known_to_lua(bool known_to_lua);
     bool is_with_lua_table() const;
     void set_with_lua_table(bool with_lua_table);
-
-    /**
-     * \brief Returns the name identifying this type in Lua.
-     * \return the name identifying this type in Lua
-     */
-    virtual const std::string& get_lua_type_name() const = 0;
+    virtual const std::string& get_lua_type_name() const;
 
   private:
 

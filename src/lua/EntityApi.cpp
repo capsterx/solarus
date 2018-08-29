@@ -49,6 +49,7 @@
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/graphics/Sprite.h"
+#include "solarus/hero/CustomState.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
@@ -210,6 +211,7 @@ void LuaContext::register_entity_module() {
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     hero_methods.insert(hero_methods.end(), {
         { "get_carried_object", hero_api_get_carried_object },
+        { "start_state", hero_api_start_state },
     });
   }
 
@@ -2770,6 +2772,26 @@ int LuaContext::hero_api_start_hurt(lua_State* l) {
       int damage = LuaTools::check_int(l, index);
       hero.hurt(source_entity, source_sprite.get(), damage);
     }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:start_state().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_start_state(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Hero& hero = *check_hero(l, 1);
+    std::shared_ptr<CustomState> state = check_state(l, 2);
+
+    if (state->has_entity()) {
+      LuaTools::arg_error(l, 1, "This state is already used");
+    }
+    hero.start_custom_state(state);
 
     return 0;
   });

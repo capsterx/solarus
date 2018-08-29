@@ -14,38 +14,29 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SOLARUS_HERO_STATE_H
-#define SOLARUS_HERO_STATE_H
+#ifndef SOLARUS_HERO_CUSTOM_STATE_H
+#define SOLARUS_HERO_CUSTOM_STATE_H
 
 #include "solarus/core/Common.h"
-#include "solarus/entities/EntityState.h"
+#include "solarus/hero/HeroState.h"
 
 namespace Solarus {
 
 /**
- * \brief The hero base state.
+ * \brief The state "custom" of the hero.
+ *
+ * Delegates everything to a Lua object of type state.
  */
-class HeroState: public Entity::State {
+class CustomState: public HeroState {
 
   public:
 
-    virtual Hero& get_entity() override;
-    virtual const Hero& get_entity() const override;
-    const HeroSprites& get_sprites() const;
-    HeroSprites& get_sprites();
+    explicit CustomState(const std::string& name);
+    const std::string& get_lua_type_name() const override;
 
-    void draw_on_map() override;
+  private:
 
-    void notify_attack_command_pressed() override;
-    void notify_item_command_pressed(int slot) override;
-
-    bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const override;
-
-  protected:
-
-    HeroState(Hero& hero, const std::string& state_name);
-    explicit HeroState(const std::string& state_name);
-
+    std::string name;  /**< Name of this state or an empty string. */
 };
 
 }

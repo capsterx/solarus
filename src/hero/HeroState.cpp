@@ -25,10 +25,24 @@ namespace Solarus {
 
 /**
  * \brief Constructor.
- * \param hero The hero controlled by this state.
+ * \param hero The hero to control with this state.
+ * \param state_name A name describing this state.
  */
 HeroState::HeroState(Hero& hero, const std::string& state_name):
-  State(hero, state_name) {
+  HeroState(state_name) {
+
+  set_entity(hero);
+}
+
+/**
+ * \brief Constructor.
+ *
+ * Call set_entity() later before starting the state.
+ *
+ * \param state_name A name describing this state.
+ */
+HeroState::HeroState(const std::string& state_name):
+  State(state_name) {
 
 }
 

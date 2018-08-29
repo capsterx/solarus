@@ -3741,19 +3741,18 @@ Entity::State& Entity::get_state() const {
  * The old state will also be automatically destroyed, but not right now,
  * in order to allow this function to be called by the old state itself safely.
  *
- * \param state The new state of the hero. The hero object takes ownership of
- * this object.
+ * \param state The new state of the entity.
  */
-void Entity::set_state(State* new_state) {
+void Entity::set_state(const std::shared_ptr<State>& new_state) {
 
   // Stop the previous state.
-  State* old_state = this->state.get();
+  std::shared_ptr<State> old_state = this->state;
   if (old_state != nullptr) {
 
-    old_state->stop(new_state);  // Should not change the state again.
+    old_state->stop(new_state.get());  // Should not change the state again.
 
     // Sanity check.
-    if (old_state != this->state.get()) {
+    if (old_state != this->state) {
       // old_state->stop() called set_state() again in the meantime.
       // This is not a normal situation since we only called stop() to allow
       // new_state to start.
@@ -3771,12 +3770,12 @@ void Entity::set_state(State* new_state) {
 
   // Don't delete the previous state immediately since it may be the caller
   // of this function.
-  this->old_states.emplace_back(std::move(this->state));
+  this->old_states.emplace_back(this->state);
 
-  this->state = std::unique_ptr<State>(new_state);
-  this->state->start(old_state);  // May also change the state again.
+  this->state = new_state;
+  this->state->start(old_state.get());  // May also change the state again.
 
-  if (this->state.get() == new_state) {
+  if (this->state == new_state) {
     // If the state has not already changed again.
     check_position();
   }

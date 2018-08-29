@@ -112,7 +112,7 @@ void Hero::RunningState::update() {
       phase++;
     }
     else if (!is_pressing_running_key()) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
   else if (hero.get_movement()->is_finished()) {
@@ -162,7 +162,7 @@ void Hero::RunningState::notify_direction_command_pressed(int direction4) {
   if (!is_bouncing()
       && direction4 != get_sprites().get_animation_direction()) {
     Hero& hero = get_entity();
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 

@@ -74,7 +74,7 @@ void Hero::SwimmingState::update() {
 
   Hero& hero = get_entity();
   if (hero.get_ground_below() != Ground::DEEP_WATER) {
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
   else if (fast_swimming && System::now() >= end_fast_swim_date) {
     fast_swimming = false;

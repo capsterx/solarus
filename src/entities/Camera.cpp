@@ -68,13 +68,14 @@ private:
  * \param tracked_entity The entity to track with this camera.
  */
 TrackingState::TrackingState(Camera& camera, const EntityPtr& tracked_entity) :
-  Entity::State(camera, "tracking"),
+  Entity::State("tracking"),
   tracked_entity(tracked_entity),
   separator_next_scrolling_date(0),
   separator_scrolling_direction4(0) {
 
   Debug::check_assertion(tracked_entity != nullptr,
       "Missing tracked entity");
+  set_entity(camera);
 }
 
 /**
@@ -214,8 +215,8 @@ public:
  * \param camera The camera to control.
  */
 ManualState::ManualState(Camera& camera) :
-  Entity::State(camera, "manual") {
-
+  Entity::State("manual") {
+  set_entity(camera);
 }
 
 }  // Anonymous namespace.
@@ -231,9 +232,6 @@ Camera::Camera(Map& map):
 
   create_surface();
   set_map(map);
-  const HeroPtr& hero = get_game().get_hero();
-  Debug::check_assertion(hero != nullptr, "Missing hero when initializing camera");
-  start_tracking(hero);
 }
 
 /**
@@ -344,14 +342,14 @@ void Camera::notify_movement_started() {
  * \param tracked_entity The entity to track.
  */
 void Camera::start_tracking(const EntityPtr& tracked_entity) {
-  set_state(new TrackingState(*this, tracked_entity));
+  set_state(std::make_shared<TrackingState>(*this, tracked_entity));
 }
 
 /**
  * \brief Makes the camera stop tracking any entity.
  */
 void Camera::start_manual() {
-  set_state(new ManualState(*this));
+  set_state(std::make_shared<ManualState>(*this));
 }
 
 /**

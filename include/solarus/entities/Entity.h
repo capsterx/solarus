@@ -401,7 +401,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     class State;                                /**< base class for all states */
 
     State& get_state() const;
-    void set_state(State* state);
+    void set_state(const std::shared_ptr<State>& state);
 
     std::string get_state_name() const;
     void update_state();
@@ -510,8 +510,8 @@ class SOLARUS_API Entity: public ExportableToLua {
         old_stream_actions;                     /**< Old stream actions to destroy as soon as possible. */
 
     // state
-    std::unique_ptr<State> state;               /**< The current internal state */
-    std::list<std::unique_ptr<State>>
+    std::shared_ptr<State> state;               /**< The current internal state */
+    std::vector<std::shared_ptr<State>>
         old_states;                             /**< Previous state objects to delete as soon as possible. */
 
     bool initialized;                           /**< Whether all initializations were done. */

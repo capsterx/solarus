@@ -135,7 +135,11 @@ Entities::Entities(Game& game, Map& map):
   quadtree->initialize(quadtree_space);
 
   // Create the camera.
-  add_entity(std::make_shared<Camera>(map));
+  std::shared_ptr<Camera> camera = std::make_shared<Camera>(map);
+  add_entity(camera);
+  const HeroPtr& hero = game.get_hero();
+  Debug::check_assertion(hero != nullptr, "Missing hero when initializing camera");
+  camera->start_tracking(hero);
 }
 
 /**

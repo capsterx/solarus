@@ -45,6 +45,7 @@
 #include "solarus/hero/BoomerangState.h"
 #include "solarus/hero/BowState.h"
 #include "solarus/hero/CarryingState.h"
+#include "solarus/hero/CustomState.h"
 #include "solarus/hero/FallingState.h"
 #include "solarus/hero/ForcedWalkingState.h"
 #include "solarus/hero/FreeState.h"
@@ -123,9 +124,6 @@ Hero::Hero(Equipment& equipment):
   // sprites
   set_drawn_in_y_order(true);
   sprites = std::unique_ptr<HeroSprites>(new HeroSprites(*this, equipment));
-
-  // state
-  set_state(new FreeState(*this));
 }
 
 /**
@@ -264,7 +262,7 @@ void Hero::update_ground_effects() {
         if (get_distance(last_solid_ground_coords) >= 8) {
           // too far from the solid ground: make the hero fall
           set_walking_speed(normal_walking_speed);
-          set_state(new FallingState(*this));
+          set_state(std::make_shared<FallingState>(*this));
         }
         else {
           // not too far yet
@@ -383,7 +381,7 @@ void Hero::apply_additional_ground_movement() {
     if (get_ground_below() == Ground::HOLE) {
       // the hero cannot be moved towards the direction previously calculated
       set_walking_speed(normal_walking_speed);
-      set_state(new FallingState(*this));
+      set_state(std::make_shared<FallingState>(*this));
     }
   }
 }
@@ -703,7 +701,7 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
       const std::shared_ptr<const Stairs> stairs = get_stairs_overlapping();
       if (stairs != nullptr) {
         // The hero arrived on the map by stairs.
-        set_state(new StairsState(*this, stairs, Stairs::REVERSE_WAY));
+        set_state(std::make_shared<StairsState>(*this, stairs, Stairs::REVERSE_WAY));
       }
       else {
         // The hero arrived on the map by a usual destination point.
@@ -1793,7 +1791,7 @@ void Hero::notify_collision_with_stairs(
     if (is_moving_towards(correct_direction / 2)) {
       std::shared_ptr<const Stairs> shared_stairs =
           std::static_pointer_cast<const Stairs>(stairs.shared_from_this());
-      set_state(new StairsState(*this, shared_stairs, stairs_way));
+      set_state(std::make_shared<StairsState>(*this, shared_stairs, stairs_way));
     }
   }
 }
@@ -2139,7 +2137,7 @@ void Hero::hurt(
     // Add the offset of the sprite if any.
     source_xy += source_sprite->get_xy();
   }
-  set_state(new HurtState(*this, &source_xy, damage));
+  set_state(std::make_shared<HurtState>(*this, &source_xy, damage));
 }
 
 /**
@@ -2150,7 +2148,7 @@ void Hero::hurt(
  */
 void Hero::hurt(const Point& source_xy, int damage) {
 
-  set_state(new HurtState(*this, &source_xy, damage));
+  set_state(std::make_shared<HurtState>(*this, &source_xy, damage));
 }
 
 /**
@@ -2160,7 +2158,7 @@ void Hero::hurt(const Point& source_xy, int damage) {
  */
 void Hero::hurt(int damage) {
 
-  set_state(new HurtState(*this, nullptr, damage));
+  set_state(std::make_shared<HurtState>(*this, nullptr, damage));
 }
 
 /**
@@ -2215,12 +2213,12 @@ void Hero::start_deep_water() {
   if (!get_state().is_touching_ground()) {
     // Entering water from above the ground
     // (e.g. after a jump).
-    set_state(new PlungingState(*this));
+    set_state(std::make_shared<PlungingState>(*this));
   }
   else {
     // Entering water normally (e.g. by walking).
     if (can_swim) {
-      set_state(new SwimmingState(*this));
+      set_state(std::make_shared<SwimmingState>(*this));
     }
     else if (can_jump_over_water) {
       int direction8 = get_wanted_movement_direction8();
@@ -2230,7 +2228,7 @@ void Hero::start_deep_water() {
       start_jumping(direction8, 32, false, true);
     }
     else {
-      set_state(new PlungingState(*this));
+      set_state(std::make_shared<PlungingState>(*this));
     }
   }
 }
@@ -2243,7 +2241,7 @@ void Hero::start_hole() {
   if (!can_control_movement()) {
     // the player has no control (e.g. he is running or being hurt):
     // fall immediately
-    set_state(new FallingState(*this));
+    set_state(std::make_shared<FallingState>(*this));
   }
   else {
     // otherwise, push the hero towards the hole
@@ -2256,7 +2254,7 @@ void Hero::start_hole() {
     if (last_solid_ground_coords.x == -1 ||
         (last_solid_ground_coords == get_xy())) {
       // fall immediately because the hero was not moving but directly placed on the hole
-      set_state(new FallingState(*this));
+      set_state(std::make_shared<FallingState>(*this));
     }
     else {
 
@@ -2304,7 +2302,7 @@ void Hero::start_ice() {
 void Hero::start_lava() {
 
   // plunge into the lava
-  set_state(new PlungingState(*this));
+  set_state(std::make_shared<PlungingState>(*this));
 }
 
 /**
@@ -2380,7 +2378,7 @@ bool Hero::is_grabbing_or_pulling() const {
  */
 void Hero::start_free() {
 
-  set_state(new FreeState(*this));
+  set_state(std::make_shared<FreeState>(*this));
 }
 
 /**
@@ -2403,10 +2401,10 @@ void Hero::start_free_carrying_loading_or_running() {
   }
 
   if (get_state().is_carrying_item()) {
-    set_state(new CarryingState(*this, get_state().get_carried_object()));
+    set_state(std::make_shared<CarryingState>(*this, get_state().get_carried_object()));
   }
   else {
-    set_state(new FreeState(*this));
+    set_state(std::make_shared<FreeState>(*this));
   }
 }
 
@@ -2420,7 +2418,7 @@ void Hero::start_treasure(
     const Treasure& treasure,
     const ScopedLuaRef& callback_ref
 ) {
-  set_state(new TreasureState(*this, treasure, callback_ref));
+  set_state(std::make_shared<TreasureState>(*this, treasure, callback_ref));
 }
 
 /**
@@ -2436,7 +2434,7 @@ void Hero::start_treasure(
  * \param ignore_obstacles true to make the movement ignore obstacles
  */
 void Hero::start_forced_walking(const std::string& path, bool loop, bool ignore_obstacles) {
-  set_state(new ForcedWalkingState(*this, path, loop, ignore_obstacles));
+  set_state(std::make_shared<ForcedWalkingState>(*this, path, loop, ignore_obstacles));
 }
 
 /**
@@ -2455,13 +2453,12 @@ void Hero::start_jumping(
     bool ignore_obstacles,
     bool with_sound) {
 
-  JumpingState* state = new JumpingState(
+  set_state(std::make_shared<JumpingState>(
       *this,
       direction8,
       distance,
       ignore_obstacles,
-      with_sound);
-  set_state(state);
+      with_sound));
 }
 
 /**
@@ -2470,7 +2467,7 @@ void Hero::start_jumping(
  * victory sequence finishes (possibly an empty ref).
  */
 void Hero::start_victory(const ScopedLuaRef& callback_ref) {
-  set_state(new VictoryState(*this, callback_ref));
+  set_state(std::make_shared<VictoryState>(*this, callback_ref));
 }
 
 /**
@@ -2481,7 +2478,7 @@ void Hero::start_victory(const ScopedLuaRef& callback_ref) {
  * You can call start_free() to unfreeze him.
  */
 void Hero::start_frozen() {
-  set_state(new FrozenState(*this));
+  set_state(std::make_shared<FrozenState>(*this));
 }
 
 /**
@@ -2489,7 +2486,7 @@ void Hero::start_frozen() {
  * \param item_to_lift The item to lift.
  */
 void Hero::start_lifting(const std::shared_ptr<CarriedObject>& item_to_lift) {
-  set_state(new LiftingState(*this, item_to_lift));
+  set_state(std::make_shared<LiftingState>(*this, item_to_lift));
 }
 
 /**
@@ -2507,7 +2504,7 @@ void Hero::start_running() {
     command = get_commands().is_command_pressed(GameCommand::ITEM_1) ?
         GameCommand::ITEM_1 : GameCommand::ITEM_2;
   }
-  set_state(new RunningState(*this, command));
+  set_state(std::make_shared<RunningState>(*this, command));
 }
 
 /**
@@ -2516,7 +2513,7 @@ void Hero::start_running() {
 void Hero::start_pushing() {
 
   get_equipment().notify_ability_used(Ability::PUSH);
-  set_state(new PushingState(*this));
+  set_state(std::make_shared<PushingState>(*this));
 }
 
 /**
@@ -2525,7 +2522,7 @@ void Hero::start_pushing() {
 void Hero::start_grabbing() {
 
   get_equipment().notify_ability_used(Ability::GRAB);
-  set_state(new GrabbingState(*this));
+  set_state(std::make_shared<GrabbingState>(*this));
 }
 
 /**
@@ -2534,7 +2531,7 @@ void Hero::start_grabbing() {
 void Hero::start_pulling() {
 
   get_equipment().notify_ability_used(Ability::PULL);
-  set_state(new PullingState(*this));
+  set_state(std::make_shared<PullingState>(*this));
 }
 
 /**
@@ -2647,7 +2644,7 @@ bool Hero::can_start_sword() const {
 void Hero::start_sword() {
 
   Debug::check_assertion(can_start_sword(), "The hero cannot start using the sword now");
-  set_state(new SwordSwingingState(*this));
+  set_state(std::make_shared<SwordSwingingState>(*this));
 }
 
 /**
@@ -2689,7 +2686,7 @@ void Hero::start_item(EquipmentItem& item) {
   Debug::check_assertion(can_start_item(item),
       std::string("The hero cannot start using item '")
       + item.get_name() + "' now");
-  set_state(new UsingItemState(*this, item));
+  set_state(std::make_shared<UsingItemState>(*this, item));
 }
 
 /**
@@ -2704,7 +2701,7 @@ void Hero::start_boomerang(int max_distance, int speed,
     const std::string& tunic_preparing_animation,
     const std::string& sprite_name) {
 
-  set_state(new BoomerangState(*this, max_distance, speed,
+  set_state(std::make_shared<BoomerangState>(*this, max_distance, speed,
       tunic_preparing_animation, sprite_name));
 }
 
@@ -2712,14 +2709,14 @@ void Hero::start_boomerang(int max_distance, int speed,
  * \brief Starts shooting an arrow with a bow.
  */
 void Hero::start_bow() {
-  set_state(new BowState(*this));
+  set_state(std::make_shared<BowState>(*this));
 }
 
 /**
  * \brief Starts shooting the hookshot.
  */
 void Hero::start_hookshot() {
-  set_state(new HookshotState(*this));
+  set_state(std::make_shared<HookshotState>(*this));
 }
 
 /**
@@ -2732,7 +2729,8 @@ void Hero::start_hookshot() {
 void Hero::start_back_to_solid_ground(bool use_specified_position,
     uint32_t end_delay, bool with_sound) {
 
-  set_state(new BackToSolidGroundState(*this, use_specified_position, end_delay, with_sound));
+  set_state(std::make_shared<BackToSolidGroundState>(
+              *this, use_specified_position, end_delay, with_sound));
 }
 
 /**
@@ -2758,24 +2756,24 @@ void Hero::start_state_from_ground() {
   case Ground::DEEP_WATER:
     if (get_state().is_touching_ground()
         && get_equipment().has_ability(Ability::SWIM)) {
-      set_state(new SwimmingState(*this));
+      set_state(std::make_shared<SwimmingState>(*this));
     }
     else {
-      set_state(new PlungingState(*this));
+      set_state(std::make_shared<PlungingState>(*this));
     }
     break;
 
   case Ground::HOLE:
-    set_state(new FallingState(*this));
+    set_state(std::make_shared<FallingState>(*this));
     break;
 
   case Ground::LAVA:
-    set_state(new PlungingState(*this));
+    set_state(std::make_shared<PlungingState>(*this));
     break;
 
   case Ground::PRICKLE:
     // There is no specific state for prickles (yet?).
-    set_state(new FreeState(*this));
+    set_state(std::make_shared<FreeState>(*this));
     start_prickle(0);
     break;
 
@@ -2812,6 +2810,16 @@ void Hero::start_state_from_ground() {
     start_free_carrying_loading_or_running();
     break;
   }
+}
+
+/**
+ * @brief Starts the given custom Lua state.
+ * @param custom_state The Lua state object.
+ */
+void Hero::start_custom_state(const std::shared_ptr<CustomState>& custom_state) {
+
+  custom_state->set_entity(*this);
+  set_state(custom_state);
 }
 
 }

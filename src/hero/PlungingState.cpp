@@ -65,7 +65,7 @@ void Hero::PlungingState::update() {
     if (hero.get_ground_below() == Ground::DEEP_WATER) {
 
       if (get_equipment().has_ability(Ability::SWIM)) {
-        hero.set_state(new SwimmingState(hero));
+        hero.set_state(std::make_shared<SwimmingState>(hero));
       }
       else {
         drown = 1;
@@ -75,12 +75,12 @@ void Hero::PlungingState::update() {
       drown = 4;
     }
     else {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
 
     if (drown > 0) {
       get_equipment().remove_life(drown);
-      hero.set_state(new BackToSolidGroundState(hero, true, 300));
+      hero.set_state(std::make_shared<BackToSolidGroundState>(hero, true, 300));
     }
   }
 }

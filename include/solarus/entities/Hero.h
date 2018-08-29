@@ -27,6 +27,7 @@
 
 namespace Solarus {
 
+class CustomState;
 class CarriedObject;
 class Equipment;
 class EquipmentItem;
@@ -34,7 +35,6 @@ class EquipmentItemUsage;
 class HeroSprites;
 class HeroState;
 class Map;
-class Rectangle;
 class Treasure;
 
 /**
@@ -289,6 +289,7 @@ class Hero: public Entity {
     void start_back_to_solid_ground(bool use_specified_position,
         uint32_t end_delay = 0, bool with_sound = true);
     void start_state_from_ground();
+    void start_custom_state(const std::shared_ptr<CustomState>& custom_state);
 
   private:
 
