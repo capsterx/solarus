@@ -145,7 +145,7 @@ class Entity::State : public ExportableToLua {
 
   protected:
 
-    State(Entity& entity, const std::string& state_name);
+    explicit State(const std::string& state_name);
 
     bool is_current_state() const;
     bool is_stopping() const;
@@ -168,13 +168,14 @@ class Entity::State : public ExportableToLua {
     T& get_entity();
     template<typename T>
     const T& get_entity() const;
+    void set_entity(const EntityPtr& entity);
 
   private:
 
-    Entity& entity;           /**< The entity controlled by this state. */
+    EntityPtr entity;         /**< The entity controlled by this state. */
     bool suspended;           /**< Whether this state is suspended. */
     uint32_t when_suspended;  /**< When this state was suspended. */
-    Map* map;                 /**< The current map (it may change during this state). */
+    std::shared_ptr<Map> map; /**< The current map (it may change during this state). */
     const std::string name;   /**< Name describing this state. */
     bool stopping;            /**< Indicates that this state is being stopped. */
 

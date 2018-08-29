@@ -32,18 +32,15 @@
 namespace Solarus {
 
 /**
- * \brief Creates a state.
+ * \brief Creates a state without specifying the entity to control yet.
  *
- * This constructor can be called only from the subclasses.
+ * Call set_entity() later before starting the state.
  *
- * \param entity The entity to control with this state.
  * \param state_name A name describing this state.
  */
-Entity::State::State(Entity& entity, const std::string& state_name):
-  entity(entity),
+Entity::State::State(const std::string& state_name):
   suspended(false),
   when_suspended(0),
-  map(&entity.get_map()),
   name(state_name),
   stopping(false) {
 
@@ -70,7 +67,7 @@ const std::string& Entity::State::get_name() const {
  * \return \c true if this state is the current state.
  */
 bool Entity::State::is_current_state() const {
-  return &entity.get_state() == this && !entity.get_state().is_stopping();
+  return &entity->get_state() == this && !entity->get_state().is_stopping();
 }
 
 /**
@@ -86,7 +83,7 @@ bool Entity::State::is_stopping() const {
  * \return The entity.
  */
 Entity& Entity::State::get_entity() {
-  return entity;
+  return *entity;
 }
 
 /**
@@ -94,7 +91,20 @@ Entity& Entity::State::get_entity() {
  * \return The entity.
  */
 const Entity& Entity::State::get_entity() const {
-  return entity;
+  return *entity;
+}
+
+/**
+ * \brief Sets the entity to control with this state.
+ * \param entity The entity to control with this state.
+ */
+void Entity::State::set_entity(const EntityPtr& entity) {
+
+  Debug::check_assertion(entity != nullptr, "Missing entity");
+  Debug::check_assertion(this->entity == nullptr,
+                         "This state is already associated to an entity");
+  this->entity = entity;
+  this->map = std::static_pointer_cast<Map>(entity->get_map().shared_from_this());
 }
 
 /**
@@ -189,11 +199,13 @@ const GameCommands& Entity::State::get_commands() const {
  */
 void Entity::State::start(const State* /* previous_state */) {
 
-  set_suspended(entity.is_suspended());
+  Debug::check_assertion(entity != nullptr, "No entity specified");
+
+  set_suspended(entity->is_suspended());
 
   // Notify Lua.
-  if (entity.is_on_map()) {
-    get_lua_context().entity_on_state_changed(entity, get_name());
+  if (entity->is_on_map()) {
+    get_lua_context().entity_on_state_changed(*entity, get_name());
   }
 }
 
@@ -424,7 +436,7 @@ void Entity::State::notify_item_command_released(int /* slot */) {
  * \param map the new map
  */
 void Entity::State::set_map(Map& map) {
-  this->map = &map;
+  this->map = std::static_pointer_cast<Map>(map.shared_from_this());
 }
 
 /**
@@ -779,7 +791,7 @@ bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
   // for example if the hero arrived by swimming over them
   // and thus did not activate them.
   // This is allowed and can be used to leave water pools for example.
-  if (entity.overlaps(stairs)) {
+  if (get_entity().overlaps(stairs)) {
     return false;
   }
 

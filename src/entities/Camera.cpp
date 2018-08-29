@@ -68,13 +68,14 @@ private:
  * \param tracked_entity The entity to track with this camera.
  */
 TrackingState::TrackingState(Camera& camera, const EntityPtr& tracked_entity) :
-  Entity::State(camera, "tracking"),
+  Entity::State("tracking"),
   tracked_entity(tracked_entity),
   separator_next_scrolling_date(0),
   separator_scrolling_direction4(0) {
 
   Debug::check_assertion(tracked_entity != nullptr,
       "Missing tracked entity");
+  set_entity(std::static_pointer_cast<Camera>(camera.shared_from_this()));
 }
 
 /**
@@ -214,8 +215,8 @@ public:
  * \param camera The camera to control.
  */
 ManualState::ManualState(Camera& camera) :
-  Entity::State(camera, "manual") {
-
+  Entity::State("manual") {
+  set_entity(std::static_pointer_cast<Camera>(camera.shared_from_this()));
 }
 
 }  // Anonymous namespace.
