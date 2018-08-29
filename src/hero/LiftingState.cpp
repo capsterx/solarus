@@ -105,7 +105,7 @@ void Hero::LiftingState::update() {
 
     std::shared_ptr<CarriedObject> carried_object = lifted_item;
     lifted_item = nullptr; // we do not take care of the carried object from this state anymore
-    hero.set_state(new CarryingState(hero, carried_object));
+    hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
   }
 }
 

@@ -170,6 +170,7 @@ file(
   include/solarus/hero/BoomerangState.h
   include/solarus/hero/BowState.h
   include/solarus/hero/CarryingState.h
+  include/solarus/hero/CustomState.h
   include/solarus/hero/FallingState.h
   include/solarus/hero/ForcedWalkingState.h
   include/solarus/hero/FreeState.h
@@ -365,6 +366,7 @@ file(
   src/hero/BoomerangState.cpp
   src/hero/BowState.cpp
   src/hero/CarryingState.cpp
+  src/hero/CustomState.cpp
   src/hero/FallingState.cpp
   src/hero/ForcedWalkingState.cpp
   src/hero/FreeState.cpp
@@ -411,6 +413,7 @@ file(
   src/lua/ScopedLuaRef.cpp
   src/lua/ShaderApi.cpp
   src/lua/SpriteApi.cpp
+  src/lua/StateApi.cpp
   src/lua/SurfaceApi.cpp
   src/lua/TextSurfaceApi.cpp
   src/lua/TimerApi.cpp

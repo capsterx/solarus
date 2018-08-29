@@ -143,7 +143,7 @@ void Hero::FreeState::notify_obstacle_reached() {
     }
     else if (now >= start_pushing_date) {
       equipment.notify_ability_used(Ability::PUSH);
-      hero.set_state(new PushingState(hero));
+      hero.set_state(std::make_shared<PushingState>(hero));
     }
   }
 }

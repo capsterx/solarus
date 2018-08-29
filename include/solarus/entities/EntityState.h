@@ -20,6 +20,7 @@
 #include "solarus/core/Common.h"
 #include "solarus/entities/CarriedObject.h"
 #include "solarus/entities/Hero.h"
+#include "solarus/lua/ExportableToLua.h"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -34,7 +35,7 @@ namespace Solarus {
  * Most of them are almost empty here because they depend on the state.
  * Redefine for each state the functions that you need to implement or change.
  */
-class Entity::State {
+class Entity::State : public ExportableToLua {
 
   public:
 

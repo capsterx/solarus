@@ -96,5 +96,15 @@ void ExportableToLua::set_with_lua_table(bool with_lua_table) {
   this->with_lua_table = with_lua_table;
 }
 
+/**
+ * \brief Returns the name identifying this type in Lua.
+ * \return The name identifying this type in Lua.
+ * An empty string means that this type is not exported to Lua.
+ */
+const std::string& ExportableToLua::get_lua_type_name() const {
+  static std::string empty;
+  return empty;
+}
+
 }
 

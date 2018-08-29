@@ -53,6 +53,7 @@ class Chest;
 class CircleMovement;
 class Color;
 class CustomEntity;
+class CustomState;
 class Destination;
 class Destructible;
 class Dialog;
@@ -129,6 +130,7 @@ class LuaContext {
     static const std::string menu_module_name;
     static const std::string language_module_name;
     static const std::string shader_module_name;
+    static const std::string state_module_name;
     static const std::string movement_module_name;
     static const std::string movement_straight_module_name;
     static const std::string movement_random_module_name;
@@ -1113,6 +1115,9 @@ class LuaContext {
       custom_entity_api_get_follow_streams,
       custom_entity_api_set_follow_streams,
 
+      // State API.
+      state_api_create,
+
       // available to all userdata types
       userdata_meta_gc,
       userdata_meta_newindex_as_table,
@@ -1184,7 +1189,7 @@ class LuaContext {
     void register_game_module();
     void register_map_module();
     void register_entity_module();
-    void register_testing_module();
+    void register_state_module();
 
     // Pushing objects to Lua.
     static void push_main(lua_State* l);
@@ -1202,6 +1207,7 @@ class LuaContext {
     static void push_movement(lua_State* l, Movement& movement);
     static void push_game(lua_State* l, Savegame& game);
     static void push_map(lua_State* l, Map& map);
+    static void push_state(lua_State* l, CustomState& state);
     static void push_entity(lua_State* l, Entity& entity);
     static void push_entity_iterator(lua_State* l, const EntityVector& entities);
     static void push_named_sprite_iterator(
@@ -1275,6 +1281,8 @@ class LuaContext {
     static std::shared_ptr<Savegame> check_game(lua_State* l, int index);
     static bool is_map(lua_State* l, int index);
     static std::shared_ptr<Map> check_map(lua_State* l, int index);
+    static bool is_state(lua_State* l, int index);
+    static std::shared_ptr<CustomState> check_state(lua_State* l, int index);
     static bool is_entity(lua_State* l, int index);
     static EntityPtr check_entity(lua_State* l, int index);
     static bool is_hero(lua_State* l, int index);

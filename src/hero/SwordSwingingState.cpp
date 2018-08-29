@@ -83,10 +83,10 @@ void Hero::SwordSwingingState::update() {
       // if the player is still pressing the sword key, start loading the sword
       if (get_commands().is_command_pressed(GameCommand::ATTACK)
           && !attacked) {
-        hero.set_state(new SwordLoadingState(hero));
+        hero.set_state(std::make_shared<SwordLoadingState>(hero));
       }
       else {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
     else {
@@ -99,7 +99,7 @@ void Hero::SwordSwingingState::update() {
   if (hero.get_movement() != nullptr && hero.get_movement()->is_finished()) {
     hero.clear_movement();
     if (sword_finished) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }
@@ -206,7 +206,7 @@ void Hero::SwordSwingingState::notify_obstacle_reached() {
   hero.clear_movement();
 
   if (sword_finished) {
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 

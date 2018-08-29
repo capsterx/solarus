@@ -92,7 +92,7 @@ void Hero::SwordTappingState::update() {
 
       if (get_sprites().get_current_frame() >= 5) {
         // when the animation is ok, stop tapping the wall, go back to loading the sword
-        hero.set_state(new SwordLoadingState(hero));
+        hero.set_state(std::make_shared<SwordLoadingState>(hero));
       }
     }
     else {
@@ -116,7 +116,7 @@ void Hero::SwordTappingState::update() {
   }
   else if (hero.get_movement()->is_finished()) {
     // the hero was pushed by an enemy
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 
@@ -189,7 +189,7 @@ void Hero::SwordTappingState::notify_obstacle_reached() {
   // the hero reached an obstacle while being pushed after hitting an enemy
   Hero& hero = get_entity();
   hero.clear_movement();
-  hero.set_state(new FreeState(hero));
+  hero.set_state(std::make_shared<FreeState>(hero));
 }
 
 /**

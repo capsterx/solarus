@@ -344,14 +344,14 @@ void Camera::notify_movement_started() {
  * \param tracked_entity The entity to track.
  */
 void Camera::start_tracking(const EntityPtr& tracked_entity) {
-  set_state(new TrackingState(*this, tracked_entity));
+  set_state(std::make_shared<TrackingState>(*this, tracked_entity));
 }
 
 /**
  * \brief Makes the camera stop tracking any entity.
  */
 void Camera::start_manual() {
-  set_state(new ManualState(*this));
+  set_state(std::make_shared<ManualState>(*this));
 }
 
 /**

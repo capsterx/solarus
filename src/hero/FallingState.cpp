@@ -78,7 +78,7 @@ void Hero::FallingState::update() {
     else {
       // normal hole that hurts the hero
       get_equipment().remove_life(2);
-      hero.set_state(new BackToSolidGroundState(hero, true));
+      hero.set_state(std::make_shared<BackToSolidGroundState>(hero, true));
     }
   }
 }
