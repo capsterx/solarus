@@ -180,6 +180,7 @@ void Hero::update() {
 
   update_invincibility();
   update_movement();
+  update_direction();
   sprites->update();
 
   // Update the state now because it may be impacted by movements and sprites.
@@ -189,6 +190,29 @@ void Hero::update() {
     update_ground_effects();
     check_collision_with_detectors();
     check_gameover();
+  }
+}
+
+/**
+ * \brief Updates the sprites direction according to the wanted movement direction.
+ */
+void Hero::update_direction() {
+
+  int wanted_direction8 = get_wanted_movement_direction8();
+  if (wanted_direction8 == -1) {
+    return;
+  }
+
+  int old_animation_direction = sprites->get_animation_direction();
+  int animation_direction = sprites->get_animation_direction(wanted_direction8, get_real_movement_direction8());
+
+  if (animation_direction != old_animation_direction
+      && animation_direction != -1
+      && !is_direction_locked()) {
+    // If the direction defined by the directional keys has changed,
+    // update the sprite's direction of animation
+    // (unless the direction is locked).
+    sprites->set_animation_direction(animation_direction);
   }
 }
 
@@ -1185,22 +1209,7 @@ void Hero::notify_layer_changed() {
  */
 void Hero::notify_movement_changed() {
 
-  // update the animation direction according to the movement direction
-  int wanted_direction8 = get_wanted_movement_direction8();
-  if (wanted_direction8 != -1) {
-
-    int old_animation_direction = sprites->get_animation_direction();
-    int animation_direction = sprites->get_animation_direction(wanted_direction8, get_real_movement_direction8());
-
-    if (animation_direction != old_animation_direction
-        && animation_direction != -1
-        && !is_direction_locked()) {
-      // if the direction defined by the directional keys has changed,
-      // update the sprite's direction of animation
-      // (unless the hero is loading his sword)
-      sprites->set_animation_direction(animation_direction);
-    }
-  }
+  update_direction();
 
   // let the state pick the animation corresponding to the movement tried by the player
   get_state().notify_movement_changed();

@@ -326,6 +326,7 @@ class Hero: public Entity {
 
     // position
     void place_on_map(Map& map);
+    void update_direction();
     void update_movement();
     void try_snap_to_facing_entity();
     void apply_additional_ground_movement();

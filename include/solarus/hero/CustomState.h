@@ -45,6 +45,7 @@ class CustomState: public HeroState {
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
 
+    void update() override;
     bool is_direction_locked() const override;
     bool can_control_movement() const override;
     int get_wanted_movement_direction8() const override;

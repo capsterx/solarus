@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/entities/Stream.h"
+#include "solarus/entities/StreamAction.h"
 #include "solarus/hero/CustomState.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/PlayerMovement.h"
@@ -88,12 +90,22 @@ void CustomState::set_can_control_movement(bool can_control_movement) {
  */
 int CustomState::get_wanted_movement_direction8() const {
 
-  if (player_movement_ == nullptr ||
-      !get_can_control_movement()) {
+  if (!is_current_state()) {
     return -1;
   }
 
-  return player_movement_->get_wanted_direction8();
+  if (!get_can_control_direction()) {
+    return -1;
+  }
+
+  if (get_entity().has_stream_action() &&
+      !get_entity().get_stream_action()->get_stream().get_allow_movement()) {
+    // On a blocking stream.
+    return -1;
+  }
+
+  const GameCommands& commands = get_commands();
+  return commands.get_wanted_direction8();
 }
 
 /**
@@ -109,7 +121,7 @@ void CustomState::start_player_movement() {
 }
 
 /**
- * \brief copydoc EntityState::start
+ * \copydoc EntityState::start
  */
 void CustomState::start(const State* previous_state) {
 
@@ -121,7 +133,7 @@ void CustomState::start(const State* previous_state) {
 }
 
 /**
- * \brief copydoc EntityState::stop
+ * \copydoc EntityState::stop
  */
 void CustomState::stop(const State* next_state) {
 
@@ -131,6 +143,16 @@ void CustomState::stop(const State* next_state) {
     get_entity().clear_movement();
   }
   player_movement_ = nullptr;
+}
+
+/**
+ * \copydoc EntityState::update
+ */
+void CustomState::update() {
+
+  HeroState::update();
+
+  // TODO
 }
 
 /**
