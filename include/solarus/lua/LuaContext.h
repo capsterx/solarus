@@ -1122,6 +1122,8 @@ class LuaContext {
       state_api_set_can_control_direction,
       state_api_get_can_control_movement,
       state_api_set_can_control_movement,
+      state_api_is_affected_by_ground,
+      state_api_set_affected_by_ground,
 
       // available to all userdata types
       userdata_meta_gc,

@@ -18,7 +18,9 @@
 #define SOLARUS_HERO_CUSTOM_STATE_H
 
 #include "solarus/core/Common.h"
+#include "solarus/entities/Ground.h"
 #include "solarus/hero/HeroState.h"
+#include <set>
 
 namespace Solarus {
 
@@ -38,17 +40,25 @@ class CustomState: public HeroState {
 
     bool get_can_control_direction() const;
     void set_can_control_direction(bool can_control_direction);
+    bool is_direction_locked() const override;
+    int get_wanted_movement_direction8() const override;
+
     bool get_can_control_movement() const;
     void set_can_control_movement(bool can_control_movement);
+    bool can_control_movement() const override;
 
-    // HeroState overrides.
+    bool is_affected_by_ground(Ground ground) const;
+    void set_affected_by_ground(Ground ground, bool affected);
+    bool can_avoid_deep_water() const override;
+    bool can_avoid_hole() const override;
+    bool can_avoid_ice() const override;
+    bool can_avoid_lava() const override;
+    bool can_avoid_prickle() const override;
+
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
 
     void update() override;
-    bool is_direction_locked() const override;
-    bool can_control_movement() const override;
-    int get_wanted_movement_direction8() const override;
 
   private:
 
@@ -59,6 +69,7 @@ class CustomState: public HeroState {
     bool can_control_movement_;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>
         player_movement_;                   /**< The movement, if controlled by the player. */
+    std::set<Ground> ignored_grounds;       /**< Grounds whose effect does not affect this state. */
 };
 
 }

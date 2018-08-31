@@ -20,12 +20,12 @@ State methods:
 - state:get/set_draw_override()
 - state:get/set_can_control_direction()
 - state:get/set_can_control_movement()
-- state:get/set_can_avoid_bad_ground(ground)  -- deep water, hole, ice, lava, prickles
+- state:is/set_affected_by_ground(ground)  -- deep water, hole, ice, lava, prickles
 - state:is/set_touching_ground()
 - state:get/set_can_come_from_bad_ground()
 - state:get/set_are_collisions_ignored()
 - state:get/set_can_traverse_ground(ground)  -- Accepts a callback
-- state:get/set_can_avoid(entity_type)  -- teletransporter, stream, sensor, explosion, switch
+- state:is/set_affected_by(entity_type)  -- teletransporter, stream, sensor, explosion, switch
 - state:get/set_can_traverse(entity_type)  -- Accepts a callback
 - state:is/set_teletransporter_delayed()
 - state:get/set_can_persist_on_stream()

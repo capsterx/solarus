@@ -32,7 +32,8 @@ CustomState::CustomState(
   name_(name),
   can_control_direction_(true),
   can_control_movement_(true),
-  player_movement_() {
+  player_movement_(),
+  ignored_grounds() {
 
 }
 
@@ -54,39 +55,21 @@ bool CustomState::get_can_control_direction() const {
 
 /**
  * \brief Sets whether the players controls the sprites direction in this state.
- * \return \c true if the player should control the sprites direction.
+ * \param can_control_direction \c true if the player should control the sprites direction.
  */
 void CustomState::set_can_control_direction(bool can_control_direction) {
   this->can_control_direction_ = can_control_direction;
 }
 
 /**
- * \brief Returns whether the players controls the hero's movement in this state.
- * \return \c true if the player controls the hero's movement.
+ * \copydoc Entity::State::is_direction_locked
  */
-bool CustomState::get_can_control_movement() const {
-  return can_control_movement_;
+bool CustomState::is_direction_locked() const {
+  return !get_can_control_direction();
 }
 
 /**
- * \brief Sets whether the players controls the hero's movement in this state.
- * \return \c true if the player should control the hero's movement.
- */
-void CustomState::set_can_control_movement(bool can_control_movement) {
-
-  if (can_control_movement == can_control_movement_) {
-    return;
-  }
-
-  can_control_movement_ = can_control_movement;
-
-  if (is_current_state()) {
-    start_player_movement();
-  }
-}
-
-/**
- * \copydoc EntityState::get_wanted_movement_direction8
+ * \copydoc Entity::State::get_wanted_movement_direction8
  */
 int CustomState::get_wanted_movement_direction8() const {
 
@@ -109,6 +92,38 @@ int CustomState::get_wanted_movement_direction8() const {
 }
 
 /**
+ * \brief Returns whether the players controls the hero's movement in this state.
+ * \return \c true if the player controls the hero's movement.
+ */
+bool CustomState::get_can_control_movement() const {
+  return can_control_movement_;
+}
+
+/**
+ * \brief Sets whether the players controls the hero's movement in this state.
+ * \param can_control_movement \c true if the player should control the hero's movement.
+ */
+void CustomState::set_can_control_movement(bool can_control_movement) {
+
+  if (can_control_movement == can_control_movement_) {
+    return;
+  }
+
+  can_control_movement_ = can_control_movement;
+
+  if (is_current_state()) {
+    start_player_movement();
+  }
+}
+
+/**
+ * \copydoc Entity::State::can_control_movement
+ */
+bool CustomState::can_control_movement() const {
+  return get_can_control_movement();
+}
+
+/**
  * \brief Sets up a movement controlled by the player.
  */
 void CustomState::start_player_movement() {
@@ -121,7 +136,68 @@ void CustomState::start_player_movement() {
 }
 
 /**
- * \copydoc EntityState::start
+ * \brief Returns whether the effect of the given ground is avoided.
+ * \param ground A ground type.
+ * \return \c true if this ground has no effect in this state.
+ */
+bool CustomState::is_affected_by_ground(Ground ground) const {
+
+  bool ignored = ignored_grounds.find(ground) != ignored_grounds.end();
+  return !ignored;
+}
+
+/**
+ * \brief Sets whether the effect of the given ground is avoided.
+ * \param ground A ground type.
+ * \param affected \c true if this ground should have no effect.
+ */
+void CustomState::set_affected_by_ground(Ground ground, bool affected) {
+
+  if (affected) {
+    ignored_grounds.erase(ground);
+  }
+  else {
+    ignored_grounds.insert(ground);
+  }
+}
+
+/**
+ * \copydoc Entity::State::can_avoid_deep_water
+ */
+bool CustomState::can_avoid_deep_water() const {
+  return !is_affected_by_ground(Ground::DEEP_WATER);
+}
+
+/**
+ * \copydoc Entity::State::can_avoid_hole
+ */
+bool CustomState::can_avoid_hole() const {
+  return !is_affected_by_ground(Ground::HOLE);
+}
+
+/**
+ * \copydoc Entity::State::can_avoid_ice
+ */
+bool CustomState::can_avoid_ice() const {
+  return !is_affected_by_ground(Ground::ICE);
+}
+
+/**
+ * \copydoc Entity::State::can_avoid_lava
+ */
+bool CustomState::can_avoid_lava() const {
+  return !is_affected_by_ground(Ground::LAVA);
+}
+
+/**
+ * \copydoc Entity::State::can_avoid_prickle
+ */
+bool CustomState::can_avoid_prickle() const {
+  return !is_affected_by_ground(Ground::PRICKLE);
+}
+
+/**
+ * \copydoc Entity::State::start
  */
 void CustomState::start(const State* previous_state) {
 
@@ -133,7 +209,7 @@ void CustomState::start(const State* previous_state) {
 }
 
 /**
- * \copydoc EntityState::stop
+ * \copydoc Entity::State::stop
  */
 void CustomState::stop(const State* next_state) {
 
@@ -146,27 +222,13 @@ void CustomState::stop(const State* next_state) {
 }
 
 /**
- * \copydoc EntityState::update
+ * \copydoc Entity::State::update
  */
 void CustomState::update() {
 
   HeroState::update();
 
   // TODO
-}
-
-/**
- * \copydoc EntityState::is_direction_locked
- */
-bool CustomState::is_direction_locked() const {
-  return !get_can_control_direction();
-}
-
-/**
- * \copydoc EntityState::can_control_movement
- */
-bool CustomState::can_control_movement() const {
-  return get_can_control_movement();
 }
 
 }

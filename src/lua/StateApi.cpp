@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/CurrentQuest.h"
+#include "solarus/entities/GroundInfo.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 #include "solarus/hero/CustomState.h"
@@ -46,6 +47,8 @@ void LuaContext::register_state_module() {
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
     { "set_can_control_movement", state_api_set_can_control_movement },
+    { "is_affected_by_ground", state_api_is_affected_by_ground },
+    { "set_affected_by_ground", state_api_set_affected_by_ground },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -165,6 +168,40 @@ int LuaContext::state_api_set_can_control_movement(lua_State* l) {
     bool can_control_movement = LuaTools::opt_boolean(l, 2, true);
 
     state.set_can_control_movement(can_control_movement);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_affected_by_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_affected_by_ground(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+    Ground ground = LuaTools::check_enum<Ground>(l, 2);
+
+    lua_pushboolean(l, state.is_affected_by_ground(ground));
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_affected_by_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    Ground ground = LuaTools::check_enum<Ground>(l, 2);
+    bool affected = LuaTools::opt_boolean(l, 3, true);
+
+    state.set_affected_by_ground(ground, affected);
 
     return 0;
   });
