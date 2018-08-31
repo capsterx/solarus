@@ -1118,6 +1118,10 @@ class LuaContext {
 
       // State API.
       state_api_create,
+      state_api_get_can_control_direction,
+      state_api_set_can_control_direction,
+      state_api_get_can_control_movement,
+      state_api_set_can_control_movement,
 
       // available to all userdata types
       userdata_meta_gc,

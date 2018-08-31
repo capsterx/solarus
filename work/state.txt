@@ -18,7 +18,7 @@ State methods:
 - state:is_stopping()
 - state:is/set_visible()
 - state:get/set_draw_override()
-- state:is/set_direction_locked()
+- state:get/set_can_control_direction()
 - state:get/set_can_control_movement()
 - state:get/set_can_avoid_bad_ground(ground)  -- deep water, hole, ice, lava, prickles
 - state:is/set_touching_ground()

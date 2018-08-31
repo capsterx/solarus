@@ -22,6 +22,8 @@
 
 namespace Solarus {
 
+class PlayerMovement;
+
 /**
  * \brief The state "custom" of the hero.
  *
@@ -34,9 +36,28 @@ class CustomState: public HeroState {
     explicit CustomState(const std::string& name);
     const std::string& get_lua_type_name() const override;
 
+    bool get_can_control_direction() const;
+    void set_can_control_direction(bool can_control_direction);
+    bool get_can_control_movement() const;
+    void set_can_control_movement(bool can_control_movement);
+
+    // HeroState overrides.
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+
+    bool is_direction_locked() const override;
+    bool can_control_movement() const override;
+    int get_wanted_movement_direction8() const override;
+
   private:
 
-    std::string name;  /**< Name of this state or an empty string. */
+    void start_player_movement();
+
+    std::string name_;                      /**< Name of this state or an empty string. */
+    bool can_control_direction_;            /**< Whether the player controls the sprites direction. */
+    bool can_control_movement_;             /**< Whether the player controls the hero's movement. */
+    std::shared_ptr<PlayerMovement>
+        player_movement_;                   /**< The movement, if controlled by the player. */
 };
 
 }

@@ -67,6 +67,11 @@ const std::string& Entity::State::get_name() const {
  * \return \c true if this state is the current state.
  */
 bool Entity::State::is_current_state() const {
+
+  if (!has_entity()) {
+    return false;
+  }
+
   return &entity->get_state() == this && !entity->get_state().is_stopping();
 }
 

@@ -42,6 +42,10 @@ void LuaContext::register_state_module() {
 
   // Methods of the state type.
   const std::vector<luaL_Reg> methods = {
+    { "get_can_control_direction", state_api_get_can_control_direction },
+    { "set_can_control_direction", state_api_set_can_control_direction },
+    { "get_can_control_movement", state_api_get_can_control_movement },
+    { "set_can_control_movement", state_api_set_can_control_movement },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -99,6 +103,70 @@ int LuaContext::state_api_create(lua_State* l) {
 
     push_state(l, *state);
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_control_direction().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_control_direction(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_control_direction());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_control_direction().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_control_direction(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_control_direction = LuaTools::opt_boolean(l, 2, true);
+
+    state.set_can_control_direction(can_control_direction);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_control_movement().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_control_movement(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_control_movement());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_control_movement().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_control_movement(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_control_movement = LuaTools::opt_boolean(l, 2, true);
+
+    state.set_can_control_movement(can_control_movement);
+
+    return 0;
   });
 }
 
