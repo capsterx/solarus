@@ -69,4 +69,5 @@ Other API changes:
 - entity:on_post_draw(camera)
 - entity:on_suspended(suspended)
 - hero:on_state_changing(state)
-- state as timer context?
+- state as timer context
+- camera:get_surface()
