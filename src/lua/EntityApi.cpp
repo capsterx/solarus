@@ -239,6 +239,11 @@ void LuaContext::register_entity_module() {
         { "set_size", entity_api_set_size },
     });
   }
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    common_methods.insert(common_methods.end(), {
+        { "get_surface", camera_api_get_surface },
+    });
+  }
 
   camera_methods.insert(camera_methods.end(), common_methods.begin(), common_methods.end());
   register_type(
@@ -3038,6 +3043,27 @@ int LuaContext::camera_api_get_tracked_entity(lua_State* l) {
     }
     else {
       push_entity(l, *entity);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of camera:get_surface().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::camera_api_get_surface(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Camera& camera = *check_camera(l, 1);
+
+    SurfacePtr surface = camera.get_surface();
+    if (surface == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_surface(l, *surface);
     }
     return 1;
   });

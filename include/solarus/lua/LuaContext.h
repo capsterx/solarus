@@ -987,6 +987,7 @@ class LuaContext {
       camera_api_start_manual,
       camera_api_get_position_to_track,
       camera_api_get_tracked_entity,
+      camera_api_get_surface,
       destination_api_get_starting_location_mode,
       destination_api_set_starting_location_mode,
       teletransporter_api_get_sound,

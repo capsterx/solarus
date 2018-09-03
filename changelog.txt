@@ -89,6 +89,7 @@ New features:
 * Add methods entity:get_layer() and entity:set_layer().
 * Add a method entity:get_controlling_stream() (#1204).
 * Add optional sprite parameters to entity:overlaps() (#1159).
+* Add a method camera:get_surface() (#1265).
 * Add methods door:open(), door:close() and door:set_open() (#1007).
 * Add methods stairs:get_direction() and stairs:is_inner() (#1037).
 * destructible:on_lifting() now gives a carried object parameter.
