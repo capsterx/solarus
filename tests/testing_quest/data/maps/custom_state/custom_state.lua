@@ -26,7 +26,7 @@ local function test_interface_presence()
   --Test for api functions
   assert_method(sol.state,"create","function")
   --Test for api methods
-  assert_method(hero_meta,"start_sate")
+  assert_method(hero_meta,"start_state")
   assert_method(hero_meta,"get_state")
   assert_method(hero_meta, "get_custom_state")
 end
@@ -491,8 +491,8 @@ function map:on_opening_transition_finished()
       --Test if all events have been called
       early_test_state:collect_events()
       test_chain(
-        test_pause_events,
         test_state_methods,
+        test_pause_events,
         test_command_events,
         test_key_events,
         test_move_events,
