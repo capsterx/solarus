@@ -110,6 +110,8 @@ map{ id = "bugs/967_blocks_max_moves", description = "#967: Allow to choose any 
 map{ id = "bugs/971_sol_file_list", description = "#971: sol.file.list()" }
 map{ id = "bugs/983_timer_delay", description = "#983: Allow to change the delay of timers" }
 map{ id = "custom_state", description = "Custom state tests" }
+map{ id = "custom_state/custom_state", description = "custom_state/custom_state" }
+map{ id = "custom_state/end_map", description = "End of custom states tests" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }

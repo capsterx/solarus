@@ -21,7 +21,7 @@ destination{
   name = "destination",
   layer = 0,
   x = 160,
-  y = 125,
+  y = 117,
   direction = 1,
 }
 

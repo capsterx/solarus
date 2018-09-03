@@ -97,7 +97,7 @@ end
 
 --postpone a continuation to let engine simulate a bit
 local function later(cont)
-  sol.timer.start(map,100,cont)
+  sol.timer.start(map,100,cont):set_suspended_with_map(false)
 end
 
 -- Test if two arrays match and else raise an error
@@ -131,7 +131,7 @@ local function test(story,test,...)
 end
 
 -- test all state methods behaviour
-local function method_tests()
+local function test_state_methods(cont)
   local state
 
   test("creating blank state",
@@ -190,10 +190,10 @@ local function method_tests()
         local vals = {...}
         for _,v in ipairs(vals) do
           test("setting '" .. name .. "' to " .. format_value(v),
-                function() state[set .. name](state,v) end)
+               function() state[set .. name](state,v) end)
           test("getting '" .. name .. "', should be " .. format_value(v),
-                function() return state[get .. name](state) end,
-                v)
+               function() return state[get .. name](state) end,
+               v)
         end
       end
 
@@ -228,6 +228,8 @@ local function method_tests()
       test_setget("can_take_stairs",true,false)
       test_setget("can_take_jumper",true,false)
       test_setget("previous_carried_object_behaviour","throw","destroy","keep")
+
+      cont()
   end)
 end
 
@@ -296,6 +298,13 @@ local function test_start_state()
   hero:start_state(first_state)
 
   local early_test_state = sol.state.create("early")
+  local first_test_event = make_test_event_utility(first_state)
+
+  first_test_event("on_finished is called when a new state is launched",
+                   "on_finished",
+                   "early",early_test_state)
+
+
   local test_event = make_test_event_utility(state)
 
   local camera = map:get_camera()
@@ -317,22 +326,159 @@ local function test_start_state()
              camera)
 
   test_event("on_opening_transition is called when state is launched in on created",
-             "on_opening_transition_finished")
+             "on_map_opening_transition_finished")
 
   hero:start_state(early_test_state)
+  --Verify events have been called for the very first state
+  first_state:collect_events()
+end
+
+--test event related to game suspention and call continuation cont
+local function test_pause_events(cont)
+  local pause_state = sol.state.create("pause")
+  hero:start_state(pause_state)
+  local test_event = make_test_event_utility(pause_state)
+  test_event("on_suspended is called when game is suspended",
+             "on_suspended",
+             true)
+  later(function()
+      pause_state:collect_events()
+      test_event("on_suspended is called with false when game is resumed",
+                 "on_suspended",
+                 false)
+      later(function()
+          pause_state:collect_events()
+          cont()
+      end)
+      map:get_game():set_suspended(false)
+  end)
+  map:get_game():set_suspended(true)
+end
+
+--test events related to movement and call continuation cont
+local function test_move_events(cont)
+  local move_state = sol.state.create("move")
+  hero:start_state(move_state)
+  local test_event = make_test_event_utility(state)
+  local old_pos = {hero:get_position()}
+  test_event("on_layer_changed is called when layer change",
+             "on_layer_changed")
+  hero:set_layer(1)
+  test_event("on_position_changed is called when position is modified",
+             "on_position_changed")
+  test_event("on_ground_changed is called when ground has changed",
+             "on_ground_changed")
+  hero:set_position(table_marker:get_position())
+
+  --check previous events have been called
+  move_state:collect_events()
+
+
+  --setup sensors behaviour
+  function begin_move_sensor:on_activated()
+    test_event("on_movement_changed is called when the player press a direction",
+               "on_movement_changed")
+    game:simulate_command_pressed("right")
+  end
+  function turn_down_sensor:on_activated()
+    game:simulate_command_released("right")
+    game:simulate_command_pressed("down")
+    test_event("on_jumper_activated is callled when a jumper is taken and jumper is given",
+               "on_jumper_activated",
+               test_jumper)
+
+    test_event("on_obstacle_reached is called when the player reaches a wall",
+               "on_obstacle_reached")
+  end
+  function map_end_sensor:on_activated()
+    later(function()
+        test_event("on_movement_finished is called when the player stop",
+                   "on_movement_finished")
+        game:simulate_command_released("down")
+        move_state:collect_events()
+        cont()
+    end)
+  end
+
+  --set the hero at small path beginning
+  hero:set_position(begin_move_sensor:get_position())
+end
+
+local function test_command_events(cont)
+  local command_state = sol.state.create("commands")
+  hero:start_state(command_state)
+  local test_event = make_test_event_utility(command_state)
+  test_event("on_command_pressed receive commands",
+             "on_command_pressed",
+             "right")
+  game:simulate_command_pressed("right")
+  later(function()
+      test_event("on_command_released receive commands",
+                 "on_command_released",
+                 "right")
+      game:simulate_command_released("right")
+      later(function()
+          command_state:collect_events()
+          cont()
+      end)
+  end)
+end
+
+local function test_key_events(cont)
+  local key_state = sol.state.create("keys")
+  hero:start_state(key_state)
+  local test_event = make_test_event_utility(key_state)
+  local key = "A"
+  test_event("on_key_pressed receive keys",
+             "on_key_pressed",
+             key)
+  sol.input.simulate_key_pressed(key)
+  later(function()
+      test_event("on_key_released receive keys",
+                 "on_key_released",
+                 key)
+      sol.input.simulate_key_released(key)
+      later(function()
+          key_state:collect_events()
+          cont()
+      end)
+  end)
+end
+
+local function test_map_change(cont)
+  local map_state = sol.state.create("map")
+  hero:start_state(map_state)
+  local test_event = make_test_event_utility(map_state)
+  test_event("on_map_finished is called when map is leaved",
+             "on_map_finished",
+             map)
+  test_event("on_map_changed is called when changing map",
+             "on_map_changed")
+  test_event("on_map_started is called when new map starts",
+             "on_map_started")
+  hero:teleport("custom_state/end_map")
 end
 
 -- Event called at initialization time, as soon as this map is loaded.
 function map:on_started()
   testtest()
 
-  --test_interface_presence()
-  --test_state_methods_presence()
+  test_interface_presence()
+  test_state_methods_presence()
 
-  --TODO decomment to enable event checking
-  --test_start_state()
+  test_start_state()
 
-  sol.main.exit()
+  --sol.main.exit()
+end
+
+--create a chain of tests of the form test(cont)
+local function test_chain(test,...)
+  local other_tests = {...}
+  if test then
+    test(function()
+        test_chain(unpack(other_tests))
+    end)
+  end
 end
 
 -- Event called after the opening transition effect of the map,
@@ -344,8 +490,13 @@ function map:on_opening_transition_finished()
   later(function()
       --Test if all events have been called
       early_test_state:collect_events()
-      function map:on_draw(dst)
-
-      end
+      test_chain(
+        test_pause_events,
+        test_state_methods,
+        test_command_events,
+        test_key_events,
+        test_move_events,
+        test_map_change
+      )
   end)
 end
