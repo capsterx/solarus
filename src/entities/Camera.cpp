@@ -265,7 +265,7 @@ void Camera::create_surface() {
  * \brief Returns the surface where this camera draws entities.
  * \return The camera surface.
  */
-const SurfacePtr& Camera::get_surface() {
+const SurfacePtr& Camera::get_surface() const {
   return surface;
 }
 

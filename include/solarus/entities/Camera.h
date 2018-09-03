@@ -54,7 +54,7 @@ class Camera : public Entity {
     void notify_movement_started() override;
     void notify_size_changed() override;
 
-    const SurfacePtr& get_surface();
+    const SurfacePtr& get_surface() const;
 
     Point get_position_on_screen() const;
     void set_position_on_screen(const Point& position_on_screen);
