@@ -273,6 +273,10 @@ void Teletransporter::notify_collision(Entity& entity_overlapping, CollisionMode
  */
 void Teletransporter::transport_hero(Hero& hero) {
 
+  if (!is_enabled() || is_being_removed()) {
+    return;
+  }
+
   if (transporting_hero) {
     // already done
     return;
@@ -320,6 +324,12 @@ void Teletransporter::transport_hero(Hero& hero) {
 
   get_lua_context()->teletransporter_on_activated(*this);
 
+  if (!is_enabled() || is_being_removed()) {
+    // The teletransporter was just disabled: abort the teletransportation.
+    transporting_hero = false;
+    return;
+  }
+
   if (!sound_id.empty()) {
     Sound::play(sound_id);
   }
@@ -327,7 +337,6 @@ void Teletransporter::transport_hero(Hero& hero) {
   get_game().set_current_map(destination_map_id, name, transition_style);
   transporting_hero = false;
   hero.set_xy(hero_x, hero_y);
-
 }
 
 }

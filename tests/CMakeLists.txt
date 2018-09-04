@@ -104,6 +104,7 @@ set(lua_test_maps
   "bugs/1228_crash_map_get_hero/1"
   "bugs/1230_entity_on_lifting"
   "bugs/1236_entity_timer_not_suspended"
+  "bugs/1266_teletransporter_on_activated_disable"
 )
 
 # Test that should not fail when there are errors.

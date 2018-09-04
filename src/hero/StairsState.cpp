@@ -213,7 +213,9 @@ void Hero::StairsState::update() {
         // there must be a teletransporter associated with these stairs,
         // otherwise the hero would get stuck into the walls
         std::shared_ptr<Teletransporter> teletransporter = hero.get_delayed_teletransporter();
-        if (teletransporter == nullptr) {
+        if (teletransporter == nullptr ||
+            !teletransporter->is_enabled() ||
+            teletransporter->is_being_removed()) {
           Logger::error("Teletransporter expected with the stairs");
         }
         else {
