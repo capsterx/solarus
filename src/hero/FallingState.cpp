@@ -71,7 +71,9 @@ void Hero::FallingState::update() {
 
     // the hero has just finished falling
     std::shared_ptr<Teletransporter> teletransporter = hero.get_delayed_teletransporter();
-    if (teletransporter != nullptr) {
+    if (teletransporter != nullptr &&
+        teletransporter->is_enabled() &&
+        !teletransporter->is_being_removed()) {
       // special hole with a teletransporter
       teletransporter->transport_hero(hero);
     }
