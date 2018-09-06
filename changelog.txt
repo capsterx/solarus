@@ -72,6 +72,7 @@ but does not introduce any incompatibility.
 New features:
 
 * Add a shader API.
+* Add a custom hero state API.
 * Add an event sol.video:on_draw(screen) to draw to the scaled screen (#1216).
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_game() (#1212).
