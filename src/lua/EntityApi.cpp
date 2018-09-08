@@ -193,7 +193,6 @@ void LuaContext::register_entity_module() {
       { "set_blinking", hero_api_set_blinking },
       { "is_invincible", hero_api_is_invincible },
       { "set_invincible", hero_api_set_invincible },
-      { "get_state", entity_api_get_state },
       { "freeze", hero_api_freeze },
       { "unfreeze", hero_api_unfreeze },
       { "walk", hero_api_walk },  // TODO use the more general movement:start
@@ -207,6 +206,8 @@ void LuaContext::register_entity_module() {
       { "start_hookshot", hero_api_start_hookshot },
       { "start_running", hero_api_start_running },
       { "start_hurt", hero_api_start_hurt },
+      { "get_state", entity_api_get_state },
+      { "get_custom_state", hero_api_get_custom_state },
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     hero_methods.insert(hero_methods.end(), {
@@ -2794,11 +2795,31 @@ int LuaContext::hero_api_start_state(lua_State* l) {
     std::shared_ptr<CustomState> state = check_state(l, 2);
 
     if (state->has_entity()) {
-      LuaTools::arg_error(l, 1, "This state is already used");
+      LuaTools::arg_error(l, 1, "This state is already active");
     }
     hero.start_custom_state(state);
 
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:get_custom_state().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_get_custom_state(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Hero& hero = *check_hero(l, 1);
+
+    if (hero.get_state_name() != "custom") {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, static_cast<CustomState&>(hero.get_state()));
+    }
+    return 1;
   });
 }
 

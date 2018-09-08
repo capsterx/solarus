@@ -24,10 +24,10 @@ end
 
 local function test_interface_presence()
   --Test for api functions
-  assert_method(sol.state,"create","function")
+  assert_method(sol.state, "create","function")
   --Test for api methods
-  assert_method(hero_meta,"start_state")
-  assert_method(hero_meta,"get_state")
+  assert_method(hero_meta, "start_state")
+  assert_method(hero_meta, "get_state")
   assert_method(hero_meta, "get_custom_state")
 end
 
@@ -485,7 +485,7 @@ end
 -- that is, when the player takes control of the hero.
 function map:on_opening_transition_finished()
   local early_test_state = hero:get_custom_state()
-  assert_equal(sol.main.get_type(early_test_state), "custom_state")
+  assert_equal(sol.main.get_type(early_test_state), "state")
 
   later(function()
       --Test if all events have been called
