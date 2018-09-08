@@ -1535,7 +1535,7 @@ bool Entity::is_visible() const {
 
 /**
  * \brief Sets whether this entity is visible.
- * \param visible true to make it visible
+ * \param visible \c true to make it visible.
  */
 void Entity::set_visible(bool visible) {
   this->visible = visible;
@@ -3687,13 +3687,33 @@ bool Entity::is_drawn_at_its_position() const {
 }
 
 /**
- * \brief Draws the entity on the map.
+ * \brief Draws this entity on the map, including the Lua draw events.
+ */
+void Entity::draw(Camera& camera) {
+
+  if (!is_visible()) {
+    return;
+  }
+  if (get_state() != nullptr && !get_state()->is_visible()) {
+    return;
+  }
+
+  get_lua_context()->entity_on_pre_draw(*this, camera);
+  // TODO call draw override if any.
+  built_in_draw(camera);
+  get_lua_context()->entity_on_post_draw(*this, camera);
+}
+
+/**
+ * \brief Built-in implementation of drawing the entity on the map.
  *
  * By default, this function draws the entity's sprites (if any) and if
  * at least one of them is in the visible part of the map.
- * This function should do nothing if is_drawn() is false.
+ * Subclasses can reimplement this method to draw differently.
+ *
+ * Lua scripts can replace this built-in draw with entity:set_draw_override().
  */
-void Entity::draw_on_map() {
+void Entity::built_in_draw(Camera& /* camera */) {
 
   const Point& xy = get_displayed_xy();
   const Size& size = get_size();

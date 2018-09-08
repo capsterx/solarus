@@ -475,20 +475,18 @@ void CarriedObject::notify_obstacle_reached() {
 }
 
 /**
- * \brief Draws the carried object on the map.
+ * \copydoc Entity::built_in_draw
  *
- * This is a redefinition of Entity::draw_on_map()
- * to draw the shadow independently of the item movement.
+ * This is a redefinition to draw the shadow independently of the movement.
  */
-void CarriedObject::draw_on_map() {
+void CarriedObject::built_in_draw(Camera& camera) {
 
   if (!is_throwing) {
-    // draw the sprite normally
-    Entity::draw_on_map();
+    // Draw the sprite normally.
+    Entity::built_in_draw(camera);
   }
   else {
-    // when the item is being thrown, draw the shadow and the item separately
-    // TODO: this could probably be simplified by using a JumpMovement
+    // When the item is being thrown, draw the shadow and the item separately.
     get_map().draw_visual(*shadow_sprite, get_xy());
     get_map().draw_visual(*main_sprite, get_x(), get_y() - item_height);
   }

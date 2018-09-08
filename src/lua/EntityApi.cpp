@@ -6491,15 +6491,16 @@ void LuaContext::entity_on_disabled(Entity& entity) {
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param camera The camera where to draw the entity.
  */
-void LuaContext::entity_on_pre_draw(Entity& entity) {
+void LuaContext::entity_on_pre_draw(Entity& entity, Camera& camera) {
 
   if (!userdata_has_field(entity, "on_pre_draw")) {
     return;
   }
 
   push_entity(l, entity);
-  on_pre_draw();
+  on_pre_draw(camera);
   lua_pop(l, 1);
 }
 
@@ -6509,15 +6510,16 @@ void LuaContext::entity_on_pre_draw(Entity& entity) {
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param camera The camera where to draw the entity.
  */
-void LuaContext::entity_on_post_draw(Entity& entity) {
+void LuaContext::entity_on_post_draw(Entity& entity, Camera& camera) {
 
   if (!userdata_has_field(entity, "on_post_draw")) {
     return;
   }
 
   push_entity(l, entity);
-  on_post_draw();
+  on_post_draw(camera);
   lua_pop(l, 1);
 }
 

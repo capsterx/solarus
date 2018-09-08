@@ -83,28 +83,24 @@ bool DynamicTile::is_drawn_at_its_position() const {
 }
 
 /**
- * \brief Draws the tile on the map.
+ * \copydoc Entity::built_in_draw
  */
-void DynamicTile::draw_on_map() {
+void DynamicTile::built_in_draw(Camera& camera) {
 
-  const CameraPtr& camera = get_map().get_camera();
-  if (camera == nullptr) {
-    return;
-  }
-  const Rectangle& camera_position = camera->get_bounding_box();
+  const Rectangle& camera_position = camera.get_bounding_box();
 
   Rectangle dst_position(get_top_left_x() - camera_position.get_x(),
       get_top_left_y() - camera_position.get_y(),
       get_width(), get_height());
 
   tile_pattern.fill_surface(
-      get_map().get_camera_surface(),
+      camera.get_surface(),
       dst_position,
       tileset,
       camera_position.get_xy()
   );
 
-  Entity::draw_on_map();
+  Entity::built_in_draw(camera);
 }
 
 }

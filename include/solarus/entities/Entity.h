@@ -39,6 +39,7 @@ namespace Solarus {
 
 class Block;
 class Bomb;
+class Camera;
 class Chest;
 class CommandsEffects;
 class Crystal;
@@ -378,7 +379,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_suspended() const;
     virtual void set_suspended(bool suspended);
     virtual void update();
-    virtual void draw_on_map();
+    void draw(Camera& camera);
+    virtual void built_in_draw(Camera& camera);
 
     // Easy access to various game objects.
     Entities& get_entities();

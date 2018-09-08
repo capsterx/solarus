@@ -53,8 +53,8 @@ class Tile: public Entity {
 
     EntityType get_type() const override;
     bool is_drawn_at_its_position() const override;
-    void draw_on_map() override;
-    void draw(const SurfacePtr& dst_surface, const Point& viewport);
+    void built_in_draw(Camera& camera) override;
+    void draw_on_surface(const SurfacePtr& dst_surface, const Point& viewport);
     const TilePattern& get_tile_pattern() const;
     const std::string& get_tile_pattern_id() const;
     bool is_animated() const;

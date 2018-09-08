@@ -1256,16 +1256,6 @@ void CustomEntity::update() {
 }
 
 /**
- * \copydoc Entity::draw_on_map
- */
-void CustomEntity::draw_on_map() {
-
-  get_lua_context()->entity_on_pre_draw(*this);
-  Entity::draw_on_map();
-  get_lua_context()->entity_on_post_draw(*this);
-}
-
-/**
  * \brief Returns whether this entity is affected by streams.
  * \return \c true if this entity follows streams.
  */

@@ -399,8 +399,8 @@ class LuaContext {
     void entity_on_removed(Entity& entity);
     void entity_on_enabled(Entity& entity);
     void entity_on_disabled(Entity& entity);
-    void entity_on_pre_draw(Entity& entity);
-    void entity_on_post_draw(Entity& entity);
+    void entity_on_pre_draw(Entity& entity, Camera& camera);
+    void entity_on_post_draw(Entity& entity, Camera& camera);
     void entity_on_position_changed(Entity& entity, const Point& xy, int layer);
     void entity_on_obstacle_reached(Entity& entity, Movement& movement);
     void entity_on_movement_started(Entity& entity, Movement& movement);
@@ -1425,8 +1425,8 @@ class LuaContext {
     void on_enabled();
     void on_disabled();
     void on_restarted();
-    void on_pre_draw();
-    void on_post_draw();
+    void on_pre_draw(Camera& camera);
+    void on_post_draw(Camera& camera);
     void on_position_changed(const Point& xy, int layer);
     void on_obstacle_reached(Movement& movement);
     void on_movement_started(Movement& movement);

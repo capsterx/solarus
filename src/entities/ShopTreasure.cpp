@@ -208,34 +208,29 @@ void ShopTreasure::update() {
 }
 
 /**
- * \brief Draws the entity on the map.
+ * \copydoc Entity::built_in_draw
  */
-void ShopTreasure::draw_on_map() {
+void ShopTreasure::built_in_draw(Camera& camera) {
 
-  const CameraPtr& camera = get_map().get_camera();
-  if (camera == nullptr) {
-    return;
-  }
-
-  const SurfacePtr& map_surface = get_map().get_camera_surface();
+  const SurfacePtr& camera_surface = camera.get_surface();
   int x = get_x();
   int y = get_y();
 
   // draw the treasure
-  treasure_sprite->draw(map_surface,
-      x + 16 - camera->get_top_left_x(),
-      y + 13 - camera->get_top_left_y()
+  treasure_sprite->draw(camera_surface,
+      x + 16 - camera.get_top_left_x(),
+      y + 13 - camera.get_top_left_y()
   );
 
   // also draw the price
-  price_digits.draw(map_surface,
-      x + 12 - camera->get_top_left_x(),
-      y + 21 - camera->get_top_left_y());
-  rupee_icon_sprite->draw(map_surface,
-      x - camera->get_top_left_x(),
-      y + 22 - camera->get_top_left_y());
+  price_digits.draw(camera_surface,
+      x + 12 - camera.get_top_left_x(),
+      y + 21 - camera.get_top_left_y());
+  rupee_icon_sprite->draw(camera_surface,
+      x - camera.get_top_left_x(),
+      y + 22 - camera.get_top_left_y());
 
-  Entity::draw_on_map();
+  Entity::built_in_draw(camera);
 }
 
 }

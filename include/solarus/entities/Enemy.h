@@ -166,7 +166,6 @@ class Enemy: public Entity {
     // enemy state
     void update() override;
     void set_suspended(bool suspended) override;
-    void draw_on_map() override;
 
     void notify_enabled(bool enabled) override;
     void notify_ground_below_changed() override;

@@ -2804,21 +2804,25 @@ void LuaContext::on_restarted() {
 
 /**
  * \brief Calls the on_pre_draw() method of the object on top of the stack.
+ * \param camera The camera where to draw.
  */
-void LuaContext::on_pre_draw() {
+void LuaContext::on_pre_draw(Camera& camera) {
 
   if (find_method("on_pre_draw")) {
-    call_function(1, 0, "on_pre_draw");
+    push_camera(l, camera);
+    call_function(2, 0, "on_pre_draw");
   }
 }
 
 /**
  * \brief Calls the on_post_draw() method of the object on top of the stack.
+ * \param camera The camera where to draw.
  */
-void LuaContext::on_post_draw() {
+void LuaContext::on_post_draw(Camera& camera) {
 
   if (find_method("on_post_draw")) {
-    call_function(1, 0, "on_post_draw");
+    push_camera(l, camera);
+    call_function(2, 0, "on_post_draw");
   }
 }
 

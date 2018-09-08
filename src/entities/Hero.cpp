@@ -425,17 +425,12 @@ void Hero::check_gameover() {
 }
 
 /**
- * \brief Draws this entity on the map.
- *
- * This function should draw the entity only if is_visible() returns true.
- * The hero is drawn with its current animation and at its current position.
+ * \copydoc Entity::built_in_draw
  */
-void Hero::draw_on_map() {
+void Hero::built_in_draw(Camera& /* camera */) {
 
-  if (get_state()->is_visible()) {
-    // The state may call get_sprites()->draw_on_map() or make its own drawings.
-    get_state()->draw_on_map();
-  }
+  // The state may call get_sprites()->draw_on_map() or make its own drawings.
+  get_state()->draw_on_map();
 }
 
 /**

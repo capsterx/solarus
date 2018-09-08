@@ -76,7 +76,7 @@ class ShopTreasure: public Entity {
     bool notify_action_command_pressed() override;
 
     void update() override;
-    void draw_on_map() override;
+    void built_in_draw(Camera& camera) override;
 
   private:
 

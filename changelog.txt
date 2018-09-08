@@ -86,6 +86,8 @@ New features:
 * Add methods entity:is/set_drawn_in_y_order() to all entities (#1098, #1173).
 * Add events entity:on_enabled/disabled() to all entities (#898).
 * Add event entity:on_suspended() to all entities (#1261).
+* Add events entity:on_pre/post_draw(camera) to all entities (#1260).
+* Add parameter camera to event entity:on_pre/post_draw() (#1260).
 * Add methods entity:get/set_weight() to all entities to lift them (#1227).
 * Add methods entity:get_property() and entity:set_property() (#1094).
 * Add methods entity:get_properties() and entity:set_properties() (#1144).

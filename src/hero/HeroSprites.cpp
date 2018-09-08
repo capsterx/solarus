@@ -917,7 +917,7 @@ void HeroSprites::draw_on_map() {
   }
 
   if (lifted_item != nullptr) {
-    lifted_item->draw_on_map();
+    lifted_item->draw(*map.get_camera());
   }
 }
 
