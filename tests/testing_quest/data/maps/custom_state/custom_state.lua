@@ -34,11 +34,12 @@ end
 
 local function test_state_methods_presence()
   local methods = {
-    "get_name",
+    "get_description",
+    "set_description",
     "get_entity",
     "get_map",
     "get_game",
-    "is_current",
+    "is_started",
     "is_stopping",
     "is_visible",
     "set_visible",
@@ -48,10 +49,8 @@ local function test_state_methods_presence()
     "set_direction_locked",
     "get_can_control_movement",
     "set_can_control_movement",
-    "get_wanted_movement_direction8",
-    "set_wanted_movement_direction8",
-    "get_can_avoid_bad_ground",
-    "set_can_avoid_bad_ground",
+    "is_affected_by_ground",
+    "set_affected_by_ground",
     "get_is_touching_ground",
     "set_is_touching_ground",
     "get_can_come_from_bad_ground",
@@ -60,16 +59,14 @@ local function test_state_methods_presence()
     "set_are_collision_ignored",
     "get_can_traverse_ground",
     "set_can_traverse_ground",
-    --"get_can_avoid",
-    --"set_can_avoid",
+    "is_affected_by",
+    "set_affected_by",
     "get_can_traverse",
     "set_can_traverse",
     "is_teletransporter_delayed",
     "set_teletransporter_delayed",
     "get_can_persist_on_stream",
     "set_can_persist_on_stream",
-    "get_sword_damage_factor",
-    "set_sword_damage_factor",
     "get_can_be_hurt",
     "set_can_be_hurt",
     "get_can_use_sword",
@@ -84,8 +81,8 @@ local function test_state_methods_presence()
     "set_can_take_stairs",
     "get_can_take_jumper",
     "set_can_take_jumper",
-    "get_previous_carried_object_behaviour",
-    "set_previous_carried_object_behaviour",
+    "get_previous_carried_object_behavior",
+    "set_previous_carried_object_behavior",
   }
 
   --test if all method are present in the test state
@@ -136,12 +133,12 @@ local function test_state_methods(cont)
 
   test("creating blank state",
        function()
-         state = sol.state.create("test_name")
+         state = sol.state.create("test_description")
   end)
 
-  test("getting state name",
-       function () return state:get_name() end,
-       "test_name")
+  test("getting state description",
+       function() return state:get_description() end,
+       "test_description")
 
   test("start blank state",
        function() hero:start_state(state) end)
@@ -159,8 +156,8 @@ local function test_state_methods(cont)
        function() return state:get_game() end,
        game)
 
-  test("state is current",
-       function() return state:is_current() end,
+  test("state is started",
+       function() return state:is_started() end,
        true)
 
   test("state is not stopping",
@@ -175,14 +172,14 @@ local function test_state_methods(cont)
        end,
        true)
 
-  test("old state is not current",
-       function() return old_state:is_current() end,
+  test("old state is not started",
+       function() return old_state:is_started() end,
        false)
 
   --wait a bit
   later(function()
-      test("after a while new state is current",
-           function() return state:is_current() end,
+      test("after a while new state is started",
+           function() return state:is_started() end,
            true)
 
       --test the given setter with several values
@@ -213,13 +210,11 @@ local function test_state_methods(cont)
       test_setis("direction_locked",true,false)
 
       test_setget("can_control_movement",true,false)
-      test_setget("wanted_movement_direction8",0,1,2,3,4,5,6,7)
-      --test_setget("can_avoid_bad_ground","empty","deep_water","lava","hole","ice","prickles")
-      --test_setget("can_come_from_bad_ground",true,false)
+      test_setis("affected_by_ground","empty","deep_water","lava","hole","ice","prickles")
+      test_setget("can_come_from_bad_ground",true,false)
       test_setget("are_collisions_ignored",true,false)
       test_setis("teletransporter_delayed",true,false)
       test_setget("can_persist_on_stream",true,false)
-      test_setget("sword_damage_factor",1,2,3,4)
       test_setget("can_be_hurt",true,false)
       test_setget("can_use_sword",true,false)
       test_setget("can_use_shield",true,false)
@@ -227,7 +222,7 @@ local function test_state_methods(cont)
       test_setget("can_pick_treasure",true,false)
       test_setget("can_take_stairs",true,false)
       test_setget("can_take_jumper",true,false)
-      test_setget("previous_carried_object_behaviour","throw","destroy","keep")
+      test_setget("previous_carried_object_behavior","throw","destroy","keep")
 
       cont()
   end)

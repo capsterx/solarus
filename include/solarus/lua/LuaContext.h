@@ -1369,6 +1369,7 @@ class LuaContext {
     void on_opening_transition_finished(Destination* destination);
     void on_obtaining_treasure(const Treasure& treasure);
     void on_obtained_treasure(const Treasure& treasure);
+    void on_state_changing(const std::string& state_name);
     void on_state_changed(const std::string& state_name);
     bool on_taking_damage(int damage);
     void on_activating();

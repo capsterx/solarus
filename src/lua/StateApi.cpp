@@ -100,9 +100,9 @@ void LuaContext::push_state(lua_State* l, CustomState& state) {
 int LuaContext::state_api_create(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
-    const std::string& name = LuaTools::opt_string(l, 1, "");
+    const std::string& description = LuaTools::opt_string(l, 1, "");
 
-    std::shared_ptr<CustomState> state = std::make_shared<CustomState>(name);
+    std::shared_ptr<CustomState> state = std::make_shared<CustomState>(description);
 
     push_state(l, *state);
     return 1;

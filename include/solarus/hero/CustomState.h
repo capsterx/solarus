@@ -35,8 +35,11 @@ class CustomState: public HeroState {
 
   public:
 
-    explicit CustomState(const std::string& name);
+    explicit CustomState(const std::string& description);
     const std::string& get_lua_type_name() const override;
+
+    const std::string& get_description() const;
+    void set_description(const std::string& description);
 
     bool get_can_control_direction() const;
     void set_can_control_direction(bool can_control_direction);
@@ -64,7 +67,7 @@ class CustomState: public HeroState {
 
     void start_player_movement();
 
-    std::string name_;                      /**< Name of this state or an empty string. */
+    std::string description_;               /**< Description of this state or an empty string. */
     bool can_control_direction_;            /**< Whether the player controls the sprites direction. */
     bool can_control_movement_;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>

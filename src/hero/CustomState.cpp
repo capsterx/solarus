@@ -24,12 +24,12 @@ namespace Solarus {
 
 /**
  * \brief Constructor.
- * \param name Name of this state or an empty string.
+ * \param description Description of this state or an empty string.
  */
 CustomState::CustomState(
-    const std::string& name):
+    const std::string& description):
   HeroState("custom"),
-  name_(name),
+  description_(description),
   can_control_direction_(true),
   can_control_movement_(true),
   player_movement_(),
@@ -43,6 +43,22 @@ CustomState::CustomState(
  */
 const std::string& CustomState::get_lua_type_name() const {
   return LuaContext::state_module_name;
+}
+
+/**
+ * \brief Returns the description of this state.
+ * \return The description or an empty string.
+ */
+const CustomState::std::string& get_description() const {
+  return description;
+}
+
+/**
+ * \brief Sets the description of this state.
+ * \param description The description or an empty string.
+ */
+void CustomState::set_description(const std::string& description) {
+  this->description = description;
 }
 
 /**
