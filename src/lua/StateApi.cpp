@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/CurrentQuest.h"
+#include "solarus/core/Game.h"
+#include "solarus/core/Map.h"
 #include "solarus/entities/GroundInfo.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -43,6 +45,13 @@ void LuaContext::register_state_module() {
 
   // Methods of the state type.
   const std::vector<luaL_Reg> methods = {
+    { "get_description", state_api_get_description },
+    { "set_description", state_api_set_description },
+    { "get_entity", state_api_get_entity },
+    { "get_map", state_api_get_map },
+    { "get_game", state_api_get_game },
+    { "is_started", state_api_is_started },
+    { "is_stopping", state_api_is_stopping },
     { "get_can_control_direction", state_api_get_can_control_direction },
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
@@ -105,6 +114,159 @@ int LuaContext::state_api_create(lua_State* l) {
     std::shared_ptr<CustomState> state = std::make_shared<CustomState>(description);
 
     push_state(l, *state);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_description().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_description(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    const std::string& description = state.get_description();
+    if (description.empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_string(l, description);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_description().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_description(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    std::string description;
+    if (lua_isstring(l, 2)) {
+      description = LuaTools::check_string(l, 2);
+    }
+    else if (!lua_isnil(l, 2)) {
+      LuaTools::type_error(l, 2, "string or nil");
+    }
+
+    state.set_description(description);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_entity().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_entity(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    if (!state.has_entity()) {
+      lua_pushnil(l);
+    }
+    else {
+      Entity& entity = state.get_entity();
+      push_entity(l, entity);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_map().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_map(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    if (!state.has_entity()) {
+      lua_pushnil(l);
+    }
+    else {
+      Entity& entity = state.get_entity();
+      if (!entity.is_on_map()) {
+        lua_pushnil(l);
+      }
+      else {
+        push_map(l, entity.get_map());
+      }
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_game().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_game(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    if (!state.has_entity()) {
+      lua_pushnil(l);
+    }
+    else {
+      Entity& entity = state.get_entity();
+      if (!entity.is_on_map()) {
+        lua_pushnil(l);
+      }
+      else {
+        Map& map = entity.get_map();
+        if (!map.is_game_running()) {
+          lua_pushnil(l);
+        }
+        else {
+          push_game(l, map.get_game().get_savegame());
+        }
+      }
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_started().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_started(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.is_current_state());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_stopping().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_stopping(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.is_stopping());
     return 1;
   });
 }

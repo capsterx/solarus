@@ -1143,6 +1143,13 @@ class LuaContext {
 
       // State API.
       state_api_create,
+      state_api_get_description,
+      state_api_set_description,
+      state_api_get_entity,
+      state_api_get_map,
+      state_api_get_game,
+      state_api_is_started,
+      state_api_is_stopping,
       state_api_get_can_control_direction,
       state_api_set_can_control_direction,
       state_api_get_can_control_movement,

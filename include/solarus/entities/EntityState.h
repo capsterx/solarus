@@ -50,6 +50,8 @@ class Entity::State : public ExportableToLua {
     void set_entity(Entity& entity);
     bool has_entity() const;
 
+    bool is_current_state() const;
+    bool is_stopping() const;
     virtual void start(const State* previous_state);
     virtual void stop(const State* next_state);
 
@@ -154,9 +156,6 @@ class Entity::State : public ExportableToLua {
   protected:
 
     explicit State(const std::string& state_name);
-
-    bool is_current_state() const;
-    bool is_stopping() const;
 
     // access to various game objects
     LuaContext& get_lua_context();
