@@ -152,6 +152,8 @@ void LuaContext::register_entity_module() {
         { "set_layer", entity_api_set_layer },
         { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
+        { "get_draw_override", entity_api_get_draw_override },
+        { "set_draw_override", entity_api_set_draw_override },
         { "get_weight", entity_api_get_weight },
         { "set_weight", entity_api_set_weight },
         { "get_controlling_stream", entity_api_get_controlling_stream },
@@ -827,6 +829,23 @@ void LuaContext::push_named_sprite_iterator(
   // 3 upvalues: sprites table, size, current index.
 
   lua_pushcclosure(l, l_named_sprite_iterator_next, 3);
+}
+
+/**
+ * \brief Calls the draw override function of an entity.
+ * \param draw_override The draw override function.
+ * \param entity The entity to draw.
+ * \param camera The camera where to draw the entity.
+ */
+void LuaContext::do_entity_draw_override_function(
+    const ScopedLuaRef& draw_override,
+    Entity& entity,
+    Camera& camera
+) {
+  push_ref(l, draw_override);
+  push_entity(l, entity);
+  push_camera(l, camera);
+  call_function(2, 0, "entity draw override");
 }
 
 /**
@@ -1666,6 +1685,52 @@ int LuaContext::entity_api_set_visible(lua_State* l) {
     bool visible = LuaTools::opt_boolean(l, 2, true);
 
     entity.set_visible(visible);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of entity:get_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_draw_override(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+
+    ScopedLuaRef draw_override = entity.get_draw_override();
+    if (draw_override.is_empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_ref(l, draw_override);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_draw_override(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    ScopedLuaRef draw_override;
+    if (lua_gettop(l) >= 2) {
+      if (lua_isfunction(l, 2)) {
+        draw_override = LuaTools::check_function(l, 2);
+      }
+      else if (!lua_isnil(l, 2)) {
+        LuaTools::type_error(l, 2, "function or nil");
+      }
+    }
+
+    entity.set_draw_override(draw_override);
 
     return 0;
   });

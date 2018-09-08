@@ -106,6 +106,7 @@ set(lua_test_maps
   "bugs/1230_entity_on_lifting"
   "bugs/1236_entity_timer_not_suspended"
   "bugs/1247_hero_state_changing"
+  "bugs/1260_entity_draw_override"
   "bugs/1261_entity_on_suspended"
   "bugs/1262_state_timers"
   "bugs/1264_sprite_is_animation_started"

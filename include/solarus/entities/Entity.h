@@ -229,6 +229,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
     void update_sprite(Sprite& sprite);
+    ScopedLuaRef get_draw_override() const;
+    void set_draw_override(const ScopedLuaRef& draw_override);
 
     // Movement.
     const std::shared_ptr<Movement>& get_movement();
@@ -494,6 +496,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool visible;                               /**< Whether this entity's sprites are currently displayed. */
     bool tiled;                                 /**< Whether sprites should be repeated with tiling. */
     bool drawn_in_y_order;                      /**< Whether this entity is drawn in Y order or in Z order. */
+    ScopedLuaRef draw_override;                 /**< Lua function that draws this entity, if any. */
     std::shared_ptr<Movement> movement;         /**< Movement of the entity.
                                                  * nullptr indicates that the entity has no movement. */
     std::vector<std::shared_ptr<Movement>>

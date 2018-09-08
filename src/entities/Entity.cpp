@@ -38,6 +38,7 @@
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/SpriteAnimationSet.h"
 #include "solarus/lua/LuaContext.h"
+#include "solarus/lua/LuaTools.h"
 #include "solarus/movements/Movement.h"
 #include <algorithm>
 #include <iterator>
@@ -76,6 +77,7 @@ Entity::Entity(
   visible(true),
   tiled(false),
   drawn_in_y_order(false),
+  draw_override(),
   movement(nullptr),
   movement_notifications_enabled(true),
   facing_entity(nullptr),
@@ -3699,8 +3701,12 @@ void Entity::draw(Camera& camera) {
   }
 
   get_lua_context()->entity_on_pre_draw(*this, camera);
-  // TODO call draw override if any.
-  built_in_draw(camera);
+  if (draw_override.is_empty()) {
+    built_in_draw(camera);
+  }
+  else {
+    get_lua_context()->do_entity_draw_override_function(draw_override, *this, camera);
+  }
   get_lua_context()->entity_on_post_draw(*this, camera);
 }
 
@@ -3743,6 +3749,22 @@ void Entity::built_in_draw(Camera& /* camera */) {
       }
     }
   }
+}
+
+/**
+ * \brief Returns the Lua draw function of this entity if any.
+ * \return The draw override or an empty ref.
+ */
+ScopedLuaRef Entity::get_draw_override() const {
+  return draw_override;
+}
+
+/**
+ * \brief Sets the Lua draw function of this entity.
+ * \param draw_override The draw override or an empty ref.
+ */
+void Entity::set_draw_override(const ScopedLuaRef& draw_override) {
+  this->draw_override = draw_override;
 }
 
 /**

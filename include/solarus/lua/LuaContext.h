@@ -182,6 +182,7 @@ class LuaContext {
         const std::string& function_name,
         const std::string& message
     );
+    static void print_stack(lua_State* l);
 
     // Lua refs.
     ScopedLuaRef create_ref();
@@ -265,6 +266,11 @@ class LuaContext {
     static const std::string& get_entity_internal_type_name(EntityType entity_type);
     bool create_map_entity_from_data(Map& map, const EntityData& entity_data);
 
+    void do_entity_draw_override_function(
+        const ScopedLuaRef& draw_override,
+        Entity& entity,
+        Camera& camera
+    );
     bool do_custom_entity_traversable_test_function(
         const ScopedLuaRef& traversable_test_ref,
         CustomEntity& custom_entity,
@@ -942,6 +948,8 @@ class LuaContext {
       entity_api_bring_sprite_to_back,
       entity_api_is_visible,
       entity_api_set_visible,
+      entity_api_get_draw_override,
+      entity_api_set_draw_override,
       entity_api_get_weight,
       entity_api_set_weight,
       entity_api_get_controlling_stream,
@@ -1181,7 +1189,6 @@ class LuaContext {
         const ExportableToLua& userdata, const char* key) const;
     bool find_method(int index, const char* function_name);
     bool find_method(const char* function_name);
-    void print_stack(lua_State* l);
     void print_lua_version();
 
     // Initialization of modules.

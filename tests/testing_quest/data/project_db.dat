@@ -39,6 +39,7 @@ map{ id = "bugs/1228_crash_map_get_hero/2", description = "Map 2" }
 map{ id = "bugs/1230_entity_on_lifting", description = "#1230: entity:on_lifting" }
 map{ id = "bugs/1236_entity_timer_not_suspended", description = "#1236: Entity timer continues when the map is suspended" }
 map{ id = "bugs/1247_hero_state_changing", description = "#1247: hero:on_state_changing()" }
+map{ id = "bugs/1260_entity_draw_override", description = "#1260: entity:get/set_draw_override()" }
 map{ id = "bugs/1261_entity_on_suspended", description = "#1261: entity:on_suspended()" }
 map{ id = "bugs/1262_state_timers", description = "#1262: state timers" }
 map{ id = "bugs/1264_sprite_is_animation_started", description = "#1264: sprite:is_animation_started(), sprite:stop_animation()" }
