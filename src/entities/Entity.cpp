@@ -3543,17 +3543,16 @@ void Entity::set_suspended(bool suspended) {
     stream_action->set_suspended(suspended || !is_enabled());
   }
 
-  // Suspend/unsuspend timers.
   if (is_on_map()) {
+    // Suspend/unsuspend timers.
     get_lua_context()->set_entity_timers_suspended_as_map(*this, suspended || !is_enabled());
-  }
 
-  if (!suspended) {
-    // Collision tests were disabled when the entity was suspended.
-    if (is_on_map()) {
+    if (!suspended) {
+      // Collision tests were disabled when the entity was suspended.
       get_map().check_collision_from_detector(*this);
       check_collision_with_detectors();
     }
+    get_lua_context()->entity_on_suspended(*this, suspended);
   }
 }
 

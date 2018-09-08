@@ -57,7 +57,6 @@ class SOLARUS_API CustomEntity: public Entity {
 
     // Game loop.
     void notify_creating() override;
-    void set_suspended(bool suspended) override;
     void update() override;
     void draw_on_map() override;
 
