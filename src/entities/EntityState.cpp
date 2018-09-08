@@ -142,7 +142,7 @@ Entities& Entity::State::get_entities() {
  * \return The Lua context where all scripts are run.
  */
 LuaContext& Entity::State::get_lua_context() {
-  return map->get_game().get_lua_context();
+  return *get_entity().get_lua_context();
 }
 
 /**
