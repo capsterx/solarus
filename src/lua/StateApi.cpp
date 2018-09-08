@@ -207,4 +207,49 @@ int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
   });
 }
 
+/**
+ * \brief Calls the on_started() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state The custom state that has just started.
+ * \param previous_state_name Name of the previous state.
+ * \param previous_state The previous state object if it was a custom one.
+ */
+void LuaContext::state_on_started(
+    CustomState& state,
+    const std::string& previous_state_name,
+    CustomState* previous_state) {
+
+  if (!userdata_has_field(state, "on_started")) {
+    return;
+  }
+
+  push_state(l, state);
+  on_started(previous_state_name, previous_state);
+  lua_pop(l, 1);
+}
+
+/**
+ * \brief Calls the on_finished() method of a custom state if it is defined.
+ *
+ * Also stops timers associated to the state.
+ *
+ * \param state The custom state that has just finished.
+ * \param next_state_name Name of the next state.
+ * \param next_state The next state object if it is a custom one.
+ */
+void LuaContext::state_on_finished(
+    CustomState& state,
+    const std::string& next_state_name,
+    CustomState* next_state) {
+
+  push_state(l, state);
+  if (userdata_has_field(state, "on_finished")) {
+    on_finished(next_state_name, next_state);
+  }
+  remove_timers(-1);  // Stop timers associated to this state.
+  lua_pop(l, 1);
+}
+
 }

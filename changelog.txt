@@ -92,11 +92,14 @@ New features:
 * Add methods entity:get_layer() and entity:set_layer().
 * Add a method entity:get_controlling_stream() (#1204).
 * Add optional sprite parameters to entity:overlaps() (#1159).
+* Add a method hero:get_carried_object().
+* Add an event hero:on_state_changing() (#1247).
+* Add an event camera:on_state_changing().
 * Add a method camera:get_surface() (#1265).
+* Add an event camera:on_state_changing().
 * Add methods door:open(), door:close() and door:set_open() (#1007).
 * Add methods stairs:get_direction() and stairs:is_inner() (#1037).
 * destructible:on_lifting() now gives a carried object parameter.
-* Add a method hero:get_carried_object().
 * Add methods carried_object:get/set_damage_on_enemies().
 * Add methods carried_object:get/set_destruction_sound().
 * Add property max_moves in map:create_block() replacing maximum_moves (#967).

@@ -400,7 +400,7 @@ class SOLARUS_API Entity: public ExportableToLua {
      */
     class State;                                /**< base class for all states */
 
-    State& get_state() const;
+    std::shared_ptr<State> get_state() const;
     void set_state(const std::shared_ptr<State>& state);
 
     std::string get_state_name() const;

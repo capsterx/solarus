@@ -2817,7 +2817,7 @@ int LuaContext::hero_api_get_custom_state(lua_State* l) {
       lua_pushnil(l);
     }
     else {
-      push_state(l, static_cast<CustomState&>(hero.get_state()));
+      push_state(l, *std::static_pointer_cast<CustomState>(hero.get_state()));
     }
     return 1;
   });

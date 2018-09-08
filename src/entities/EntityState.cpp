@@ -72,7 +72,7 @@ bool Entity::State::is_current_state() const {
     return false;
   }
 
-  return &entity->get_state() == this && !entity->get_state().is_stopping();
+  return entity->get_state().get() == this && !entity->get_state()->is_stopping();
 }
 
 /**

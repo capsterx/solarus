@@ -222,6 +222,17 @@ void CustomState::start(const State* previous_state) {
   if (get_can_control_movement()) {
     start_player_movement();
   }
+
+  std::string previous_state_name;
+  const CustomState* previous_custom_state = nullptr;
+  if (previous_state != nullptr) {
+    previous_state_name = previous_state->get_name();
+    if (previous_state_name == "custom") {
+      previous_custom_state = static_cast<const CustomState*>(previous_state);
+    }
+  }
+  get_lua_context().state_on_started(
+        *this, previous_state_name, const_cast<CustomState*>(previous_custom_state));  // TODO
 }
 
 /**
@@ -235,6 +246,17 @@ void CustomState::stop(const State* next_state) {
     get_entity().clear_movement();
   }
   player_movement_ = nullptr;
+
+  std::string next_state_name;
+  const CustomState* next_custom_state = nullptr;
+  if (next_state != nullptr) {
+    next_state_name = next_state->get_name();
+    if (next_state_name == "custom") {
+      next_custom_state = static_cast<const CustomState*>(next_state);
+    }
+  }
+  get_lua_context().state_on_finished(
+        *this, next_state_name, const_cast<CustomState*>(next_custom_state));  // TODO
 }
 
 /**

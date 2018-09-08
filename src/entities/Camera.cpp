@@ -363,7 +363,7 @@ EntityPtr Camera::get_tracked_entity() const {
     return nullptr;
   }
 
-  return static_cast<TrackingState&>(get_state()).get_tracked_entity();
+  return std::static_pointer_cast<TrackingState>(get_state())->get_tracked_entity();
 }
 
 /**
@@ -376,7 +376,7 @@ void Camera::notify_tracked_entity_traversing_separator(Separator& separator) {
     return;
   }
 
-  static_cast<TrackingState&>(get_state()).traverse_separator(separator);
+  std::static_pointer_cast<TrackingState>(get_state())->traverse_separator(separator);
 }
 
 /**
@@ -390,7 +390,7 @@ bool Camera::is_traversing_separator() const {
     return false;
   }
 
-  return static_cast<TrackingState&>(get_state()).is_traversing_separator();
+  return std::static_pointer_cast<TrackingState>(get_state())->is_traversing_separator();
 }
 
 /**

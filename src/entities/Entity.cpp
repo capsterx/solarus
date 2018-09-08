@@ -3729,8 +3729,8 @@ void Entity::draw_on_map() {
  * \brief Returns the current state of this entity.
  * \return The state.
  */
-Entity::State& Entity::get_state() const {
-    return *state.get();
+std::shared_ptr<Entity::State> Entity::get_state() const {
+    return state;
 }
 
 /**

@@ -143,7 +143,7 @@ EntityType Hero::get_type() const {
  * \return The carried object or nullptr.
  */
 std::shared_ptr<CarriedObject> Hero::get_carried_object() {
-  return get_state().get_carried_object();
+  return get_state()->get_carried_object();
 }
 
 /**
@@ -168,7 +168,7 @@ void Hero::set_suspended(bool suspended) {
   }
 
   sprites->set_suspended(suspended);
-  get_state().set_suspended(suspended);
+  get_state()->set_suspended(suspended);
 }
 
 /**
@@ -228,7 +228,7 @@ void Hero::update_movement() {
     return;
   }
 
-  if (on_raised_blocks && !get_state().is_touching_ground()) {
+  if (on_raised_blocks && !get_state()->is_touching_ground()) {
     // If the hero was already over raised blocks, keep it that way while he
     // is not touching ground.
   }
@@ -269,7 +269,7 @@ void Hero::update_ground_effects() {
         // TODO replace the dynamic_pointer_cast by a virtual method get_speed() in Movement.
         double speed = movement->get_speed();
         next_ground_date = now + std::max(150, (int) (20000 / speed));
-        if (sprites->is_walking() && get_state().is_touching_ground()) {
+        if (sprites->is_walking() && get_state()->is_touching_ground()) {
           sprites->play_ground_sound();
         }
       }
@@ -278,7 +278,7 @@ void Hero::update_ground_effects() {
     else {
 
       Ground ground = get_ground_below();
-      if (ground == Ground::HOLE && !get_state().can_avoid_hole()) {
+      if (ground == Ground::HOLE && !get_state()->can_avoid_hole()) {
         // the hero is being attracted by a hole and it's time to move one more pixel into the hole
 
         next_ground_date = now + 60;
@@ -296,7 +296,7 @@ void Hero::update_ground_effects() {
       else if (ground == Ground::ICE) {
 
         // Slide on ice.
-        if (!get_state().can_avoid_ice()) {
+        if (!get_state()->can_avoid_ice()) {
           apply_additional_ground_movement();
         }
 
@@ -418,7 +418,7 @@ void Hero::apply_additional_ground_movement() {
 void Hero::check_gameover() {
 
   if (get_equipment().get_life() <= 0 &&
-      get_state().can_start_gameover_sequence()) {
+      get_state()->can_start_gameover_sequence()) {
     sprites->stop_blinking();
     get_game().start_game_over();
   }
@@ -432,9 +432,9 @@ void Hero::check_gameover() {
  */
 void Hero::draw_on_map() {
 
-  if (get_state().is_visible()) {
+  if (get_state()->is_visible()) {
     // The state may call get_sprites()->draw_on_map() or make its own drawings.
-    get_state().draw_on_map();
+    get_state()->draw_on_map();
   }
 }
 
@@ -444,7 +444,7 @@ void Hero::draw_on_map() {
  * \param command The command pressed.
  */
 void Hero::notify_command_pressed(GameCommand command) {
-  get_state().notify_command_pressed(command);
+  get_state()->notify_command_pressed(command);
 }
 
 /**
@@ -453,7 +453,7 @@ void Hero::notify_command_pressed(GameCommand command) {
  * \param command The command released.
  */
 void Hero::notify_command_released(GameCommand command) {
-  get_state().notify_command_released(command);
+  get_state()->notify_command_released(command);
 }
 
 /**
@@ -537,7 +537,7 @@ void Hero::notify_creating() {
   Entity::notify_creating();
 
   // At this point the map is known and loaded. Notify the state.
-  get_state().set_map(get_map());
+  get_state()->set_map(get_map());
 }
 
 /**
@@ -549,7 +549,7 @@ void Hero::notify_map_started() {
   get_hero_sprites().notify_map_started();
 
   // At this point the map is known and loaded. Notify the state.
-  get_state().set_map(get_map());
+  get_state()->set_map(get_map());
 }
 
 /**
@@ -587,7 +587,7 @@ void Hero::place_on_map(Map& map) {
   reset_target_solid_ground_callback();
   get_hero_sprites().set_clipping_rectangle();
 
-  get_state().set_map(map);
+  get_state()->set_map(map);
 
   Entity::set_map(map);
 }
@@ -773,7 +773,7 @@ void Hero::notify_map_opening_transition_finished() {
     }
   }
   check_position();
-  if (get_state().is_touching_ground()) {  // Don't change the state during stairs.
+  if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
     start_state_from_ground();
   }
 }
@@ -923,7 +923,7 @@ bool Hero::can_control_movement() const {
     return false;
   }
 
-  return get_state().can_control_movement();
+  return get_state()->can_control_movement();
 }
 
 /**
@@ -963,7 +963,7 @@ void Hero::set_walking_speed(int walking_speed) {
 
   if (walking_speed != this->walking_speed) {
     this->walking_speed = walking_speed;
-    get_state().notify_walking_speed_changed();
+    get_state()->notify_walking_speed_changed();
   }
 }
 
@@ -976,7 +976,7 @@ void Hero::set_walking_speed(int walking_speed) {
  * \return the hero's wanted direction between 0 and 7, or -1 if he is stopped
  */
 int Hero::get_wanted_movement_direction8() const {
-  return get_state().get_wanted_movement_direction8();
+  return get_state()->get_wanted_movement_direction8();
 }
 
 /**
@@ -1079,14 +1079,14 @@ bool Hero::is_moving_towards(int direction4) const {
  * \return true if the animation direction is locked
  */
 bool Hero::is_direction_locked() const {
-  return get_state().is_direction_locked();
+  return get_state()->is_direction_locked();
 }
 
 /**
  * \brief This function is called when the movement of the entity is finished.
  */
 void Hero::notify_movement_finished() {
-  get_state().notify_movement_finished();
+  get_state()->notify_movement_finished();
 }
 
 /**
@@ -1097,7 +1097,7 @@ void Hero::notify_obstacle_reached() {
 
   Entity::notify_obstacle_reached();
 
-  get_state().notify_obstacle_reached();
+  get_state()->notify_obstacle_reached();
 
   if (get_ground_below() == Ground::ICE) {
     ground_dxy = { 0, 0 };
@@ -1115,7 +1115,7 @@ void Hero::notify_position_changed() {
   }
 
   check_position();
-  get_state().notify_position_changed();
+  get_state()->notify_position_changed();
 
   if (are_movement_notifications_enabled()) {
     get_lua_context()->entity_on_position_changed(*this, get_xy(), get_layer());
@@ -1135,7 +1135,7 @@ void Hero::check_position() {
     return;
   }
 
-  if (get_state().are_collisions_ignored()) {
+  if (get_state()->are_collisions_ignored()) {
     // Do not take care of the ground or detectors.
     return;
   }
@@ -1161,7 +1161,7 @@ void Hero::check_position() {
       && ground != Ground::LAVA
       && ground != Ground::PRICKLE
       && ground != Ground::EMPTY
-      && get_state().can_come_from_bad_ground()
+      && get_state()->can_come_from_bad_ground()
       && (get_xy() != last_solid_ground_coords)) {
 
     last_solid_ground_coords = get_xy();
@@ -1169,7 +1169,7 @@ void Hero::check_position() {
   }
 
   // With empty ground, possibly go to the lower layer.
-  if (ground == Ground::EMPTY && get_state().is_touching_ground()) {
+  if (ground == Ground::EMPTY && get_state()->is_touching_ground()) {
 
     int x = get_top_left_x();
     int y = get_top_left_y();
@@ -1183,7 +1183,7 @@ void Hero::check_position() {
 
       get_entities().set_entity_layer(*this, layer - 1);
       Ground new_ground = get_map().get_ground(get_layer(), x, y, this);
-      if (get_state().is_free() &&
+      if (get_state()->is_free() &&
           (new_ground == Ground::TRAVERSABLE
            || new_ground == Ground::GRASS
            || new_ground == Ground::LADDER)) {
@@ -1197,7 +1197,7 @@ void Hero::check_position() {
  * \brief This function is called when the layer of this entity has just changed.
  */
 void Hero::notify_layer_changed() {
-  get_state().notify_layer_changed();
+  get_state()->notify_layer_changed();
 }
 
 /**
@@ -1212,7 +1212,7 @@ void Hero::notify_movement_changed() {
   update_direction();
 
   // let the state pick the animation corresponding to the movement tried by the player
-  get_state().notify_movement_changed();
+  get_state()->notify_movement_changed();
   check_position();
 
   if (get_ground_below() == Ground::ICE) {
@@ -1256,12 +1256,12 @@ void Hero::notify_ground_below_changed() {
 
   case Ground::DEEP_WATER:
     // Deep water: plunge if the hero is not jumping.
-    if (!get_state().can_avoid_deep_water()) {
+    if (!get_state()->can_avoid_deep_water()) {
 
       if (suspended) {
         // During a transition, it is okay to start swimming
         // but we don't want to start plunging right now.
-        if (get_state().is_touching_ground()) {
+        if (get_state()->is_touching_ground()) {
           start_deep_water();
         }
       }
@@ -1275,14 +1275,14 @@ void Hero::notify_ground_below_changed() {
     // Hole: fall into the hole or get attracted to it.
     // But wait for the teletransporter opening transition to finish if any.
     if (!suspended
-        && !get_state().can_avoid_hole()) {
+        && !get_state()->can_avoid_hole()) {
       start_hole();
     }
     break;
 
   case Ground::ICE:
     // Ice: make the hero slide.
-    if (!get_state().can_avoid_ice()) {
+    if (!get_state()->can_avoid_ice()) {
       start_ice();
     }
     break;
@@ -1290,7 +1290,7 @@ void Hero::notify_ground_below_changed() {
   case Ground::LAVA:
     // Lava: plunge into lava.
     if (!suspended
-        && !get_state().can_avoid_lava()) {
+        && !get_state()->can_avoid_lava()) {
       start_lava();
     }
     break;
@@ -1298,7 +1298,7 @@ void Hero::notify_ground_below_changed() {
   case Ground::PRICKLE:
     // Prickles.
     if (!suspended
-        && !get_state().can_avoid_prickle()) {
+        && !get_state()->can_avoid_prickle()) {
       start_prickle(500);
     }
     break;
@@ -1336,7 +1336,7 @@ void Hero::notify_ground_below_changed() {
   }
 
   // Notify the state.
-  get_state().notify_ground_changed();
+  get_state()->notify_ground_changed();
 }
 
 /**
@@ -1347,7 +1347,7 @@ bool Hero::is_ground_visible() const {
 
   Ground ground = get_ground_below();
   return (ground == Ground::GRASS || ground == Ground::SHALLOW_WATER)
-    && get_state().is_touching_ground();
+    && get_state()->is_touching_ground();
 }
 
 /**
@@ -1455,7 +1455,7 @@ bool Hero::is_obstacle_for(Entity& other) {
  * \return true if shallow water is currently an obstacle for the hero
  */
 bool Hero::is_shallow_water_obstacle() const {
-  return get_state().is_shallow_water_obstacle();
+  return get_state()->is_shallow_water_obstacle();
 }
 
 /**
@@ -1463,7 +1463,7 @@ bool Hero::is_shallow_water_obstacle() const {
  * \return true if deep water is currently an obstacle for the hero
  */
 bool Hero::is_deep_water_obstacle() const {
-  return get_state().is_deep_water_obstacle();
+  return get_state()->is_deep_water_obstacle();
 }
 
 /**
@@ -1471,7 +1471,7 @@ bool Hero::is_deep_water_obstacle() const {
  * \return true if the holes are currently an obstacle for the hero
  */
 bool Hero::is_hole_obstacle() const {
-  return get_state().is_hole_obstacle();
+  return get_state()->is_hole_obstacle();
 }
 
 /**
@@ -1479,7 +1479,7 @@ bool Hero::is_hole_obstacle() const {
  * \return true if lava is currently an obstacle for the hero
  */
 bool Hero::is_lava_obstacle() const {
-  return get_state().is_lava_obstacle();
+  return get_state()->is_lava_obstacle();
 }
 
 /**
@@ -1487,7 +1487,7 @@ bool Hero::is_lava_obstacle() const {
  * \return true if prickles are currently an obstacle for the hero
  */
 bool Hero::is_prickle_obstacle() const {
-  return get_state().is_prickle_obstacle();
+  return get_state()->is_prickle_obstacle();
 }
 
 /**
@@ -1495,7 +1495,7 @@ bool Hero::is_prickle_obstacle() const {
  * \return true if the ladders are currently an obstacle for the hero
  */
 bool Hero::is_ladder_obstacle() const {
-  return get_state().is_ladder_obstacle();
+  return get_state()->is_ladder_obstacle();
 }
 
 /**
@@ -1514,14 +1514,14 @@ bool Hero::is_block_obstacle(Block& block) {
  * \return true if the teletransporter is currently an obstacle for the hero
  */
 bool Hero::is_teletransporter_obstacle(Teletransporter& teletransporter) {
-  return get_state().is_teletransporter_obstacle(teletransporter);
+  return get_state()->is_teletransporter_obstacle(teletransporter);
 }
 
 /**
  * \copydoc Entity::is_stream_obstacle
  */
 bool Hero::is_stream_obstacle(Stream& stream) {
-  return get_state().is_stream_obstacle(stream);
+  return get_state()->is_stream_obstacle(stream);
 }
 
 /**
@@ -1530,7 +1530,7 @@ bool Hero::is_stream_obstacle(Stream& stream) {
  * \return true if the stairs are currently an obstacle for this entity
  */
 bool Hero::is_stairs_obstacle(Stairs& stairs) {
-  return get_state().is_stairs_obstacle(stairs);
+  return get_state()->is_stairs_obstacle(stairs);
 }
 
 /**
@@ -1539,7 +1539,7 @@ bool Hero::is_stairs_obstacle(Stairs& stairs) {
  * \return true if this sensor is currently an obstacle for the hero
  */
 bool Hero::is_sensor_obstacle(Sensor& sensor) {
-  return get_state().is_sensor_obstacle(sensor);
+  return get_state()->is_sensor_obstacle(sensor);
 }
 
 /**
@@ -1555,14 +1555,14 @@ bool Hero::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
  * \copydoc Entity::is_jumper_obstacle
  */
 bool Hero::is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) {
-  return get_state().is_jumper_obstacle(jumper, candidate_position);
+  return get_state()->is_jumper_obstacle(jumper, candidate_position);
 }
 
 /**
  * \copydoc Entity::is_separator_obstacle
  */
 bool Hero::is_separator_obstacle(Separator& separator) {
-  return get_state().is_separator_obstacle(separator);
+  return get_state()->is_separator_obstacle(separator);
 }
 
 /**
@@ -1635,7 +1635,7 @@ void Hero::notify_collision_with_teletransporter(
 
     update_ground_below();  // Make sure the ground is up-to-date.
     bool on_hole = get_ground_below() == Ground::HOLE;
-    if (on_hole || get_state().is_teletransporter_delayed()) {
+    if (on_hole || get_state()->is_teletransporter_delayed()) {
        // Fall into the hole (or do something else) first, transport later
       this->delayed_teletransporter = std::static_pointer_cast<Teletransporter>(
             teletransporter.shared_from_this()
@@ -1668,7 +1668,7 @@ void Hero::notify_collision_with_stream(
     return;
   }
 
-  if (get_state().can_avoid_stream(stream)) {
+  if (get_state()->can_avoid_stream(stream)) {
     // Streams are ignored in the current state of the hero.
     return;
   }
@@ -1754,7 +1754,7 @@ void Hero::notify_collision_with_stream(
 
   if (activate_stream) {
     stream.activate(*this);
-    if (!get_state().can_persist_on_stream(stream)) {
+    if (!get_state()->can_persist_on_stream(stream)) {
       start_free();
     }
   }
@@ -1769,7 +1769,7 @@ void Hero::notify_collision_with_stream(
 void Hero::notify_collision_with_stairs(
     Stairs& stairs, CollisionMode collision_mode) {
 
-  if (get_state().can_take_stairs()) {
+  if (get_state()->can_take_stairs()) {
 
     Stairs::Way stairs_way;
     if (stairs.is_inside_floor()) {
@@ -1812,7 +1812,7 @@ void Hero::notify_collision_with_jumper(Jumper& jumper,
     CollisionMode collision_mode) {
 
   if (collision_mode == COLLISION_CUSTOM) {
-    get_state().notify_jumper_activated(jumper);
+    get_state()->notify_jumper_activated(jumper);
   }
 }
 
@@ -1824,7 +1824,7 @@ void Hero::notify_collision_with_jumper(Jumper& jumper,
 void Hero::notify_collision_with_sensor(Sensor& sensor, CollisionMode collision_mode) {
 
   if (collision_mode == COLLISION_CONTAINING    // the hero is entirely inside the sensor
-      && !get_state().can_avoid_sensor()) {
+      && !get_state()->can_avoid_sensor()) {
     sensor.activate(*this);
   }
 }
@@ -1838,7 +1838,7 @@ void Hero::notify_collision_with_switch(Switch& sw, CollisionMode /* collision_m
 
   // it's normally a walkable switch
   if (sw.is_walkable()
-      && !get_state().can_avoid_switch()) {
+      && !get_state()->can_avoid_switch()) {
     sw.try_activate(*this);
   }
 }
@@ -1855,7 +1855,7 @@ void Hero::notify_collision_with_switch(Switch& sw, Sprite& sprite_overlapping) 
   const std::string& sprite_id = sprite_overlapping.get_animation_set_id();
   if (sprite_id == get_hero_sprites().get_sword_sprite_id() && // the hero's sword is overlapping the switch
       sw.is_solid() &&
-      get_state().can_sword_hit_crystal()) {
+      get_state()->can_sword_hit_crystal()) {
     // note that solid switches and crystals have the same rules for the sword
 
     sw.try_activate();
@@ -1891,7 +1891,7 @@ void Hero::notify_collision_with_crystal(Crystal& crystal, Sprite& sprite_overla
 
   const std::string sprite_id = sprite_overlapping.get_animation_set_id();
   if (sprite_id == get_hero_sprites().get_sword_sprite_id() && // the hero's sword is overlapping the crystal
-      get_state().can_sword_hit_crystal()) {
+      get_state()->can_sword_hit_crystal()) {
 
     crystal.activate(*this);
   }
@@ -1952,7 +1952,7 @@ void Hero::notify_collision_with_explosion(
     Explosion& explosion, Sprite& sprite_overlapping) {
 
   const std::string& sprite_id = sprite_overlapping.get_animation_set_id();
-  if (!get_state().can_avoid_explosion() &&
+  if (!get_state()->can_avoid_explosion() &&
       sprite_id == get_hero_sprites().get_tunic_sprite_id() &&
       can_be_hurt(&explosion)) {
     hurt(explosion, nullptr, 2);
@@ -2006,7 +2006,7 @@ void Hero::avoid_collision(Entity& entity, int direction) {
  * cannot move anymore because of a collision.
  */
 void Hero::notify_grabbed_entity_collision() {
-  get_state().notify_grabbed_entity_collision();
+  get_state()->notify_grabbed_entity_collision();
 }
 
 /**
@@ -2028,7 +2028,7 @@ void Hero::notify_grabbed_entity_collision() {
  * \return \c true if the sword is cutting this entity.
  */
 bool Hero::is_striking_with_sword(Entity& entity) const {
-  return get_state().is_cutting_with_sword(entity);
+  return get_state()->is_cutting_with_sword(entity);
 }
 
 /**
@@ -2068,7 +2068,7 @@ void Hero::notify_attacked_enemy(
     EnemyReaction::Reaction& result,
     bool killed) {
 
-  get_state().notify_attacked_enemy(attack, victim, victim_sprite, result, killed);
+  get_state()->notify_attacked_enemy(attack, victim, victim_sprite, result, killed);
 }
 
 /**
@@ -2080,7 +2080,7 @@ void Hero::notify_attacked_enemy(
  * \return the current damage factor of the sword
  */
 int Hero::get_sword_damage_factor() const {
-  return get_state().get_sword_damage_factor();
+  return get_state()->get_sword_damage_factor();
 }
 
 /**
@@ -2125,7 +2125,7 @@ void Hero::update_invincibility() {
  * \return \c true if the hero can be hurt.
  */
 bool Hero::can_be_hurt(Entity* attacker) const {
-  return !is_invincible() && get_state().can_be_hurt(attacker);
+  return !is_invincible() && get_state()->can_be_hurt(attacker);
 }
 
 /**
@@ -2219,7 +2219,7 @@ void Hero::start_deep_water() {
   const bool can_swim = get_equipment().has_ability(Ability::SWIM);
   const bool can_jump_over_water = get_equipment().has_ability(Ability::JUMP_OVER_WATER);
 
-  if (!get_state().is_touching_ground()) {
+  if (!get_state()->is_touching_ground()) {
     // Entering water from above the ground
     // (e.g. after a jump).
     set_state(std::make_shared<PlungingState>(*this));
@@ -2331,7 +2331,7 @@ void Hero::start_prickle(uint32_t delay) {
  */
 bool Hero::is_free() const {
 
-  return get_state().is_free();
+  return get_state()->is_free();
 }
 
 /**
@@ -2340,7 +2340,7 @@ bool Hero::is_free() const {
  */
 bool Hero::is_using_item() const {
 
-  return get_state().is_using_item();
+  return get_state()->is_using_item();
 }
 
 /**
@@ -2349,7 +2349,7 @@ bool Hero::is_using_item() const {
  */
 EquipmentItemUsage& Hero::get_item_being_used() {
 
-  return get_state().get_item_being_used();
+  return get_state()->get_item_being_used();
 }
 
 /**
@@ -2361,7 +2361,7 @@ EquipmentItemUsage& Hero::get_item_being_used() {
  */
 bool Hero::is_moving_grabbed_entity() const {
 
-  return get_state().is_moving_grabbed_entity();
+  return get_state()->is_moving_grabbed_entity();
 }
 
 /**
@@ -2370,7 +2370,7 @@ bool Hero::is_moving_grabbed_entity() const {
  */
 bool Hero::is_brandishing_treasure() const {
 
-  return get_state().is_brandishing_treasure();
+  return get_state()->is_brandishing_treasure();
 }
 
 /**
@@ -2379,7 +2379,7 @@ bool Hero::is_brandishing_treasure() const {
  */
 bool Hero::is_grabbing_or_pulling() const {
 
-  return get_state().is_grabbing_or_pulling();
+  return get_state()->is_grabbing_or_pulling();
 }
 
 /**
@@ -2399,18 +2399,18 @@ void Hero::start_free() {
  */
 void Hero::start_free_carrying_loading_or_running() {
 
-  if (get_state().get_name() == "sword loading") {
+  if (get_state()->get_name() == "sword loading") {
     // Nothing to do: just keep the sword loaded.
     return;
   }
 
-  if (get_state().get_name() == "running" && get_state().is_touching_ground()) {
+  if (get_state()->get_name() == "running" && get_state()->is_touching_ground()) {
     // Nothing to do: just keep running.
     return;
   }
 
-  if (get_state().is_carrying_item()) {
-    set_state(std::make_shared<CarryingState>(*this, get_state().get_carried_object()));
+  if (get_state()->is_carrying_item()) {
+    set_state(std::make_shared<CarryingState>(*this, get_state()->get_carried_object()));
   }
   else {
     set_state(std::make_shared<FreeState>(*this));
@@ -2550,7 +2550,7 @@ void Hero::start_pulling() {
  */
 bool Hero::can_pick_treasure(EquipmentItem& item) {
 
-  return get_state().can_pick_treasure(item);
+  return get_state()->can_pick_treasure(item);
 }
 
 /**
@@ -2570,7 +2570,7 @@ bool Hero::can_avoid_teletransporter(const Teletransporter& teletransporter) con
     return true;
   }
 
-  return get_state().can_avoid_teletransporter();
+  return get_state()->can_avoid_teletransporter();
 }
 
 /**
@@ -2628,7 +2628,7 @@ bool Hero::can_pull() const {
  */
 bool Hero::can_use_shield() const {
 
-  return get_state().can_use_shield();
+  return get_state()->can_use_shield();
 }
 
 
@@ -2644,7 +2644,7 @@ bool Hero::can_start_sword() const {
     return false;
   }
 
-  return get_state().can_start_sword();
+  return get_state()->can_start_sword();
 }
 
 /**
@@ -2684,7 +2684,7 @@ bool Hero::can_start_item(EquipmentItem& item) {
     return false;
   }
 
-  return get_state().can_start_item(item);
+  return get_state()->can_start_item(item);
 }
 
 /**
@@ -2763,7 +2763,7 @@ void Hero::start_state_from_ground() {
   switch (get_ground_below()) {
 
   case Ground::DEEP_WATER:
-    if (get_state().is_touching_ground()
+    if (get_state()->is_touching_ground()
         && get_equipment().has_ability(Ability::SWIM)) {
       set_state(std::make_shared<SwimmingState>(*this));
     }

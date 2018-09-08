@@ -1481,12 +1481,54 @@ void LuaContext::on_started() {
 }
 
 /**
+ * \brief Calls the on_started() method of the object on top of the stack.
+ * \param previous_state_name Name of the previous state.
+ * \param previous_state The previous state object if it was a custom one.
+ */
+void LuaContext::on_started(
+    const std::string& previous_state_name,
+    CustomState* previous_state) {
+
+  if (find_method("on_started")) {
+    push_string(l, previous_state_name);
+    if (previous_state == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, *previous_state);
+    }
+    call_function(3, 0, "on_started");
+  }
+}
+
+/**
  * \brief Calls the on_finished() method of the object on top of the stack.
  */
 void LuaContext::on_finished() {
 
   if (find_method("on_finished")) {
     call_function(1, 0, "on_finished");
+  }
+}
+
+/**
+ * \brief Calls the on_finished() method of the object on top of the stack.
+ * \param next_state_name Name of the previous state.
+ * \param next_state The previous state object if it was a custom one.
+ */
+void LuaContext::on_finished(
+    const std::string& next_state_name,
+    CustomState* next_state) {
+
+  if (find_method("on_finished")) {
+    push_string(l, next_state_name);
+    if (next_state == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, *next_state);
+    }
+    call_function(3, 0, "on_finished");
   }
 }
 

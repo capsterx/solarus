@@ -454,6 +454,14 @@ class LuaContext {
     bool enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* enemy_sprite);
     void custom_entity_on_ground_below_changed(
         CustomEntity& custom_entity, Ground ground_below);
+    void state_on_started(
+        CustomState& state,
+        const std::string& previous_state_name,
+        CustomState* previous_state);
+    void state_on_finished(
+        CustomState& state,
+        const std::string& next_state_name,
+        CustomState* next_state);
 
     // Implementation of the API.
 
@@ -1340,7 +1348,9 @@ class LuaContext {
 
     // Events.
     void on_started();
+    void on_started(const std::string& previous_state_name, CustomState* previous_state);
     void on_finished();
+    void on_finished(const std::string& next_state_name, CustomState* next_state);
     void on_update();
     void on_draw(const SurfacePtr& dst_surface);
     void on_suspended(bool suspended);

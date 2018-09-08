@@ -107,6 +107,7 @@ set(lua_test_maps
   "bugs/1236_entity_timer_not_suspended"
   "bugs/1247_hero_state_changing"
   "bugs/1261_entity_on_suspended"
+  "bugs/1262_state_timers"
   "bugs/1264_sprite_is_animation_started"
   "bugs/1265_camera_get_surface"
   "bugs/1266_teletransporter_on_activated_disable"
