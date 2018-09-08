@@ -72,7 +72,7 @@ class CustomState: public HeroState {
     bool can_control_movement_;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>
         player_movement_;                   /**< The movement, if controlled by the player. */
-    std::set<Ground> ignored_grounds;       /**< Grounds whose effect does not affect this state. */
+    std::set<Ground> ignored_grounds_;      /**< Grounds whose effect does not affect this state. */
 };
 
 }

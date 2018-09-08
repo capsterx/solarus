@@ -33,7 +33,7 @@ CustomState::CustomState(
   can_control_direction_(true),
   can_control_movement_(true),
   player_movement_(),
-  ignored_grounds() {
+  ignored_grounds_() {
 
 }
 
@@ -49,8 +49,8 @@ const std::string& CustomState::get_lua_type_name() const {
  * \brief Returns the description of this state.
  * \return The description or an empty string.
  */
-const CustomState::std::string& get_description() const {
-  return description;
+const std::string& CustomState::get_description() const {
+  return description_;
 }
 
 /**
@@ -58,7 +58,7 @@ const CustomState::std::string& get_description() const {
  * \param description The description or an empty string.
  */
 void CustomState::set_description(const std::string& description) {
-  this->description = description;
+  this->description_ = description;
 }
 
 /**
@@ -158,7 +158,7 @@ void CustomState::start_player_movement() {
  */
 bool CustomState::is_affected_by_ground(Ground ground) const {
 
-  bool ignored = ignored_grounds.find(ground) != ignored_grounds.end();
+  bool ignored = ignored_grounds_.find(ground) != ignored_grounds_.end();
   return !ignored;
 }
 
@@ -170,10 +170,10 @@ bool CustomState::is_affected_by_ground(Ground ground) const {
 void CustomState::set_affected_by_ground(Ground ground, bool affected) {
 
   if (affected) {
-    ignored_grounds.erase(ground);
+    ignored_grounds_.erase(ground);
   }
   else {
-    ignored_grounds.insert(ground);
+    ignored_grounds_.insert(ground);
   }
 }
 

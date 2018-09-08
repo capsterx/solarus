@@ -408,10 +408,15 @@ class LuaContext {
     void entity_on_movement_finished(Entity& entity);
     bool entity_on_interaction(Entity& entity);
     bool entity_on_interaction_item(Entity& entity, EquipmentItem& item_used);
-    void entity_on_state_changed(Entity& entity, const std::string& state_name);
-    void entity_on_lifting(Entity& entity,
-                           Entity& carrier,
-                           CarriedObject& carried_object);
+    void entity_on_state_changing(
+        Entity& entity,
+        const std::string& state_name,
+        const std::string& next_state_name);
+    void entity_on_state_changed(Entity& entity, const std::string& new_state_name);
+    void entity_on_lifting(
+        Entity& entity,
+        Entity& carrier,
+        CarriedObject& carried_object);
     bool hero_on_taking_damage(Hero& hero, int damage);
     void destination_on_activated(Destination& destination);
     void teletransporter_on_activated(Teletransporter& teletransporter);
@@ -1369,8 +1374,8 @@ class LuaContext {
     void on_opening_transition_finished(Destination* destination);
     void on_obtaining_treasure(const Treasure& treasure);
     void on_obtained_treasure(const Treasure& treasure);
-    void on_state_changing(const std::string& state_name);
-    void on_state_changed(const std::string& state_name);
+    void on_state_changing(const std::string& state_name, const std::string& next_state_name);
+    void on_state_changed(const std::string& new_state_name);
     bool on_taking_damage(int damage);
     void on_activating();
     void on_activating(int direction4);

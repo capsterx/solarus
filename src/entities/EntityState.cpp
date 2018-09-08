@@ -226,17 +226,25 @@ void Entity::State::start(const State* /* previous_state */) {
 /**
  * \brief Ends this state.
  *
- * This function is called automatically when this state is not the active
- * state anymore.
+ * This function is called automatically when this state stops being the
+ * active one.
  * You should here close everything the start() function has opened.
- * The destructor will be called at the next cycle.
  *
  * \param next_state The next state (for information).
  */
-void Entity::State::stop(const State* /* next_state */) {
+void Entity::State::stop(const State* next_state) {
 
   Debug::check_assertion(!is_stopping(),
       std::string("This state is already stopping: ") + get_name());
+
+  // Notify Lua.
+  if (entity->is_on_map()) {
+    std::string next_state_name;
+    if (next_state != nullptr) {
+      next_state_name = next_state->get_name();
+    }
+    get_lua_context().entity_on_state_changing(*entity, get_name(), next_state_name);
+  }
 
   this->stopping = true;
 }

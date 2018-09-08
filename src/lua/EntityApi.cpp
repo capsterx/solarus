@@ -6663,22 +6663,43 @@ bool LuaContext::entity_on_interaction_item(
 }
 
 /**
+ * \brief Calls the on_state_changing() method of a Lua entity.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param entity A map entity.
+ * \param state_state Name of the current state.
+ * \param next_state_name Name of the state about to start.
+ */
+void LuaContext::entity_on_state_changing(
+    Entity& entity, const std::string& state_name, const std::string& next_state_name) {
+
+  if (!userdata_has_field(entity, "on_state_changing")) {
+    return;
+  }
+
+  push_entity(l, entity);
+  on_state_changing(state_name, next_state_name);
+  lua_pop(l, 1);
+}
+
+/**
  * \brief Calls the on_state_changed() method of a Lua entity.
  *
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
- * \param state_name A name describing the new state.
+ * \param new_state_name A name describing the new state.
  */
 void LuaContext::entity_on_state_changed(
-    Entity& entity, const std::string& state_name) {
+    Entity& entity, const std::string& new_state_name) {
 
   if (!userdata_has_field(entity, "on_state_changed")) {
     return;
   }
 
   push_entity(l, entity);
-  on_state_changed(state_name);
+  on_state_changed(new_state_name);
   lua_pop(l, 1);
 }
 
