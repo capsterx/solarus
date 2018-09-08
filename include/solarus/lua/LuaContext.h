@@ -637,9 +637,11 @@ class LuaContext {
       // Sprite API.
       sprite_api_create,
       sprite_api_get_animation_set,
+      sprite_api_has_animation,
       sprite_api_get_animation,
       sprite_api_set_animation,
-      sprite_api_has_animation,
+      sprite_api_stop_animation,
+      sprite_api_is_animation_started,
       sprite_api_get_direction,
       sprite_api_set_direction,
       sprite_api_get_num_directions,

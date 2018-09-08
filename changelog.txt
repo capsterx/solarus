@@ -108,6 +108,7 @@ New features:
 * Add methods custom_entity:get/set_follow_streams() (#1221).
 * Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
+* Add methods sprite:is_animation_started() and sprite:stop_animation() (#1264).
 * Add a method sprite:get_frame_src_xy() (#1093).
 * Add a method sprite:get_ignore_suspend().
 * sprite:get_num_frames() can now optionally take an animation and direction.
