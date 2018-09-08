@@ -92,11 +92,6 @@ local function test_state_methods_presence()
   end
 end
 
---postpone a continuation to let engine simulate a bit
-local function later(cont)
-  sol.timer.start(map,100,cont):set_suspended_with_map(false)
-end
-
 -- Test if two arrays match and else raise an error
 local function table_match(story,expected,results)
   local function print_error(errs)
