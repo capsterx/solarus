@@ -154,7 +154,7 @@ void Hero::CarryingState::update() {
       if (carried_object->is_broken()) {
         carried_object = nullptr;
         Hero& hero = get_entity();
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
   }
@@ -168,7 +168,7 @@ void Hero::CarryingState::notify_action_command_pressed() {
   if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_THROW) {
     throw_item();
     Hero& hero = get_entity();
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 

@@ -69,17 +69,17 @@ class Door: public Entity {
         const std::string& savegame_variable
     );
 
-    virtual EntityType get_type() const override;
+    EntityType get_type() const override;
 
-    virtual bool is_obstacle_for(Entity& other) override;
-    virtual void set_suspended(bool suspended) override;
-    virtual void update() override;
-    virtual void draw_on_map() override;
-    virtual std::string get_sword_tapping_sound() override;
-    virtual bool notify_action_command_pressed() override;
-    virtual void notify_collision(Entity& entity_overlapping, CollisionMode collision_mode) override;
-    virtual void notify_collision(Entity& entity, Sprite& this_sprite, Sprite& other_sprite) override;
-    virtual void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
+    bool is_obstacle_for(Entity& other) override;
+    void set_suspended(bool suspended) override;
+    void update() override;
+    void built_in_draw(Camera& camera) override;
+    std::string get_sword_tapping_sound() override;
+    bool notify_action_command_pressed() override;
+    void notify_collision(Entity& entity_overlapping, CollisionMode collision_mode) override;
+    void notify_collision(Entity& entity, Sprite& this_sprite, Sprite& other_sprite) override;
+    void notify_collision_with_explosion(Explosion& explosion, Sprite& sprite_overlapping) override;
 
     // Properties.
     bool is_saved() const;

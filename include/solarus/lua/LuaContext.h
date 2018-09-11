@@ -53,6 +53,7 @@ class Chest;
 class CircleMovement;
 class Color;
 class CustomEntity;
+class CustomState;
 class Destination;
 class Destructible;
 class Dialog;
@@ -129,6 +130,7 @@ class LuaContext {
     static const std::string menu_module_name;
     static const std::string language_module_name;
     static const std::string shader_module_name;
+    static const std::string state_module_name;
     static const std::string movement_module_name;
     static const std::string movement_straight_module_name;
     static const std::string movement_random_module_name;
@@ -180,6 +182,7 @@ class LuaContext {
         const std::string& function_name,
         const std::string& message
     );
+    static void print_stack(lua_State* l);
 
     // Lua refs.
     ScopedLuaRef create_ref();
@@ -263,6 +266,11 @@ class LuaContext {
     static const std::string& get_entity_internal_type_name(EntityType entity_type);
     bool create_map_entity_from_data(Map& map, const EntityData& entity_data);
 
+    void do_entity_draw_override_function(
+        const ScopedLuaRef& draw_override,
+        Entity& entity,
+        Camera& camera
+    );
     bool do_custom_entity_traversable_test_function(
         const ScopedLuaRef& traversable_test_ref,
         CustomEntity& custom_entity,
@@ -397,8 +405,8 @@ class LuaContext {
     void entity_on_removed(Entity& entity);
     void entity_on_enabled(Entity& entity);
     void entity_on_disabled(Entity& entity);
-    void entity_on_pre_draw(Entity& entity);
-    void entity_on_post_draw(Entity& entity);
+    void entity_on_pre_draw(Entity& entity, Camera& camera);
+    void entity_on_post_draw(Entity& entity, Camera& camera);
     void entity_on_position_changed(Entity& entity, const Point& xy, int layer);
     void entity_on_obstacle_reached(Entity& entity, Movement& movement);
     void entity_on_movement_started(Entity& entity, Movement& movement);
@@ -406,10 +414,15 @@ class LuaContext {
     void entity_on_movement_finished(Entity& entity);
     bool entity_on_interaction(Entity& entity);
     bool entity_on_interaction_item(Entity& entity, EquipmentItem& item_used);
-    void entity_on_state_changed(Entity& entity, const std::string& state_name);
-    void entity_on_lifting(Entity& entity,
-                           Entity& carrier,
-                           CarriedObject& carried_object);
+    void entity_on_state_changing(
+        Entity& entity,
+        const std::string& state_name,
+        const std::string& next_state_name);
+    void entity_on_state_changed(Entity& entity, const std::string& new_state_name);
+    void entity_on_lifting(
+        Entity& entity,
+        Entity& carrier,
+        CarriedObject& carried_object);
     bool hero_on_taking_damage(Hero& hero, int damage);
     void destination_on_activated(Destination& destination);
     void teletransporter_on_activated(Teletransporter& teletransporter);
@@ -447,6 +460,14 @@ class LuaContext {
     bool enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* enemy_sprite);
     void custom_entity_on_ground_below_changed(
         CustomEntity& custom_entity, Ground ground_below);
+    void state_on_started(
+        CustomState& state,
+        const std::string& previous_state_name,
+        CustomState* previous_state);
+    void state_on_finished(
+        CustomState& state,
+        const std::string& next_state_name,
+        CustomState* next_state);
 
     // Implementation of the API.
 
@@ -630,9 +651,11 @@ class LuaContext {
       // Sprite API.
       sprite_api_create,
       sprite_api_get_animation_set,
+      sprite_api_has_animation,
       sprite_api_get_animation,
       sprite_api_set_animation,
-      sprite_api_has_animation,
+      sprite_api_stop_animation,
+      sprite_api_is_animation_started,
       sprite_api_get_direction,
       sprite_api_set_direction,
       sprite_api_get_num_directions,
@@ -925,6 +948,8 @@ class LuaContext {
       entity_api_bring_sprite_to_back,
       entity_api_is_visible,
       entity_api_set_visible,
+      entity_api_get_draw_override,
+      entity_api_set_draw_override,
       entity_api_get_weight,
       entity_api_set_weight,
       entity_api_get_controlling_stream,
@@ -977,6 +1002,8 @@ class LuaContext {
       hero_api_start_hookshot,
       hero_api_start_running,
       hero_api_start_hurt,
+      hero_api_start_state,
+      hero_api_get_custom_state,
       camera_api_get_position_on_screen,
       camera_api_set_position_on_screen,
       camera_api_get_state,
@@ -984,6 +1011,7 @@ class LuaContext {
       camera_api_start_manual,
       camera_api_get_position_to_track,
       camera_api_get_tracked_entity,
+      camera_api_get_surface,
       destination_api_get_starting_location_mode,
       destination_api_set_starting_location_mode,
       teletransporter_api_get_sound,
@@ -1113,6 +1141,22 @@ class LuaContext {
       custom_entity_api_get_follow_streams,
       custom_entity_api_set_follow_streams,
 
+      // State API.
+      state_api_create,
+      state_api_get_description,
+      state_api_set_description,
+      state_api_get_entity,
+      state_api_get_map,
+      state_api_get_game,
+      state_api_is_started,
+      state_api_is_stopping,
+      state_api_get_can_control_direction,
+      state_api_set_can_control_direction,
+      state_api_get_can_control_movement,
+      state_api_set_can_control_movement,
+      state_api_is_affected_by_ground,
+      state_api_set_affected_by_ground,
+
       // available to all userdata types
       userdata_meta_gc,
       userdata_meta_newindex_as_table,
@@ -1152,7 +1196,6 @@ class LuaContext {
         const ExportableToLua& userdata, const char* key) const;
     bool find_method(int index, const char* function_name);
     bool find_method(const char* function_name);
-    void print_stack(lua_State* l);
     void print_lua_version();
 
     // Initialization of modules.
@@ -1184,7 +1227,7 @@ class LuaContext {
     void register_game_module();
     void register_map_module();
     void register_entity_module();
-    void register_testing_module();
+    void register_state_module();
 
     // Pushing objects to Lua.
     static void push_main(lua_State* l);
@@ -1202,6 +1245,7 @@ class LuaContext {
     static void push_movement(lua_State* l, Movement& movement);
     static void push_game(lua_State* l, Savegame& game);
     static void push_map(lua_State* l, Map& map);
+    static void push_state(lua_State* l, CustomState& state);
     static void push_entity(lua_State* l, Entity& entity);
     static void push_entity_iterator(lua_State* l, const EntityVector& entities);
     static void push_named_sprite_iterator(
@@ -1275,6 +1319,8 @@ class LuaContext {
     static std::shared_ptr<Savegame> check_game(lua_State* l, int index);
     static bool is_map(lua_State* l, int index);
     static std::shared_ptr<Map> check_map(lua_State* l, int index);
+    static bool is_state(lua_State* l, int index);
+    static std::shared_ptr<CustomState> check_state(lua_State* l, int index);
     static bool is_entity(lua_State* l, int index);
     static EntityPtr check_entity(lua_State* l, int index);
     static bool is_hero(lua_State* l, int index);
@@ -1316,7 +1362,9 @@ class LuaContext {
 
     // Events.
     void on_started();
+    void on_started(const std::string& previous_state_name, CustomState* previous_state);
     void on_finished();
+    void on_finished(const std::string& next_state_name, CustomState* next_state);
     void on_update();
     void on_draw(const SurfacePtr& dst_surface);
     void on_suspended(bool suspended);
@@ -1352,7 +1400,8 @@ class LuaContext {
     void on_opening_transition_finished(Destination* destination);
     void on_obtaining_treasure(const Treasure& treasure);
     void on_obtained_treasure(const Treasure& treasure);
-    void on_state_changed(const std::string& state_name);
+    void on_state_changing(const std::string& state_name, const std::string& next_state_name);
+    void on_state_changed(const std::string& new_state_name);
     bool on_taking_damage(int damage);
     void on_activating();
     void on_activating(int direction4);
@@ -1390,8 +1439,8 @@ class LuaContext {
     void on_enabled();
     void on_disabled();
     void on_restarted();
-    void on_pre_draw();
-    void on_post_draw();
+    void on_pre_draw(Camera& camera);
+    void on_post_draw(Camera& camera);
     void on_position_changed(const Point& xy, int layer);
     void on_obstacle_reached(Movement& movement);
     void on_movement_started(Movement& movement);

@@ -95,7 +95,7 @@ void Hero::SpinAttackState::update() {
   // check the animation
   Hero& hero = get_entity();
   if (get_sprites().is_animation_finished()) {
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 
   // check the movement if any
@@ -104,7 +104,7 @@ void Hero::SpinAttackState::update() {
 
     if (!being_pushed) {
       // end of a super spin attack
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }

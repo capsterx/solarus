@@ -81,11 +81,11 @@ void Hero::SwordLoadingState::update() {
     Hero& hero = get_entity();
     if (!sword_loaded) {
       // the sword was not loaded yet: go to the normal state
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
     else {
       // the sword is loaded: release a spin attack
-      hero.set_state(new SpinAttackState(hero));
+      hero.set_state(std::make_shared<SpinAttackState>(hero));
     }
   }
 }
@@ -118,7 +118,7 @@ void Hero::SwordLoadingState::notify_obstacle_reached() {
       && get_wanted_movement_direction8() == get_sprites().get_animation_direction8()   // he is trying to move towards the obstacle
       && (facing_entity == nullptr || !facing_entity->is_sword_ignored())) {            // the obstacle allows him to tap with his sword
 
-    hero.set_state(new SwordTappingState(hero));
+    hero.set_state(std::make_shared<SwordTappingState>(hero));
   }
 }
 
@@ -139,13 +139,13 @@ void Hero::SwordLoadingState::notify_attacked_enemy(
     Hero& hero = get_entity();
     if (victim.get_push_hero_on_sword()) {
       // let SwordTappingState do the job so that no player movement interferes
-      State* state = new SwordTappingState(hero);
+      std::shared_ptr<State> state = std::make_shared<SwordTappingState>(hero);
       hero.set_state(state);
       state->notify_attacked_enemy(attack, victim, victim_sprite, result, killed);
     }
     else {
       // after an attack, stop loading the sword
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }

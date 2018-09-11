@@ -1033,6 +1033,7 @@ void LuaContext::register_modules() {
   register_file_module();
   register_menu_module();
   register_language_module();
+  register_state_module();
 
   Debug::check_assertion(lua_gettop(l) == 0,
       "Lua stack is not empty after modules initialization");
@@ -1480,12 +1481,54 @@ void LuaContext::on_started() {
 }
 
 /**
+ * \brief Calls the on_started() method of the object on top of the stack.
+ * \param previous_state_name Name of the previous state.
+ * \param previous_state The previous state object if it was a custom one.
+ */
+void LuaContext::on_started(
+    const std::string& previous_state_name,
+    CustomState* previous_state) {
+
+  if (find_method("on_started")) {
+    push_string(l, previous_state_name);
+    if (previous_state == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, *previous_state);
+    }
+    call_function(3, 0, "on_started");
+  }
+}
+
+/**
  * \brief Calls the on_finished() method of the object on top of the stack.
  */
 void LuaContext::on_finished() {
 
   if (find_method("on_finished")) {
     call_function(1, 0, "on_finished");
+  }
+}
+
+/**
+ * \brief Calls the on_finished() method of the object on top of the stack.
+ * \param next_state_name Name of the previous state.
+ * \param next_state The previous state object if it was a custom one.
+ */
+void LuaContext::on_finished(
+    const std::string& next_state_name,
+    CustomState* next_state) {
+
+  if (find_method("on_finished")) {
+    push_string(l, next_state_name);
+    if (next_state == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, *next_state);
+    }
+    call_function(3, 0, "on_finished");
   }
 }
 
@@ -2256,13 +2299,27 @@ void LuaContext::on_obtained_treasure(const Treasure& treasure) {
 }
 
 /**
- * \brief Calls the on_state_changed() method of the object on top of the stack.
- * \param state_name A name describing the new state.
+ * \brief Calls the on_state_changing() method of the object on top of the stack.
+ * \param state_name Name of the current state.
+ * \param next_state_name Name of the state about to start.
  */
-void LuaContext::on_state_changed(const std::string& state_name) {
+void LuaContext::on_state_changing(const std::string& state_name, const std::string& next_state_name) {
+
+  if (find_method("on_state_changing")) {
+    push_string(l, state_name);
+    push_string(l, next_state_name);
+    call_function(3, 0, "on_state_changing");
+  }
+}
+
+/**
+ * \brief Calls the on_state_changed() method of the object on top of the stack.
+ * \param new_state_name Name of the new state.
+ */
+void LuaContext::on_state_changed(const std::string& new_state_name) {
 
   if (find_method("on_state_changed")) {
-    push_string(l, state_name);
+    push_string(l, new_state_name);
     call_function(2, 0, "on_state_changed");
   }
 }
@@ -2747,21 +2804,25 @@ void LuaContext::on_restarted() {
 
 /**
  * \brief Calls the on_pre_draw() method of the object on top of the stack.
+ * \param camera The camera where to draw.
  */
-void LuaContext::on_pre_draw() {
+void LuaContext::on_pre_draw(Camera& camera) {
 
   if (find_method("on_pre_draw")) {
-    call_function(1, 0, "on_pre_draw");
+    push_camera(l, camera);
+    call_function(2, 0, "on_pre_draw");
   }
 }
 
 /**
  * \brief Calls the on_post_draw() method of the object on top of the stack.
+ * \param camera The camera where to draw.
  */
-void LuaContext::on_post_draw() {
+void LuaContext::on_post_draw(Camera& camera) {
 
   if (find_method("on_post_draw")) {
-    call_function(1, 0, "on_post_draw");
+    push_camera(l, camera);
+    call_function(2, 0, "on_post_draw");
   }
 }
 

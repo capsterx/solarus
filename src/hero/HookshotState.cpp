@@ -224,7 +224,7 @@ void Hero::HookshotState::finish_movement() {
       // illegal position: get back to the start point
       // TODO: get back to the closest valid point from the destination instead
       Sound::play("hero_hurt");
-      hero.set_state(new BackToSolidGroundState(hero, false, 0, true));
+      hero.set_state(std::make_shared<BackToSolidGroundState>(hero, false, 0, true));
     }
   }
 }

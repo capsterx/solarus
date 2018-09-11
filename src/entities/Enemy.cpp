@@ -912,17 +912,6 @@ void Enemy::set_suspended(bool suspended) {
     end_shaking_date += diff;
     next_explosion_date += diff;
   }
-  get_lua_context()->entity_on_suspended(*this, suspended);
-}
-
-/**
- * \brief Draws the entity on the map.
- */
-void Enemy::draw_on_map() {
-
-  get_lua_context()->entity_on_pre_draw(*this);
-  Entity::draw_on_map();
-  get_lua_context()->entity_on_post_draw(*this);
 }
 
 /**

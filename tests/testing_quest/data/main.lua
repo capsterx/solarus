@@ -1,5 +1,14 @@
-local function format_value(value)
+-- Postpone a continuation to let engine simulate a bit.
+function later(cont)
+  local context = sol.main
+  local game = sol.main.get_game()
+  if game ~= nil then
+    context = game:get_map() or game
+  end
+  sol.timer.start(context, 100, cont):set_suspended_with_map(false)
+end
 
+function format_value(value)
   if type(value) == "string" then
     return "'" .. value .. "'"
   end

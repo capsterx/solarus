@@ -39,6 +39,7 @@ namespace Solarus {
 
 class Block;
 class Bomb;
+class Camera;
 class Chest;
 class CommandsEffects;
 class Crystal;
@@ -228,6 +229,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
     void update_sprite(Sprite& sprite);
+    ScopedLuaRef get_draw_override() const;
+    void set_draw_override(const ScopedLuaRef& draw_override);
 
     // Movement.
     const std::shared_ptr<Movement>& get_movement();
@@ -378,7 +381,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_suspended() const;
     virtual void set_suspended(bool suspended);
     virtual void update();
-    virtual void draw_on_map();
+    void draw(Camera& camera);
+    virtual void built_in_draw(Camera& camera);
 
     // Easy access to various game objects.
     Entities& get_entities();
@@ -400,8 +404,8 @@ class SOLARUS_API Entity: public ExportableToLua {
      */
     class State;                                /**< base class for all states */
 
-    State& get_state() const;
-    void set_state(State* state);
+    std::shared_ptr<State> get_state() const;
+    void set_state(const std::shared_ptr<State>& state);
 
     std::string get_state_name() const;
     void update_state();
@@ -492,6 +496,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool visible;                               /**< Whether this entity's sprites are currently displayed. */
     bool tiled;                                 /**< Whether sprites should be repeated with tiling. */
     bool drawn_in_y_order;                      /**< Whether this entity is drawn in Y order or in Z order. */
+    ScopedLuaRef draw_override;                 /**< Lua function that draws this entity, if any. */
     std::shared_ptr<Movement> movement;         /**< Movement of the entity.
                                                  * nullptr indicates that the entity has no movement. */
     std::vector<std::shared_ptr<Movement>>
@@ -510,8 +515,8 @@ class SOLARUS_API Entity: public ExportableToLua {
         old_stream_actions;                     /**< Old stream actions to destroy as soon as possible. */
 
     // state
-    std::unique_ptr<State> state;               /**< The current internal state */
-    std::list<std::unique_ptr<State>>
+    std::shared_ptr<State> state;               /**< The current internal state */
+    std::vector<std::shared_ptr<State>>
         old_states;                             /**< Previous state objects to delete as soon as possible. */
 
     bool initialized;                           /**< Whether all initializations were done. */

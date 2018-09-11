@@ -75,7 +75,7 @@ void Hero::PushingState::update() {
 
     // stop pushing if there is no more obstacle
     if (!hero.is_facing_obstacle()) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
 
     // stop pushing if the player changes his direction
@@ -87,7 +87,7 @@ void Hero::PushingState::update() {
         hero.start_grabbing();
       }
       else {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
 
@@ -260,7 +260,7 @@ void Hero::PushingState::stop_moving_pushed_entity() {
 
     // Stop the animation pushing if his direction changed.
     if (get_commands().get_wanted_direction8() != pushing_direction4 * 2) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }

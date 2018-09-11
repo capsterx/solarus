@@ -40,9 +40,9 @@ void LuaContext::register_sprite_module() {
 
   std::vector<luaL_Reg> methods = {
       { "get_animation_set", sprite_api_get_animation_set },
+      { "has_animation", sprite_api_has_animation },
       { "get_animation", sprite_api_get_animation },
       { "set_animation", sprite_api_set_animation },
-      { "has_animation", sprite_api_has_animation },
       { "get_direction", sprite_api_get_direction },
       { "set_direction", sprite_api_set_direction },
       { "get_num_directions", sprite_api_get_num_directions },
@@ -72,6 +72,8 @@ void LuaContext::register_sprite_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
+      { "stop_animation", sprite_api_stop_animation },
+      { "is_animation_started", sprite_api_is_animation_started },
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },
       { "get_opacity", drawable_api_get_opacity },
@@ -164,6 +166,22 @@ int LuaContext::sprite_api_get_animation_set(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of sprite:has_animation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::sprite_api_has_animation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Sprite& sprite = *check_sprite(l, 1);
+    const std::string& animation_name = LuaTools::check_string(l, 2);
+
+    lua_pushboolean(l, sprite.has_animation(animation_name));
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of sprite:get_animation().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -214,17 +232,32 @@ int LuaContext::sprite_api_set_animation(lua_State* l) {
 }
 
 /**
- * \brief Implementation of sprite:has_animation().
+ * \brief Implementation of sprite:stop_animation().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::sprite_api_has_animation(lua_State* l) {
+int LuaContext::sprite_api_stop_animation(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Sprite& sprite = *check_sprite(l, 1);
+
+    sprite.stop_animation();
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of sprite:is_animation_started().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::sprite_api_is_animation_started(lua_State* l) {
 
   return LuaTools::exception_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
-    const std::string& animation_name = LuaTools::check_string(l, 2);
 
-    lua_pushboolean(l, sprite.has_animation(animation_name));
+    lua_pushboolean(l, sprite.is_animation_started());
     return 1;
   });
 }

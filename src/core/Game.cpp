@@ -70,6 +70,7 @@ Game::Game(MainLoop& main_loop, const std::shared_ptr<Savegame>& savegame):
   // initialize members
   commands = std::unique_ptr<GameCommands>(new GameCommands(*this));
   hero = std::make_shared<Hero>(get_equipment());
+  hero->start_free();
   update_commands_effects();
 
   // Maybe we are restarting after a game-over sequence.

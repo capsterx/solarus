@@ -187,10 +187,10 @@ void Hero::StairsState::update() {
       }
       hero.clear_movement();
       if (carried_object == nullptr) {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
       else {
-        hero.set_state(new CarryingState(hero, carried_object));
+        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
       }
     }
   }
@@ -202,10 +202,10 @@ void Hero::StairsState::update() {
       hero.clear_movement();
 
       if (carried_object == nullptr) {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
       else {
-        hero.set_state(new CarryingState(hero, carried_object));
+        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
       }
 
       if (way == Stairs::NORMAL_WAY) {

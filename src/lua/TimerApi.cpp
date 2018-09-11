@@ -21,6 +21,7 @@
 #include "solarus/core/System.h"
 #include "solarus/core/Timer.h"
 #include "solarus/entities/Entity.h"
+#include "solarus/hero/CustomState.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -143,6 +144,7 @@ void LuaContext::add_timer(
     // suspend the timer or not.
     if (is_map(l, context_index)
         || is_entity(l, context_index)
+        || is_state(l, context_index)
         || is_item(l, context_index)) {
 
       timer->set_suspended_with_map(true);
@@ -150,7 +152,7 @@ void LuaContext::add_timer(
       bool initially_suspended = false;
       // By default, we want the timer to be automatically suspended when a
       // camera movement, a dialog or the pause menu starts.
-      if (!is_entity(l, context_index)) {
+      if (!is_entity(l, context_index) && !is_state(l, context_index)) {
 
         // But in the initial state, we override that rule.
         // We initially suspend the timer only during a dialog.
@@ -161,8 +163,13 @@ void LuaContext::add_timer(
       }
       else {
         // Entities are more complex: they also get suspended when disabled.
-        EntityPtr entity = check_entity(l, context_index);
-        initially_suspended = entity->is_suspended() || !entity->is_enabled();
+        if (is_entity(l, context_index)) {
+          EntityPtr entity = check_entity(l, context_index);
+          initially_suspended = entity->is_suspended() || !entity->is_enabled();
+        } else {  // State.
+          std::shared_ptr<CustomState> state = check_state(l, context_index);
+          initially_suspended = state->is_suspended();
+        }
       }
 
       timer->set_suspended(initially_suspended);
@@ -288,7 +295,7 @@ void LuaContext::set_entity_timers_suspended(
 }
 
 /**
- * \brief Suspends or resumes the timers attached to a map entity.
+ * \brief Suspends or resumes the timers attached to a map entity or to its state.
  *
  * This takes into account the Timer::is_suspended_with_map() property.
  *
@@ -307,7 +314,8 @@ void LuaContext::set_entity_timers_suspended_as_map(
   // Suspend timers except the ones that ignore the map being suspended.
   for (const auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
-    if (kvp.second.context == &entity) {
+    if (kvp.second.context == &entity ||
+        kvp.second.context == entity.get_state().get()) {
       if (timer->is_suspended_with_map()) {
         timer->set_suspended(suspended);
       }
@@ -396,7 +404,8 @@ int LuaContext::timer_api_start(lua_State *l) {
           !is_game(l, 1) &&
           !is_item(l, 1) &&
           !is_map(l, 1) &&
-          !is_entity(l, 1)
+          !is_entity(l, 1) &&
+          !is_state(l, 1)
       ) {
         // Show an error message without raising a Lua error
         // because this problem was not detected correctly before 1.6

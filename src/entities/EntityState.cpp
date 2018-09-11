@@ -32,18 +32,15 @@
 namespace Solarus {
 
 /**
- * \brief Creates a state.
+ * \brief Creates a state without specifying the entity to control yet.
  *
- * This constructor can be called only from the subclasses.
+ * Call set_entity() later before starting the state.
  *
- * \param entity The entity to control with this state.
  * \param state_name A name describing this state.
  */
-Entity::State::State(Entity& entity, const std::string& state_name):
-  entity(entity),
+Entity::State::State(const std::string& state_name):
   suspended(false),
   when_suspended(0),
-  map(&entity.get_map()),
   name(state_name),
   stopping(false) {
 
@@ -70,7 +67,12 @@ const std::string& Entity::State::get_name() const {
  * \return \c true if this state is the current state.
  */
 bool Entity::State::is_current_state() const {
-  return &entity.get_state() == this && !entity.get_state().is_stopping();
+
+  if (!has_entity()) {
+    return false;
+  }
+
+  return entity->get_state().get() == this && !entity->get_state()->is_stopping();
 }
 
 /**
@@ -86,7 +88,7 @@ bool Entity::State::is_stopping() const {
  * \return The entity.
  */
 Entity& Entity::State::get_entity() {
-  return entity;
+  return *entity;
 }
 
 /**
@@ -94,7 +96,29 @@ Entity& Entity::State::get_entity() {
  * \return The entity.
  */
 const Entity& Entity::State::get_entity() const {
-  return entity;
+  return *entity;
+}
+
+/**
+ * \brief Sets the entity to control with this state.
+ * \param entity The entity to control with this state.
+ */
+void Entity::State::set_entity(Entity& entity) {
+
+  Debug::check_assertion(this->entity == nullptr,
+                         "This state is already associated to an entity");
+  this->entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
+  if (entity.is_on_map()) {
+    this->map = std::static_pointer_cast<Map>(entity.get_map().shared_from_this());
+  }
+}
+
+/**
+ * \brief Returns whether this state is already associated to an entity.
+ * \return \c true if an entity was set.
+ */
+bool Entity::State::has_entity() const {
+  return this->entity != nullptr;
 }
 
 /**
@@ -118,7 +142,7 @@ Entities& Entity::State::get_entities() {
  * \return The Lua context where all scripts are run.
  */
 LuaContext& Entity::State::get_lua_context() {
-  return map->get_game().get_lua_context();
+  return *get_entity().get_lua_context();
 }
 
 /**
@@ -189,28 +213,38 @@ const GameCommands& Entity::State::get_commands() const {
  */
 void Entity::State::start(const State* /* previous_state */) {
 
-  set_suspended(entity.is_suspended());
+  Debug::check_assertion(entity != nullptr, "No entity specified");
+
+  set_suspended(entity->is_suspended());
 
   // Notify Lua.
-  if (entity.is_on_map()) {
-    get_lua_context().entity_on_state_changed(entity, get_name());
+  if (entity->is_on_map()) {
+    get_lua_context().entity_on_state_changed(*entity, get_name());
   }
 }
 
 /**
  * \brief Ends this state.
  *
- * This function is called automatically when this state is not the active
- * state anymore.
+ * This function is called automatically when this state stops being the
+ * active one.
  * You should here close everything the start() function has opened.
- * The destructor will be called at the next cycle.
  *
  * \param next_state The next state (for information).
  */
-void Entity::State::stop(const State* /* next_state */) {
+void Entity::State::stop(const State* next_state) {
 
   Debug::check_assertion(!is_stopping(),
       std::string("This state is already stopping: ") + get_name());
+
+  // Notify Lua.
+  if (entity->is_on_map()) {
+    std::string next_state_name;
+    if (next_state != nullptr) {
+      next_state_name = next_state->get_name();
+    }
+    get_lua_context().entity_on_state_changing(*entity, get_name(), next_state_name);
+  }
 
   this->stopping = true;
 }
@@ -424,7 +458,7 @@ void Entity::State::notify_item_command_released(int /* slot */) {
  * \param map the new map
  */
 void Entity::State::set_map(Map& map) {
-  this->map = &map;
+  this->map = std::static_pointer_cast<Map>(map.shared_from_this());
 }
 
 /**
@@ -779,7 +813,7 @@ bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
   // for example if the hero arrived by swimming over them
   // and thus did not activate them.
   // This is allowed and can be used to leave water pools for example.
-  if (entity.overlaps(stairs)) {
+  if (get_entity().overlaps(stairs)) {
     return false;
   }
 

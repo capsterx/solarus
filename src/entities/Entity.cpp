@@ -38,6 +38,7 @@
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/SpriteAnimationSet.h"
 #include "solarus/lua/LuaContext.h"
+#include "solarus/lua/LuaTools.h"
 #include "solarus/movements/Movement.h"
 #include <algorithm>
 #include <iterator>
@@ -76,6 +77,7 @@ Entity::Entity(
   visible(true),
   tiled(false),
   drawn_in_y_order(false),
+  draw_override(),
   movement(nullptr),
   movement_notifications_enabled(true),
   facing_entity(nullptr),
@@ -1535,7 +1537,7 @@ bool Entity::is_visible() const {
 
 /**
  * \brief Sets whether this entity is visible.
- * \param visible true to make it visible
+ * \param visible \c true to make it visible.
  */
 void Entity::set_visible(bool visible) {
   this->visible = visible;
@@ -3543,17 +3545,16 @@ void Entity::set_suspended(bool suspended) {
     stream_action->set_suspended(suspended || !is_enabled());
   }
 
-  // Suspend/unsuspend timers.
   if (is_on_map()) {
+    // Suspend/unsuspend timers.
     get_lua_context()->set_entity_timers_suspended_as_map(*this, suspended || !is_enabled());
-  }
 
-  if (!suspended) {
-    // Collision tests were disabled when the entity was suspended.
-    if (is_on_map()) {
+    if (!suspended) {
+      // Collision tests were disabled when the entity was suspended.
       get_map().check_collision_from_detector(*this);
       check_collision_with_detectors();
     }
+    get_lua_context()->entity_on_suspended(*this, suspended);
   }
 }
 
@@ -3688,13 +3689,37 @@ bool Entity::is_drawn_at_its_position() const {
 }
 
 /**
- * \brief Draws the entity on the map.
+ * \brief Draws this entity on the map, including the Lua draw events.
+ */
+void Entity::draw(Camera& camera) {
+
+  if (!is_visible()) {
+    return;
+  }
+  if (get_state() != nullptr && !get_state()->is_visible()) {
+    return;
+  }
+
+  get_lua_context()->entity_on_pre_draw(*this, camera);
+  if (draw_override.is_empty()) {
+    built_in_draw(camera);
+  }
+  else {
+    get_lua_context()->do_entity_draw_override_function(draw_override, *this, camera);
+  }
+  get_lua_context()->entity_on_post_draw(*this, camera);
+}
+
+/**
+ * \brief Built-in implementation of drawing the entity on the map.
  *
  * By default, this function draws the entity's sprites (if any) and if
  * at least one of them is in the visible part of the map.
- * This function should do nothing if is_drawn() is false.
+ * Subclasses can reimplement this method to draw differently.
+ *
+ * Lua scripts can replace this built-in draw with entity:set_draw_override().
  */
-void Entity::draw_on_map() {
+void Entity::built_in_draw(Camera& /* camera */) {
 
   const Point& xy = get_displayed_xy();
   const Size& size = get_size();
@@ -3727,11 +3752,27 @@ void Entity::draw_on_map() {
 }
 
 /**
+ * \brief Returns the Lua draw function of this entity if any.
+ * \return The draw override or an empty ref.
+ */
+ScopedLuaRef Entity::get_draw_override() const {
+  return draw_override;
+}
+
+/**
+ * \brief Sets the Lua draw function of this entity.
+ * \param draw_override The draw override or an empty ref.
+ */
+void Entity::set_draw_override(const ScopedLuaRef& draw_override) {
+  this->draw_override = draw_override;
+}
+
+/**
  * \brief Returns the current state of this entity.
  * \return The state.
  */
-Entity::State& Entity::get_state() const {
-    return *state.get();
+std::shared_ptr<Entity::State> Entity::get_state() const {
+    return state;
 }
 
 /**
@@ -3741,19 +3782,18 @@ Entity::State& Entity::get_state() const {
  * The old state will also be automatically destroyed, but not right now,
  * in order to allow this function to be called by the old state itself safely.
  *
- * \param state The new state of the hero. The hero object takes ownership of
- * this object.
+ * \param state The new state of the entity.
  */
-void Entity::set_state(State* new_state) {
+void Entity::set_state(const std::shared_ptr<State>& new_state) {
 
   // Stop the previous state.
-  State* old_state = this->state.get();
+  std::shared_ptr<State> old_state = this->state;
   if (old_state != nullptr) {
 
-    old_state->stop(new_state);  // Should not change the state again.
+    old_state->stop(new_state.get());  // Should not change the state again.
 
     // Sanity check.
-    if (old_state != this->state.get()) {
+    if (old_state != this->state) {
       // old_state->stop() called set_state() again in the meantime.
       // This is not a normal situation since we only called stop() to allow
       // new_state to start.
@@ -3771,12 +3811,12 @@ void Entity::set_state(State* new_state) {
 
   // Don't delete the previous state immediately since it may be the caller
   // of this function.
-  this->old_states.emplace_back(std::move(this->state));
+  this->old_states.emplace_back(this->state);
 
-  this->state = std::unique_ptr<State>(new_state);
-  this->state->start(old_state);  // May also change the state again.
+  this->state = new_state;
+  this->state->start(old_state.get());  // May also change the state again.
 
-  if (this->state.get() == new_state) {
+  if (this->state == new_state) {
     // If the state has not already changed again.
     check_position();
   }

@@ -49,6 +49,7 @@
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/graphics/Sprite.h"
+#include "solarus/hero/CustomState.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
@@ -151,6 +152,8 @@ void LuaContext::register_entity_module() {
         { "set_layer", entity_api_set_layer },
         { "set_size", entity_api_set_size },
         { "set_origin", entity_api_set_origin },
+        { "get_draw_override", entity_api_get_draw_override },
+        { "set_draw_override", entity_api_set_draw_override },
         { "get_weight", entity_api_get_weight },
         { "set_weight", entity_api_set_weight },
         { "get_controlling_stream", entity_api_get_controlling_stream },
@@ -192,7 +195,6 @@ void LuaContext::register_entity_module() {
       { "set_blinking", hero_api_set_blinking },
       { "is_invincible", hero_api_is_invincible },
       { "set_invincible", hero_api_set_invincible },
-      { "get_state", entity_api_get_state },
       { "freeze", hero_api_freeze },
       { "unfreeze", hero_api_unfreeze },
       { "walk", hero_api_walk },  // TODO use the more general movement:start
@@ -206,10 +208,13 @@ void LuaContext::register_entity_module() {
       { "start_hookshot", hero_api_start_hookshot },
       { "start_running", hero_api_start_running },
       { "start_hurt", hero_api_start_hurt },
+      { "get_state", entity_api_get_state },
+      { "get_custom_state", hero_api_get_custom_state },
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     hero_methods.insert(hero_methods.end(), {
         { "get_carried_object", hero_api_get_carried_object },
+        { "start_state", hero_api_start_state },
     });
   }
 
@@ -235,6 +240,11 @@ void LuaContext::register_entity_module() {
     camera_methods.insert(camera_methods.end(), {
         // Available to all entities since 1.6.
         { "set_size", entity_api_set_size },
+    });
+  }
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    common_methods.insert(common_methods.end(), {
+        { "get_surface", camera_api_get_surface },
     });
   }
 
@@ -819,6 +829,23 @@ void LuaContext::push_named_sprite_iterator(
   // 3 upvalues: sprites table, size, current index.
 
   lua_pushcclosure(l, l_named_sprite_iterator_next, 3);
+}
+
+/**
+ * \brief Calls the draw override function of an entity.
+ * \param draw_override The draw override function.
+ * \param entity The entity to draw.
+ * \param camera The camera where to draw the entity.
+ */
+void LuaContext::do_entity_draw_override_function(
+    const ScopedLuaRef& draw_override,
+    Entity& entity,
+    Camera& camera
+) {
+  push_ref(l, draw_override);
+  push_entity(l, entity);
+  push_camera(l, camera);
+  call_function(2, 0, "entity draw override");
 }
 
 /**
@@ -1658,6 +1685,52 @@ int LuaContext::entity_api_set_visible(lua_State* l) {
     bool visible = LuaTools::opt_boolean(l, 2, true);
 
     entity.set_visible(visible);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of entity:get_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_get_draw_override(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Entity& entity = *check_entity(l, 1);
+
+    ScopedLuaRef draw_override = entity.get_draw_override();
+    if (draw_override.is_empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_ref(l, draw_override);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of entity:set_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::entity_api_set_draw_override(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Entity& entity = *check_entity(l, 1);
+    ScopedLuaRef draw_override;
+    if (lua_gettop(l) >= 2) {
+      if (lua_isfunction(l, 2)) {
+        draw_override = LuaTools::check_function(l, 2);
+      }
+      else if (!lua_isnil(l, 2)) {
+        LuaTools::type_error(l, 2, "function or nil");
+      }
+    }
+
+    entity.set_draw_override(draw_override);
 
     return 0;
   });
@@ -2776,6 +2849,46 @@ int LuaContext::hero_api_start_hurt(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of hero:start_state().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_start_state(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    Hero& hero = *check_hero(l, 1);
+    std::shared_ptr<CustomState> state = check_state(l, 2);
+
+    if (state->has_entity()) {
+      LuaTools::arg_error(l, 1, "This state is already active");
+    }
+    hero.start_custom_state(state);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:get_custom_state().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_get_custom_state(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Hero& hero = *check_hero(l, 1);
+
+    if (hero.get_state_name() != "custom") {
+      lua_pushnil(l);
+    }
+    else {
+      push_state(l, *std::static_pointer_cast<CustomState>(hero.get_state()));
+    }
+    return 1;
+  });
+}
+
+/**
  * \brief Notifies Lua that the hero is brandishing a treasure.
  *
  * Lua then manages the treasure's dialog if any.
@@ -3016,6 +3129,27 @@ int LuaContext::camera_api_get_tracked_entity(lua_State* l) {
     }
     else {
       push_entity(l, *entity);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of camera:get_surface().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::camera_api_get_surface(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const Camera& camera = *check_camera(l, 1);
+
+    SurfacePtr surface = camera.get_surface();
+    if (surface == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_surface(l, *surface);
     }
     return 1;
   });
@@ -6422,15 +6556,16 @@ void LuaContext::entity_on_disabled(Entity& entity) {
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param camera The camera where to draw the entity.
  */
-void LuaContext::entity_on_pre_draw(Entity& entity) {
+void LuaContext::entity_on_pre_draw(Entity& entity, Camera& camera) {
 
   if (!userdata_has_field(entity, "on_pre_draw")) {
     return;
   }
 
   push_entity(l, entity);
-  on_pre_draw();
+  on_pre_draw(camera);
   lua_pop(l, 1);
 }
 
@@ -6440,15 +6575,16 @@ void LuaContext::entity_on_pre_draw(Entity& entity) {
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param camera The camera where to draw the entity.
  */
-void LuaContext::entity_on_post_draw(Entity& entity) {
+void LuaContext::entity_on_post_draw(Entity& entity, Camera& camera) {
 
   if (!userdata_has_field(entity, "on_post_draw")) {
     return;
   }
 
   push_entity(l, entity);
-  on_post_draw();
+  on_post_draw(camera);
   lua_pop(l, 1);
 }
 
@@ -6594,22 +6730,43 @@ bool LuaContext::entity_on_interaction_item(
 }
 
 /**
+ * \brief Calls the on_state_changing() method of a Lua entity.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param entity A map entity.
+ * \param state_state Name of the current state.
+ * \param next_state_name Name of the state about to start.
+ */
+void LuaContext::entity_on_state_changing(
+    Entity& entity, const std::string& state_name, const std::string& next_state_name) {
+
+  if (!userdata_has_field(entity, "on_state_changing")) {
+    return;
+  }
+
+  push_entity(l, entity);
+  on_state_changing(state_name, next_state_name);
+  lua_pop(l, 1);
+}
+
+/**
  * \brief Calls the on_state_changed() method of a Lua entity.
  *
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
- * \param state_name A name describing the new state.
+ * \param new_state_name A name describing the new state.
  */
 void LuaContext::entity_on_state_changed(
-    Entity& entity, const std::string& state_name) {
+    Entity& entity, const std::string& new_state_name) {
 
   if (!userdata_has_field(entity, "on_state_changed")) {
     return;
   }
 
   push_entity(l, entity);
-  on_state_changed(state_name);
+  on_state_changed(new_state_name);
   lua_pop(l, 1);
 }
 

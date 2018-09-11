@@ -31,7 +31,7 @@ class HeroState: public Entity::State {
 
     virtual Hero& get_entity() override;
     virtual const Hero& get_entity() const override;
-    const HeroSprites& get_sprites() const ;
+    const HeroSprites& get_sprites() const;
     HeroSprites& get_sprites();
 
     void draw_on_map() override;
@@ -44,6 +44,7 @@ class HeroState: public Entity::State {
   protected:
 
     HeroState(Hero& hero, const std::string& state_name);
+    explicit HeroState(const std::string& state_name);
 
 };
 

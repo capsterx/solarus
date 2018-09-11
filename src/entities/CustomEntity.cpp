@@ -1256,26 +1256,6 @@ void CustomEntity::update() {
 }
 
 /**
- * \copydoc Entity::set_suspended
- */
-void CustomEntity::set_suspended(bool suspended) {
-
-  Entity::set_suspended(suspended);
-
-  get_lua_context()->entity_on_suspended(*this, suspended);
-}
-
-/**
- * \copydoc Entity::draw_on_map
- */
-void CustomEntity::draw_on_map() {
-
-  get_lua_context()->entity_on_pre_draw(*this);
-  Entity::draw_on_map();
-  get_lua_context()->entity_on_post_draw(*this);
-}
-
-/**
  * \brief Returns whether this entity is affected by streams.
  * \return \c true if this entity follows streams.
  */

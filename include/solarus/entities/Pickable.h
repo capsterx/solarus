@@ -83,7 +83,7 @@ class Pickable: public Entity {
     ) override;
     void notify_collision_with_stream(Stream& stream, int dx, int dy) override;
     void update() override;
-    void draw_on_map() override;
+    void built_in_draw(Camera& camera) override;
 
   private:
 
