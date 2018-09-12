@@ -341,8 +341,9 @@ void LuaContext::do_timer_callback(const TimerPtr& timer) {
   if (it != timers.end() &&
       !it->second.callback_ref.is_empty()) {
     ScopedLuaRef& callback_ref = it->second.callback_ref;
-    push_ref(l, callback_ref);
-    const bool success = call_function(0, 1, "timer callback");
+
+    callback_ref.push(l);
+    const bool success = LuaTools::call_function(l,0,1,"timer callback");
 
     bool repeat = false;
     int interval = timer->get_duration();

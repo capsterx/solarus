@@ -52,8 +52,8 @@ class ScopedLuaRef {
     int get() const;
     void clear();
 
-    void push() const;
-    void call(const std::string& function_name) const;
+    void push(lua_State* dst) const;
+    bool call(const std::string& function_name) const;
     void clear_and_call(const std::string& function_name);
 
   private:

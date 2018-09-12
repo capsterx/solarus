@@ -46,7 +46,7 @@
 
 namespace Solarus {
 
-std::map<lua_State*, LuaContext*> LuaContext::lua_contexts;
+LuaContext* LuaContext::lua_context;
 
 /**
  * \brief Creates a Lua context.
@@ -71,14 +71,9 @@ LuaContext::~LuaContext() {
  * \param l A Lua state.
  * \return The LuaContext object encapsulating this Lua state.
  */
-LuaContext& LuaContext::get_lua_context(lua_State* l) {
-
-  auto it = lua_contexts.find(l);
-
-  Debug::check_assertion(it != lua_contexts.end(),
-      "This Lua state does not belong to a LuaContext object");
-
-  return *it->second;
+LuaContext& LuaContext::get_lua_context(lua_State*) {
+  Debug::check_assertion(lua_context,"No lua context available");
+  return *lua_context;
 }
 
 /**
@@ -110,7 +105,7 @@ void LuaContext::initialize() {
   print_lua_version();
 
   // Associate this LuaContext object to the lua_State pointer.
-  lua_contexts[l] = this;
+  lua_context = this;
 
   // Create a table that will keep track of all userdata.
                                   // --
@@ -195,7 +190,8 @@ void LuaContext::exit() {
 
     // Finalize Lua.
     lua_close(l);
-    lua_contexts.erase(l);
+    //lua_contexts.erase(l);
+    lua_context = nullptr;
     l = nullptr;
   }
 }
@@ -497,8 +493,9 @@ void LuaContext::push_ref(lua_State* l, const ScopedLuaRef& ref) {
     return;
   }
 
-  Debug::check_assertion(ref.get_lua_state() == l, "Wrong Lua state");
-  ref.push();
+  //This is not needed anymore since several state (threads) can be active
+  //Debug::check_assertion(ref.get_lua_state() == l, "Wrong Lua state");
+  ref.push(l);
 }
 
 /**

@@ -1529,9 +1529,8 @@ class LuaContext {
 
     static const std::map<EntityType, lua_CFunction>
         entity_creation_functions;     /**< Creation function of each entity type. */
-    static std::map<lua_State*, LuaContext*>
-        lua_contexts;                  /**< Mapping to get the encapsulating object
-                                        * from the lua_State pointer. */
+    static LuaContext*
+        lua_context;                  /**< Singleton context */
 
 };
 

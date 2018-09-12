@@ -2262,8 +2262,9 @@ int LuaContext::hero_api_get_solid_ground_position(lua_State* l) {
     const ScopedLuaRef& solid_ground_callback = hero.get_target_solid_ground_callback();
     if (!solid_ground_callback.is_empty()) {
       // Coordinates memorized by hero:save_solid_ground().
-      solid_ground_callback.push();
-      bool success = LuaTools::call_function(l, 0, 3, "Solid ground callback");
+      //TODO verify if this call is coroutine friendly
+      solid_ground_callback.push(l);
+      bool success = LuaTools::call_function(l,0,3,"Solid ground callback");
       if (!success) {
         // Fallback: use the last solid ground position.
         xy = hero.get_last_solid_ground_coords();
@@ -5420,7 +5421,7 @@ int LuaContext::enemy_api_get_attack_consequence(lua_State* l) {
     }
     else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
       // Return the callback.
-      reaction.callback.push();
+      reaction.callback.push(l);
     }
     else {
       // Return a string.
@@ -5487,7 +5488,7 @@ int LuaContext::enemy_api_get_attack_consequence_sprite(lua_State* l) {
     }
     else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
       // Return the callback.
-      reaction.callback.push();
+      reaction.callback.push(l);
     }
     else {
       // Return a string.

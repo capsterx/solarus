@@ -158,11 +158,14 @@ void ScopedLuaRef::clear() {
  *
  * The ref must not be empty.
  */
-void ScopedLuaRef::push() const {
+void ScopedLuaRef::push(lua_State *dst) const {
 
   Debug::check_assertion(!is_empty(), "Attempt to push an empty ref");
 
   lua_rawgeti(l, LUA_REGISTRYINDEX, ref);
+  if(dst != l) {
+    lua_xmove(l,dst,1);
+  }
 }
 
 /**
@@ -174,12 +177,13 @@ void ScopedLuaRef::push() const {
  * \param function_name A name describing the Lua function (only used to
  * print the error message if any).
  */
-void ScopedLuaRef::call(const std::string& function_name) const {
+bool ScopedLuaRef::call(const std::string& function_name) const {
 
   if (!is_empty()) {
-    push();
-    LuaTools::call_function(l, 0, 0, function_name.c_str());
+    push(l);
+    return LuaTools::call_function(l, 0, 0, function_name.c_str());
   }
+  return false;
 }
 
 /**
@@ -206,7 +210,7 @@ void ScopedLuaRef::clear_and_call(const std::string& function_name) {
   }
 
   lua_State* l = this->l;
-  push();
+  push(l);
   clear();  // The function is still alive, onto the stack.
   LuaTools::call_function(l, 0, 0, function_name.c_str());
 }
