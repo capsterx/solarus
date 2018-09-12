@@ -51,7 +51,6 @@ void LuaContext::register_state_module() {
     { "get_map", state_api_get_map },
     { "get_game", state_api_get_game },
     { "is_started", state_api_is_started },
-    { "is_stopping", state_api_is_stopping },
     { "get_can_control_direction", state_api_get_can_control_direction },
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
@@ -252,21 +251,6 @@ int LuaContext::state_api_is_started(lua_State* l) {
     const CustomState& state = *check_state(l, 1);
 
     lua_pushboolean(l, state.is_current_state());
-    return 1;
-  });
-}
-
-/**
- * \brief Implementation of state:is_stopping().
- * \param l The Lua context that is calling this function.
- * \return Number of values to return to Lua.
- */
-int LuaContext::state_api_is_stopping(lua_State* l) {
-
-  return LuaTools::exception_boundary_handle(l, [&] {
-    const CustomState& state = *check_state(l, 1);
-
-    lua_pushboolean(l, state.is_stopping());
     return 1;
   });
 }
