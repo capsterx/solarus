@@ -1218,7 +1218,7 @@ void Enemy::try_hurt(EnemyAttack attack, Entity& source, Sprite* this_sprite) {
   case EnemyReaction::ReactionType::LUA_CALLBACK:
     // Lua callback.
     if (is_in_normal_state()) {
-      reaction.callback.call("Enemy reaction callback");
+      reaction.callback.call("Enemy reaction callback",LuaContext::get().get_internal_state());
     }
     else {
       // no attack was made: notify the source correctly

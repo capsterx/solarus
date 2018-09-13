@@ -102,7 +102,7 @@ void LuaContext::push_shader(lua_State* l, Shader& shader) {
  */
 int LuaContext::shader_api_create(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     ShaderPtr shader;
     if (lua_isstring(l, 1)) {
@@ -140,7 +140,7 @@ int LuaContext::shader_api_create(lua_State* l) {
  */
 int LuaContext::shader_api_get_opengl_version(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& opengl_version = Video::get_opengl_version();
 
@@ -156,7 +156,7 @@ int LuaContext::shader_api_get_opengl_version(lua_State* l) {
  */
 int LuaContext::shader_api_get_shading_language_version(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& shading_language_version = Video::get_shading_language_version();
 
@@ -172,7 +172,7 @@ int LuaContext::shader_api_get_shading_language_version(lua_State* l) {
  */
 int LuaContext::shader_api_get_id(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -188,7 +188,7 @@ int LuaContext::shader_api_get_id(lua_State* l) {
  */
 int LuaContext::shader_api_get_vertex_file(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -210,7 +210,7 @@ int LuaContext::shader_api_get_vertex_file(lua_State* l) {
  */
 int LuaContext::shader_api_get_vertex_source(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -226,7 +226,7 @@ int LuaContext::shader_api_get_vertex_source(lua_State* l) {
  */
 int LuaContext::shader_api_get_fragment_file(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -248,7 +248,7 @@ int LuaContext::shader_api_get_fragment_file(lua_State* l) {
  */
 int LuaContext::shader_api_get_fragment_source(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -264,7 +264,7 @@ int LuaContext::shader_api_get_fragment_source(lua_State* l) {
  */
 int LuaContext::shader_api_get_scaling_factor(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const Shader& shader = *check_shader(l, 1);
 
@@ -286,7 +286,7 @@ int LuaContext::shader_api_get_scaling_factor(lua_State* l) {
  */
 int LuaContext::shader_api_set_scaling_factor(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     Shader& shader = *check_shader(l, 1);
 
@@ -317,7 +317,7 @@ int LuaContext::shader_api_set_scaling_factor(lua_State* l) {
  */
 int LuaContext::shader_api_set_uniform(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     Shader& shader = *check_shader(l, 1);
     const std::string& uniform_name = LuaTools::check_string(l, 2);

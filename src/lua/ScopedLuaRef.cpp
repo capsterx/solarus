@@ -16,6 +16,7 @@
  */
 #include "solarus/lua/LuaTools.h"
 #include "solarus/lua/ScopedLuaRef.h"
+#include "solarus/lua/LuaContext.h"
 #include <lua.hpp>
 
 namespace Solarus {
@@ -180,8 +181,9 @@ void ScopedLuaRef::push(lua_State *dst) const {
 bool ScopedLuaRef::call(const std::string& function_name) const {
 
   if (!is_empty()) {
-    push(l);
-    return LuaTools::call_function(l, 0, 0, function_name.c_str());
+    lua_State* ctx = LuaContext::get().get_internal_state();
+    push(ctx);
+    return LuaTools::call_function(ctx, 0, 0, function_name.c_str());
   }
   return false;
 }

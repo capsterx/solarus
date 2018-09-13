@@ -71,7 +71,7 @@ LuaContext::~LuaContext() {
  * \param l A Lua state.
  * \return The LuaContext object encapsulating this Lua state.
  */
-LuaContext& LuaContext::get_lua_context(lua_State*) {
+LuaContext& LuaContext::get() {
   Debug::check_assertion(lua_context,"No lua context available");
   return *lua_context;
 }
@@ -98,7 +98,7 @@ MainLoop& LuaContext::get_main_loop() {
 void LuaContext::initialize() {
 
   // Create an execution context.
-  current_l = luaL_newstate();
+  main_l = current_l = luaL_newstate();
   lua_atpanic(current_l, l_panic);
   luaL_openlibs(current_l);
 
@@ -193,6 +193,7 @@ void LuaContext::exit() {
     //lua_contexts.erase(l);
     lua_context = nullptr;
     current_l = nullptr;
+    main_l = nullptr;
   }
 }
 
@@ -205,7 +206,7 @@ void LuaContext::exit() {
 void LuaContext::update() {
 
   // Make sure the stack does not leak.
-  Debug::check_assertion(lua_gettop(current_l) == 0,
+  Debug::check_assertion(lua_gettop(main_l) == 0,
       "Non-empty stack before LuaContext::update()"
   );
 
@@ -224,7 +225,7 @@ void LuaContext::update() {
     cross_state_callbacks.pop();
   }
 
-  Debug::check_assertion(lua_gettop(current_l) == 0,
+  Debug::check_assertion(lua_gettop(main_l) == 0,
       "Non-empty stack after LuaContext::update()"
   );
 }
@@ -1107,7 +1108,7 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
     if (!userdata.is_known_to_lua()) {
       // This is the first time we create a Lua userdata for this object.
       userdata.set_known_to_lua(true);
-      userdata.set_lua_context(&get_lua_context(l));
+      userdata.set_lua_context(&get());
     }
 
                                   // ... all_udata nil
@@ -1315,7 +1316,7 @@ void LuaContext::notify_userdata_destroyed(ExportableToLua& userdata) {
     }
     lua_pop(current_l, 1);
                                   // ...
-    get_lua_context(current_l).userdata_fields.erase(&userdata);
+    get().userdata_fields.erase(&userdata);
   }
 }
 
@@ -1404,11 +1405,11 @@ int LuaContext::userdata_meta_newindex_as_table(lua_State* l) {
   if (lua_isstring(l, 2)) {
     if (!lua_isnil(l, 3)) {
       // Add the key to the list of existing strings keys on this userdata.
-      get_lua_context(l).userdata_fields[userdata.get()].insert(lua_tostring(l, 2));
+      get(l).userdata_fields[userdata.get()].insert(lua_tostring(l, 2));
     }
     else {
       // Assigning nil: remove the key from the list.
-      get_lua_context(l).userdata_fields[userdata.get()].erase(lua_tostring(l, 2));
+      get(l).userdata_fields[userdata.get()].erase(lua_tostring(l, 2));
     }
   }
 
@@ -1441,7 +1442,7 @@ int LuaContext::userdata_meta_index_as_table(lua_State* l) {
 
   const ExportableToLuaPtr& userdata =
       *(static_cast<ExportableToLuaPtr*>(lua_touserdata(l, 1)));
-  LuaContext& lua_context = get_lua_context(l);
+  LuaContext& lua_context = get(l);
 
   // If the userdata actually has a table, lookup this table, unless we already
   // know that we won't find it (because we know all the existing string keys).
@@ -3111,9 +3112,9 @@ int LuaContext::l_panic(lua_State* l) {
  */
 int LuaContext::l_loader(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& script_name = luaL_checkstring(l, 1);
-    bool load_success = get_lua_context(l).load_file(script_name);
+    bool load_success = get(l).load_file(script_name);
 
     if (!load_success) {
       std::ostringstream oss;

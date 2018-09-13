@@ -132,7 +132,7 @@ void LuaContext::update_drawables() {
  */
 int LuaContext::drawable_api_draw(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     SurfacePtr dst_surface = check_surface(l, 2);
     int x = LuaTools::opt_int(l, 3, 0);
@@ -150,7 +150,7 @@ int LuaContext::drawable_api_draw(lua_State* l) {
  */
 int LuaContext::drawable_api_draw_region(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     Rectangle region = {
         LuaTools::check_int(l, 2),
@@ -176,7 +176,7 @@ int LuaContext::drawable_api_draw_region(lua_State* l) {
  */
 int LuaContext::drawable_api_get_blend_mode(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
 
     BlendMode blend_mode = drawable.get_blend_mode();
@@ -194,7 +194,7 @@ int LuaContext::drawable_api_get_blend_mode(lua_State* l) {
  */
 int LuaContext::drawable_api_set_blend_mode(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     BlendMode blend_mode = LuaTools::check_enum<BlendMode>(l, 2);
 
@@ -210,7 +210,7 @@ int LuaContext::drawable_api_set_blend_mode(lua_State* l) {
  * \return Number of values to return to Lua.
  */
 int LuaContext::drawable_api_set_shader(lua_State* l) {
-  return LuaTools::exception_boundary_handle(l,[&]{
+  return state_boundary_handle(l,[&]{
     Drawable& drawable = *check_drawable(l,1);
     ShaderPtr shader = nullptr;
     if (!lua_isnil(l, 2)) {
@@ -232,7 +232,7 @@ int LuaContext::drawable_api_set_shader(lua_State* l) {
  * \return Number of values to return to Lua.
  */
 int LuaContext::drawable_api_get_shader(lua_State* l) {
-  return LuaTools::exception_boundary_handle(l,[&]{
+  return state_boundary_handle(l,[&]{
     const Drawable& drawable = *check_drawable(l,1);
     const ShaderPtr& shader = drawable.get_shader();
     if(shader) {
@@ -251,7 +251,7 @@ int LuaContext::drawable_api_get_shader(lua_State* l) {
  */
 int LuaContext::drawable_api_get_opacity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Drawable& drawable = *check_drawable(l, 1);
 
     uint8_t opacity = drawable.get_opacity();
@@ -268,7 +268,7 @@ int LuaContext::drawable_api_get_opacity(lua_State* l) {
  */
 int LuaContext::drawable_api_set_opacity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     uint8_t opacity = (uint8_t) LuaTools::check_int(l, 2);
 
@@ -285,7 +285,7 @@ int LuaContext::drawable_api_set_opacity(lua_State* l) {
  */
 int LuaContext::drawable_api_fade_in(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     uint32_t delay = 20;
     ScopedLuaRef callback_ref;
 
@@ -323,7 +323,7 @@ int LuaContext::drawable_api_fade_in(lua_State* l) {
  */
 int LuaContext::drawable_api_fade_out(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     uint32_t delay = 20;
     ScopedLuaRef callback_ref;
 
@@ -361,7 +361,7 @@ int LuaContext::drawable_api_fade_out(lua_State* l) {
  */
 int LuaContext::drawable_api_get_xy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
 
     lua_pushinteger(l, drawable.get_xy().x);
@@ -377,7 +377,7 @@ int LuaContext::drawable_api_get_xy(lua_State* l) {
  */
 int LuaContext::drawable_api_set_xy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     int x = LuaTools::check_int(l, 2);
     int y = LuaTools::check_int(l, 3);
@@ -395,7 +395,7 @@ int LuaContext::drawable_api_set_xy(lua_State* l) {
  */
 int LuaContext::drawable_api_set_rotation(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     double rot = LuaTools::check_number(l, 2);
 
@@ -412,7 +412,7 @@ int LuaContext::drawable_api_set_rotation(lua_State* l) {
  */
 int LuaContext::drawable_api_get_rotation(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Drawable& drawable = *check_drawable(l, 1);
     double rot = drawable.get_rotation();
 
@@ -428,7 +428,7 @@ int LuaContext::drawable_api_get_rotation(lua_State* l) {
  */
 int LuaContext::drawable_api_set_scale(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     double x = LuaTools::check_number(l, 2);
     double y = LuaTools::check_number(l, 3);
@@ -446,7 +446,7 @@ int LuaContext::drawable_api_set_scale(lua_State* l) {
  */
 int LuaContext::drawable_api_get_scale(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Drawable& drawable = *check_drawable(l, 1);
     const Scale& s = drawable.get_scale();
 
@@ -464,7 +464,7 @@ int LuaContext::drawable_api_get_scale(lua_State* l) {
  */
 int LuaContext::drawable_api_set_transformation_origin(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     double x = LuaTools::check_number(l, 2);
     double y = LuaTools::check_number(l, 3);
@@ -482,7 +482,7 @@ int LuaContext::drawable_api_set_transformation_origin(lua_State* l) {
  */
 int LuaContext::drawable_api_get_transformation_origin(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Drawable& drawable = *check_drawable(l, 1);
     const Point& o = drawable.get_transformation_origin();
 
@@ -499,7 +499,7 @@ int LuaContext::drawable_api_get_transformation_origin(lua_State* l) {
  */
 int LuaContext::drawable_api_get_movement(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
     std::shared_ptr<Movement> movement = drawable.get_movement();
     if (movement == nullptr) {
@@ -520,7 +520,7 @@ int LuaContext::drawable_api_get_movement(lua_State* l) {
  */
 int LuaContext::drawable_api_stop_movement(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Drawable& drawable = *check_drawable(l, 1);
 
     drawable.stop_movement();
@@ -536,8 +536,8 @@ int LuaContext::drawable_api_stop_movement(lua_State* l) {
  */
 int LuaContext::drawable_meta_gc(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get();
     DrawablePtr drawable = check_drawable(l, 1);
 
     if (lua_context.has_drawable(drawable)) {

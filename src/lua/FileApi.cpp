@@ -66,7 +66,7 @@ void LuaContext::register_file_module() {
  */
 int LuaContext::file_api_open(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
     const std::string& mode = LuaTools::opt_string(l, 2, "r");
 
@@ -142,7 +142,7 @@ int LuaContext::file_api_open(lua_State* l) {
  */
 int LuaContext::file_api_exists(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     lua_pushboolean(l, QuestFiles::data_file_exists(file_name, false));
@@ -158,7 +158,7 @@ int LuaContext::file_api_exists(lua_State* l) {
  */
 int LuaContext::file_api_remove(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     bool success = QuestFiles::data_file_delete(file_name);
@@ -181,7 +181,7 @@ int LuaContext::file_api_remove(lua_State* l) {
  */
 int LuaContext::file_api_mkdir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& dir_name = LuaTools::check_string(l, 1);
 
     bool success = QuestFiles::data_file_mkdir(dir_name);
@@ -204,7 +204,7 @@ int LuaContext::file_api_mkdir(lua_State* l) {
  */
 int LuaContext::file_api_is_dir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     lua_pushboolean(l, QuestFiles::data_file_is_dir(file_name));
@@ -220,7 +220,7 @@ int LuaContext::file_api_is_dir(lua_State* l) {
  */
 int LuaContext::file_api_list_dir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& dir_name = LuaTools::check_string(l, 1);
     if (!QuestFiles::data_file_is_dir(dir_name)) {

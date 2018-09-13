@@ -195,7 +195,7 @@ bool LuaContext::is_menu(lua_State* l, int index) {
     return false;
   }
 
-  LuaContext& lua_context = get_lua_context(l);
+  LuaContext& lua_context = get(l);
   for (LuaMenuData& menu: lua_context.menus) {
     if (menu.ref.is_empty()) {
       continue;
@@ -217,7 +217,7 @@ bool LuaContext::is_menu(lua_State* l, int index) {
  */
 int LuaContext::menu_api_start(lua_State *l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     // Parameters: context table.
     if (lua_type(l, 1) != LUA_TTABLE
         && lua_type(l, 1) != LUA_TUSERDATA) {
@@ -227,7 +227,7 @@ int LuaContext::menu_api_start(lua_State *l) {
     bool on_top = LuaTools::opt_boolean(l, 3, true);
     lua_settop(l, 2);
 
-    LuaContext& lua_context = get_lua_context(l);
+    LuaContext& lua_context = get(l);
     const ScopedLuaRef& menu_ref = lua_context.create_ref();
     lua_context.add_menu(menu_ref, 1, on_top);
 
@@ -242,8 +242,8 @@ int LuaContext::menu_api_start(lua_State *l) {
  */
 int LuaContext::menu_api_stop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get(l);
 
     LuaTools::check_type(l, 1, LUA_TTABLE);
 
@@ -272,13 +272,13 @@ int LuaContext::menu_api_stop(lua_State* l) {
  */
 int LuaContext::menu_api_stop_all(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     if (lua_type(l, 1) != LUA_TTABLE
         && lua_type(l, 1) != LUA_TUSERDATA) {
       LuaTools::type_error(l, 1, "table, game or map");
     }
 
-    get_lua_context(l).remove_menus(1);
+    get(l).remove_menus(1);
 
     return 0;
   });
@@ -291,8 +291,8 @@ int LuaContext::menu_api_stop_all(lua_State* l) {
  */
 int LuaContext::menu_api_is_started(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get(l);
 
     LuaTools::check_type(l, 1, LUA_TTABLE);
 
@@ -321,8 +321,8 @@ int LuaContext::menu_api_is_started(lua_State* l) {
  */
 int LuaContext::menu_api_bring_to_front(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get(l);
 
     LuaTools::check_type(l, 1, LUA_TTABLE);
 
@@ -353,8 +353,8 @@ int LuaContext::menu_api_bring_to_front(lua_State* l) {
  */
 int LuaContext::menu_api_bring_to_back(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get(l);
 
     LuaTools::check_type(l, 1, LUA_TTABLE);
 

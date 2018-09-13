@@ -444,7 +444,6 @@ void MainLoop::run() {
  * Otherwise, use run() to execute the standard main loop.
  */
 void MainLoop::step() {
-
   if (game != nullptr) {
     game->update();
   }

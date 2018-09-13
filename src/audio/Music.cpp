@@ -373,7 +373,7 @@ void Music::update() {
       ScopedLuaRef callback_ref = current_music->callback_ref;
       current_music->stop();
       current_music = nullptr;
-      callback_ref.call("music callback");
+      callback_ref.call("music callback",LuaContext::get().get_internal_state());
     }
   }
 }

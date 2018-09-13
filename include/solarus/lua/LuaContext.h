@@ -36,6 +36,7 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/ScopedLuaRef.h"
+#include "solarus/lua/LuaTools.h"
 #include <lua.hpp>
 #include <list>
 #include <map>
@@ -147,7 +148,7 @@ class LuaContext {
     explicit LuaContext(MainLoop& main_loop);
     ~LuaContext();
 
-    static LuaContext& get_lua_context(lua_State* current_l);
+    static LuaContext& get();
     lua_State* get_internal_state();
 
     MainLoop& get_main_loop();
@@ -197,20 +198,31 @@ class LuaContext {
     bool do_string(const std::string& code, const std::string& chunk_name);
     bool do_string_with_easy_env(const std::string& code, const std::string& chunk_name);
 
+    //TODO put those templates impl in a LuaContext.inl
     //Getting across coroutines state
-    template<typename Func>
+    template<typename Callable>
     /**
      * @brief run given closure on main lua thread
      * @param current current lua state
      * @param func a void(lua_State* main) closure
      */
-    void run_on_main(lua_State* current, Func func) {
-      if(current == current_l) {
+    void run_on_main(Callable&& func) {
+      if(current_l == main_l) {
         func(current_l);
       } else {
         cross_state_callbacks.push(func);
       }
     }
+
+    template<typename Callable>
+    static int state_boundary_handle(lua_State* l, Callable&& func) {
+      lua_State* previous = lua_context->get_internal_state();
+      lua_context->set_current_state(l);
+      int result = LuaTools::exception_boundary_handle(l,func);
+      lua_context->set_current_state(previous);
+      return result;
+    }
+
 
     static void set_current_state(lua_State* l);
 
@@ -250,7 +262,7 @@ class LuaContext {
     void notify_timers_map_suspended(bool suspended);
     void set_entity_timers_suspended(Entity& entity, bool suspended);
     void set_entity_timers_suspended_as_map(Entity& entity, bool suspended);
-    void do_timer_callback(const TimerPtr& timer, lua_State *current_l);
+    void do_timer_callback(const TimerPtr& timer);
 
     // Menus.
     void add_menu(
