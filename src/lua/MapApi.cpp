@@ -165,7 +165,7 @@ void LuaContext::register_map_module() {
   register_type(map_module_name, {}, methods, metamethods);
 
   // Add map:create_* functions as closures because we pass the entity type as upvalue.
-  luaL_getmetatable(l, map_module_name.c_str());
+  luaL_getmetatable(current_l, map_module_name.c_str());
   for (const auto& kvp : EnumInfoTraits<EntityType>::names) {
     EntityType type = kvp.first;
     const std::string& type_name = kvp.second;
@@ -173,20 +173,20 @@ void LuaContext::register_map_module() {
       continue;
     }
     std::string function_name = "create_" + type_name;
-    push_string(l, type_name);
-    lua_pushcclosure(l, map_api_create_entity, 1);
-    lua_setfield(l, -2, function_name.c_str());
+    push_string(current_l, type_name);
+    lua_pushcclosure(current_l, map_api_create_entity, 1);
+    lua_setfield(current_l, -2, function_name.c_str());
   }
 
   // Add a Lua implementation of the deprecated map:move_camera() function.
-  int result = luaL_loadstring(l, move_camera_code);
+  int result = luaL_loadstring(current_l, move_camera_code);
   if (result != 0) {
-    Debug::error(std::string("Failed to initialize map:move_camera(): ") + lua_tostring(l, -1));
-    lua_pop(l, 1);
+    Debug::error(std::string("Failed to initialize map:move_camera(): ") + lua_tostring(current_l, -1));
+    lua_pop(current_l, 1);
   }
   else {
-    Debug::check_assertion(lua_isfunction(l, -1), "map:move_camera() is not a function");
-    lua_setfield(l, LUA_REGISTRYINDEX, "map.move_camera");
+    Debug::check_assertion(lua_isfunction(current_l, -1), "map:move_camera() is not a function");
+    lua_setfield(current_l, LUA_REGISTRYINDEX, "map.move_camera");
   }
 }
 
@@ -1394,9 +1394,9 @@ bool LuaContext::create_map_entity_from_data(Map& map, const EntityData& entity_
   );
   lua_CFunction function = it->second;
 
-  lua_pushcfunction(l, function);
-  push_map(l, map);
-  lua_pushlightuserdata(l, const_cast<EntityData*>(&entity_data));
+  lua_pushcfunction(current_l, function);
+  push_map(current_l, map);
+  lua_pushlightuserdata(current_l, const_cast<EntityData*>(&entity_data));
   return call_function(2, 1, function_name.c_str());
 }
 
@@ -2366,9 +2366,9 @@ void LuaContext::map_on_started(Map& map, Destination* destination) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_started(destination);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2380,13 +2380,13 @@ void LuaContext::map_on_started(Map& map, Destination* destination) {
  */
 void LuaContext::map_on_finished(Map& map) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_finished")) {
     on_finished();
   }
   remove_timers(-1);  // Stop timers and menus associated to this map.
   remove_menus(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2398,7 +2398,7 @@ void LuaContext::map_on_finished(Map& map) {
  */
 void LuaContext::map_on_update(Map& map) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   // This particular method is tried so often that we want to save optimize
   // the std::string construction.
   static const std::string method_name = "on_update";
@@ -2406,7 +2406,7 @@ void LuaContext::map_on_update(Map& map) {
     on_update();
   }
   menus_on_update(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2419,12 +2419,12 @@ void LuaContext::map_on_update(Map& map) {
  */
 void LuaContext::map_on_draw(Map& map, const SurfacePtr& dst_surface) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_draw")) {
     on_draw(dst_surface);
   }
   menus_on_draw(-1, dst_surface);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2440,12 +2440,12 @@ void LuaContext::map_on_draw(Map& map, const SurfacePtr& dst_surface) {
  */
 bool LuaContext::map_on_input(Map& map, const InputEvent& event) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   bool handled = on_input(event);
   if (!handled) {
     handled = menus_on_input(-1, event);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2462,14 +2462,14 @@ bool LuaContext::map_on_input(Map& map, const InputEvent& event) {
 bool LuaContext::map_on_command_pressed(Map& map, GameCommand command) {
 
   bool handled = false;
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_command_pressed")) {
     handled = on_command_pressed(command);
   }
   if (!handled) {
     handled = menus_on_command_pressed(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2486,14 +2486,14 @@ bool LuaContext::map_on_command_pressed(Map& map, GameCommand command) {
 bool LuaContext::map_on_command_released(Map& map, GameCommand command) {
 
   bool handled = false;
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_command_released")) {
     handled = on_command_released(command);
   }
   if (!handled) {
     handled = menus_on_command_released(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2511,9 +2511,9 @@ void LuaContext::map_on_suspended(Map& map, bool suspended) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_suspended(suspended);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2531,9 +2531,9 @@ void LuaContext::map_on_opening_transition_finished(Map& map,
     //return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_opening_transition_finished(destination);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2550,9 +2550,9 @@ void LuaContext::map_on_obtaining_treasure(Map& map, const Treasure& treasure) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_obtaining_treasure(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2569,9 +2569,9 @@ void LuaContext::map_on_obtained_treasure(Map& map, const Treasure& treasure) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_obtained_treasure(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

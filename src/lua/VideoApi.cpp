@@ -58,13 +58,13 @@ void LuaContext::register_video_module() {
     });
   }
   register_functions(video_module_name, functions);
-  lua_getglobal(l, "sol");
+  lua_getglobal(current_l, "sol");
                                   // ... sol
-  lua_getfield(l, -1, "video");
+  lua_getfield(current_l, -1, "video");
                                   // ... sol video
-  lua_setfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());
+  lua_setfield(current_l, LUA_REGISTRYINDEX, video_module_name.c_str());
                                   // ... sol
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -425,9 +425,9 @@ void LuaContext::video_on_draw(const SurfacePtr &screen) {
   if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
     return;
   }
-  push_video(l);
+  push_video(current_l);
   on_draw(screen);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

@@ -79,13 +79,13 @@ void LuaContext::register_main_module() {
   // like the name "sol".
 
                                   // ...
-  lua_getglobal(l, "sol");
+  lua_getglobal(current_l, "sol");
                                   // ... sol
-  lua_getfield(l, -1, "main");
+  lua_getfield(current_l, -1, "main");
                                   // ... sol main
-  lua_setfield(l, LUA_REGISTRYINDEX, main_module_name.c_str());
+  lua_setfield(current_l, LUA_REGISTRYINDEX, main_module_name.c_str());
                                   // ... sol
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // ...
 }
 
@@ -560,9 +560,9 @@ int LuaContext::main_api_get_game(lua_State* l) {
  */
 void LuaContext::main_on_started() {
 
-  push_main(l);
+  push_main(current_l);
   on_started();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -572,11 +572,11 @@ void LuaContext::main_on_started() {
  */
 void LuaContext::main_on_finished() {
 
-  push_main(l);
+  push_main(current_l);
   on_finished();
   remove_timers(-1);  // Stop timers associated to sol.main.
   remove_menus(-1);  // Stop menus associated to sol.main.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -586,10 +586,10 @@ void LuaContext::main_on_finished() {
  */
 void LuaContext::main_on_update() {
 
-  push_main(l);
+  push_main(current_l);
   on_update();
   menus_on_update(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -598,10 +598,10 @@ void LuaContext::main_on_update() {
  */
 void LuaContext::main_on_draw(const SurfacePtr& dst_surface) {
 
-  push_main(l);
+  push_main(current_l);
   on_draw(dst_surface);
   menus_on_draw(-1, dst_surface);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -614,12 +614,12 @@ void LuaContext::main_on_draw(const SurfacePtr& dst_surface) {
  */
 bool LuaContext::main_on_input(const InputEvent& event) {
 
-  push_main(l);
+  push_main(current_l);
   bool handled = on_input(event);
   if (!handled) {
     handled = menus_on_input(-1, event);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 

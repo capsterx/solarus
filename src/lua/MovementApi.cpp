@@ -351,17 +351,17 @@ void LuaContext::register_movement_module() {
 
   // Create the table that will store the movements applied to x,y points.
                                   // ...
-  lua_newtable(l);
+  lua_newtable(current_l);
                                   // ... movements
-  lua_newtable(l);
+  lua_newtable(current_l);
                                   // ... movements meta
-  lua_pushstring(l, "v");
+  lua_pushstring(current_l, "v");
                                   // ... movements meta "v"
-  lua_setfield(l, -2, "__mode");
+  lua_setfield(current_l, -2, "__mode");
                                   // ... movements meta
-  lua_setmetatable(l, -2);
+  lua_setmetatable(current_l, -2);
                                   // ... movements
-  lua_setfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_setfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ...
 }
 
@@ -429,50 +429,50 @@ void LuaContext::start_movement_on_point(
   int x = 0;
   int y = 0;
                                   // ...
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ... movements
-  push_movement(l, *movement);
+  push_movement(current_l, *movement);
                                   // ... movements movement
-  lua_pushvalue(l, point_index);
+  lua_pushvalue(current_l, point_index);
                                   // ... movements movement xy
-  lua_getfield(l, -1, "x");
+  lua_getfield(current_l, -1, "x");
                                   // ... movements movement xy x/nil
-  if (lua_isnil(l, -1)) {
+  if (lua_isnil(current_l, -1)) {
                                   // ... movements movement xy nil
-    lua_pop(l, 1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
-    lua_pushinteger(l, 0);
+    lua_pushinteger(current_l, 0);
                                   // ... movements movement xy 0
-    lua_setfield(l, -2, "x");
+    lua_setfield(current_l, -2, "x");
                                   // ... movements movement xy
   }
   else {
                                   // ... movements movement xy x
-    x = LuaTools::check_int(l, -1);
-    lua_pop(l, 1);
+    x = LuaTools::check_int(current_l, -1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
   }
-  lua_getfield(l, -1, "y");
+  lua_getfield(current_l, -1, "y");
                                   // ... movements movement xy y/nil
-  if (lua_isnil(l, -1)) {
+  if (lua_isnil(current_l, -1)) {
                                   // ... movements movement xy nil
-    lua_pop(l, 1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
-    lua_pushinteger(l, 0);
+    lua_pushinteger(current_l, 0);
                                   // ... movements movement xy 0
-    lua_setfield(l, -2, "y");
+    lua_setfield(current_l, -2, "y");
                                   // ... movements movement xy
   }
   else {
                                   // ... movements movement xy y
-    y = LuaTools::check_int(l, -1);
-    lua_pop(l, 1);
+    y = LuaTools::check_int(current_l, -1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
   }
 
-  lua_settable(l, -3);
+  lua_settable(current_l, -3);
                                   // ... movements
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // ...
   movement->set_xy(x, y);
 
@@ -487,15 +487,15 @@ void LuaContext::start_movement_on_point(
 void LuaContext::stop_movement_on_point(const std::shared_ptr<Movement>& movement) {
 
                                   // ...
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ... movements
-  push_movement(l, *movement);
+  push_movement(current_l, *movement);
                                   // ... movements movement
-  lua_pushnil(l);
+  lua_pushnil(current_l);
                                   // ... movements movement nil
-  lua_settable(l, -3);
+  lua_settable(current_l, -3);
                                   // ... movements
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // ...
 }
 
@@ -508,15 +508,15 @@ void LuaContext::stop_movement_on_point(const std::shared_ptr<Movement>& movemen
  */
 void LuaContext::update_movements() {
 
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
   std::vector<std::shared_ptr<Movement>> movements;
-  lua_pushnil(l);  // First key.
-  while (lua_next(l, -2)) {
-    const std::shared_ptr<Movement>& movement = check_movement(l, -2);
+  lua_pushnil(current_l);  // First key.
+  while (lua_next(current_l, -2)) {
+    const std::shared_ptr<Movement>& movement = check_movement(current_l, -2);
     movements.push_back(movement);
-    lua_pop(l, 1);  // Pop the value, keep the key for next iteration.
+    lua_pop(current_l, 1);  // Pop the value, keep the key for next iteration.
   }
-  lua_pop(l, 1);  // Pop the movements table.
+  lua_pop(current_l, 1);  // Pop the movements table.
 
   // Work on a copy of the list because the list may be changed during the iteration.
   for (const std::shared_ptr<Movement>& movement : movements) {
@@ -2185,31 +2185,31 @@ void LuaContext::movement_on_position_changed(
     Movement& movement, const Point& xy) {
 
                                   // ...
-  push_movement(l, movement);
+  push_movement(current_l, movement);
                                   // ... movement
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ... movement movements
-  lua_pushvalue(l, -2);
+  lua_pushvalue(current_l, -2);
                                   // ... movement movements movement
-  lua_gettable(l, -2);
+  lua_gettable(current_l, -2);
                                   // ... movement movements xy/nil
-  if (!lua_isnil(l, -1)) {
+  if (!lua_isnil(current_l, -1)) {
                                   // ... movement movements xy
-    lua_pushinteger(l, xy.x);
+    lua_pushinteger(current_l, xy.x);
                                   // ... movement movements xy x
-    lua_setfield(l, -2, "x");
+    lua_setfield(current_l, -2, "x");
                                   // ... movement movements xy
-    lua_pushinteger(l, xy.y);
+    lua_pushinteger(current_l, xy.y);
                                   // ... movement movements xy y
-    lua_setfield(l, -2, "y");
+    lua_setfield(current_l, -2, "y");
                                   // ... movement movements xy
   }
-  lua_pop(l, 2);
+  lua_pop(current_l, 2);
                                   // ... movement
   if (userdata_has_field(movement, "on_position_changed")) {
     on_position_changed(xy);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2225,9 +2225,9 @@ void LuaContext::movement_on_obstacle_reached(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
+  push_movement(current_l, movement);
   on_obstacle_reached();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2243,9 +2243,9 @@ void LuaContext::movement_on_changed(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
+  push_movement(current_l, movement);
   on_changed();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2261,9 +2261,9 @@ void LuaContext::movement_on_finished(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
+  push_movement(current_l, movement);
   on_finished();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

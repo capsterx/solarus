@@ -110,14 +110,14 @@ void LuaContext::add_timer(
     const ScopedLuaRef& callback_ref
 ) {
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index)
+        lua_touserdata(current_l, context_index)
     );
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   Debug::execute_if_debug([&] {
@@ -142,17 +142,17 @@ void LuaContext::add_timer(
   if (game != nullptr) {
     // We are during a game: depending on the timer's context,
     // suspend the timer or not.
-    if (is_map(l, context_index)
-        || is_entity(l, context_index)
-        || is_state(l, context_index)
-        || is_item(l, context_index)) {
+    if (is_map(current_l, context_index)
+        || is_entity(current_l, context_index)
+        || is_state(current_l, context_index)
+        || is_item(current_l, context_index)) {
 
       timer->set_suspended_with_map(true);
 
       bool initially_suspended = false;
       // By default, we want the timer to be automatically suspended when a
       // camera movement, a dialog or the pause menu starts.
-      if (!is_entity(l, context_index) && !is_state(l, context_index)) {
+      if (!is_entity(current_l, context_index) && !is_state(current_l, context_index)) {
 
         // But in the initial state, we override that rule.
         // We initially suspend the timer only during a dialog.
@@ -163,11 +163,11 @@ void LuaContext::add_timer(
       }
       else {
         // Entities are more complex: they also get suspended when disabled.
-        if (is_entity(l, context_index)) {
-          EntityPtr entity = check_entity(l, context_index);
+        if (is_entity(current_l, context_index)) {
+          EntityPtr entity = check_entity(current_l, context_index);
           initially_suspended = entity->is_suspended() || !entity->is_enabled();
         } else {  // State.
-          std::shared_ptr<CustomState> state = check_state(l, context_index);
+          std::shared_ptr<CustomState> state = check_state(current_l, context_index);
           initially_suspended = state->is_suspended();
         }
       }
@@ -201,13 +201,13 @@ void LuaContext::remove_timer(const TimerPtr& timer) {
 void LuaContext::remove_timers(int context_index) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   for (auto& kvp: timers) {
@@ -240,7 +240,7 @@ void LuaContext::update_timers() {
       // The timer is not being removed: update it.
       timer->update();
       if (timer->is_finished()) {
-        do_timer_callback(timer);
+        do_timer_callback(timer,get_internal_state());
       }
     }
   }
@@ -333,7 +333,7 @@ void LuaContext::set_entity_timers_suspended_as_map(
  *
  * \param timer The timer to execute.
  */
-void LuaContext::do_timer_callback(const TimerPtr& timer) {
+void LuaContext::do_timer_callback(const TimerPtr& timer, lua_State* l) {
 
   Debug::check_assertion(timer->is_finished(), "This timer is still running");
 
@@ -341,45 +341,49 @@ void LuaContext::do_timer_callback(const TimerPtr& timer) {
   if (it != timers.end() &&
       !it->second.callback_ref.is_empty()) {
     ScopedLuaRef& callback_ref = it->second.callback_ref;
+    run_on_main(l,[&](lua_State* l){ //Here l shadow previous l on purpose
+      if(callback_ref.is_empty()) {
+        return; //Ref might be cleared meanwhile
+      }
+      callback_ref.push(l);
+      const bool success = LuaTools::call_function(l,0,1,"timer callback");
 
-    callback_ref.push(l);
-    const bool success = LuaTools::call_function(l,0,1,"timer callback");
+      bool repeat = false;
+      int interval = timer->get_duration();
+      if (success) {
 
-    bool repeat = false;
-    int interval = timer->get_duration();
-    if (success) {
-
-      if (lua_isnumber(l, -1)) {
-        interval = lua_tointeger(l, -1);
-        if (interval < 0) {
-          std::ostringstream oss;
-          oss << "Invalid timer delay: " + oss.str();
-          Debug::error(oss.str());
+        if (lua_isnumber(l, -1)) {
+          interval = lua_tointeger(l, -1);
+          if (interval < 0) {
+            std::ostringstream oss;
+            oss << "Invalid timer delay: " + oss.str();
+            Debug::error(oss.str());
+          }
+          else {
+            repeat = true;
+          }
         }
-        else {
-          repeat = true;
+        else if (lua_isboolean(l, -1)) {
+          repeat = lua_toboolean(l, -1);
+        }
+        lua_pop(l, 1);
+      }
+
+      if (repeat) {
+        // The callback returned true: reschedule the timer.
+        timer->set_duration(interval);
+        timer->set_expiration_date(timer->get_expiration_date() + interval);
+        if (timer->is_finished()) {
+          // Already finished: this is possible if the duration is smaller than
+          // the main loop stepsize.
+          do_timer_callback(timer,l);
         }
       }
-      else if (lua_isboolean(l, -1)) {
-        repeat = lua_toboolean(l, -1);
+      else {
+        callback_ref.clear();
+        timers_to_remove.push_back(timer);
       }
-      lua_pop(l, 1);
-    }
-
-    if (repeat) {
-      // The callback returned true: reschedule the timer.
-      timer->set_duration(interval);
-      timer->set_expiration_date(timer->get_expiration_date() + interval);
-      if (timer->is_finished()) {
-        // Already finished: this is possible if the duration is smaller than
-        // the main loop stepsize.
-        do_timer_callback(timer);
-      }
-    }
-    else {
-      callback_ref.clear();
-      timers_to_remove.push_back(timer);
-    }
+    });
   }
 }
 
@@ -451,7 +455,7 @@ int LuaContext::timer_api_start(lua_State *l) {
 
     if (delay == 0) {
       // The delay is zero: call the function right now.
-      lua_context.do_timer_callback(timer);
+      lua_context.do_timer_callback(timer,l);
     }
 
     push_timer(l, timer);
@@ -648,7 +652,7 @@ int LuaContext::timer_api_set_remaining_time(lua_State* l) {
       timer->set_expiration_date(expiration_date);
       if (now >= expiration_date) {
         // Execute the callback now.
-        lua_context.do_timer_callback(timer);
+        lua_context.do_timer_callback(timer,l);
       }
     }
 

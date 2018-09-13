@@ -783,9 +783,9 @@ void LuaContext::item_on_started(EquipmentItem& item) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_started();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -797,13 +797,13 @@ void LuaContext::item_on_started(EquipmentItem& item) {
  */
 void LuaContext::item_on_finished(EquipmentItem& item) {
 
-  push_item(l, item);
+  push_item(current_l, item);
   if (userdata_has_field(item, "on_finished")) {
     on_finished();
   }
   remove_timers(-1);  // Stop timers and menus associated to this item.
   remove_menus(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -822,9 +822,9 @@ void LuaContext::item_on_update(EquipmentItem& item) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_update();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -841,9 +841,9 @@ void LuaContext::item_on_suspended(EquipmentItem& item, bool suspended) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_suspended(suspended);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -859,9 +859,9 @@ void LuaContext::item_on_created(EquipmentItem& item) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_created();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -878,9 +878,9 @@ void LuaContext::item_on_map_changed(EquipmentItem& item, Map& map) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_map_changed(map);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -898,9 +898,9 @@ void LuaContext::item_on_pickable_created(EquipmentItem& item,
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_pickable_created(pickable);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -917,9 +917,9 @@ void LuaContext::item_on_obtaining(EquipmentItem& item, const Treasure& treasure
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_obtaining(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -936,9 +936,9 @@ void LuaContext::item_on_obtained(EquipmentItem& item, const Treasure& treasure)
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_obtained(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -955,9 +955,9 @@ void LuaContext::item_on_variant_changed(EquipmentItem& item, int variant) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_variant_changed(variant);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -974,9 +974,9 @@ void LuaContext::item_on_amount_changed(EquipmentItem& item, int amount) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_amount_changed(amount);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -992,9 +992,9 @@ void LuaContext::item_on_using(EquipmentItem& item) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_using();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1011,9 +1011,9 @@ void LuaContext::item_on_ability_used(EquipmentItem& item, Ability ability) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_ability_used(ability);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1030,9 +1030,9 @@ void LuaContext::item_on_npc_interaction(EquipmentItem& item, Npc& npc) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_npc_interaction(npc);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1052,9 +1052,9 @@ bool LuaContext::item_on_npc_interaction_item(EquipmentItem& item, Npc& npc,
     return false;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   bool result = on_npc_interaction_item(npc, item_used);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return result;
 }
 
@@ -1072,9 +1072,9 @@ void LuaContext::item_on_npc_collision_fire(EquipmentItem& item, Npc& npc) {
     return;
   }
 
-  push_item(l, item);
+  push_item(current_l, item);
   on_npc_collision_fire(npc);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

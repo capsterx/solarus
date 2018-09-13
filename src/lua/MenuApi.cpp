@@ -67,13 +67,13 @@ void LuaContext::add_menu(
     bool on_top
 ) {
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   if (on_top) {
@@ -96,13 +96,13 @@ void LuaContext::add_menu(
 void LuaContext::remove_menus(int context_index) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   // Some menu:on_finished() callbacks may create menus themselves,
@@ -384,9 +384,9 @@ int LuaContext::menu_api_bring_to_back(lua_State* l) {
  */
 void LuaContext::menu_on_started(const ScopedLuaRef& menu_ref) {
 
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
   on_started();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -395,11 +395,11 @@ void LuaContext::menu_on_started(const ScopedLuaRef& menu_ref) {
  */
 void LuaContext::menu_on_finished(const ScopedLuaRef& menu_ref) {
 
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
   remove_menus(-1);  // First, stop children menus if any.
   on_finished();
   remove_timers(-1);  // Stop timers associated to this menu.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -408,10 +408,10 @@ void LuaContext::menu_on_finished(const ScopedLuaRef& menu_ref) {
  */
 void LuaContext::menu_on_update(const ScopedLuaRef& menu_ref) {
 
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
   on_update();
   menus_on_update(-1);  // Update children menus if any.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -423,10 +423,10 @@ void LuaContext::menu_on_draw(
     const ScopedLuaRef& menu_ref,
     const SurfacePtr& dst_surface
 ) {
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
   on_draw(dst_surface);
   menus_on_draw(-1, dst_surface);  // Draw children menus if any.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -440,7 +440,7 @@ bool LuaContext::menu_on_input(
     const InputEvent& event
 ) {
   // Get the Lua menu.
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
 
   // Send the event to children menus first.
   bool handled = menus_on_input(-1, event);
@@ -451,7 +451,7 @@ bool LuaContext::menu_on_input(
   }
 
   // Remove the menu from the stack.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return handled;
 }
@@ -466,7 +466,7 @@ bool LuaContext::menu_on_command_pressed(
     const ScopedLuaRef& menu_ref,
     GameCommand command
 ) {
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
 
   // Send the event to children menus first.
   bool handled = menus_on_command_pressed(-1, command);
@@ -476,7 +476,7 @@ bool LuaContext::menu_on_command_pressed(
     handled = on_command_pressed(command);
   }
 
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return handled;
 }
@@ -491,7 +491,7 @@ bool LuaContext::menu_on_command_released(
     const ScopedLuaRef& menu_ref,
     GameCommand command
 ) {
-  push_ref(l, menu_ref);
+  push_ref(current_l, menu_ref);
 
   // Send the event to children menus first.
   bool handled = menus_on_command_released(-1, command);
@@ -501,7 +501,7 @@ bool LuaContext::menu_on_command_released(
     handled = on_command_released(command);
   }
 
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return handled;
 }
@@ -513,13 +513,13 @@ bool LuaContext::menu_on_command_released(
 void LuaContext::menus_on_update(int context_index) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   for (LuaMenuData& menu: menus) {
@@ -537,13 +537,13 @@ void LuaContext::menus_on_update(int context_index) {
 void LuaContext::menus_on_draw(int context_index, const SurfacePtr& dst_surface) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   for (LuaMenuData& menu: menus) {
@@ -562,13 +562,13 @@ void LuaContext::menus_on_draw(int context_index, const SurfacePtr& dst_surface)
 bool LuaContext::menus_on_input(int context_index, const InputEvent& event) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   bool handled = false;
@@ -593,13 +593,13 @@ bool LuaContext::menus_on_command_pressed(int context_index,
     GameCommand command) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   bool handled = false;
@@ -624,13 +624,13 @@ bool LuaContext::menus_on_command_released(int context_index,
     GameCommand command) {
 
   const void* context;
-  if (lua_type(l, context_index) == LUA_TUSERDATA) {
+  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
     ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(l, context_index));
+        lua_touserdata(current_l, context_index));
     context = userdata->get();
   }
   else {
-    context = lua_topointer(l, context_index);
+    context = lua_topointer(current_l, context_index);
   }
 
   bool handled = false;

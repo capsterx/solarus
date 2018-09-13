@@ -1566,9 +1566,9 @@ void LuaContext::game_on_started(Game& game) {
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_started();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1580,13 +1580,13 @@ void LuaContext::game_on_started(Game& game) {
  */
 void LuaContext::game_on_finished(Game& game) {
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   if (userdata_has_field(game.get_savegame(), "on_finished")) {
     on_finished();
   }
   remove_timers(-1);  // Stop timers and menus associated to this game.
   remove_menus(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1598,7 +1598,7 @@ void LuaContext::game_on_finished(Game& game) {
  */
 void LuaContext::game_on_update(Game& game) {
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   // This particular method is tried so often that we want to optimize
   // the std::string construction.
   static const std::string method_name = "on_update";
@@ -1606,7 +1606,7 @@ void LuaContext::game_on_update(Game& game) {
     on_update();
   }
   menus_on_update(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1619,12 +1619,12 @@ void LuaContext::game_on_update(Game& game) {
  */
 void LuaContext::game_on_draw(Game& game, const SurfacePtr& dst_surface) {
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   if (userdata_has_field(game.get_savegame(), "on_draw")) {
     on_draw(dst_surface);
   }
   menus_on_draw(-1, dst_surface);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1641,9 +1641,9 @@ void LuaContext::game_on_map_changed(Game& game, Map& map) {
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_map_changed(map);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1670,9 +1670,9 @@ void LuaContext::game_on_world_changed(
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_world_changed(previous_world, new_world);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1688,9 +1688,9 @@ void LuaContext::game_on_paused(Game& game) {
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_paused();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1706,9 +1706,9 @@ void LuaContext::game_on_unpaused(Game& game) {
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_unpaused();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1731,9 +1731,9 @@ bool LuaContext::game_on_dialog_started(
     return false;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   bool exists = on_dialog_started(dialog, info_ref);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return exists;
 }
@@ -1753,9 +1753,9 @@ void LuaContext::game_on_dialog_finished(Game& game,
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_dialog_finished(dialog);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1772,9 +1772,9 @@ bool LuaContext::game_on_game_over_started(Game& game) {
     return false;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   bool exists = on_game_over_started();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return exists;
 }
@@ -1792,9 +1792,9 @@ void LuaContext::game_on_game_over_finished(Game& game) {
     return;
   }
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   on_game_over_finished();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -1810,12 +1810,12 @@ void LuaContext::game_on_game_over_finished(Game& game) {
  */
 bool LuaContext::game_on_input(Game& game, const InputEvent& event) {
 
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   bool handled = on_input(event);
   if (!handled) {
     handled = menus_on_input(-1, event);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -1832,14 +1832,14 @@ bool LuaContext::game_on_input(Game& game, const InputEvent& event) {
 bool LuaContext::game_on_command_pressed(Game& game, GameCommand command) {
 
   bool handled = false;
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   if (userdata_has_field(game.get_savegame(), "on_command_pressed")) {
     handled = on_command_pressed(command);
   }
   if (!handled) {
     handled = menus_on_command_pressed(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -1856,14 +1856,14 @@ bool LuaContext::game_on_command_pressed(Game& game, GameCommand command) {
 bool LuaContext::game_on_command_released(Game& game, GameCommand command) {
 
   bool handled = false;
-  push_game(l, game.get_savegame());
+  push_game(current_l, game.get_savegame());
   if (userdata_has_field(game.get_savegame(), "on_command_released")) {
     handled = on_command_released(command);
   }
   if (!handled) {
     handled = menus_on_command_released(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 

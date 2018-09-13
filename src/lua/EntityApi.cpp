@@ -842,9 +842,9 @@ void LuaContext::do_entity_draw_override_function(
     Entity& entity,
     Camera& camera
 ) {
-  push_ref(l, draw_override);
-  push_entity(l, entity);
-  push_camera(l, camera);
+  push_ref(current_l, draw_override);
+  push_entity(current_l, entity);
+  push_camera(current_l, camera);
   call_function(2, 0, "entity draw override");
 }
 
@@ -2909,20 +2909,20 @@ void LuaContext::notify_hero_brandish_treasure(
   const std::string& dialog_id = oss.str();
   Game& game = treasure.get_game();
 
-  push_item(l, treasure.get_item());
-  lua_pushinteger(l, treasure.get_variant());
-  push_string(l, treasure.get_savegame_variable());
-  push_ref(l, callback_ref);
-  lua_pushcclosure(l, l_treasure_brandish_finished, 4);
+  push_item(current_l, treasure.get_item());
+  lua_pushinteger(current_l, treasure.get_variant());
+  push_string(current_l, treasure.get_savegame_variable());
+  push_ref(current_l, callback_ref);
+  lua_pushcclosure(current_l, l_treasure_brandish_finished, 4);
   const ScopedLuaRef& treasure_callback_ref = create_ref();
 
   if (!CurrentQuest::dialog_exists(dialog_id)) {
     // No treasure dialog: keep brandishing the treasure for some delay
     // and then execute the callback.
     TimerPtr timer = std::make_shared<Timer>(3000);
-    push_map(l, game.get_current_map());
+    push_map(current_l, game.get_current_map());
     add_timer(timer, -1, treasure_callback_ref);
-    lua_pop(l, 1);
+    lua_pop(current_l, 1);
   }
   else {
     // A treasure dialog exists. Show it and then execute the callback.
@@ -4349,8 +4349,8 @@ void LuaContext::push_shop_treasure(lua_State* l, ShopTreasure& shop_treasure) {
  */
 void LuaContext::notify_shop_treasure_interaction(ShopTreasure& shop_treasure) {
 
-  push_shop_treasure(l, shop_treasure);
-  lua_pushcclosure(l, l_shop_treasure_description_dialog_finished, 1);
+  push_shop_treasure(current_l, shop_treasure);
+  lua_pushcclosure(current_l, l_shop_treasure_description_dialog_finished, 1);
   const ScopedLuaRef& callback_ref = create_ref();
 
   shop_treasure.get_game().start_dialog(
@@ -5967,20 +5967,20 @@ bool LuaContext::do_custom_entity_traversable_test_function(
   );
 
   // Call the test function.
-  push_ref(l, traversable_test_ref);
-  Debug::check_assertion(lua_isfunction(l, -1),
+  push_ref(current_l, traversable_test_ref);
+  Debug::check_assertion(lua_isfunction(current_l, -1),
       "Traversable test is not a function"
   );
-  push_custom_entity(l, custom_entity);
-  push_entity(l, other_entity);
-  if (!LuaTools::call_function(l, 2, 1, "traversable test function")) {
+  push_custom_entity(current_l, custom_entity);
+  push_entity(current_l, other_entity);
+  if (!LuaTools::call_function(current_l, 2, 1, "traversable test function")) {
     // Error in the traversable test function.
     return false;
   }
 
   // See its result.
-  bool traversable = lua_toboolean(l, -1);
-  lua_pop(l, 1);
+  bool traversable = lua_toboolean(current_l, -1);
+  lua_pop(current_l, 1);
 
   return traversable;
 }
@@ -6002,20 +6002,20 @@ bool LuaContext::do_custom_entity_collision_test_function(
   );
 
   // Call the test function.
-  push_ref(l, collision_test_ref);
-  Debug::check_assertion(lua_isfunction(l, -1),
+  push_ref(current_l, collision_test_ref);
+  Debug::check_assertion(lua_isfunction(current_l, -1),
       "Collision test is not a function"
   );
-  push_custom_entity(l, custom_entity);
-  push_entity(l, other_entity);
-  if (!LuaTools::call_function(l, 2, 1, "collision test function")) {
+  push_custom_entity(current_l, custom_entity);
+  push_entity(current_l, other_entity);
+  if (!LuaTools::call_function(current_l, 2, 1, "collision test function")) {
     // Error in the collision test function.
     return false;
   }
 
   // See its result.
-  bool collision = lua_toboolean(l, -1);
-  lua_pop(l, 1);
+  bool collision = lua_toboolean(current_l, -1);
+  lua_pop(current_l, 1);
 
   return collision;
 }
@@ -6034,12 +6034,12 @@ void LuaContext::do_custom_entity_collision_callback(
   Debug::check_assertion(!callback_ref.is_empty(),
       "Missing collision callback");
 
-  push_ref(l, callback_ref);
-  Debug::check_assertion(lua_isfunction(l, -1),
+  push_ref(current_l, callback_ref);
+  Debug::check_assertion(lua_isfunction(current_l, -1),
       "Collision callback is not a function");
-  push_custom_entity(l, custom_entity);
-  push_entity(l, other_entity);
-  LuaTools::call_function(l, 2, 0, "collision callback");
+  push_custom_entity(current_l, custom_entity);
+  push_entity(current_l, other_entity);
+  LuaTools::call_function(current_l, 2, 0, "collision callback");
 }
 
 /**
@@ -6064,14 +6064,14 @@ void LuaContext::do_custom_entity_collision_callback(
       "Missing sprite collision callback"
   );
 
-  push_ref(l, callback_ref);
-  Debug::check_assertion(lua_isfunction(l, -1),
+  push_ref(current_l, callback_ref);
+  Debug::check_assertion(lua_isfunction(current_l, -1),
       "Sprite collision callback is not a function");
-  push_custom_entity(l, custom_entity);
-  push_entity(l, other_entity);
-  push_sprite(l, custom_entity_sprite);
-  push_sprite(l, other_entity_sprite);
-  LuaTools::call_function(l, 4, 0, "collision callback");
+  push_custom_entity(current_l, custom_entity);
+  push_entity(current_l, other_entity);
+  push_sprite(current_l, custom_entity_sprite);
+  push_sprite(current_l, other_entity_sprite);
+  LuaTools::call_function(current_l, 4, 0, "collision callback");
 }
 
 /**
@@ -6456,9 +6456,9 @@ void LuaContext::entity_on_update(Entity& entity) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_update();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6475,9 +6475,9 @@ void LuaContext::entity_on_suspended(Entity& entity, bool suspended) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_suspended(suspended);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6493,9 +6493,9 @@ void LuaContext::entity_on_created(Entity& entity) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_created();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6507,12 +6507,12 @@ void LuaContext::entity_on_created(Entity& entity) {
  */
 void LuaContext::entity_on_removed(Entity& entity) {
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   if (userdata_has_field(entity, "on_removed")) {
     on_removed();
   }
   remove_timers(-1);  // Stop timers associated to this entity.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6528,9 +6528,9 @@ void LuaContext::entity_on_enabled(Entity& entity) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_enabled();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6546,9 +6546,9 @@ void LuaContext::entity_on_disabled(Entity& entity) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_disabled();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6565,9 +6565,9 @@ void LuaContext::entity_on_pre_draw(Entity& entity, Camera& camera) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_pre_draw(camera);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6584,9 +6584,9 @@ void LuaContext::entity_on_post_draw(Entity& entity, Camera& camera) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_post_draw(camera);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6605,9 +6605,9 @@ void LuaContext::entity_on_position_changed(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_position_changed(xy, layer);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6625,9 +6625,9 @@ void LuaContext::entity_on_obstacle_reached(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_obstacle_reached(movement);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6644,9 +6644,9 @@ void LuaContext::entity_on_obstacle_reached(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_movement_started(movement);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6664,9 +6664,9 @@ void LuaContext::entity_on_movement_changed(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_movement_changed(movement);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6682,9 +6682,9 @@ void LuaContext::entity_on_movement_finished(Entity& entity) {
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_movement_finished();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6701,9 +6701,9 @@ bool LuaContext::entity_on_interaction(Entity& entity) {
     return false;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   bool exists = on_interaction();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 
   return exists;
 }
@@ -6724,9 +6724,9 @@ bool LuaContext::entity_on_interaction_item(
     return false;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   bool result = on_interaction_item(item_used);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return result;
 }
 
@@ -6746,9 +6746,9 @@ void LuaContext::entity_on_state_changing(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_state_changing(state_name, next_state_name);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6766,9 +6766,9 @@ void LuaContext::entity_on_state_changed(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_state_changed(new_state_name);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6791,9 +6791,9 @@ void LuaContext::entity_on_lifting(
     return;
   }
 
-  push_entity(l, entity);
+  push_entity(current_l, entity);
   on_lifting(carrier, carried_object);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6811,9 +6811,9 @@ bool LuaContext::hero_on_taking_damage(Hero& hero, int damage) {
     return false;
   }
 
-  push_hero(l, hero);
+  push_hero(current_l, hero);
   bool exists = on_taking_damage(damage);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return exists;
 }
 
@@ -6830,9 +6830,9 @@ void LuaContext::destination_on_activated(Destination& destination) {
     return;
   }
 
-  push_entity(l, destination);
+  push_entity(current_l, destination);
   on_activated();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6848,9 +6848,9 @@ void LuaContext::teletransporter_on_activated(Teletransporter& teletransporter) 
     return;
   }
 
-  push_teletransporter(l, teletransporter);
+  push_teletransporter(current_l, teletransporter);
   on_activated();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6866,9 +6866,9 @@ void LuaContext::npc_on_collision_fire(Npc& npc) {
     return;
   }
 
-  push_npc(l, npc);
+  push_npc(current_l, npc);
   on_collision_fire();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6884,9 +6884,9 @@ void LuaContext::block_on_moving(Block& block) {
     return;
   }
 
-  push_block(l, block);
+  push_block(current_l, block);
   on_moving();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6902,9 +6902,9 @@ void LuaContext::block_on_moved(Block& block) {
     return;
   }
 
-  push_block(l, block);
+  push_block(current_l, block);
   on_moved();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6922,9 +6922,9 @@ bool LuaContext::chest_on_opened(Chest& chest, const Treasure& treasure) {
     return false;
   }
 
-  push_chest(l, chest);
+  push_chest(current_l, chest);
   bool exists = on_opened(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return exists;
 }
 
@@ -6941,9 +6941,9 @@ void LuaContext::switch_on_activated(Switch& sw) {
     return;
   }
 
-  push_switch(l, sw);
+  push_switch(current_l, sw);
   on_activated();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6959,9 +6959,9 @@ void LuaContext::switch_on_inactivated(Switch& sw) {
     return;
   }
 
-  push_switch(l, sw);
+  push_switch(current_l, sw);
   on_inactivated();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6977,9 +6977,9 @@ void LuaContext::switch_on_left(Switch& sw) {
     return;
   }
 
-  push_switch(l, sw);
+  push_switch(current_l, sw);
   on_left();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -6995,9 +6995,9 @@ void LuaContext::sensor_on_activated(Sensor& sensor) {
     return;
   }
 
-  push_entity(l, sensor);
+  push_entity(current_l, sensor);
   on_activated();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7013,9 +7013,9 @@ void LuaContext::sensor_on_activated_repeat(Sensor& sensor) {
     return;
   }
 
-  push_entity(l, sensor);
+  push_entity(current_l, sensor);
   on_activated_repeat();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7028,9 +7028,9 @@ void LuaContext::sensor_on_left(Sensor& sensor) {
     return;
   }
 
-  push_entity(l, sensor);
+  push_entity(current_l, sensor);
   on_left();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7046,9 +7046,9 @@ void LuaContext::sensor_on_collision_explosion(Sensor& sensor) {
     return;
   }
 
-  push_entity(l, sensor);
+  push_entity(current_l, sensor);
   on_collision_explosion();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7065,9 +7065,9 @@ void LuaContext::separator_on_activating(Separator& separator, int direction4) {
     return;
   }
 
-  push_entity(l, separator);
+  push_entity(current_l, separator);
   on_activating(direction4);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7084,9 +7084,9 @@ void LuaContext::separator_on_activated(Separator& separator, int direction4) {
     return;
   }
 
-  push_entity(l, separator);
+  push_entity(current_l, separator);
   on_activated(direction4);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7102,9 +7102,9 @@ void LuaContext::door_on_opened(Door& door) {
     return;
   }
 
-  push_door(l, door);
+  push_door(current_l, door);
   on_opened();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7120,9 +7120,9 @@ void LuaContext::door_on_closed(Door& door) {
     return;
   }
 
-  push_door(l, door);
+  push_door(current_l, door);
   on_closed();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7139,9 +7139,9 @@ bool LuaContext::shop_treasure_on_buying(ShopTreasure& shop_treasure) {
     return true;
   }
 
-  push_shop_treasure(l, shop_treasure);
+  push_shop_treasure(current_l, shop_treasure);
   bool result = on_buying();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return result;
 }
 
@@ -7158,9 +7158,9 @@ void LuaContext::shop_treasure_on_bought(ShopTreasure& shop_treasure) {
     return;
   }
 
-  push_shop_treasure(l, shop_treasure);
+  push_shop_treasure(current_l, shop_treasure);
   on_bought();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7176,9 +7176,9 @@ void LuaContext::destructible_on_looked(Destructible& destructible) {
     return;
   }
 
-  push_destructible(l, destructible);
+  push_destructible(current_l, destructible);
   on_looked();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7194,9 +7194,9 @@ void LuaContext::destructible_on_cut(Destructible& destructible) {
     return;
   }
 
-  push_destructible(l, destructible);
+  push_destructible(current_l, destructible);
   on_cut();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7212,9 +7212,9 @@ void LuaContext::destructible_on_exploded(Destructible& destructible) {
     return;
   }
 
-  push_destructible(l, destructible);
+  push_destructible(current_l, destructible);
   on_exploded();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7230,9 +7230,9 @@ void LuaContext::destructible_on_regenerating(Destructible& destructible) {
     return;
   }
 
-  push_destructible(l, destructible);
+  push_destructible(current_l, destructible);
   on_regenerating();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7244,12 +7244,12 @@ void LuaContext::destructible_on_regenerating(Destructible& destructible) {
  */
 void LuaContext::enemy_on_restarted(Enemy& enemy) {
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   remove_timers(-1);  // Stop timers associated to this enemy.
   if (userdata_has_field(enemy, "on_restarted")) {
     on_restarted();
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7269,9 +7269,9 @@ void LuaContext::enemy_on_collision_enemy(Enemy& enemy,
     return;
   }
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   on_collision_enemy(other_enemy, other_sprite, this_sprite);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7290,9 +7290,9 @@ void LuaContext::enemy_on_custom_attack_received(Enemy& enemy,
     return;
   }
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   on_custom_attack_received(attack, sprite);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7309,9 +7309,9 @@ bool LuaContext::enemy_on_hurt_by_sword(
     return false;
   }
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   bool exists = on_hurt_by_sword(hero, enemy_sprite);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return exists;
 }
 
@@ -7325,12 +7325,12 @@ bool LuaContext::enemy_on_hurt_by_sword(
  */
 void LuaContext::enemy_on_hurt(Enemy& enemy, EnemyAttack attack) {
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   remove_timers(-1);  // Stop timers associated to this enemy.
   if (userdata_has_field(enemy, "on_hurt")) {
     on_hurt(attack);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7342,12 +7342,12 @@ void LuaContext::enemy_on_hurt(Enemy& enemy, EnemyAttack attack) {
  */
 void LuaContext::enemy_on_dying(Enemy& enemy) {
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   remove_timers(-1);  // Stop timers associated to this enemy.
   if (userdata_has_field(enemy, "on_dying")) {
     on_dying();
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7363,9 +7363,9 @@ void LuaContext::enemy_on_dead(Enemy& enemy) {
     return;
   }
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   on_dead();
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7377,12 +7377,12 @@ void LuaContext::enemy_on_dead(Enemy& enemy) {
  */
 void LuaContext::enemy_on_immobilized(Enemy& enemy) {
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   remove_timers(-1);  // Stop timers associated to this enemy.
   if (userdata_has_field(enemy, "on_immobilized")) {
     on_immobilized();
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -7401,9 +7401,9 @@ bool LuaContext::enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* attac
     return false;
   }
 
-  push_enemy(l, enemy);
+  push_enemy(current_l, enemy);
   bool exists = on_attacking_hero(hero, attacker_sprite);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return exists;
 }
 
@@ -7422,9 +7422,9 @@ void LuaContext::custom_entity_on_ground_below_changed(
     return;
   }
 
-  push_custom_entity(l, custom_entity);
+  push_custom_entity(current_l, custom_entity);
   on_ground_below_changed(ground_below);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

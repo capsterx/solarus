@@ -689,9 +689,9 @@ void LuaContext::sprite_on_animation_finished(Sprite& sprite,
     return;
   }
 
-  push_sprite(l, sprite);
+  push_sprite(current_l, sprite);
   on_animation_finished(animation);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -709,9 +709,9 @@ void LuaContext::sprite_on_animation_changed(
     return;
   }
 
-  push_sprite(l, sprite);
+  push_sprite(current_l, sprite);
   on_animation_changed(animation);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -730,9 +730,9 @@ void LuaContext::sprite_on_direction_changed(Sprite& sprite,
     return;
   }
 
-  push_sprite(l, sprite);
+  push_sprite(current_l, sprite);
   on_direction_changed(animation, direction);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -751,9 +751,9 @@ void LuaContext::sprite_on_frame_changed(Sprite& sprite,
     return;
   }
 
-  push_sprite(l, sprite);
+  push_sprite(current_l, sprite);
   on_frame_changed(animation, frame);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }
