@@ -45,6 +45,7 @@ map{ id = "bugs/1262_state_timers", description = "#1262: state timers" }
 map{ id = "bugs/1264_sprite_is_animation_started", description = "#1264: sprite:is_animation_started(), sprite:stop_animation()" }
 map{ id = "bugs/1265_camera_get_surface", description = "#1265: camera:get_surface()" }
 map{ id = "bugs/1266_teletransporter_on_activated_disable", description = "#1266: Stop teletransportation if teletransporter is disabled" }
+map{ id = "bugs/1268_movement_ignore_suspend_in_timer", description = "#1268: movement:set_ignore_suspend not working from timer" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }

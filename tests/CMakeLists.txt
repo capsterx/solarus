@@ -112,6 +112,7 @@ set(lua_test_maps
   "bugs/1264_sprite_is_animation_started"
   "bugs/1265_camera_get_surface"
   "bugs/1266_teletransporter_on_activated_disable"
+  "bugs/1268_movement_ignore_suspend_in_timer"
 )
 
 # Test that should not fail when there are errors.

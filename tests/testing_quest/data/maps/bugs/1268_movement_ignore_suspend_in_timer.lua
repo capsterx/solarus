@@ -1,0 +1,21 @@
+local map = ...
+local game = map:get_game()
+
+function map:on_opening_transition_finished()
+  assert(not game:is_suspended())
+  game:set_suspended(true)
+  assert(game:is_suspended())
+  local movement = sol.movement.create("straight")
+  movement:set_speed(88)
+  movement:set_max_distance(64)
+  movement:set_ignore_obstacles(true)
+  assert(not movement:get_ignore_suspend())
+  movement:set_ignore_suspend(true)
+  assert(movement:get_ignore_suspend())
+  local timer = sol.timer.start(map, 100, function()
+    assert(game:is_suspended())
+    assert(movement:get_ignore_suspend())
+    movement:start(robyne, sol.main.exit)
+  end)
+  timer:set_suspended_with_map(false)
+end
