@@ -106,63 +106,65 @@ void DialogBoxSystem::open(
   keys_effect.save_pause_key_effect();
   keys_effect.set_pause_key_effect(CommandsEffects::PAUSE_KEY_NONE);
 
-  // A dialog was just started: notify Lua.
+  // A dialog was just started: notify Lua when possible
   LuaContext& lua_context = game.get_lua_context();
-  lua_State* l = lua_context.get_internal_state();
-  built_in = !lua_context.notify_dialog_started(
-      game, dialog, info_ref
-  );
+  lua_context.run_on_main([this,&lua_context,info_ref,&keys_effect](lua_State* l){
+    //lua_State* l = lua_context.get_internal_state();
+    built_in = !lua_context.notify_dialog_started(
+        game, dialog, info_ref
+    );
 
-  if (built_in) {
+    if (built_in) {
 
-    // Show a built-in default dialog box.
-    keys_effect.set_action_key_effect(CommandsEffects::ACTION_KEY_NEXT);
+      // Show a built-in default dialog box.
+      keys_effect.set_action_key_effect(CommandsEffects::ACTION_KEY_NEXT);
 
-    // Prepare the text.
-    std::string text = dialog.get_text();
-    this->is_question = false;
+      // Prepare the text.
+      std::string text = dialog.get_text();
+      this->is_question = false;
 
-    if (dialog_id == "_shop.question") {
-      // Built-in dialog with the "do you want to buy" question and the price.
-      this->is_question = true;
-      size_t index = text.find("$v");
-      if (index != std::string::npos) {
-        // Replace the special sequence '$v' by the price of the shop item.
-        info_ref.push(l);
-        int price = LuaTools::check_int(l, -1);
-        lua_pop(l, -1);
-        std::ostringstream oss;
-        oss << price;
-        text = text.replace(index, 2, oss.str());
+      if (this->dialog_id == "_shop.question") {
+        // Built-in dialog with the "do you want to buy" question and the price.
+        this->is_question = true;
+        size_t index = text.find("$v");
+        if (index != std::string::npos) {
+          // Replace the special sequence '$v' by the price of the shop item.
+          info_ref.push(l);
+          int price = LuaTools::check_int(l, -1);
+          lua_pop(l, -1);
+          std::ostringstream oss;
+          oss << price;
+          text = text.replace(index, 2, oss.str());
+        }
       }
-    }
 
-    remaining_lines.clear();
-    std::istringstream iss(text);
-    std::string line;
-    while (std::getline(iss, line)) {
-      remaining_lines.push_back(line);
-    }
-
-    // Determine the position.
-    bool top = false;
-    const CameraPtr& camera = game.get_current_map().get_camera();
-    if (camera != nullptr) {
-      const Rectangle& camera_position = camera->get_bounding_box();
-      if (game.get_hero()->get_y() >= camera_position.get_y() + 130) {
-        top = true;
+      remaining_lines.clear();
+      std::istringstream iss(text);
+      std::string line;
+      while (std::getline(iss, line)) {
+        remaining_lines.push_back(line);
       }
+
+      // Determine the position.
+      bool top = false;
+      const CameraPtr& camera = game.get_current_map().get_camera();
+      if (camera != nullptr) {
+        const Rectangle& camera_position = camera->get_bounding_box();
+        if (game.get_hero()->get_y() >= camera_position.get_y() + 130) {
+          top = true;
+        }
+      }
+
+      const Size& quest_size = Video::get_quest_size();
+      int x = quest_size.width / 2 - 110;
+      int y = top ? 32 : quest_size.height - 96;
+
+      text_position = { x, y };
+
+      // Start showing text.
+      show_more_lines();
     }
-
-    const Size& quest_size = Video::get_quest_size();
-    int x = quest_size.width / 2 - 110;
-    int y = top ? 32 : quest_size.height - 96;
-
-    text_position = { x, y };
-
-    // Start showing text.
-    show_more_lines();
-  }
+  });
 }
 
 /**

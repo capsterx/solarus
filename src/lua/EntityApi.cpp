@@ -6473,10 +6473,11 @@ void LuaContext::entity_on_suspended(Entity& entity, bool suspended) {
   if (!userdata_has_field(entity, "on_suspended")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_suspended(suspended);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,suspended](lua_State* l){
+    push_entity(l, entity);
+    on_suspended(suspended);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6491,10 +6492,11 @@ void LuaContext::entity_on_created(Entity& entity) {
   if (!userdata_has_field(entity, "on_created")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_created();
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity](lua_State* l){
+    push_entity(l, entity);
+    on_created();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6505,13 +6507,14 @@ void LuaContext::entity_on_created(Entity& entity) {
  * \param entity A map entity.
  */
 void LuaContext::entity_on_removed(Entity& entity) {
-
-  push_entity(current_l, entity);
-  if (userdata_has_field(entity, "on_removed")) {
-    on_removed();
-  }
-  remove_timers(-1);  // Stop timers associated to this entity.
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity](lua_State* l){
+    push_entity(l, entity);
+    if (userdata_has_field(entity, "on_removed")) {
+      on_removed();
+    }
+    remove_timers(-1);  // Stop timers associated to this entity.
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6526,10 +6529,11 @@ void LuaContext::entity_on_enabled(Entity& entity) {
   if (!userdata_has_field(entity, "on_enabled")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_enabled();
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity](lua_State* l){
+    push_entity(l, entity);
+    on_enabled();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6544,10 +6548,11 @@ void LuaContext::entity_on_disabled(Entity& entity) {
   if (!userdata_has_field(entity, "on_disabled")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_disabled();
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity](lua_State* l){
+    push_entity(l, entity);
+    on_disabled();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6563,10 +6568,11 @@ void LuaContext::entity_on_pre_draw(Entity& entity, Camera& camera) {
   if (!userdata_has_field(entity, "on_pre_draw")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_pre_draw(camera);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&camera](lua_State* l){
+    push_entity(l, entity);
+    on_pre_draw(camera);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6582,10 +6588,11 @@ void LuaContext::entity_on_post_draw(Entity& entity, Camera& camera) {
   if (!userdata_has_field(entity, "on_post_draw")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_post_draw(camera);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&camera](lua_State* l){
+    push_entity(l, entity);
+    on_post_draw(camera);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6603,10 +6610,11 @@ void LuaContext::entity_on_position_changed(
   if (!userdata_has_field(entity, "on_position_changed")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_position_changed(xy, layer);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,xy,layer](lua_State* l){
+    push_entity(l, entity);
+    on_position_changed(xy, layer);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6623,10 +6631,11 @@ void LuaContext::entity_on_obstacle_reached(
   if (!userdata_has_field(entity, "on_obstacle_reached")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_obstacle_reached(movement);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&movement](lua_State* l){
+    push_entity(l, entity);
+    on_obstacle_reached(movement);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6643,9 +6652,11 @@ void LuaContext::entity_on_obstacle_reached(
     return;
   }
 
-  push_entity(current_l, entity);
-  on_movement_started(movement);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&movement](lua_State* l){
+    push_entity(l, entity);
+    on_movement_started(movement);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6663,9 +6674,11 @@ void LuaContext::entity_on_movement_changed(
     return;
   }
 
-  push_entity(current_l, entity);
-  on_movement_changed(movement);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&movement](lua_State* l){
+    push_entity(l, entity);
+    on_movement_changed(movement);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6681,9 +6694,11 @@ void LuaContext::entity_on_movement_finished(Entity& entity) {
     return;
   }
 
-  push_entity(current_l, entity);
-  on_movement_finished();
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity](lua_State* l){
+    push_entity(l, entity);
+    on_movement_finished();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6700,9 +6715,13 @@ bool LuaContext::entity_on_interaction(Entity& entity) {
     return false;
   }
 
+  //TODO make this on main
+  check_callback_thread();
+
   push_entity(current_l, entity);
   bool exists = on_interaction();
   lua_pop(current_l, 1);
+
 
   return exists;
 }
@@ -6722,6 +6741,9 @@ bool LuaContext::entity_on_interaction_item(
   if (!userdata_has_field(entity, "on_interaction_item")) {
     return false;
   }
+
+   //TODO make this on main
+  check_callback_thread();
 
   push_entity(current_l, entity);
   bool result = on_interaction_item(item_used);
@@ -6744,10 +6766,11 @@ void LuaContext::entity_on_state_changing(
   if (!userdata_has_field(entity, "on_state_changing")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_state_changing(state_name, next_state_name);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,state_name,next_state_name](lua_State* l){
+    push_entity(l, entity);
+    on_state_changing(state_name, next_state_name);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6764,10 +6787,11 @@ void LuaContext::entity_on_state_changed(
   if (!userdata_has_field(entity, "on_state_changed")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_state_changed(new_state_name);
-  lua_pop(current_l, 1);
+ run_on_main([this,&entity,new_state_name](lua_State* l){
+    push_entity(current_l, entity);
+    on_state_changed(new_state_name);
+    lua_pop(current_l, 1);
+  });
 }
 
 /**
@@ -6789,10 +6813,11 @@ void LuaContext::entity_on_lifting(
   if (!userdata_has_field(entity, "on_lifting")) {
     return;
   }
-
-  push_entity(current_l, entity);
-  on_lifting(carrier, carried_object);
-  lua_pop(current_l, 1);
+  run_on_main([this,&entity,&carrier,&carried_object](lua_State* l){
+    push_entity(l, entity);
+    on_lifting(carrier, carried_object);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6809,6 +6834,8 @@ bool LuaContext::hero_on_taking_damage(Hero& hero, int damage) {
   if (!userdata_has_field(hero, "on_taking_damage")) {
     return false;
   }
+  //TODO make in main
+  check_callback_thread();
 
   push_hero(current_l, hero);
   bool exists = on_taking_damage(damage);
@@ -6828,10 +6855,11 @@ void LuaContext::destination_on_activated(Destination& destination) {
   if (!userdata_has_field(destination, "on_activated")) {
     return;
   }
-
-  push_entity(current_l, destination);
-  on_activated();
-  lua_pop(current_l, 1);
+  run_on_main([this,&destination](lua_State* l){
+    push_entity(l, destination);
+    on_activated();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6846,10 +6874,11 @@ void LuaContext::teletransporter_on_activated(Teletransporter& teletransporter) 
   if (!userdata_has_field(teletransporter, "on_activated")) {
     return;
   }
-
-  push_teletransporter(current_l, teletransporter);
-  on_activated();
-  lua_pop(current_l, 1);
+  run_on_main([this,&teletransporter](lua_State* l){
+    push_teletransporter(l, teletransporter);
+    on_activated();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6864,10 +6893,11 @@ void LuaContext::npc_on_collision_fire(Npc& npc) {
   if (!userdata_has_field(npc, "on_collision_fire")) {
     return;
   }
-
-  push_npc(current_l, npc);
-  on_collision_fire();
-  lua_pop(current_l, 1);
+  run_on_main([this,&npc](lua_State* l){
+    push_npc(l, npc);
+    on_collision_fire();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6882,10 +6912,11 @@ void LuaContext::block_on_moving(Block& block) {
   if (!userdata_has_field(block, "on_moving")) {
     return;
   }
-
-  push_block(current_l, block);
-  on_moving();
-  lua_pop(current_l, 1);
+  run_on_main([this,&block](lua_State* l){
+    push_block(l, block);
+    on_moving();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6900,10 +6931,11 @@ void LuaContext::block_on_moved(Block& block) {
   if (!userdata_has_field(block, "on_moved")) {
     return;
   }
-
-  push_block(current_l, block);
-  on_moved();
-  lua_pop(current_l, 1);
+  run_on_main([this,&block](lua_State* l){
+    push_block(l, block);
+    on_moved();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6920,6 +6952,9 @@ bool LuaContext::chest_on_opened(Chest& chest, const Treasure& treasure) {
   if (!userdata_has_field(chest, "on_opened")) {
     return false;
   }
+
+  //TODO make this on main
+  check_callback_thread();
 
   push_chest(current_l, chest);
   bool exists = on_opened(treasure);
@@ -6940,9 +6975,11 @@ void LuaContext::switch_on_activated(Switch& sw) {
     return;
   }
 
-  push_switch(current_l, sw);
-  on_activated();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sw](lua_State* l){
+    push_switch(l, sw);
+    on_activated();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6958,9 +6995,11 @@ void LuaContext::switch_on_inactivated(Switch& sw) {
     return;
   }
 
-  push_switch(current_l, sw);
-  on_inactivated();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sw](lua_State* l){
+    push_switch(l, sw);
+    on_inactivated();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6976,9 +7015,11 @@ void LuaContext::switch_on_left(Switch& sw) {
     return;
   }
 
-  push_switch(current_l, sw);
-  on_left();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sw](lua_State* l){
+    push_switch(l, sw);
+    on_left();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -6994,9 +7035,11 @@ void LuaContext::sensor_on_activated(Sensor& sensor) {
     return;
   }
 
-  push_entity(current_l, sensor);
-  on_activated();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sensor](lua_State* l){
+    push_entity(l, sensor);
+    on_activated();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7011,10 +7054,11 @@ void LuaContext::sensor_on_activated_repeat(Sensor& sensor) {
   if (!userdata_has_field(sensor, "on_activated_repeat")) {
     return;
   }
-
-  push_entity(current_l, sensor);
-  on_activated_repeat();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sensor](lua_State* l){
+    push_entity(l, sensor);
+    on_activated_repeat();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7026,10 +7070,11 @@ void LuaContext::sensor_on_left(Sensor& sensor) {
   if (!userdata_has_field(sensor, "on_left")) {
     return;
   }
-
-  push_entity(current_l, sensor);
-  on_left();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sensor](lua_State* l){
+    push_entity(l, sensor);
+    on_left();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7044,10 +7089,11 @@ void LuaContext::sensor_on_collision_explosion(Sensor& sensor) {
   if (!userdata_has_field(sensor, "on_collision_explosion")) {
     return;
   }
-
-  push_entity(current_l, sensor);
-  on_collision_explosion();
-  lua_pop(current_l, 1);
+  run_on_main([this,&sensor](lua_State* l){
+    push_entity(l, sensor);
+    on_collision_explosion();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7063,10 +7109,11 @@ void LuaContext::separator_on_activating(Separator& separator, int direction4) {
   if (!userdata_has_field(separator, "on_activating")) {
     return;
   }
-
-  push_entity(current_l, separator);
-  on_activating(direction4);
-  lua_pop(current_l, 1);
+  run_on_main([this,&separator,direction4](lua_State* l){
+    push_entity(l, separator);
+    on_activating(direction4);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7082,10 +7129,11 @@ void LuaContext::separator_on_activated(Separator& separator, int direction4) {
   if (!userdata_has_field(separator, "on_activated")) {
     return;
   }
-
-  push_entity(current_l, separator);
-  on_activated(direction4);
-  lua_pop(current_l, 1);
+  run_on_main([this,&separator,direction4](lua_State* l){
+    push_entity(l, separator);
+    on_activated(direction4);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7100,10 +7148,11 @@ void LuaContext::door_on_opened(Door& door) {
   if (!userdata_has_field(door, "on_opened")) {
     return;
   }
-
-  push_door(current_l, door);
-  on_opened();
-  lua_pop(current_l, 1);
+  run_on_main([this,&door](lua_State* l){
+    push_door(l, door);
+    on_opened();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7118,10 +7167,11 @@ void LuaContext::door_on_closed(Door& door) {
   if (!userdata_has_field(door, "on_closed")) {
     return;
   }
-
-  push_door(current_l, door);
-  on_closed();
-  lua_pop(current_l, 1);
+  run_on_main([this,&door](lua_State* l){
+    push_door(l, door);
+    on_closed();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7137,6 +7187,9 @@ bool LuaContext::shop_treasure_on_buying(ShopTreasure& shop_treasure) {
   if (!userdata_has_field(shop_treasure, "on_buying")) {
     return true;
   }
+
+  //TODO make this on main
+  check_callback_thread();
 
   push_shop_treasure(current_l, shop_treasure);
   bool result = on_buying();
@@ -7157,9 +7210,11 @@ void LuaContext::shop_treasure_on_bought(ShopTreasure& shop_treasure) {
     return;
   }
 
-  push_shop_treasure(current_l, shop_treasure);
-  on_bought();
-  lua_pop(current_l, 1);
+  run_on_main([this,&shop_treasure](lua_State* l){
+    push_shop_treasure(l, shop_treasure);
+    on_bought();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7174,10 +7229,11 @@ void LuaContext::destructible_on_looked(Destructible& destructible) {
   if (!userdata_has_field(destructible, "on_looked")) {
     return;
   }
-
-  push_destructible(current_l, destructible);
-  on_looked();
-  lua_pop(current_l, 1);
+  run_on_main([this,&destructible](lua_State* l){
+    push_destructible(l, destructible);
+    on_looked();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7192,10 +7248,11 @@ void LuaContext::destructible_on_cut(Destructible& destructible) {
   if (!userdata_has_field(destructible, "on_cut")) {
     return;
   }
-
-  push_destructible(current_l, destructible);
-  on_cut();
-  lua_pop(current_l, 1);
+  run_on_main([this,&destructible](lua_State* l){
+    push_destructible(l, destructible);
+    on_cut();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7210,10 +7267,11 @@ void LuaContext::destructible_on_exploded(Destructible& destructible) {
   if (!userdata_has_field(destructible, "on_exploded")) {
     return;
   }
-
-  push_destructible(current_l, destructible);
-  on_exploded();
-  lua_pop(current_l, 1);
+  run_on_main([this,&destructible](lua_State* l){
+    push_destructible(l, destructible);
+    on_exploded();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7229,9 +7287,11 @@ void LuaContext::destructible_on_regenerating(Destructible& destructible) {
     return;
   }
 
-  push_destructible(current_l, destructible);
-  on_regenerating();
-  lua_pop(current_l, 1);
+  run_on_main([this,&destructible](lua_State* l){
+    push_destructible(l, destructible);
+    on_regenerating();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7242,13 +7302,14 @@ void LuaContext::destructible_on_regenerating(Destructible& destructible) {
  * \param enemy An enemy.
  */
 void LuaContext::enemy_on_restarted(Enemy& enemy) {
-
-  push_enemy(current_l, enemy);
-  remove_timers(-1);  // Stop timers associated to this enemy.
-  if (userdata_has_field(enemy, "on_restarted")) {
-    on_restarted();
-  }
-  lua_pop(current_l, 1);
+  run_on_main([this,&enemy](lua_State* l){
+    push_enemy(l, enemy);
+    remove_timers(-1);  // Stop timers associated to this enemy.
+    if (userdata_has_field(enemy, "on_restarted")) {
+      on_restarted();
+    }
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7267,10 +7328,11 @@ void LuaContext::enemy_on_collision_enemy(Enemy& enemy,
   if (!userdata_has_field(enemy, "on_collision_enemy")) {
     return;
   }
-
-  push_enemy(current_l, enemy);
-  on_collision_enemy(other_enemy, other_sprite, this_sprite);
-  lua_pop(current_l, 1);
+  run_on_main([&](lua_State* l){
+    push_enemy(l, enemy);
+    on_collision_enemy(other_enemy, other_sprite, this_sprite);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7288,10 +7350,11 @@ void LuaContext::enemy_on_custom_attack_received(Enemy& enemy,
   if (!userdata_has_field(enemy, "on_custom_attack_received")) {
     return;
   }
-
-  push_enemy(current_l, enemy);
-  on_custom_attack_received(attack, sprite);
-  lua_pop(current_l, 1);
+  run_on_main([&,attack,sprite](lua_State* l){
+    push_enemy(l, enemy);
+    on_custom_attack_received(attack, sprite);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7307,6 +7370,9 @@ bool LuaContext::enemy_on_hurt_by_sword(
   if (!userdata_has_field(enemy, "on_hurt_by_sword")) {
     return false;
   }
+
+  //TODO make this on main
+  check_callback_thread();
 
   push_enemy(current_l, enemy);
   bool exists = on_hurt_by_sword(hero, enemy_sprite);
@@ -7324,12 +7390,14 @@ bool LuaContext::enemy_on_hurt_by_sword(
  */
 void LuaContext::enemy_on_hurt(Enemy& enemy, EnemyAttack attack) {
 
-  push_enemy(current_l, enemy);
-  remove_timers(-1);  // Stop timers associated to this enemy.
-  if (userdata_has_field(enemy, "on_hurt")) {
-    on_hurt(attack);
-  }
-  lua_pop(current_l, 1);
+  run_on_main([this,&enemy,attack](lua_State* l){
+    push_enemy(l, enemy);
+    remove_timers(-1);  // Stop timers associated to this enemy.
+    if (userdata_has_field(enemy, "on_hurt")) {
+      on_hurt(attack);
+    }
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7340,13 +7408,14 @@ void LuaContext::enemy_on_hurt(Enemy& enemy, EnemyAttack attack) {
  * \param enemy An enemy.
  */
 void LuaContext::enemy_on_dying(Enemy& enemy) {
-
-  push_enemy(current_l, enemy);
-  remove_timers(-1);  // Stop timers associated to this enemy.
-  if (userdata_has_field(enemy, "on_dying")) {
-    on_dying();
-  }
-  lua_pop(current_l, 1);
+  run_on_main([this,&enemy](lua_State* l){
+    push_enemy(l, enemy);
+    remove_timers(-1);  // Stop timers associated to this enemy.
+    if (userdata_has_field(enemy, "on_dying")) {
+      on_dying();
+    }
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7361,10 +7430,11 @@ void LuaContext::enemy_on_dead(Enemy& enemy) {
   if (!userdata_has_field(enemy, "on_dead")) {
     return;
   }
-
-  push_enemy(current_l, enemy);
-  on_dead();
-  lua_pop(current_l, 1);
+  run_on_main([this,&enemy](lua_State* l){
+    push_enemy(l, enemy);
+    on_dead();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -7375,13 +7445,14 @@ void LuaContext::enemy_on_dead(Enemy& enemy) {
  * \param enemy An enemy.
  */
 void LuaContext::enemy_on_immobilized(Enemy& enemy) {
-
-  push_enemy(current_l, enemy);
-  remove_timers(-1);  // Stop timers associated to this enemy.
-  if (userdata_has_field(enemy, "on_immobilized")) {
-    on_immobilized();
-  }
-  lua_pop(current_l, 1);
+  run_on_main([this,&enemy](lua_State* l){
+    push_enemy(current_l, enemy);
+    remove_timers(-1);  // Stop timers associated to this enemy.
+    if (userdata_has_field(enemy, "on_immobilized")) {
+      on_immobilized();
+    }
+    lua_pop(current_l, 1);
+  });
 }
 
 /**
@@ -7399,6 +7470,9 @@ bool LuaContext::enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* attac
   if (!userdata_has_field(enemy, "on_attacking_hero")) {
     return false;
   }
+
+  //TODO make this on main
+  check_callback_thread();
 
   push_enemy(current_l, enemy);
   bool exists = on_attacking_hero(hero, attacker_sprite);
@@ -7421,9 +7495,11 @@ void LuaContext::custom_entity_on_ground_below_changed(
     return;
   }
 
-  push_custom_entity(current_l, custom_entity);
-  on_ground_below_changed(ground_below);
-  lua_pop(current_l, 1);
+  run_on_main([this,&custom_entity,ground_below](lua_State* l){
+    push_custom_entity(current_l, custom_entity);
+    on_ground_below_changed(ground_below);
+    lua_pop(current_l, 1);
+  });
 }
 
 }

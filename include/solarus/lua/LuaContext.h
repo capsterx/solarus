@@ -150,6 +150,7 @@ class LuaContext {
 
     static LuaContext& get();
     lua_State* get_internal_state();
+    lua_State* get_main_state();
 
     MainLoop& get_main_loop();
 
@@ -206,11 +207,12 @@ class LuaContext {
      * @param current current lua state
      * @param func a void(lua_State* main) closure
      */
-    void run_on_main(Callable&& func) {
-      if(current_l == main_l) {
-        func(current_l);
+    static void run_on_main(Callable&& func) {
+      auto& c = LuaContext::get();
+      if(c.current_l == c.main_l) {
+        func(c.current_l);
       } else {
-        cross_state_callbacks.push(func);
+        c.cross_state_callbacks.push(func);
       }
     }
 
@@ -1204,10 +1206,10 @@ class LuaContext {
     struct LuaMenuData {
       ScopedLuaRef ref;      /**< Lua ref of the table of the menu.
                               * LUA_REFNIL means that the menu will be removed. */
-      const void* context;   /**< Lua table or userdata the menu is attached to. */
+      ScopedLuaRef context;   /**< Lua table or userdata the menu is attached to. */
       bool recently_added;   /**< Used to avoid elements added during an iteration. */
 
-      LuaMenuData(const ScopedLuaRef& ref, const void* context):
+      LuaMenuData(const ScopedLuaRef& ref, const ScopedLuaRef& context):
         ref(ref),
         context(context),
         recently_added(true) {
@@ -1219,7 +1221,7 @@ class LuaContext {
      */
     struct LuaTimerData {
       ScopedLuaRef callback_ref;  /**< Lua ref of the function to call after the timer. */
-      const void* context;        /**< Lua table or userdata the timer is attached to. */
+      ScopedLuaRef context;        /**< Lua table or userdata the timer is attached to. */
     };
 
     // Executing Lua code.
@@ -1265,7 +1267,9 @@ class LuaContext {
     static void push_video(lua_State* current_l);
     static void push_string(lua_State* current_l, const std::string& text);
     static void push_color(lua_State* current_l, const Color& color);
+public:
     static void push_userdata(lua_State* current_l, ExportableToLua& userdata);
+private:
     static void push_dialog(lua_State* current_l, const Dialog& dialog);
     static void push_timer(lua_State* current_l, const TimerPtr& timer);
     static void push_surface(lua_State* current_l, Surface& surface);
@@ -1392,6 +1396,9 @@ class LuaContext {
     static std::shared_ptr<CustomEntity> check_custom_entity(lua_State* current_l, int index);
 
     // Events.
+    void check_callback_thread() const;
+
+
     void on_started();
     void on_started(const std::string& previous_state_name, CustomState* previous_state);
     void on_finished();

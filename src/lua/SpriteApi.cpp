@@ -141,7 +141,7 @@ int LuaContext::sprite_api_create(lua_State* l) {
 
     // TODO if the file does not exist, make a Lua error instead of an assertion error.
     SpritePtr sprite = std::make_shared<Sprite>(animation_set_id);
-    get(l).add_drawable(sprite);
+    get().add_drawable(sprite);
 
     push_sprite(l, *sprite);
     return 1;
@@ -709,9 +709,11 @@ void LuaContext::sprite_on_animation_changed(
     return;
   }
 
-  push_sprite(current_l, sprite);
-  on_animation_changed(animation);
-  lua_pop(current_l, 1);
+  run_on_main([this,&sprite,animation](lua_State* l){
+    push_sprite(l, sprite);
+    on_animation_changed(animation);
+    lua_pop(current_l, 1);
+  });
 }
 
 /**

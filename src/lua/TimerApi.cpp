@@ -109,16 +109,7 @@ void LuaContext::add_timer(
     int context_index,
     const ScopedLuaRef& callback_ref
 ) {
-  const void* context;
-  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
-    ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(current_l, context_index)
-    );
-    context = userdata->get();
-  }
-  else {
-    context = lua_topointer(current_l, context_index);
-  }
+  ScopedLuaRef context = LuaTools::create_ref(current_l,context_index);
 
   Debug::execute_if_debug([&] {
     // Sanity check: check the uniqueness of the ref.
@@ -199,20 +190,9 @@ void LuaContext::remove_timer(const TimerPtr& timer) {
  * \param context_index Index of a table or userdata containing timers.
  */
 void LuaContext::remove_timers(int context_index) {
-
-  const void* context;
-  if (lua_type(current_l, context_index) == LUA_TUSERDATA) {
-    ExportableToLuaPtr* userdata = static_cast<ExportableToLuaPtr*>(
-        lua_touserdata(current_l, context_index));
-    context = userdata->get();
-  }
-  else {
-    context = lua_topointer(current_l, context_index);
-  }
-
   for (auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
-    if (kvp.second.context == context) {
+    if (kvp.second.context.equals(current_l,context_index)) {
       kvp.second.callback_ref.clear();
       timers_to_remove.push_back(timer);
     }
@@ -288,7 +268,7 @@ void LuaContext::set_entity_timers_suspended(
 
   for (const auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
-    if (kvp.second.context == &entity) {
+    if (kvp.second.context == entity) {
       timer->set_suspended(suspended);
     }
   }
@@ -314,8 +294,8 @@ void LuaContext::set_entity_timers_suspended_as_map(
   // Suspend timers except the ones that ignore the map being suspended.
   for (const auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
-    if (kvp.second.context == &entity ||
-        kvp.second.context == entity.get_state().get()) {
+    if (kvp.second.context == entity ||
+        (entity.get_state() && kvp.second.context == *entity.get_state().get())) {
       if (timer->is_suspended_with_map()) {
         timer->set_suspended(suspended);
       }
@@ -395,7 +375,7 @@ int LuaContext::timer_api_start(lua_State *l) {
 
   return state_boundary_handle(l, [&] {
     // Parameters: [context] delay callback.
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
 
     bool use_default_context = false;
     if (lua_type(l, 1) == LUA_TNUMBER) {
@@ -415,6 +395,8 @@ int LuaContext::timer_api_start(lua_State *l) {
         // because this problem was not detected correctly before 1.6
         // and a lot of existing games have it.
         // We can survive this by just using a default context as fallback.
+        std::ostringstream oss;
+        oss << "(Thread " << l <<  ")";
         std::string message = "bad argument #1 to sol.timer.start (game, item, map, entity, menu or sol.main expected, got " +
             LuaTools::get_type_name(l, 1) + "), will use a default context instead";
         lua_pushcfunction(l, l_backtrace);
@@ -422,7 +404,7 @@ int LuaContext::timer_api_start(lua_State *l) {
         LuaTools::call_function(l, 1, 1, "traceback");
         std::string backtrace = LuaTools::check_string(l, -1);
         lua_pop(l, 1);
-        Debug::error(backtrace);
+        Debug::error(backtrace + "\n" + oss.str());
 
         lua_remove(l, 1);
         use_default_context = true;
@@ -471,7 +453,7 @@ int LuaContext::timer_api_start(lua_State *l) {
 int LuaContext::timer_api_stop(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     const TimerPtr& timer = check_timer(l, 1);
     lua_context.remove_timer(timer);
 
@@ -492,7 +474,7 @@ int LuaContext::timer_api_stop_all(lua_State* l) {
       LuaTools::type_error(l, 1, "table or userdata");
     }
 
-    get(l).remove_timers(1);
+    get().remove_timers(1);
 
     return 0;
   });
@@ -585,7 +567,7 @@ int LuaContext::timer_api_is_suspended_with_map(lua_State* l) {
 int LuaContext::timer_api_set_suspended_with_map(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
 
     const TimerPtr& timer = check_timer(l, 1);
     bool suspended_with_map = LuaTools::opt_boolean(l, 2, true);
@@ -612,7 +594,7 @@ int LuaContext::timer_api_get_remaining_time(lua_State* l) {
   return state_boundary_handle(l, [&] {
     const TimerPtr& timer = check_timer(l, 1);
 
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     const auto it = lua_context.timers.find(timer);
     if (it == lua_context.timers.end() ||
         it->second.callback_ref.is_empty()) {
@@ -641,7 +623,7 @@ int LuaContext::timer_api_set_remaining_time(lua_State* l) {
     const TimerPtr& timer = check_timer(l, 1);
     uint32_t remaining_time = LuaTools::check_int(l, 2);
 
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     const auto it = lua_context.timers.find(timer);
     if (it != lua_context.timers.end() &&
         !it->second.callback_ref.is_empty()) {

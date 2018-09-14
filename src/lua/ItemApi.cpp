@@ -782,10 +782,11 @@ void LuaContext::item_on_started(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_started")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_started();
-  lua_pop(current_l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_started();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -796,14 +797,15 @@ void LuaContext::item_on_started(EquipmentItem& item) {
  * \param item An equipment item.
  */
 void LuaContext::item_on_finished(EquipmentItem& item) {
-
-  push_item(current_l, item);
-  if (userdata_has_field(item, "on_finished")) {
-    on_finished();
-  }
-  remove_timers(-1);  // Stop timers and menus associated to this item.
-  remove_menus(-1);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    if (userdata_has_field(item, "on_finished")) {
+      on_finished();
+    }
+    remove_timers(-1);  // Stop timers and menus associated to this item.
+    remove_menus(-1);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -821,10 +823,11 @@ void LuaContext::item_on_update(EquipmentItem& item) {
   if (!userdata_has_field(item, method_name)) {
     return;
   }
-
-  push_item(current_l, item);
-  on_update();
-  lua_pop(current_l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_update();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -840,10 +843,11 @@ void LuaContext::item_on_suspended(EquipmentItem& item, bool suspended) {
   if (!userdata_has_field(item, "on_suspended")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_suspended(suspended);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,suspended](lua_State* l){
+    push_item(l, item);
+    on_suspended(suspended);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -858,10 +862,11 @@ void LuaContext::item_on_created(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_created")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_created();
-  lua_pop(current_l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_created();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -877,10 +882,11 @@ void LuaContext::item_on_map_changed(EquipmentItem& item, Map& map) {
   if (!userdata_has_field(item, "on_map_changed")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_map_changed(map);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&map](lua_State* l){
+    push_item(l, item);
+    on_map_changed(map);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -898,9 +904,11 @@ void LuaContext::item_on_pickable_created(EquipmentItem& item,
     return;
   }
 
-  push_item(current_l, item);
-  on_pickable_created(pickable);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&pickable](lua_State* l){
+    push_item(l, item);
+    on_pickable_created(pickable);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -916,10 +924,11 @@ void LuaContext::item_on_obtaining(EquipmentItem& item, const Treasure& treasure
   if (!userdata_has_field(item, "on_obtaining")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_obtaining(treasure);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&treasure](lua_State* l){
+    push_item(l, item);
+    on_obtaining(treasure);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -935,10 +944,11 @@ void LuaContext::item_on_obtained(EquipmentItem& item, const Treasure& treasure)
   if (!userdata_has_field(item, "on_obtained")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_obtained(treasure);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&treasure](lua_State* l){
+    push_item(l, item);
+    on_obtained(treasure);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -954,10 +964,11 @@ void LuaContext::item_on_variant_changed(EquipmentItem& item, int variant) {
   if (!userdata_has_field(item, "on_variant_changed")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_variant_changed(variant);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,variant](lua_State* l){
+    push_item(l, item);
+    on_variant_changed(variant);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -973,10 +984,11 @@ void LuaContext::item_on_amount_changed(EquipmentItem& item, int amount) {
   if (!userdata_has_field(item, "on_amount_changed")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_amount_changed(amount);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,amount](lua_State* l){
+    push_item(l, item);
+    on_amount_changed(amount);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -991,10 +1003,11 @@ void LuaContext::item_on_using(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_using")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_using();
-  lua_pop(current_l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_using();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1010,10 +1023,11 @@ void LuaContext::item_on_ability_used(EquipmentItem& item, Ability ability) {
   if (!userdata_has_field(item, "on_ability_used")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_ability_used(ability);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,ability](lua_State* l){
+    push_item(l, item);
+    on_ability_used(ability);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1029,10 +1043,11 @@ void LuaContext::item_on_npc_interaction(EquipmentItem& item, Npc& npc) {
   if (!userdata_has_field(item, "on_npc_interaction")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_npc_interaction(npc);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&npc](lua_State* l){
+    push_item(l, item);
+    on_npc_interaction(npc);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1051,6 +1066,8 @@ bool LuaContext::item_on_npc_interaction_item(EquipmentItem& item, Npc& npc,
   if (!userdata_has_field(item, "on_npc_interaction_item")) {
     return false;
   }
+
+  //TODO make this on main
 
   push_item(current_l, item);
   bool result = on_npc_interaction_item(npc, item_used);
@@ -1071,10 +1088,11 @@ void LuaContext::item_on_npc_collision_fire(EquipmentItem& item, Npc& npc) {
   if (!userdata_has_field(item, "on_npc_collision_fire")) {
     return;
   }
-
-  push_item(current_l, item);
-  on_npc_collision_fire(npc);
-  lua_pop(current_l, 1);
+  run_on_main([this,&item,&npc](lua_State* l){
+    push_item(l, item);
+    on_npc_collision_fire(npc);
+    lua_pop(l, 1);
+  });
 }
 
 }

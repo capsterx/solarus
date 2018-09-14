@@ -171,7 +171,7 @@ int LuaContext::main_api_load_file(lua_State *l) {
   return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
-    if (!get(l).load_file(file_name)) {
+    if (!get().load_file(file_name)) {
       lua_pushnil(l);
     }
 
@@ -189,7 +189,7 @@ int LuaContext::main_api_do_file(lua_State *l) {
   return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
-    get(l).do_file(file_name);
+    get().do_file(file_name);
 
     return 0;
   });
@@ -203,7 +203,7 @@ int LuaContext::main_api_do_file(lua_State *l) {
 int LuaContext::main_api_reset(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    get(l).get_main_loop().set_resetting();
+    get().get_main_loop().set_resetting();
 
     return 0;
   });
@@ -217,7 +217,7 @@ int LuaContext::main_api_reset(lua_State* l) {
 int LuaContext::main_api_exit(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    get(l).get_main_loop().set_exiting();
+    get().get_main_loop().set_exiting();
 
     return 0;
   });
@@ -538,7 +538,7 @@ int LuaContext::main_api_get_os(lua_State* l) {
 int LuaContext::main_api_get_game(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
 
     Game* game = lua_context.get_main_loop().get_game();
     if (game == nullptr) {

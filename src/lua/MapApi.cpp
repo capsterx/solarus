@@ -1448,7 +1448,7 @@ int LuaContext::l_easy_index(lua_State* l) {
 
     const std::string& name = LuaTools::check_string(l, 2);
 
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     Game* game = lua_context.get_main_loop().get_game();
 
     if (game != nullptr) {
@@ -1830,7 +1830,7 @@ int LuaContext::map_api_get_camera_position(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 5 },
         "map:get_camera_position()",
         "Use map:get_camera():get_bounding_box() instead.");
@@ -1862,7 +1862,7 @@ int LuaContext::map_api_move_camera(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     lua_context.warning_deprecated(
         { 1, 5 },
         "map:move_camera()",
@@ -1941,7 +1941,7 @@ int LuaContext::map_api_draw_sprite(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 5 },
         "map:draw_sprite()",
         "Use map:draw_visual() instead.");
@@ -2346,7 +2346,7 @@ int LuaContext::map_api_create_entity(lua_State* l) {
     Map& map = *check_map(l, 1);
     const EntityData& data = EntityData::check_entity_data(l, 2, type);
 
-    get(l).create_map_entity_from_data(map, data);
+    get().create_map_entity_from_data(map, data);
 
     return 1;
   });

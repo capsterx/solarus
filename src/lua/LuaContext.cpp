@@ -85,6 +85,14 @@ lua_State* LuaContext::get_internal_state() {
 }
 
 /**
+ * \brief Returns the internal Lua state encapsulated by this LuaContext object.
+ * \return The internal Lua state.
+ */
+lua_State* LuaContext::get_main_state() {
+  return main_l;
+}
+
+/**
  * \brief Returns the Solarus main loop object.
  * \return The main loop manager.
  */
@@ -1090,16 +1098,18 @@ void LuaContext::push_color(lua_State* l, const Color& color) {
 void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
 
   // See if this userdata already exists.
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.all_userdata");
+  //Look in main for the userdata table entry
+  lua_State* main = lua_context->main_l;
+  lua_getfield(main, LUA_REGISTRYINDEX, "sol.all_userdata");
                                   // ... all_udata
-  lua_pushlightuserdata(l, &userdata);
+  lua_pushlightuserdata(main, &userdata);
                                   // ... all_udata lightudata
-  lua_gettable(l, -2);
+  lua_gettable(main, -2);
                                   // ... all_udata udata/nil
-  if (!lua_isnil(l, -1)) {
+  if (!lua_isnil(main, -1)) {
                                   // ... all_udata udata
     // The userdata already exists in the Lua world.
-    lua_remove(l, -2);
+    lua_remove(main, -2);
                                   // ... udata
   }
   else {
@@ -1112,9 +1122,9 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
     }
 
                                   // ... all_udata nil
-    lua_pop(l, 1);
+    lua_pop(main, 1);
                                   // ... all_udata
-    lua_pushlightuserdata(l, &userdata);
+    lua_pushlightuserdata(main, &userdata);
                                   // ... all_udata lightudata
 
     // Find the existing shared_ptr from the raw pointer.
@@ -1131,40 +1141,46 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
     }
 
     ExportableToLuaPtr* block_address = static_cast<ExportableToLuaPtr*>(
-          lua_newuserdata(l, sizeof(ExportableToLuaPtr))
+          lua_newuserdata(main, sizeof(ExportableToLuaPtr))
     );
     // Manually construct a shared_ptr in the block allocated by Lua.
     new (block_address) ExportableToLuaPtr(shared_userdata);
                                   // ... all_udata lightudata udata
-    luaL_getmetatable(l, userdata.get_lua_type_name().c_str());
+    luaL_getmetatable(main, userdata.get_lua_type_name().c_str());
                                   // ... all_udata lightudata udata mt
 
     Debug::execute_if_debug([&] {
-      Debug::check_assertion(!lua_isnil(l, -1),
+      Debug::check_assertion(!lua_isnil(main, -1),
           std::string("Userdata of type '" + userdata.get_lua_type_name()
           + "' has no metatable, this is a memory leak"));
 
-      lua_getfield(l, -1, "__gc");
+      lua_getfield(main, -1, "__gc");
                                     // ... all_udata lightudata udata mt gc
-      Debug::check_assertion(lua_isfunction(l, -1),
+      Debug::check_assertion(lua_isfunction(main, -1),
           std::string("Userdata of type '") + userdata.get_lua_type_name()
           + "' must have the __gc function LuaContext::userdata_meta_gc");
                                     // ... all_udata lightudata udata mt gc
-      lua_pop(l, 1);
+      lua_pop(main, 1);
                                     // ... all_udata lightudata udata mt
     });
 
-    lua_setmetatable(l, -2);
+    lua_setmetatable(main, -2);
                                   // ... all_udata lightudata udata
     // Keep track of our new userdata.
-    lua_pushvalue(l, -1);
+    lua_pushvalue(main, -1);
                                   // ... all_udata lightudata udata udata
-    lua_insert(l, -4);
+    lua_insert(main, -4);
                                   // ... udata all_udata lightudata udata
-    lua_settable(l, -3);
+    lua_settable(main, -3);
                                   // ... udata all_udata
-    lua_pop(l, 1);
+    lua_pop(main, 1);
                                   // ... udata
+  }
+
+  //Check if target stack is different from main...
+  if(l != main) {
+    //Move ref to target stack
+    lua_xmove(main,l,1);
   }
 }
 
@@ -1405,11 +1421,11 @@ int LuaContext::userdata_meta_newindex_as_table(lua_State* l) {
   if (lua_isstring(l, 2)) {
     if (!lua_isnil(l, 3)) {
       // Add the key to the list of existing strings keys on this userdata.
-      get(l).userdata_fields[userdata.get()].insert(lua_tostring(l, 2));
+      get().userdata_fields[userdata.get()].insert(lua_tostring(l, 2));
     }
     else {
       // Assigning nil: remove the key from the list.
-      get(l).userdata_fields[userdata.get()].erase(lua_tostring(l, 2));
+      get().userdata_fields[userdata.get()].erase(lua_tostring(l, 2));
     }
   }
 
@@ -1442,7 +1458,7 @@ int LuaContext::userdata_meta_index_as_table(lua_State* l) {
 
   const ExportableToLuaPtr& userdata =
       *(static_cast<ExportableToLuaPtr*>(lua_touserdata(l, 1)));
-  LuaContext& lua_context = get(l);
+  LuaContext& lua_context = get();
 
   // If the userdata actually has a table, lookup this table, unless we already
   // know that we won't find it (because we know all the existing string keys).
@@ -1484,10 +1500,17 @@ int LuaContext::userdata_meta_index_as_table(lua_State* l) {
 }
 
 /**
+ * @brief checks if the LuaContext is in a event-friendly context
+ */
+void LuaContext::check_callback_thread() const {
+  Debug::check_assertion(current_l==main_l,"Events should be called on main");
+}
+
+/**
  * \brief Calls the on_started() method of the object on top of the stack.
  */
 void LuaContext::on_started() {
-
+  check_callback_thread();
   if (find_method("on_started")) {
     call_function(1, 0, "on_started");
   }
@@ -1501,7 +1524,7 @@ void LuaContext::on_started() {
 void LuaContext::on_started(
     const std::string& previous_state_name,
     CustomState* previous_state) {
-
+  check_callback_thread();
   if (find_method("on_started")) {
     push_string(current_l, previous_state_name);
     if (previous_state == nullptr) {
@@ -1518,7 +1541,7 @@ void LuaContext::on_started(
  * \brief Calls the on_finished() method of the object on top of the stack.
  */
 void LuaContext::on_finished() {
-
+  check_callback_thread();
   if (find_method("on_finished")) {
     call_function(1, 0, "on_finished");
   }
@@ -1532,7 +1555,7 @@ void LuaContext::on_finished() {
 void LuaContext::on_finished(
     const std::string& next_state_name,
     CustomState* next_state) {
-
+  check_callback_thread();
   if (find_method("on_finished")) {
     push_string(current_l, next_state_name);
     if (next_state == nullptr) {
@@ -1549,7 +1572,7 @@ void LuaContext::on_finished(
  * \brief Calls the on_update() method of the object on top of the stack.
  */
 void LuaContext::on_update() {
-
+  check_callback_thread();
   if (find_method("on_update")) {
     call_function(1, 0, "on_update");
   }
@@ -1560,7 +1583,7 @@ void LuaContext::on_update() {
  * \param dst_surface The destination surface.
  */
 void LuaContext::on_draw(const SurfacePtr& dst_surface) {
-
+  check_callback_thread();
   if (find_method("on_draw")) {
     push_surface(current_l, *dst_surface);
     call_function(2, 0, "on_draw");
@@ -1572,7 +1595,7 @@ void LuaContext::on_draw(const SurfacePtr& dst_surface) {
  * \param suspended true to suspend the object, false to unsuspend it.
  */
 void LuaContext::on_suspended(bool suspended) {
-
+  check_callback_thread();
   if (find_method("on_suspended")) {
     lua_pushboolean(current_l, suspended);
     call_function(2, 0, "on_suspended");
@@ -1583,7 +1606,7 @@ void LuaContext::on_suspended(bool suspended) {
  * \brief Calls the on_paused() method of the object on top of the stack.
  */
 void LuaContext::on_paused() {
-
+  check_callback_thread();
   if (find_method("on_paused")) {
     call_function(1, 0, "on_paused");
   }
@@ -1593,7 +1616,7 @@ void LuaContext::on_paused() {
  * \brief Calls the on_unpaused() method of the object on top of the stack.
  */
 void LuaContext::on_unpaused() {
-
+  check_callback_thread();
   if (find_method("on_unpaused")) {
     call_function(1, 0, "on_unpaused");
   }
@@ -1611,6 +1634,7 @@ bool LuaContext::on_dialog_started(
     const Dialog& dialog,
     const ScopedLuaRef& info_ref
 ) {
+  check_callback_thread();
   if (find_method("on_dialog_started")) {
     push_dialog(current_l, dialog);
     push_ref(current_l, info_ref);
@@ -1625,7 +1649,7 @@ bool LuaContext::on_dialog_started(
  * \param dialog The dialog that has just finished.
  */
 void LuaContext::on_dialog_finished(const Dialog& dialog) {
-
+  check_callback_thread();
   if (find_method("on_dialog_finished")) {
     push_dialog(current_l, dialog);
     call_function(2, 0, "on_dialog_finished");
@@ -1636,7 +1660,7 @@ void LuaContext::on_dialog_finished(const Dialog& dialog) {
  * \brief Calls the on_game_over_started() method of the object on top of the stack.
  */
 bool LuaContext::on_game_over_started() {
-
+  check_callback_thread();
   if (find_method("on_game_over_started")) {
     call_function(1, 0, "on_game_over_started");
     return true;
@@ -1648,7 +1672,7 @@ bool LuaContext::on_game_over_started() {
  * \brief Calls the on_game_over_finished() method of the object on top of the stack.
  */
 void LuaContext::on_game_over_finished() {
-
+  check_callback_thread();
   if (find_method("on_game_over_finished")) {
     call_function(1, 0, "on_game_over_finished");
   }
@@ -1660,7 +1684,7 @@ void LuaContext::on_game_over_finished() {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_input(const InputEvent& event) {
-
+  check_callback_thread();
   // Call the Lua function(s) corresponding to this input event.
   bool handled = false;
   if (event.is_keyboard_event()) {
@@ -1724,7 +1748,7 @@ bool LuaContext::on_input(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_key_pressed(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_key_pressed")) {
 
@@ -1773,7 +1797,7 @@ bool LuaContext::on_key_pressed(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_character_pressed(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_character_pressed")) {
 
@@ -1800,7 +1824,7 @@ bool LuaContext::on_character_pressed(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_key_released(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_key_released")) {
 
@@ -1832,7 +1856,7 @@ bool LuaContext::on_key_released(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_joypad_button_pressed(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_joypad_button_pressed")) {
     int button = event.get_joypad_button();
@@ -1858,7 +1882,7 @@ bool LuaContext::on_joypad_button_pressed(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_joypad_button_released(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_joypad_button_released")) {
     int button = event.get_joypad_button();
@@ -1884,7 +1908,7 @@ bool LuaContext::on_joypad_button_released(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_joypad_axis_moved(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_joypad_axis_moved")) {
     int axis = event.get_joypad_axis();
@@ -1912,7 +1936,7 @@ bool LuaContext::on_joypad_axis_moved(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_joypad_hat_moved(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_joypad_hat_moved")) {
     int hat = event.get_joypad_hat();
@@ -1940,7 +1964,7 @@ bool LuaContext::on_joypad_hat_moved(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_mouse_button_pressed(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_mouse_pressed")) {
 
@@ -1977,7 +2001,7 @@ bool LuaContext::on_mouse_button_pressed(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_mouse_button_released(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_mouse_released")) {
 
@@ -2014,7 +2038,7 @@ bool LuaContext::on_mouse_button_released(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_finger_pressed(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_finger_pressed")) {
 
@@ -2047,7 +2071,7 @@ bool LuaContext::on_finger_pressed(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_finger_released(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_finger_released")) {
 
@@ -2080,7 +2104,7 @@ bool LuaContext::on_finger_released(const InputEvent& event) {
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool LuaContext::on_finger_moved(const InputEvent& event) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_finger_moved")) {
 
@@ -2114,7 +2138,7 @@ bool LuaContext::on_finger_moved(const InputEvent& event) {
  * \param command The game command just pressed.
  */
 bool LuaContext::on_command_pressed(GameCommand command) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_command_pressed")) {
     push_string(current_l, GameCommands::get_command_name(command));
@@ -2136,7 +2160,7 @@ bool LuaContext::on_command_pressed(GameCommand command) {
  * \param command The game command just pressed.
  */
 bool LuaContext::on_command_released(GameCommand command) {
-
+  check_callback_thread();
   bool handled = false;
   if (find_method("on_command_released")) {
     push_string(current_l, GameCommands::get_command_name(command));
@@ -2158,7 +2182,7 @@ bool LuaContext::on_command_released(GameCommand command) {
  * \param animation Name of the animation finished.
  */
 void LuaContext::on_animation_finished(const std::string& animation) {
-
+  check_callback_thread();
   if (find_method("on_animation_finished")) {
     push_string(current_l, animation);
     call_function(2, 0, "on_animation_finished");
@@ -2170,7 +2194,7 @@ void LuaContext::on_animation_finished(const std::string& animation) {
  * \param animation Name of the new animation.
  */
 void LuaContext::on_animation_changed(const std::string& animation) {
-
+  check_callback_thread();
   if (find_method("on_animation_changed")) {
     push_string(current_l, animation);
     call_function(2, 0, "on_animation_changed");
@@ -2184,7 +2208,7 @@ void LuaContext::on_animation_changed(const std::string& animation) {
  */
 void LuaContext::on_direction_changed(
     const std::string& animation, int direction) {
-
+  check_callback_thread();
   if (find_method("on_direction_changed")) {
     push_string(current_l, animation);
     lua_pushinteger(current_l, direction);
@@ -2198,7 +2222,7 @@ void LuaContext::on_direction_changed(
  * \param frame The new frame.
  */
 void LuaContext::on_frame_changed(const std::string& animation, int frame) {
-
+  check_callback_thread();
   if (find_method("on_frame_changed")) {
     push_string(current_l, animation);
     lua_pushinteger(current_l, frame);
@@ -2211,7 +2235,7 @@ void LuaContext::on_frame_changed(const std::string& animation, int frame) {
  * \param xy The new coordinates.
  */
 void LuaContext::on_position_changed(const Point& xy) {
-
+  check_callback_thread();
   if (find_method("on_position_changed")) {
     lua_pushinteger(current_l, xy.x);
     lua_pushinteger(current_l, xy.y);
@@ -2223,7 +2247,7 @@ void LuaContext::on_position_changed(const Point& xy) {
  * \brief Calls the on_obstacle_reached() method of the object on top of the stack.
  */
 void LuaContext::on_obstacle_reached() {
-
+  check_callback_thread();
   if (find_method("on_obstacle_reached")) {
     call_function(1, 0, "on_obstacle_reached");
   }
@@ -2233,7 +2257,7 @@ void LuaContext::on_obstacle_reached() {
  * \brief Calls the on_changed() method of the object on top of the stack.
  */
 void LuaContext::on_changed() {
-
+  check_callback_thread();
   if (find_method("on_changed")) {
     call_function(1, 0, "on_changed");
   }
@@ -2244,7 +2268,7 @@ void LuaContext::on_changed() {
  * \param destination The destination point used (nullptr if it's a special one).
  */
 void LuaContext::on_started(Destination* destination) {
-
+  check_callback_thread();
   if (find_method("on_started")) {
     if (destination == nullptr) {
       lua_pushnil(current_l);
@@ -2261,7 +2285,7 @@ void LuaContext::on_started(Destination* destination) {
  * \param destination The destination point used (nullptr if it's a special one).
  */
 void LuaContext::on_opening_transition_finished(Destination* destination) {
-
+  check_callback_thread();
   if (find_method("on_opening_transition_finished")) {
     if (destination == nullptr) {
       lua_pushnil(current_l);
@@ -2278,7 +2302,7 @@ void LuaContext::on_opening_transition_finished(Destination* destination) {
  * \param treasure The treasure being obtained.
  */
 void LuaContext::on_obtaining_treasure(const Treasure& treasure) {
-
+  check_callback_thread();
   if (find_method("on_obtaining_treasure")) {
     push_item(current_l, treasure.get_item());
     lua_pushinteger(current_l, treasure.get_variant());
@@ -2297,7 +2321,7 @@ void LuaContext::on_obtaining_treasure(const Treasure& treasure) {
  * \param treasure The treasure just obtained.
  */
 void LuaContext::on_obtained_treasure(const Treasure& treasure) {
-
+  check_callback_thread();
   if (find_method("on_obtained_treasure")) {
     push_item(current_l, treasure.get_item());
     lua_pushinteger(current_l, treasure.get_variant());
@@ -2317,7 +2341,7 @@ void LuaContext::on_obtained_treasure(const Treasure& treasure) {
  * \param next_state_name Name of the state about to start.
  */
 void LuaContext::on_state_changing(const std::string& state_name, const std::string& next_state_name) {
-
+  check_callback_thread();
   if (find_method("on_state_changing")) {
     push_string(current_l, state_name);
     push_string(current_l, next_state_name);
@@ -2330,7 +2354,7 @@ void LuaContext::on_state_changing(const std::string& state_name, const std::str
  * \param new_state_name Name of the new state.
  */
 void LuaContext::on_state_changed(const std::string& new_state_name) {
-
+  check_callback_thread();
   if (find_method("on_state_changed")) {
     push_string(current_l, new_state_name);
     call_function(2, 0, "on_state_changed");
@@ -2342,7 +2366,7 @@ void LuaContext::on_state_changed(const std::string& new_state_name) {
  * \param damage The damage to take.
  */
 bool LuaContext::on_taking_damage(int damage) {
-
+  check_callback_thread();
   if (find_method("on_taking_damage")) {
     lua_pushinteger(current_l, damage);
     call_function(2, 0, "on_taking_damage");
@@ -2355,7 +2379,7 @@ bool LuaContext::on_taking_damage(int damage) {
  * \brief Calls the on_activating() method of the object on top of the stack.
  */
 void LuaContext::on_activating() {
-
+  check_callback_thread();
   if (find_method("on_activating")) {
     call_function(1, 0, "on_activating");
   }
@@ -2366,7 +2390,7 @@ void LuaContext::on_activating() {
  * \param direction Direction to pass as parameter.
  */
 void LuaContext::on_activating(int direction) {
-
+  check_callback_thread();
   if (find_method("on_activating")) {
     lua_pushinteger(current_l, direction);
     call_function(2, 0, "on_activating");
@@ -2377,7 +2401,7 @@ void LuaContext::on_activating(int direction) {
  * \brief Calls the on_activated() method of the object on top of the stack.
  */
 void LuaContext::on_activated() {
-
+  check_callback_thread();
   if (find_method("on_activated")) {
     call_function(1, 0, "on_activated");
   }
@@ -2388,7 +2412,7 @@ void LuaContext::on_activated() {
  * \param direction Direction to pass as parameter.
  */
 void LuaContext::on_activated(int direction) {
-
+  check_callback_thread();
   if (find_method("on_activated")) {
     lua_pushinteger(current_l, direction);
     call_function(2, 0, "on_activated");
@@ -2399,7 +2423,7 @@ void LuaContext::on_activated(int direction) {
  * \brief Calls the on_inactivated_repeat() method of the object on top of the stack.
  */
 void LuaContext::on_activated_repeat() {
-
+  check_callback_thread();
   if (find_method("on_activated_repeat")) {
     call_function(1, 0, "on_activated_repeat");
   }
@@ -2409,7 +2433,7 @@ void LuaContext::on_activated_repeat() {
  * \brief Calls the on_inactivated() method of the object on top of the stack.
  */
 void LuaContext::on_inactivated() {
-
+  check_callback_thread();
   if (find_method("on_inactivated")) {
     call_function(1, 0, "on_inactivated");
   }
@@ -2419,7 +2443,7 @@ void LuaContext::on_inactivated() {
  * \brief Calls the on_left() method of the object on top of the stack.
  */
 void LuaContext::on_left() {
-
+  check_callback_thread();
   if (find_method("on_left")) {
     call_function(1, 0, "on_left");
   }
@@ -2430,7 +2454,7 @@ void LuaContext::on_left() {
  * \param npc An NPC.
  */
 void LuaContext::on_npc_interaction(Npc& npc) {
-
+  check_callback_thread();
   if (find_method("on_npc_interaction")) {
     push_npc(current_l, npc);
     call_function(2, 0, "on_npc_interaction");
@@ -2444,7 +2468,7 @@ void LuaContext::on_npc_interaction(Npc& npc) {
  * \return true if an interaction occurred.
  */
 bool LuaContext::on_npc_interaction_item(Npc& npc, EquipmentItem& item_used) {
-
+  check_callback_thread();
   bool interacted = false;
   if (find_method("on_npc_interaction_item")) {
     push_npc(current_l, npc);
@@ -2467,7 +2491,7 @@ bool LuaContext::on_npc_interaction_item(Npc& npc, EquipmentItem& item_used) {
  * \return true if an interaction occurred.
  */
 bool LuaContext::on_interaction() {
-
+  check_callback_thread();
   if (find_method("on_interaction")) {
     call_function(1, 0, "on_interaction");
     return true;
@@ -2482,7 +2506,7 @@ bool LuaContext::on_interaction() {
  * \return true if an interaction occurred.
  */
 bool LuaContext::on_interaction_item(EquipmentItem& item) {
-
+  check_callback_thread();
   bool interacted = false;
   if (find_method("on_interaction_item")) {
     push_item(current_l, item);
@@ -2504,7 +2528,7 @@ bool LuaContext::on_interaction_item(EquipmentItem& item) {
  * \param npc An NPC.
  */
 void LuaContext::on_npc_collision_fire(Npc& npc) {
-
+  check_callback_thread();
   if (find_method("on_npc_collision_fire")) {
     push_npc(current_l, npc);
     call_function(2, 0, "on_npc_collision_fire");
@@ -2515,7 +2539,7 @@ void LuaContext::on_npc_collision_fire(Npc& npc) {
  * \brief Calls the on_collision_fire() method of the object on top of the stack.
  */
 void LuaContext::on_collision_fire() {
-
+  check_callback_thread();
   if (find_method("on_collision_fire")) {
     call_function(1, 0, "on_collision_fire");
   }
@@ -2525,7 +2549,7 @@ void LuaContext::on_collision_fire() {
  * \brief Calls the on_collision_explosion() method of the object on top of the stack.
  */
 void LuaContext::on_collision_explosion() {
-
+  check_callback_thread();
   if (find_method("on_collision_explosion")) {
     call_function(1, 0, "on_collision_explosion");
   }
@@ -2536,7 +2560,7 @@ void LuaContext::on_collision_explosion() {
  * \return true if the player is allowed to buy the item.
  */
 bool LuaContext::on_buying() {
-
+  check_callback_thread();
   bool can_buy = true;
   if (find_method("on_buying")) {
     bool success = call_function(1, 1, "on_buying");
@@ -2556,7 +2580,7 @@ bool LuaContext::on_buying() {
  * \brief Calls the on_bought() method of the object on top of the stack.
  */
 void LuaContext::on_bought() {
-
+  check_callback_thread();
   if (find_method("on_bought")) {
     call_function(1, 0, "on_bought");
   }
@@ -2566,7 +2590,7 @@ void LuaContext::on_bought() {
  * \brief Calls the on_opened() method of the object on top of the stack.
  */
 void LuaContext::on_opened() {
-
+  check_callback_thread();
   if (find_method("on_opened")) {
     call_function(1, 0, "on_opened");
   }
@@ -2578,7 +2602,7 @@ void LuaContext::on_opened() {
  * \return \c true if the method is defined.
  */
 bool LuaContext::on_opened(const Treasure& treasure) {
-
+  check_callback_thread();
   if (find_method("on_opened")) {
 
     if (treasure.is_empty()) {
@@ -2608,7 +2632,7 @@ bool LuaContext::on_opened(const Treasure& treasure) {
  * \brief Calls the on_closed() method of the object on top of the stack.
  */
 void LuaContext::on_closed() {
-
+  check_callback_thread();
   if (find_method("on_closed")) {
     call_function(1, 0, "on_closed");
   }
@@ -2618,7 +2642,7 @@ void LuaContext::on_closed() {
  * \brief Calls the on_moving() method of the object on top of the stack.
  */
 void LuaContext::on_moving() {
-
+  check_callback_thread();
   if (find_method("on_moving")) {
     call_function(1, 0, "on_moving");
   }
@@ -2628,7 +2652,7 @@ void LuaContext::on_moving() {
  * \brief Calls the on_moved() method of the object on top of the stack.
  */
 void LuaContext::on_moved() {
-
+  check_callback_thread();
   if (find_method("on_moved")) {
     call_function(1, 0, "on_moved");
   }
@@ -2639,7 +2663,7 @@ void LuaContext::on_moved() {
  * \param map The new active map.
  */
 void LuaContext::on_map_changed(Map& map) {
-
+  check_callback_thread();
   if (find_method("on_map_changed")) {
     push_map(current_l, map);
     call_function(2, 0, "on_map_changed");
@@ -2652,7 +2676,7 @@ void LuaContext::on_map_changed(Map& map) {
  * \param new_world The new world or an empty string.
  */
 void LuaContext::on_world_changed(const std::string& previous_world, const std::string& new_world) {
-
+  check_callback_thread();
   if (find_method("on_world_changed")) {
     if (previous_world.empty()) {
       lua_pushnil(current_l);
@@ -2676,7 +2700,7 @@ void LuaContext::on_world_changed(const std::string& previous_world, const std::
  * \param pickable A pickable treasure.
  */
 void LuaContext::on_pickable_created(Pickable& pickable) {
-
+  check_callback_thread();
   if (find_method("on_pickable_created")) {
     push_entity(current_l, pickable);
     call_function(2, 0, "on_pickable_created");
@@ -2688,7 +2712,7 @@ void LuaContext::on_pickable_created(Pickable& pickable) {
  * \param variant Variant of an equipment item.
  */
 void LuaContext::on_variant_changed(int variant) {
-
+  check_callback_thread();
   if (find_method("on_variant_changed")) {
     lua_pushinteger(current_l, variant);
     call_function(2, 0, "on_variant_changed");
@@ -2700,7 +2724,7 @@ void LuaContext::on_variant_changed(int variant) {
  * \param amount Amount of an equipment item.
  */
 void LuaContext::on_amount_changed(int amount) {
-
+  check_callback_thread();
   if (find_method("on_amount_changed")) {
     lua_pushinteger(current_l, amount);
     call_function(2, 0, "on_amount_changed");
@@ -2712,7 +2736,7 @@ void LuaContext::on_amount_changed(int amount) {
  * \param treasure The treasure being obtained.
  */
 void LuaContext::on_obtaining(const Treasure& treasure) {
-
+  check_callback_thread();
   if (find_method("on_obtaining")) {
     lua_pushinteger(current_l, treasure.get_variant());
     if (!treasure.is_saved()) {
@@ -2730,7 +2754,7 @@ void LuaContext::on_obtaining(const Treasure& treasure) {
  * \param treasure The treasure just obtained.
  */
 void LuaContext::on_obtained(const Treasure& treasure) {
-
+  check_callback_thread();
   if (find_method("on_obtained")) {
     lua_pushinteger(current_l, treasure.get_variant());
     if (!treasure.is_saved()) {
@@ -2747,7 +2771,7 @@ void LuaContext::on_obtained(const Treasure& treasure) {
  * \brief Calls the on_using() method of the object on top of the stack.
  */
 void LuaContext::on_using() {
-
+  check_callback_thread();
   if (find_method("on_using")) {
     call_function(1, 0, "on_using");
   }
@@ -2758,7 +2782,7 @@ void LuaContext::on_using() {
  * \param ability A built-in ability.
  */
 void LuaContext::on_ability_used(Ability ability) {
-
+  check_callback_thread();
   if (find_method("on_ability_used")) {
     push_string(current_l, enum_to_name(ability));
     call_function(2, 0, "on_ability_used");
@@ -2769,7 +2793,7 @@ void LuaContext::on_ability_used(Ability ability) {
  * \brief Calls the on_created() method of the object on top of the stack.
  */
 void LuaContext::on_created() {
-
+  check_callback_thread();
   if (find_method("on_created")) {
     call_function(1, 0, "on_created");
   }
@@ -2779,7 +2803,7 @@ void LuaContext::on_created() {
  * \brief Calls the on_removed() method of the object on top of the stack.
  */
 void LuaContext::on_removed() {
-
+  check_callback_thread();
   if (find_method("on_removed")) {
     call_function(1, 0, "on_removed");
   }
@@ -2789,7 +2813,7 @@ void LuaContext::on_removed() {
  * \brief Calls the on_enabled() method of the object on top of the stack.
  */
 void LuaContext::on_enabled() {
-
+  check_callback_thread();
   if (find_method("on_enabled")) {
     call_function(1, 0, "on_enabled");
   }
@@ -2799,7 +2823,7 @@ void LuaContext::on_enabled() {
  * \brief Calls the on_disabled() method of the object on top of the stack.
  */
 void LuaContext::on_disabled() {
-
+  check_callback_thread();
   if (find_method("on_disabled")) {
     call_function(1, 0, "on_disabled");
   }
@@ -2809,7 +2833,7 @@ void LuaContext::on_disabled() {
  * \brief Calls the on_restarted() method of the object on top of the stack.
  */
 void LuaContext::on_restarted() {
-
+  check_callback_thread();
   if (find_method("on_restarted")) {
     call_function(1, 0, "on_restarted");
   }
@@ -2820,7 +2844,7 @@ void LuaContext::on_restarted() {
  * \param camera The camera where to draw.
  */
 void LuaContext::on_pre_draw(Camera& camera) {
-
+  check_callback_thread();
   if (find_method("on_pre_draw")) {
     push_camera(current_l, camera);
     call_function(2, 0, "on_pre_draw");
@@ -2832,7 +2856,7 @@ void LuaContext::on_pre_draw(Camera& camera) {
  * \param camera The camera where to draw.
  */
 void LuaContext::on_post_draw(Camera& camera) {
-
+  check_callback_thread();
   if (find_method("on_post_draw")) {
     push_camera(current_l, camera);
     call_function(2, 0, "on_post_draw");
@@ -2845,7 +2869,7 @@ void LuaContext::on_post_draw(Camera& camera) {
  * \param layer The new layer.
  */
 void LuaContext::on_position_changed(const Point& xy, int layer) {
-
+  check_callback_thread();
   if (find_method("on_position_changed")) {
     lua_pushinteger(current_l, xy.x);
     lua_pushinteger(current_l, xy.y);
@@ -2859,7 +2883,7 @@ void LuaContext::on_position_changed(const Point& xy, int layer) {
  * \param movement The movement that reached an obstacle.
  */
 void LuaContext::on_obstacle_reached(Movement& movement) {
-
+  check_callback_thread();
   if (find_method("on_obstacle_reached")) {
     push_movement(current_l, movement);
     call_function(2, 0, "on_obstacle_reached");
@@ -2871,7 +2895,7 @@ void LuaContext::on_obstacle_reached(Movement& movement) {
  * \param movement A movement.
  */
 void LuaContext::on_movement_started(Movement& movement) {
-
+  check_callback_thread();
   if (find_method("on_movement_started")) {
     push_movement(current_l, movement);
     call_function(2, 0, "on_movement_started");
@@ -2883,7 +2907,7 @@ void LuaContext::on_movement_started(Movement& movement) {
  * \param movement A movement.
  */
 void LuaContext::on_movement_changed(Movement& movement) {
-
+  check_callback_thread();
   if (find_method("on_movement_changed")) {
     push_movement(current_l, movement);
     call_function(2, 0, "on_movement_changed");
@@ -2894,7 +2918,7 @@ void LuaContext::on_movement_changed(Movement& movement) {
  * \brief Calls the on_movement_finished() method of the object on top of the stack.
  */
 void LuaContext::on_movement_finished() {
-
+  check_callback_thread();
   if (find_method("on_movement_finished")) {
     call_function(1, 0, "on_movement_finished");
   }
@@ -2907,7 +2931,7 @@ void LuaContext::on_movement_finished() {
  * \param this_sprite Colliding sprite of the first enemy.
  */
 void LuaContext::on_collision_enemy(Enemy& other_enemy, Sprite& other_sprite, Sprite& this_sprite) {
-
+  check_callback_thread();
   if (find_method("on_collision_enemy")) {
     push_enemy(current_l, other_enemy);
     push_sprite(current_l, other_sprite);
@@ -2920,7 +2944,7 @@ void LuaContext::on_collision_enemy(Enemy& other_enemy, Sprite& other_sprite, Sp
  * \brief Calls the on_looked() method of the object on top of the stack.
  */
 void LuaContext::on_looked() {
-
+  check_callback_thread();
   if (find_method("on_looked")) {
     call_function(1, 0, "on_looked");
   }
@@ -2930,7 +2954,7 @@ void LuaContext::on_looked() {
  * \brief Calls the on_cut() method of the object on top of the stack.
  */
 void LuaContext::on_cut() {
-
+  check_callback_thread();
   if (find_method("on_cut")) {
     call_function(1, 0, "on_cut");
   }
@@ -2946,7 +2970,7 @@ void LuaContext::on_lifting(
     Entity& carrier,
     CarriedObject& carried_object
 ) {
-
+  check_callback_thread();
   if (find_method("on_lifting")) {
     push_entity(current_l, carrier);
     push_carried_object(current_l, carried_object);
@@ -2958,7 +2982,7 @@ void LuaContext::on_lifting(
  * \brief Calls the on_exploded() method of the object on top of the stack.
  */
 void LuaContext::on_exploded() {
-
+  check_callback_thread();
   if (find_method("on_exploded")) {
     call_function(1, 0, "on_exploded");
   }
@@ -2968,7 +2992,7 @@ void LuaContext::on_exploded() {
  * \brief Calls the on_regenerating() method of the object on top of the stack.
  */
 void LuaContext::on_regenerating() {
-
+  check_callback_thread();
   if (find_method("on_regenerating")) {
     call_function(1, 0, "on_regenerating");
   }
@@ -2980,7 +3004,7 @@ void LuaContext::on_regenerating() {
  * \param sprite The sprite that receives the attack if any.
  */
 void LuaContext::on_custom_attack_received(EnemyAttack attack, Sprite* sprite) {
-
+  check_callback_thread();
   if (find_method("on_custom_attack_received")) {
     push_string(current_l, Enemy::attack_names.find(attack)->second);
     if (sprite != nullptr) {
@@ -3001,7 +3025,7 @@ void LuaContext::on_custom_attack_received(EnemyAttack attack, Sprite* sprite) {
  * \return \c true if the method is defined.
  */
 bool LuaContext::on_hurt_by_sword(Hero& hero, Sprite& enemy_sprite) {
-
+  check_callback_thread();
   if (find_method("on_hurt_by_sword")) {
     push_hero(current_l, hero);
     push_sprite(current_l, enemy_sprite);
@@ -3016,7 +3040,7 @@ bool LuaContext::on_hurt_by_sword(Hero& hero, Sprite& enemy_sprite) {
  * \param attack The attack received.
  */
 void LuaContext::on_hurt(EnemyAttack attack) {
-
+  check_callback_thread();
   if (find_method("on_hurt")) {
     push_string(current_l, Enemy::attack_names.find(attack)->second);
     call_function(2, 0, "on_hurt");
@@ -3027,7 +3051,7 @@ void LuaContext::on_hurt(EnemyAttack attack) {
  * \brief Calls the on_dying() method of the object on top of the stack.
  */
 void LuaContext::on_dying() {
-
+  check_callback_thread();
   if (find_method("on_dying")) {
     call_function(1, 0, "on_dying");
   }
@@ -3037,7 +3061,7 @@ void LuaContext::on_dying() {
  * \brief Calls the on_dead() method of the object on top of the stack.
  */
 void LuaContext::on_dead() {
-
+  check_callback_thread();
   if (find_method("on_dead")) {
     call_function(1, 0, "on_dead");
   }
@@ -3047,7 +3071,7 @@ void LuaContext::on_dead() {
  * \brief Calls the on_immobilized() method of the object on top of the stack.
  */
 void LuaContext::on_immobilized() {
-
+  check_callback_thread();
   if (find_method("on_immobilized")) {
     call_function(1, 0, "on_immobilized");
   }
@@ -3060,7 +3084,7 @@ void LuaContext::on_immobilized() {
  * \return \c true if the method is defined.
  */
 bool LuaContext::on_attacking_hero(Hero& hero, Sprite* attacker_sprite) {
-
+  check_callback_thread();
   if (find_method("on_attacking_hero")) {
     push_hero(current_l, hero);
     if (attacker_sprite == nullptr) {
@@ -3080,7 +3104,7 @@ bool LuaContext::on_attacking_hero(Hero& hero, Sprite* attacker_sprite) {
  * \param ground_below The new ground below the object.
  */
 void LuaContext::on_ground_below_changed(Ground ground_below) {
-
+  check_callback_thread();
   if (find_method("on_ground_below_changed")) {
     if (ground_below == Ground::EMPTY) {
       lua_pushnil(current_l);
@@ -3114,7 +3138,7 @@ int LuaContext::l_loader(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const std::string& script_name = luaL_checkstring(l, 1);
-    bool load_success = get(l).load_file(script_name);
+    bool load_success = get().load_file(script_name);
 
     if (!load_success) {
       std::ostringstream oss;

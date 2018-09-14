@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include <string>
+#include "solarus/lua/ExportableToLua.h"
 
 struct lua_State;
 
@@ -53,14 +54,16 @@ class ScopedLuaRef {
     void clear();
 
     void push(lua_State* dst) const;
-    bool call(const std::string& function_name, lua_State* ctx) const;
+    void call(const std::string& function_name) const;
     void clear_and_call(const std::string& function_name);
 
-  private:
 
+    bool equals(lua_State* l, int index) const;
+    bool operator==(const ScopedLuaRef& other) const;
+    bool operator==(ExportableToLua& other) const;
+  private:
     lua_State* l;  /**< The Lua state. nullptr means no ref. */
     int ref;       /**< Lua ref to a value. */
-
 };
 
 }

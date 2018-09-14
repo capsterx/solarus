@@ -115,7 +115,7 @@ int LuaContext::video_api_get_mode(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.get_mode()",
         "Use sol.video.get_shader() instead."
@@ -137,7 +137,7 @@ int LuaContext::video_api_set_mode(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.set_mode()",
         "Use sol.video.set_shader() instead."
@@ -163,7 +163,7 @@ int LuaContext::video_api_switch_mode(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.switch_mode()",
         "Use sol.video.set_shader() instead."
@@ -184,7 +184,7 @@ int LuaContext::video_api_get_modes(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.get_modes()",
         "Use sol.main.get_resource_ids(\"shader\") instead."
@@ -215,7 +215,7 @@ int LuaContext::video_api_is_mode_supported(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.is_mode_supported()",
         "Use sol.shader.create() instead."
@@ -358,7 +358,7 @@ int LuaContext::video_api_reset_window_size(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 \
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.reset_window_size()",
         "Use sol.video.set_window_size() instead."

@@ -204,7 +204,7 @@ int LuaContext::text_surface_api_create(lua_State* l) {
           text_surface->set_text(CurrentQuest::get_string(text_key));
       }
     }
-    get(l).add_drawable(text_surface);
+    get().add_drawable(text_surface);
 
     push_text_surface(l, *text_surface);
     return 1;

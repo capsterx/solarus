@@ -532,7 +532,7 @@ void LuaContext::update_movements() {
 int LuaContext::movement_api_create(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
     const std::string& type = LuaTools::check_string(l, 1);
 
     std::shared_ptr<Movement> movement;
@@ -647,7 +647,7 @@ int LuaContext::movement_api_set_xy(lua_State* l) {
 int LuaContext::movement_api_start(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
 
     std::shared_ptr<Movement> movement = check_movement(l, 1);
     movement_api_stop(l);  // First, stop any previous movement.
@@ -688,7 +688,7 @@ int LuaContext::movement_api_start(lua_State* l) {
 int LuaContext::movement_api_stop(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    LuaContext& lua_context = get(l);
+    LuaContext& lua_context = get();
 
     std::shared_ptr<Movement> movement = check_movement(l, 1);
 
@@ -1705,7 +1705,7 @@ int LuaContext::circle_movement_api_get_initial_angle(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "circle_movement:get_initial_angle()",
         "Use circle_movement:get_angle_from_center() in radians instead."
@@ -1742,7 +1742,7 @@ int LuaContext::circle_movement_api_set_initial_angle(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "circle_movement:set_initial_angle()",
         "Use circle_movement:set_angle_from_center() in radians instead."
@@ -1779,7 +1779,7 @@ int LuaContext::circle_movement_api_get_angle_speed(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "circle_movement:get_angle_speed()",
         "Use circle_movement:get_angular_speed() in radians instead."
@@ -1820,7 +1820,7 @@ int LuaContext::circle_movement_api_set_angle_speed(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
 
-    get(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "circle_movement:set_angle_speed()",
         "Use circle_movement:set_angular_speed() in radians instead."
