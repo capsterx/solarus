@@ -50,7 +50,7 @@ class Hero::PlayerMovementState: public HeroState {
     virtual void set_suspended(bool suspended) override;
     virtual void set_animation_stopped();
     virtual void set_animation_walking();
-    virtual bool can_control_movement() const override;
+    virtual bool get_can_control_movement() const override;
     virtual int get_wanted_movement_direction8() const override;
     virtual void notify_walking_speed_changed() override;
     virtual void notify_movement_changed() override;

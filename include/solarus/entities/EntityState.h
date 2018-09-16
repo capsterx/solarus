@@ -81,7 +81,7 @@ class Entity::State : public ExportableToLua {
     virtual bool is_direction_locked() const;
 
     // movement
-    virtual bool can_control_movement() const;
+    virtual bool get_can_control_movement() const;
     virtual int get_wanted_movement_direction8() const;
     virtual void notify_walking_speed_changed();
     virtual void notify_layer_changed();

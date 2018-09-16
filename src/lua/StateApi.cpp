@@ -51,6 +51,8 @@ void LuaContext::register_state_module() {
     { "get_map", state_api_get_map },
     { "get_game", state_api_get_game },
     { "is_started", state_api_is_started },
+    { "is_visible", state_api_is_visible },
+    { "set_visible", state_api_set_visible },
     { "get_can_control_direction", state_api_get_can_control_direction },
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
@@ -252,6 +254,38 @@ int LuaContext::state_api_is_started(lua_State* l) {
 
     lua_pushboolean(l, state.is_current_state());
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_visible().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_visible(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.is_visible());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_visible().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_visible(lua_State* l) {
+
+  return LuaTools::exception_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool visible = LuaTools::opt_boolean(l, 2, true);
+
+    state.set_visible(visible);
+
+    return 0;
   });
 }
 

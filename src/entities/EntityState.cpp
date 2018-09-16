@@ -500,7 +500,7 @@ bool Entity::State::is_direction_locked() const {
  *
  * \return true if the player can control his movements
  */
-bool Entity::State::can_control_movement() const {
+bool Entity::State::get_can_control_movement() const {
   return false;
 }
 

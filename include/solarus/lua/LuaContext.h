@@ -1149,6 +1149,8 @@ class LuaContext {
       state_api_get_map,
       state_api_get_game,
       state_api_is_started,
+      state_api_is_visible,
+      state_api_set_visible,
       state_api_get_can_control_direction,
       state_api_set_can_control_direction,
       state_api_get_can_control_movement,

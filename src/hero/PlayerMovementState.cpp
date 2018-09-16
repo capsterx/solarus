@@ -196,7 +196,7 @@ void Hero::PlayerMovementState::set_animation_walking() {
  * \brief Returns whether the player can control his movements in the current state.
  * \return true if the player can control his movements
  */
-bool Hero::PlayerMovementState::can_control_movement() const {
+bool Hero::PlayerMovementState::get_can_control_movement() const {
 
   // The player has control, unless a script has set another movement.
   return get_entity().get_movement().get() == get_player_movement().get();
