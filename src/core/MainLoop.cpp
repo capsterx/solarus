@@ -479,8 +479,7 @@ void MainLoop::check_input() {
   }
 
   // Check Lua requests.
-  //TODO uncommnet
-  /*if (!lua_commands.empty()) {
+  if (!lua_commands.empty()) {
     std::lock_guard<std::mutex> lock(lua_commands_mutex);
     for (const std::string& command : lua_commands) {
       std::cout << "\n";  // To make sure that the command delimiter starts on a new line.
@@ -497,7 +496,7 @@ void MainLoop::check_input() {
       ++num_lua_commands_done;
     }
     lua_commands.clear();
-  }*/
+  }
 }
 
 /**
