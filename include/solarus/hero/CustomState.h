@@ -40,15 +40,16 @@ class CustomState: public HeroState {
 
     const std::string& get_description() const;
     void set_description(const std::string& description);
+    bool is_visible() const;
+    void set_visible(bool visible);
 
     bool get_can_control_direction() const;
     void set_can_control_direction(bool can_control_direction);
     bool is_direction_locked() const override;
     int get_wanted_movement_direction8() const override;
 
-    bool get_can_control_movement() const;
     void set_can_control_movement(bool can_control_movement);
-    bool can_control_movement() const override;
+    bool get_can_control_movement() const override;
 
     bool is_affected_by_ground(Ground ground) const;
     void set_affected_by_ground(Ground ground, bool affected);
@@ -67,12 +68,13 @@ class CustomState: public HeroState {
 
     void start_player_movement();
 
-    std::string description_;               /**< Description of this state or an empty string. */
-    bool can_control_direction_;            /**< Whether the player controls the sprites direction. */
-    bool can_control_movement_;             /**< Whether the player controls the hero's movement. */
+    std::string description;               /**< Description of this state or an empty string. */
+    bool visible;                          /**< Whether the entity is visible during this state. */
+    bool can_control_direction;            /**< Whether the player controls the sprites direction. */
+    bool can_control_movement;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>
-        player_movement_;                   /**< The movement, if controlled by the player. */
-    std::set<Ground> ignored_grounds_;      /**< Grounds whose effect does not affect this state. */
+        player_movement;                    /**< The movement, if controlled by the player. */
+    std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
 };
 
 }

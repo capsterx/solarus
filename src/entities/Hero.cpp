@@ -918,7 +918,7 @@ bool Hero::can_control_movement() const {
     return false;
   }
 
-  return get_state()->can_control_movement();
+  return get_state()->get_can_control_movement();
 }
 
 /**

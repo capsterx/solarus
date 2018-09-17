@@ -116,7 +116,7 @@ void LuaContext::register_movement_module() {
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", userdata_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },
-      { "__index", userdata_meta_index_as_table }
+      { "__index", userdata_meta_index_as_table },
   };
 
   register_type(

@@ -1615,7 +1615,12 @@ void Entity::set_movement(const std::shared_ptr<Movement>& movement) {
     movement->set_entity(this);
 
     if (movement->is_suspended() != suspended) {
-      movement->set_suspended(suspended || !is_enabled());
+      if (!suspended) {
+        movement->set_suspended(false);
+      }
+      else {
+        movement->set_suspended(is_enabled() && !movement->get_ignore_suspend());
+      }
     }
     notify_movement_started();
   }

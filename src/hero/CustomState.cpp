@@ -29,11 +29,12 @@ namespace Solarus {
 CustomState::CustomState(
     const std::string& description):
   HeroState("custom"),
-  description_(description),
-  can_control_direction_(true),
-  can_control_movement_(true),
-  player_movement_(),
-  ignored_grounds_() {
+  description(description),
+  visible(true),
+  can_control_direction(true),
+  can_control_movement(true),
+  player_movement(),
+  ignored_grounds() {
 
 }
 
@@ -50,7 +51,7 @@ const std::string& CustomState::get_lua_type_name() const {
  * \return The description or an empty string.
  */
 const std::string& CustomState::get_description() const {
-  return description_;
+  return description;
 }
 
 /**
@@ -58,7 +59,23 @@ const std::string& CustomState::get_description() const {
  * \param description The description or an empty string.
  */
 void CustomState::set_description(const std::string& description) {
-  this->description_ = description;
+  this->description = description;
+}
+
+/**
+ * \brief Returns whether the entity is visible during this state.
+ * \return \c true if the entity is visible during this state.
+ */
+bool CustomState::is_visible() const {
+  return visible;
+}
+
+/**
+ * \brief Sets whether the entity is visible during this state.
+ * \param visible \c true to show the entity during this state.
+ */
+void CustomState::set_visible(bool visible) {
+  this->visible = visible;
 }
 
 /**
@@ -66,7 +83,7 @@ void CustomState::set_description(const std::string& description) {
  * \return \c true if the player controls the sprites direction.
  */
 bool CustomState::get_can_control_direction() const {
-  return can_control_direction_;
+  return can_control_direction;
 }
 
 /**
@@ -74,7 +91,7 @@ bool CustomState::get_can_control_direction() const {
  * \param can_control_direction \c true if the player should control the sprites direction.
  */
 void CustomState::set_can_control_direction(bool can_control_direction) {
-  this->can_control_direction_ = can_control_direction;
+  this->can_control_direction = can_control_direction;
 }
 
 /**
@@ -108,24 +125,16 @@ int CustomState::get_wanted_movement_direction8() const {
 }
 
 /**
- * \brief Returns whether the players controls the hero's movement in this state.
- * \return \c true if the player controls the hero's movement.
- */
-bool CustomState::get_can_control_movement() const {
-  return can_control_movement_;
-}
-
-/**
  * \brief Sets whether the players controls the hero's movement in this state.
  * \param can_control_movement \c true if the player should control the hero's movement.
  */
 void CustomState::set_can_control_movement(bool can_control_movement) {
 
-  if (can_control_movement == can_control_movement_) {
+  if (can_control_movement == this->can_control_movement) {
     return;
   }
 
-  can_control_movement_ = can_control_movement;
+  this->can_control_movement = can_control_movement;
 
   if (is_current_state()) {
     start_player_movement();
@@ -135,8 +144,8 @@ void CustomState::set_can_control_movement(bool can_control_movement) {
 /**
  * \copydoc Entity::State::can_control_movement
  */
-bool CustomState::can_control_movement() const {
-  return get_can_control_movement();
+bool CustomState::get_can_control_movement() const {
+  return can_control_movement;
 }
 
 /**
@@ -145,10 +154,10 @@ bool CustomState::can_control_movement() const {
 void CustomState::start_player_movement() {
 
   Hero& hero = get_entity();
-  player_movement_ = std::make_shared<PlayerMovement>(
+  player_movement = std::make_shared<PlayerMovement>(
       hero.get_walking_speed()
   );
-  hero.set_movement(player_movement_);
+  hero.set_movement(player_movement);
 }
 
 /**
@@ -158,7 +167,7 @@ void CustomState::start_player_movement() {
  */
 bool CustomState::is_affected_by_ground(Ground ground) const {
 
-  bool ignored = ignored_grounds_.find(ground) != ignored_grounds_.end();
+  bool ignored = ignored_grounds.find(ground) != ignored_grounds.end();
   return !ignored;
 }
 
@@ -170,10 +179,10 @@ bool CustomState::is_affected_by_ground(Ground ground) const {
 void CustomState::set_affected_by_ground(Ground ground, bool affected) {
 
   if (affected) {
-    ignored_grounds_.erase(ground);
+    ignored_grounds.erase(ground);
   }
   else {
-    ignored_grounds_.insert(ground);
+    ignored_grounds.insert(ground);
   }
 }
 
@@ -245,7 +254,7 @@ void CustomState::stop(const State* next_state) {
   if (get_can_control_movement()) {
     get_entity().clear_movement();
   }
-  player_movement_ = nullptr;
+  player_movement = nullptr;
 
   std::string next_state_name;
   const CustomState* next_custom_state = nullptr;
