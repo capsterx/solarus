@@ -15,14 +15,19 @@ function format_value(value)
   return tostring(value)
 end
 
-function assert_equal(actual, expected)
+function assert_equal(actual, expected,msg)
 
   if actual ~= expected then
-    error("equality assertion failed: expected " ..
-        format_value(expected) .. ", got " ..
-        format_value(actual) .. "")
+    local err = string.format("equality assertion failed: expected %s, got %s",
+                              format_value(expected),
+                              format_value(actual))
+    if msg then
+      err = string.format("%s (%s)",msg,err)
+    end
+    error(err)
   end
 end
+
 
 function assert_equal_approx(actual, expected)
 

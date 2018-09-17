@@ -58,13 +58,13 @@ void LuaContext::register_video_module() {
     });
   }
   register_functions(video_module_name, functions);
-  lua_getglobal(l, "sol");
+  lua_getglobal(current_l, "sol");
                                   // ... sol
-  lua_getfield(l, -1, "video");
+  lua_getfield(current_l, -1, "video");
                                   // ... sol video
-  lua_setfield(l, LUA_REGISTRYINDEX, video_module_name.c_str());
+  lua_setfield(current_l, LUA_REGISTRYINDEX, video_module_name.c_str());
                                   // ... sol
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -82,7 +82,7 @@ void LuaContext::push_video(lua_State* l) {
  */
 int LuaContext::video_api_get_window_title(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& window_title =
         Video::get_window_title();
 
@@ -98,7 +98,7 @@ int LuaContext::video_api_get_window_title(lua_State* l) {
  */
 int LuaContext::video_api_set_window_title(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& window_title = LuaTools::check_string(l, 1);
 
     Video::set_window_title(window_title);
@@ -113,9 +113,9 @@ int LuaContext::video_api_set_window_title(lua_State* l) {
  */
 int LuaContext::video_api_get_mode(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.get_mode()",
         "Use sol.video.get_shader() instead."
@@ -135,9 +135,9 @@ int LuaContext::video_api_get_mode(lua_State* l) {
  */
 int LuaContext::video_api_set_mode(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.set_mode()",
         "Use sol.video.set_shader() instead."
@@ -161,9 +161,9 @@ int LuaContext::video_api_set_mode(lua_State* l) {
  */
 int LuaContext::video_api_switch_mode(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.switch_mode()",
         "Use sol.video.set_shader() instead."
@@ -182,9 +182,9 @@ int LuaContext::video_api_switch_mode(lua_State* l) {
  */
 int LuaContext::video_api_get_modes(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.get_modes()",
         "Use sol.main.get_resource_ids(\"shader\") instead."
@@ -213,9 +213,9 @@ int LuaContext::video_api_get_modes(lua_State* l) {
  */
 int LuaContext::video_api_is_mode_supported(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.is_mode_supported()",
         "Use sol.shader.create() instead."
@@ -238,7 +238,7 @@ int LuaContext::video_api_is_mode_supported(lua_State* l) {
  */
 int LuaContext::video_api_is_fullscreen(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     bool fullscreen = Video::is_fullscreen();
 
     lua_pushboolean(l, fullscreen);
@@ -253,7 +253,7 @@ int LuaContext::video_api_is_fullscreen(lua_State* l) {
  */
 int LuaContext::video_api_set_fullscreen(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     bool fullscreen = LuaTools::opt_boolean(l, 1, true);
 
     Video::set_fullscreen(fullscreen);
@@ -269,7 +269,7 @@ int LuaContext::video_api_set_fullscreen(lua_State* l) {
  */
 int LuaContext::video_api_is_cursor_visible(lua_State *l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     bool visible_cursor = Video::is_cursor_visible();
 
     lua_pushboolean(l, visible_cursor);
@@ -284,7 +284,7 @@ int LuaContext::video_api_is_cursor_visible(lua_State *l) {
  */
 int LuaContext::video_api_set_cursor_visible(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     bool visible_cursor = LuaTools::opt_boolean(l, 1, true);
 
     Video::set_cursor_visible(visible_cursor);
@@ -300,7 +300,7 @@ int LuaContext::video_api_set_cursor_visible(lua_State* l) {
  */
 int LuaContext::video_api_get_quest_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Size& quest_size = Video::get_quest_size();
 
     lua_pushinteger(l, quest_size.width);
@@ -316,7 +316,7 @@ int LuaContext::video_api_get_quest_size(lua_State* l) {
  */
 int LuaContext::video_api_get_window_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Size& window_size = Video::get_window_size();
 
     lua_pushinteger(l, window_size.width);
@@ -332,7 +332,7 @@ int LuaContext::video_api_get_window_size(lua_State* l) {
  */
 int LuaContext::video_api_set_window_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int width = LuaTools::check_int(l, 1);
     int height = LuaTools::check_int(l, 2);
 
@@ -356,9 +356,9 @@ int LuaContext::video_api_set_window_size(lua_State* l) {
  */
 int LuaContext::video_api_reset_window_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 \
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 6 },
         "sol.video.reset_window_size()",
         "Use sol.video.set_window_size() instead."
@@ -377,7 +377,7 @@ int LuaContext::video_api_reset_window_size(lua_State* l) {
  */
 int LuaContext::video_api_get_shader(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const ShaderPtr& shader = Video::get_shader();
 
@@ -398,7 +398,7 @@ int LuaContext::video_api_get_shader(lua_State* l) {
  */
 int LuaContext::video_api_set_shader(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     ShaderPtr shader = nullptr;
     if (!lua_isnil(l, 1)) {
@@ -425,9 +425,9 @@ void LuaContext::video_on_draw(const SurfacePtr &screen) {
   if (!CurrentQuest::is_format_at_least({ 1, 6 })) {
     return;
   }
-  push_video(l);
+  push_video(current_l);
   on_draw(screen);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

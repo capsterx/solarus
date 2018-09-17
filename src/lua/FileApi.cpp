@@ -48,14 +48,14 @@ void LuaContext::register_file_module() {
   // Store the original io.open function in the registry.
   // We will need to access it from sol.file.open().
                                   // --
-  lua_getglobal(l, "io");
+  lua_getglobal(current_l, "io");
                                   // io
-  lua_getfield(l, -1, "open");
+  lua_getfield(current_l, -1, "open");
                                   // io open
-  Debug::check_assertion(lua_isfunction(l, -1), "Could not find io.open");
-  lua_setfield(l, LUA_REGISTRYINDEX, "io.open");
+  Debug::check_assertion(lua_isfunction(current_l, -1), "Could not find io.open");
+  lua_setfield(current_l, LUA_REGISTRYINDEX, "io.open");
                                   // io
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // --
 }
 
@@ -66,7 +66,7 @@ void LuaContext::register_file_module() {
  */
 int LuaContext::file_api_open(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
     const std::string& mode = LuaTools::opt_string(l, 2, "r");
 
@@ -142,7 +142,7 @@ int LuaContext::file_api_open(lua_State* l) {
  */
 int LuaContext::file_api_exists(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     lua_pushboolean(l, QuestFiles::data_file_exists(file_name, false));
@@ -158,7 +158,7 @@ int LuaContext::file_api_exists(lua_State* l) {
  */
 int LuaContext::file_api_remove(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     bool success = QuestFiles::data_file_delete(file_name);
@@ -181,7 +181,7 @@ int LuaContext::file_api_remove(lua_State* l) {
  */
 int LuaContext::file_api_mkdir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& dir_name = LuaTools::check_string(l, 1);
 
     bool success = QuestFiles::data_file_mkdir(dir_name);
@@ -204,7 +204,7 @@ int LuaContext::file_api_mkdir(lua_State* l) {
  */
 int LuaContext::file_api_is_dir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& file_name = LuaTools::check_string(l, 1);
 
     lua_pushboolean(l, QuestFiles::data_file_is_dir(file_name));
@@ -220,7 +220,7 @@ int LuaContext::file_api_is_dir(lua_State* l) {
  */
 int LuaContext::file_api_list_dir(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& dir_name = LuaTools::check_string(l, 1);
     if (!QuestFiles::data_file_is_dir(dir_name)) {

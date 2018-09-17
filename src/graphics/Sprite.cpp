@@ -967,12 +967,12 @@ void Sprite::notify_finished() {
 
   LuaContext* lua_context = get_lua_context();
   if (lua_context != nullptr) {
-    lua_State* l = finished_callback_ref.get_lua_state();
+    lua_State* l = lua_context->get_internal_state();
 
     // Sprite callback.
     if (!finished_callback_ref.is_empty()) {
       // The callback may be a function or a string.
-      finished_callback_ref.push();
+      finished_callback_ref.push(l);
       finished_callback_ref.clear();
       if (lua_isstring(l, -1)) {
         // Name of a next animation to set.

@@ -109,7 +109,7 @@ void LuaContext::push_state(lua_State* l, CustomState& state) {
  */
 int LuaContext::state_api_create(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& description = LuaTools::opt_string(l, 1, "");
 
     std::shared_ptr<CustomState> state = std::make_shared<CustomState>(description);
@@ -126,7 +126,7 @@ int LuaContext::state_api_create(lua_State* l) {
  */
 int LuaContext::state_api_get_description(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
 
     const std::string& description = state.get_description();
@@ -147,7 +147,7 @@ int LuaContext::state_api_get_description(lua_State* l) {
  */
 int LuaContext::state_api_set_description(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
     std::string description;
     if (lua_isstring(l, 2)) {
@@ -170,7 +170,7 @@ int LuaContext::state_api_set_description(lua_State* l) {
  */
 int LuaContext::state_api_get_entity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
 
     if (!state.has_entity()) {
@@ -191,7 +191,7 @@ int LuaContext::state_api_get_entity(lua_State* l) {
  */
 int LuaContext::state_api_get_map(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
 
     if (!state.has_entity()) {
@@ -217,7 +217,7 @@ int LuaContext::state_api_get_map(lua_State* l) {
  */
 int LuaContext::state_api_get_game(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
 
     if (!state.has_entity()) {
@@ -249,7 +249,7 @@ int LuaContext::state_api_get_game(lua_State* l) {
  */
 int LuaContext::state_api_is_started(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
 
     lua_pushboolean(l, state.is_current_state());
@@ -264,7 +264,7 @@ int LuaContext::state_api_is_started(lua_State* l) {
  */
 int LuaContext::state_api_is_visible(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
 
     lua_pushboolean(l, state.is_visible());
@@ -296,7 +296,7 @@ int LuaContext::state_api_set_visible(lua_State* l) {
  */
 int LuaContext::state_api_get_can_control_direction(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
 
     lua_pushboolean(l, state.get_can_control_direction());
@@ -311,7 +311,7 @@ int LuaContext::state_api_get_can_control_direction(lua_State* l) {
  */
 int LuaContext::state_api_set_can_control_direction(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
     bool can_control_direction = LuaTools::opt_boolean(l, 2, true);
 
@@ -328,7 +328,7 @@ int LuaContext::state_api_set_can_control_direction(lua_State* l) {
  */
 int LuaContext::state_api_get_can_control_movement(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
 
     lua_pushboolean(l, state.get_can_control_movement());
@@ -343,7 +343,7 @@ int LuaContext::state_api_get_can_control_movement(lua_State* l) {
  */
 int LuaContext::state_api_set_can_control_movement(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
     bool can_control_movement = LuaTools::opt_boolean(l, 2, true);
 
@@ -360,7 +360,7 @@ int LuaContext::state_api_set_can_control_movement(lua_State* l) {
  */
 int LuaContext::state_api_is_affected_by_ground(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
     Ground ground = LuaTools::check_enum<Ground>(l, 2);
 
@@ -376,7 +376,7 @@ int LuaContext::state_api_is_affected_by_ground(lua_State* l) {
  */
 int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
     Ground ground = LuaTools::check_enum<Ground>(l, 2);
     bool affected = LuaTools::opt_boolean(l, 3, true);
@@ -405,9 +405,9 @@ void LuaContext::state_on_started(
     return;
   }
 
-  push_state(l, state);
+  push_state(current_l, state);
   on_started(previous_state_name, previous_state);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -424,12 +424,12 @@ void LuaContext::state_on_finished(
     const std::string& next_state_name,
     CustomState* next_state) {
 
-  push_state(l, state);
+  push_state(current_l, state);
   if (userdata_has_field(state, "on_finished")) {
     on_finished(next_state_name, next_state);
   }
   remove_timers(-1);  // Stop timers associated to this state.
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

@@ -94,8 +94,12 @@ std::string get_type_name(lua_State*l, int index) {
  * lifetime.
  */
 ScopedLuaRef create_ref(lua_State* l) {
-
-  return ScopedLuaRef(l, luaL_ref(l, LUA_REGISTRYINDEX));
+  lua_State* main = LuaContext::get().get_main_state();
+  //Cross move values to main state to avoid  coroutines GC to invalidate them
+  if(l != main) {
+    lua_xmove(l,main,1);
+  }
+  return ScopedLuaRef(main, luaL_ref(main, LUA_REGISTRYINDEX));
 }
 
 /**
@@ -106,9 +110,8 @@ ScopedLuaRef create_ref(lua_State* l) {
  * lifetime.
  */
 ScopedLuaRef create_ref(lua_State* l, int index) {
-
   lua_pushvalue(l, index);
-  return ScopedLuaRef(l, luaL_ref(l, LUA_REGISTRYINDEX));
+  return create_ref(l);
 }
 
 /**

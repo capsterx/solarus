@@ -77,7 +77,7 @@ void LuaContext::register_language_module() {
  */
 int LuaContext::language_api_get_language(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& language = CurrentQuest::get_language();
 
     if (language.empty()) {  // Return nil if no language is set.
@@ -97,7 +97,7 @@ int LuaContext::language_api_get_language(lua_State* l) {
  */
 int LuaContext::language_api_set_language(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& language_code = LuaTools::check_string(l, 1);
 
     if (!CurrentQuest::has_language(language_code)) {
@@ -116,7 +116,7 @@ int LuaContext::language_api_set_language(lua_State* l) {
  */
 int LuaContext::language_api_get_language_name(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     std::string language_code;
     if (lua_gettop(l) >= 1) {
       language_code = LuaTools::check_string(l, 1);
@@ -145,7 +145,7 @@ int LuaContext::language_api_get_language_name(lua_State* l) {
  */
 int LuaContext::language_api_get_languages(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::map<std::string, std::string>& languages =
         CurrentQuest::get_resources(ResourceType::LANGUAGE);
 
@@ -169,7 +169,7 @@ int LuaContext::language_api_get_languages(lua_State* l) {
  */
 int LuaContext::language_api_get_string(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& key = LuaTools::check_string(l, 1);
 
     const std::string& language = CurrentQuest::get_language();
@@ -194,7 +194,7 @@ int LuaContext::language_api_get_string(lua_State* l) {
  */
 int LuaContext::language_api_get_dialog(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& dialog_id = LuaTools::check_string(l, 1);
 
     const std::string& language = CurrentQuest::get_language();
