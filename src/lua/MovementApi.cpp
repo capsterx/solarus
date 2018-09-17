@@ -2184,32 +2184,34 @@ int LuaContext::pixel_movement_api_set_delay(lua_State* l) {
 void LuaContext::movement_on_position_changed(
     Movement& movement, const Point& xy) {
 
-                                  // ...
-  push_movement(current_l, movement);
-                                  // ... movement
-  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
-                                  // ... movement movements
-  lua_pushvalue(current_l, -2);
-                                  // ... movement movements movement
-  lua_gettable(current_l, -2);
-                                  // ... movement movements xy/nil
-  if (!lua_isnil(current_l, -1)) {
-                                  // ... movement movements xy
-    lua_pushinteger(current_l, xy.x);
-                                  // ... movement movements xy x
-    lua_setfield(current_l, -2, "x");
-                                  // ... movement movements xy
-    lua_pushinteger(current_l, xy.y);
-                                  // ... movement movements xy y
-    lua_setfield(current_l, -2, "y");
-                                  // ... movement movements xy
-  }
-  lua_pop(current_l, 2);
-                                  // ... movement
-  if (userdata_has_field(movement, "on_position_changed")) {
-    on_position_changed(xy);
-  }
-  lua_pop(current_l, 1);
+  run_on_main([this,&movement,&xy](lua_State* current_l){
+                                    // ...
+    push_movement(current_l, movement);
+                                    // ... movement
+    lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+                                    // ... movement movements
+    lua_pushvalue(current_l, -2);
+                                    // ... movement movements movement
+    lua_gettable(current_l, -2);
+                                    // ... movement movements xy/nil
+    if (!lua_isnil(current_l, -1)) {
+                                    // ... movement movements xy
+      lua_pushinteger(current_l, xy.x);
+                                    // ... movement movements xy x
+      lua_setfield(current_l, -2, "x");
+                                    // ... movement movements xy
+      lua_pushinteger(current_l, xy.y);
+                                    // ... movement movements xy y
+      lua_setfield(current_l, -2, "y");
+                                    // ... movement movements xy
+    }
+    lua_pop(current_l, 2);
+                                    // ... movement
+    if (userdata_has_field(movement, "on_position_changed")) {
+      on_position_changed(xy);
+    }
+    lua_pop(current_l, 1);
+  });
 }
 
 /**
@@ -2225,9 +2227,11 @@ void LuaContext::movement_on_obstacle_reached(Movement& movement) {
     return;
   }
 
-  push_movement(current_l, movement);
-  on_obstacle_reached();
-  lua_pop(current_l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_obstacle_reached();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -2243,9 +2247,11 @@ void LuaContext::movement_on_changed(Movement& movement) {
     return;
   }
 
-  push_movement(current_l, movement);
-  on_changed();
-  lua_pop(current_l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_changed();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -2261,9 +2267,11 @@ void LuaContext::movement_on_finished(Movement& movement) {
     return;
   }
 
-  push_movement(current_l, movement);
-  on_finished();
-  lua_pop(current_l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_finished();
+    lua_pop(l, 1);
+  });
 }
 
 }

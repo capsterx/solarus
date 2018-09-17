@@ -1,0 +1,66 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 176,
+  y = 104,
+  width = 48,
+  height = 32,
+  pattern = "64",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 8,
+  y = 237,
+  direction = 1,
+}
+
+custom_entity{
+  name = "dummy",
+  layer = 0,
+  x = 160,
+  y = 125,
+  width = 16,
+  height = 16,
+  direction = 0,
+  sprite = "hero/tunic1",
+}
+
+custom_entity{
+  name = "to_remove",
+  layer = 0,
+  x = 88,
+  y = 53,
+  width = 16,
+  height = 16,
+  direction = 0,
+}
+
+sensor{
+  name = "anchor",
+  layer = 0,
+  x = 160,
+  y = 125,
+  width = 16,
+  height = 16,
+}
+

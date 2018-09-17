@@ -585,7 +585,7 @@ void LuaContext::main_on_finished() {
  * This function is called at each cycle by the main loop.
  */
 void LuaContext::main_on_update() {
-
+  current_l = main_l; //Always execute main on the main thread
   push_main(current_l);
   on_update();
   menus_on_update(-1);

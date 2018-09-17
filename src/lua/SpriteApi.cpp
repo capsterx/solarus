@@ -688,10 +688,11 @@ void LuaContext::sprite_on_animation_finished(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_animation_finished")) {
     return;
   }
-
-  push_sprite(current_l, sprite);
-  on_animation_finished(animation);
-  lua_pop(current_l, 1);
+  run_on_main([this,&sprite,&animation](lua_State* l){
+    push_sprite(l, sprite);
+    on_animation_finished(animation);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -709,7 +710,7 @@ void LuaContext::sprite_on_animation_changed(
     return;
   }
 
-  run_on_main([this,&sprite,animation](lua_State* l){
+  run_on_main([this,&sprite,&animation](lua_State* l){
     push_sprite(l, sprite);
     on_animation_changed(animation);
     lua_pop(current_l, 1);
@@ -731,10 +732,11 @@ void LuaContext::sprite_on_direction_changed(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_direction_changed")) {
     return;
   }
-
-  push_sprite(current_l, sprite);
-  on_direction_changed(animation, direction);
-  lua_pop(current_l, 1);
+  run_on_main([this,&sprite,&animation,direction](lua_State* l){
+    push_sprite(l, sprite);
+    on_direction_changed(animation, direction);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -752,10 +754,11 @@ void LuaContext::sprite_on_frame_changed(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_frame_changed")) {
     return;
   }
-
-  push_sprite(current_l, sprite);
-  on_frame_changed(animation, frame);
-  lua_pop(current_l, 1);
+  run_on_main([this,&sprite,&animation,frame](lua_State* l){
+    push_sprite(l, sprite);
+    on_frame_changed(animation, frame);
+    lua_pop(l, 1);
+  });
 }
 
 }

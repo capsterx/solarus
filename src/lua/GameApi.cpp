@@ -497,7 +497,9 @@ int LuaContext::game_api_stop_dialog(lua_State* l) {
       status_ref = get().create_ref();
     }
 
-    game->stop_dialog(status_ref);
+    run_on_main([game,status_ref](lua_State*){
+      game->stop_dialog(status_ref);
+    });
 
     return 0;
   });
@@ -1688,9 +1690,11 @@ void LuaContext::game_on_paused(Game& game) {
     return;
   }
 
-  push_game(current_l, game.get_savegame());
-  on_paused();
-  lua_pop(current_l, 1);
+  run_on_main([this,&game](lua_State* l){
+    push_game(l, game.get_savegame());
+    on_paused();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1706,9 +1710,11 @@ void LuaContext::game_on_unpaused(Game& game) {
     return;
   }
 
-  push_game(current_l, game.get_savegame());
-  on_unpaused();
-  lua_pop(current_l, 1);
+  run_on_main([this,&game](lua_State* l){
+    push_game(l, game.get_savegame());
+    on_unpaused();
+    lua_pop(l, 1);
+  });
 }
 
 /**

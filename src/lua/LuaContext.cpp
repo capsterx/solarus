@@ -218,10 +218,27 @@ void LuaContext::update() {
       "Non-empty stack before LuaContext::update()"
   );
 
+  Debug::check_assertion(current_l == main_l,
+                         "Not on the main lua thread to execute lua update");
+
   update_drawables();
+
+  Debug::check_assertion(current_l == main_l,
+                         "Not on the main lua thread after updating drawable");
   update_movements();
+
+  Debug::check_assertion(current_l == main_l,
+                         "Not on the main lua thread after updating movements");
+
   update_menus();
+
+  Debug::check_assertion(current_l == main_l,
+                         "Not on the main lua thread after updating menus");
+
   update_timers();
+
+  Debug::check_assertion(current_l == main_l,
+                         "Not on the main lua thread after updating timers");
 
   // Call sol.main.on_update().
   main_on_update();
@@ -232,6 +249,8 @@ void LuaContext::update() {
     f(current_l);
     cross_state_callbacks.pop();
   }
+
+  current_l = main_l; //Ensure we run again on the main thread
 
   Debug::check_assertion(lua_gettop(main_l) == 0,
       "Non-empty stack after LuaContext::update()"
