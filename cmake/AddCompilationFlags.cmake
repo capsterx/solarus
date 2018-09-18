@@ -25,7 +25,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-Wno-error -Wall -Wextra -Wno-unknown-pragmas -Wno-fatal-errors ${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # Be more pedantic in debug mode for developers.
-set(CMAKE_CXX_FLAGS_DEBUG "-Werror -Wall -Wextra -pedantic ${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-Werror -Wall -Wextra -Wno-error=deprecated-declarations -pedantic ${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wsuggest-override")
 endif()
