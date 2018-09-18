@@ -40,7 +40,7 @@ class CustomState: public HeroState {
 
     const std::string& get_description() const;
     void set_description(const std::string& description);
-    bool is_visible() const;
+    bool is_visible() const override;
     void set_visible(bool visible);
 
     bool get_can_control_direction() const;

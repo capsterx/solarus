@@ -6788,9 +6788,9 @@ void LuaContext::entity_on_state_changed(
     return;
   }
  run_on_main([this,&entity,new_state_name](lua_State* l){
-    push_entity(current_l, entity);
+    push_entity(l, entity);
     on_state_changed(new_state_name);
-    lua_pop(current_l, 1);
+    lua_pop(l, 1);
   });
 }
 
@@ -7446,12 +7446,12 @@ void LuaContext::enemy_on_dead(Enemy& enemy) {
  */
 void LuaContext::enemy_on_immobilized(Enemy& enemy) {
   run_on_main([this,&enemy](lua_State* l){
-    push_enemy(current_l, enemy);
+    push_enemy(l, enemy);
     remove_timers(-1);  // Stop timers associated to this enemy.
     if (userdata_has_field(enemy, "on_immobilized")) {
       on_immobilized();
     }
-    lua_pop(current_l, 1);
+    lua_pop(l, 1);
   });
 }
 
@@ -7496,9 +7496,9 @@ void LuaContext::custom_entity_on_ground_below_changed(
   }
 
   run_on_main([this,&custom_entity,ground_below](lua_State* l){
-    push_custom_entity(current_l, custom_entity);
+    push_custom_entity(l, custom_entity);
     on_ground_below_changed(ground_below);
-    lua_pop(current_l, 1);
+    lua_pop(l, 1);
   });
 }
 
