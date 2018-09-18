@@ -11,6 +11,7 @@ Engine changes
 * Improve the performance of loading images.
 * Maps can now use multiple tilesets (#1174).
 * Animated tile patterns can now have any frame number and delay (#683).
+* Fix crash when using coroutines (#1269) by stdgregwar.
 * Treasure dialogs are now optional (#1076).
 * Don't center the hero on non-blocking streams (#1063).
 * Allow pickables to follow streams (#1139).
