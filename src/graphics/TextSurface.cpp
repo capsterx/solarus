@@ -508,18 +508,33 @@ void TextSurface::rebuild_ttf() {
   text_color.get_components(
       internal_color.r, internal_color.g, internal_color.b, internal_color.a);
 
+
+  SDL_Surface_UniquePtr surface;
   switch (rendering_mode) {
 
   case RenderingMode::SOLID:
-    surface = Surface::create(SDL_Surface_UniquePtr(
-        TTF_RenderUTF8_Solid(&internal_font, text.c_str(), internal_color)));
+    surface = SDL_Surface_UniquePtr(
+        TTF_RenderUTF8_Solid(&internal_font, text.c_str(), internal_color));
     break;
 
   case RenderingMode::ANTIALIASING:
-    surface = Surface::create(SDL_Surface_UniquePtr(
-        TTF_RenderUTF8_Blended(&internal_font, text.c_str(), internal_color)));
+    surface = SDL_Surface_UniquePtr(
+        TTF_RenderUTF8_Blended(&internal_font, text.c_str(), internal_color));
     break;
   }
+  SDL_PixelFormat* format = Video::get_rgba_format();
+  SDL_Surface_UniquePtr full = SDL_Surface_UniquePtr(SDL_CreateRGBSurface(
+       0,
+       surface->w,
+       surface->h,
+       32,
+       format->Rmask,
+       format->Gmask,
+       format->Bmask,
+       format->Amask));
+  SDL_FillRect(full.get(),nullptr,0x00FFFFFF);
+  SDL_BlitSurface(surface.get(),nullptr,full.get(),nullptr);
+  this->surface = Surface::create(std::move(full));
 }
 
 /**
