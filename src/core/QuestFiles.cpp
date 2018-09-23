@@ -134,6 +134,9 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
 
   quest_path_ = quest_path;
 
+  //Allow physfs to follow symbolic links
+  PHYSFS_permitSymbolicLinks(true);
+
   //quest path is a file, try to open it directly
   PHYSFS_addToSearchPath(quest_path.c_str(),1);
 
