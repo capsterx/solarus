@@ -96,6 +96,8 @@ class TextSurface;
 class Timer;
 class Treasure;
 
+class Arguments;
+
 using EntityVector = std::vector<EntityPtr>;
 
 /**
@@ -155,7 +157,7 @@ class LuaContext {
     MainLoop& get_main_loop();
 
     // Main loop from C++.
-    void initialize();
+    void initialize(const Arguments &args);
     void exit();
     void update();
     bool notify_input(const InputEvent& event);
