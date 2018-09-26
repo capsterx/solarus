@@ -27,17 +27,21 @@ local interpreter = {
   api = {"baselib", "solarus"},
   frun = function(self,wfilename,rundebug)
     local projdir = self:fworkdir(wfilename)
-    ide:Print(string.format("Solarus started with project path %s and debug set to %s", projdir,rundebug and "true" or "false"))
-    local debuggerPath = ide:GetRootPath("lualibs/mobdebug/mobdebug")
+    
+    local debuggerPath = ide:GetRootPath("lualibs/mobdebug/?.lua")
+    local packagePath = ide:GetPackagePath("?.lua")
+    
     local engine_cmd = "solarus-run" --TODO take windows (and mac) into account
     local cmd = string.format("%s %s",engine_cmd,projdir)
     if rundebug then
       --adapt command to run debug connection
-      local code = string.format("local path=package.path;package.path='?.lua;'..path;require('%s').start();package.path=path;",debuggerPath)
+      local code = string.format(
+[[local path=package.path;package.path='%s;%s;'..path;local mdb=require('mobdebug');require('solarus_pretty_printer');package.path=path;mdb.coro();mdb.start()]],
+        debuggerPath,
+        packagePath)
       cmd = string.format('%s -s="%s" %s',engine_cmd,code,projdir)
     end
     CommandLineRun(cmd,projdir,true,false)
-    ide:GetDebugger():Run()
   end,
   hasdebugger = true
 }
