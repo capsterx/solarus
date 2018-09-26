@@ -1,9 +1,19 @@
 local api = {
   sol = {
-    main = {
-      get_elapsed_time = {
-        description = "get the elapsed time since the engine started to run",
-        type = "function"
+    type = "lib",
+    description = "Solarus library",
+    childs = {
+      main = {
+        type = "lib",
+        description = "Main Solarus library, ...",
+        childs = {
+          get_elapsed_time = {
+            description = "get the elapsed time since the engine started to run",
+            args = "()",
+            returns = "(time_ms : number)",
+            type = "function"
+          }
+        }
       }
     }
   }  
@@ -39,10 +49,12 @@ return {
   version = 1.6,
   
   onRegister = function(self)
+    ide:AddAPI("lua","solarus",api)
     ide:AddInterpreter("Solarus", interpreter)
   end,
   
   onUnRegister = function(self)
+    ide:RemoveAPI("lua","solarus")
     ide:RemoveInterpreter("Solarus")
   end
 }
