@@ -42,6 +42,8 @@ class CustomState: public HeroState {
     void set_description(const std::string& description);
     bool is_visible() const override;
     void set_visible(bool visible);
+    ScopedLuaRef get_draw_override() const;
+    void set_draw_override(const ScopedLuaRef& draw_override);
 
     bool get_can_control_direction() const;
     void set_can_control_direction(bool can_control_direction);
@@ -63,6 +65,7 @@ class CustomState: public HeroState {
     void stop(const State* next_state) override;
 
     void update() override;
+    void draw_on_map() override;
 
   private:
 
@@ -70,10 +73,11 @@ class CustomState: public HeroState {
 
     std::string description;               /**< Description of this state or an empty string. */
     bool visible;                          /**< Whether the entity is visible during this state. */
+    ScopedLuaRef draw_override;            /**< Optional Lua function that draws the entity during this state. */
     bool can_control_direction;            /**< Whether the player controls the sprites direction. */
     bool can_control_movement;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>
-        player_movement;                    /**< The movement, if controlled by the player. */
+        player_movement;                   /**< The movement, if controlled by the player. */
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
 };
 

@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Map.h"
+#include "solarus/entities/Hero.h"
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/hero/CustomState.h"
@@ -31,6 +33,7 @@ CustomState::CustomState(
   HeroState("custom"),
   description(description),
   visible(true),
+  draw_override(),
   can_control_direction(true),
   can_control_movement(true),
   player_movement(),
@@ -76,6 +79,22 @@ bool CustomState::is_visible() const {
  */
 void CustomState::set_visible(bool visible) {
   this->visible = visible;
+}
+
+/**
+ * \brief Returns the Lua draw function of this entity if any.
+ * \return The draw override or an empty ref.
+ */
+ScopedLuaRef CustomState::get_draw_override() const {
+  return draw_override;
+}
+
+/**
+ * \brief Sets the Lua draw function of this entity.
+ * \param draw_override The draw override or an empty ref.
+ */
+void CustomState::set_draw_override(const ScopedLuaRef& draw_override) {
+  this->draw_override = draw_override;
 }
 
 /**
@@ -276,6 +295,23 @@ void CustomState::update() {
   HeroState::update();
 
   // TODO
+}
+
+/**
+ * \copydoc Entity::State::draw_on_map
+ */
+void CustomState::draw_on_map() {
+
+  Camera& camera = *get_entity().get_map().get_camera();
+  get_lua_context().state_on_pre_draw(*this, camera);
+  if (draw_override.is_empty()) {
+    // Use the built-in default state draw.
+    HeroState::draw_on_map();
+  }
+  else {
+    get_lua_context().do_state_draw_override_function(draw_override, *this, camera);
+  }
+  get_lua_context().state_on_post_draw(*this, camera);
 }
 
 }

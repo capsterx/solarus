@@ -326,6 +326,11 @@ class LuaContext {
         Sprite& custom_entity_sprite,
         Sprite& other_entity_sprite
     );
+    void do_state_draw_override_function(
+        const ScopedLuaRef& draw_override,
+        CustomState& state,
+        Camera& camera
+    );
 
     // Main loop events (sol.main).
     void main_on_started();
@@ -501,6 +506,8 @@ class LuaContext {
         CustomState& state,
         const std::string& next_state_name,
         CustomState* next_state);
+    void state_on_pre_draw(CustomState& state, Camera& camera);
+    void state_on_post_draw(CustomState& state, Camera& camera);
 
     // Implementation of the API.
 
@@ -1188,6 +1195,8 @@ class LuaContext {
       state_api_set_can_control_direction,
       state_api_get_can_control_movement,
       state_api_set_can_control_movement,
+      state_api_get_draw_override,
+      state_api_set_draw_override,
       state_api_is_affected_by_ground,
       state_api_set_affected_by_ground,
 
