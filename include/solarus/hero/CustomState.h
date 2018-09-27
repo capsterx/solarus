@@ -63,6 +63,21 @@ class CustomState: public HeroState {
     bool can_avoid_lava() const override;
     bool can_avoid_prickle() const override;
 
+    bool get_can_start_sword() const override;
+    void set_can_start_sword(bool can_start_sword);
+    bool get_can_use_shield() const override;
+    void set_can_use_shield(bool can_use_shield);
+    bool get_can_start_item() const;
+    bool get_can_start_item(EquipmentItem& item) const override;
+    void set_can_start_item(bool can_start_item);
+    bool get_can_pick_treasure() const;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    void set_can_pick_treasure(bool can_pick_treasure);
+    bool get_can_take_stairs() const override;
+    void set_can_take_stairs(bool can_take_stairs);
+    bool get_can_take_jumper() const override;
+    void set_can_take_jumper(bool can_take_jumper);
+
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
 
@@ -82,6 +97,12 @@ class CustomState: public HeroState {
         player_movement;                   /**< The movement, if controlled by the player. */
     bool touching_ground;                  /**< Whether the entity is in contact with the ground. */
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
+    bool can_start_sword;                  /**< Whether the sword can be used in this state. */
+    bool can_use_shield;                   /**< Whether the shield can be used in this state. */
+    bool can_start_item;                   /**< Whether the item can be used in this state. */
+    bool can_pick_treasure;                /**< Whether treasures can be picked in this state. */
+    bool can_take_stairs;                  /**< Whether stairs can be used in this state. */
+    bool can_take_jumper;                  /**< Whether jumpers can be used in this state. */
 };
 
 }

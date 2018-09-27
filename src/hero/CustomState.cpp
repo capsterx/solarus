@@ -38,7 +38,13 @@ CustomState::CustomState(
   can_control_movement(true),
   player_movement(),
   touching_ground(true),
-  ignored_grounds() {
+  ignored_grounds(),
+  can_start_sword(true),
+  can_use_shield(true),
+  can_start_item(true),
+  can_pick_treasure(true),
+  can_take_stairs(true),
+  can_take_jumper(true) {
 
 }
 
@@ -254,6 +260,112 @@ bool CustomState::can_avoid_lava() const {
  */
 bool CustomState::can_avoid_prickle() const {
   return !is_affected_by_ground(Ground::PRICKLE);
+}
+
+/**
+ * \copydoc Entity::State::can_start_sword
+ */
+bool CustomState::get_can_start_sword() const {
+  return can_start_sword;
+}
+
+/**
+ * \brief Sets whether the sword can be used during this state.
+ * \param can_start_sword \c true to allow the sword.
+ */
+void CustomState::set_can_start_sword(bool can_start_sword) {
+  this->can_start_sword = can_start_sword;
+}
+
+/**
+ * \copydoc Entity::State::can_use_shield
+ */
+bool CustomState::get_can_use_shield() const {
+  return can_use_shield;
+}
+
+/**
+ * \brief Sets whether the shield can be used during this state.
+ * \param can_use_shield \c true to allow the shield.
+ */
+void CustomState::set_can_use_shield(bool can_use_shield) {
+  this->can_use_shield = can_use_shield;
+}
+
+/**
+ * \brief Returns whether equipment items can be used during this state.
+ * \return \c true if items are allowed.
+ */
+bool CustomState::get_can_start_item() const {
+  return can_start_item;
+}
+
+/**
+ * \copydoc Entity::State::can_start_item
+ */
+bool CustomState::get_can_start_item(EquipmentItem& /* item */) const {
+  return get_can_start_item();
+}
+
+/**
+ * \brief Sets whether equipment items can be used during this state.
+ * \param can_start_item \c true to allow items.
+ */
+void CustomState::set_can_start_item(bool can_start_item) {
+  this->can_start_item = can_start_item;
+}
+
+/**
+ * \brief Returns whether treasures can be picked during this state.
+ * \return \c true if treasures can be picked.
+ */
+bool CustomState::get_can_pick_treasure() const {
+  return can_pick_treasure;
+}
+
+/**
+ * \copydoc Entity::State::can_pick_treasure
+ */
+bool CustomState::get_can_pick_treasure(EquipmentItem& /* item */) const {
+  return get_can_pick_treasure();
+}
+
+/**
+ * \brief Sets whether treasures can be picked during this state.
+ * \param can_pick_treasure \c true to allow to pick treasures.
+ */
+void CustomState::set_can_pick_treasure(bool can_pick_treasure) {
+  this->can_pick_treasure = can_pick_treasure;
+}
+
+/**
+ * \copydoc Entity::State::can_take_stairs
+ */
+bool CustomState::get_can_take_stairs() const {
+  return can_take_stairs;
+}
+
+/**
+ * \brief Sets whether stairs can be used during this state.
+ * \param can_take_stairs \c true to allow stairs.
+ */
+void CustomState::set_can_take_stairs(bool can_take_stairs) {
+  this->can_take_stairs = can_take_stairs;
+}
+
+/**
+ * \copydoc Entity::State::can_take_jumper
+ */
+bool CustomState::get_can_take_jumper() const {
+  return can_take_jumper;
+}
+
+/**
+ * \brief Sets whether jumpers can be used during this state.
+ * \param can_take_jumper \c true to allow jumpers.
+ */
+void CustomState::set_can_take_jumper(bool can_take_jumper) {
+  this->can_take_jumper = can_take_jumper;
 }
 
 /**

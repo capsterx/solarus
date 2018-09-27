@@ -163,7 +163,7 @@ bool Hero::SwordLoadingState::is_direction_locked() const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::SwordLoadingState::can_take_stairs() const {
+bool Hero::SwordLoadingState::get_can_take_stairs() const {
   return true;
 }
 
@@ -172,14 +172,14 @@ bool Hero::SwordLoadingState::can_take_stairs() const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwordLoadingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwordLoadingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::SwordLoadingState::can_use_shield() const {
+bool Hero::SwordLoadingState::get_can_use_shield() const {
   return false;
 }
 

@@ -1201,6 +1201,18 @@ class LuaContext {
       state_api_set_touching_ground,
       state_api_is_affected_by_ground,
       state_api_set_affected_by_ground,
+      state_api_get_can_use_sword,
+      state_api_set_can_use_sword,
+      state_api_get_can_use_shield,
+      state_api_set_can_use_shield,
+      state_api_get_can_use_item,
+      state_api_set_can_use_item,
+      state_api_get_can_pick_treasure,
+      state_api_set_can_pick_treasure,
+      state_api_get_can_take_stairs,
+      state_api_set_can_take_stairs,
+      state_api_get_can_take_jumper,
+      state_api_set_can_take_jumper,
 
       // available to all userdata types
       userdata_meta_gc,

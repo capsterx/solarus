@@ -63,6 +63,18 @@ void LuaContext::register_state_module() {
     { "set_touching_ground", state_api_set_touching_ground },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
     { "set_affected_by_ground", state_api_set_affected_by_ground },
+    { "get_can_use_sword", state_api_get_can_use_sword },
+    { "set_can_use_sword", state_api_set_can_use_sword },
+    { "get_can_use_shield", state_api_get_can_use_shield },
+    { "set_can_use_shield", state_api_set_can_use_shield },
+    { "get_can_use_item", state_api_get_can_use_item },
+    { "set_can_use_item", state_api_set_can_use_item },
+    { "get_can_pick_treasure", state_api_get_can_pick_treasure },
+    { "set_can_pick_treasure", state_api_set_can_pick_treasure },
+    { "get_can_take_stairs", state_api_get_can_take_stairs },
+    { "set_can_take_stairs", state_api_set_can_take_stairs },
+    { "get_can_take_jumper", state_api_get_can_take_jumper },
+    { "set_can_take_jumper", state_api_set_can_take_jumper },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -481,6 +493,198 @@ int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
     bool affected = LuaTools::opt_boolean(l, 3, true);
 
     state.set_affected_by_ground(ground, affected);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_sword().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_sword(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_start_sword());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_sword().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_sword(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_sword = LuaTools::check_boolean(l, 2);
+
+    state.set_can_start_sword(can_use_sword);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_shield().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_shield(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_use_shield());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_shield().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_shield(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_shield = LuaTools::check_boolean(l, 2);
+
+    state.set_can_use_shield(can_use_shield);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_item().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_item(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_start_item());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_item().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_item(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_item = LuaTools::check_boolean(l, 2);
+
+    state.set_can_start_item(can_use_item);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_pick_treasure().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_pick_treasure(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_pick_treasure());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_pick_treasure().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_pick_treasure(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_pick_treasure = LuaTools::check_boolean(l, 2);
+
+    state.set_can_pick_treasure(can_pick_treasure);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_take_stairs().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_take_stairs(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_stairs());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_take_stairs().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_take_stairs(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_stairs = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_stairs(can_take_stairs);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_take_jumper().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_take_jumper(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_jumper());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_take_jumper().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_take_jumper(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_jumper = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_jumper(can_take_jumper);
 
     return 0;
   });

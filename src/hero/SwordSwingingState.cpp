@@ -108,7 +108,7 @@ void Hero::SwordSwingingState::update() {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::SwordSwingingState::can_start_sword() const {
+bool Hero::SwordSwingingState::get_can_start_sword() const {
   return get_entity().get_movement() == nullptr;
 }
 
@@ -127,14 +127,14 @@ bool Hero::SwordSwingingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwordSwingingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwordSwingingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::SwordSwingingState::can_use_shield() const {
+bool Hero::SwordSwingingState::get_can_use_shield() const {
   return false;
 }
 

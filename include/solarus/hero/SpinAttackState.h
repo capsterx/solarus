@@ -31,22 +31,22 @@ class Hero::SpinAttackState: public HeroState {
 
     explicit SpinAttackState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void update() override;
-    virtual bool can_sword_hit_crystal() const override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool is_cutting_with_sword(Entity& entity) override;
-    virtual int get_sword_damage_factor() const override;
-    virtual bool is_deep_water_obstacle() const override;
-    virtual bool is_hole_obstacle() const override;
-    virtual bool is_lava_obstacle() const override;
-    virtual bool is_prickle_obstacle() const override;
-    virtual bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
-    virtual bool is_separator_obstacle(const Separator& separator) const override;
-    virtual void notify_obstacle_reached() override;
-    virtual void notify_attacked_enemy(
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void update() override;
+    bool can_sword_hit_crystal() const override;
+    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool is_cutting_with_sword(Entity& entity) override;
+    int get_sword_damage_factor() const override;
+    bool is_deep_water_obstacle() const override;
+    bool is_hole_obstacle() const override;
+    bool is_lava_obstacle() const override;
+    bool is_prickle_obstacle() const override;
+    bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
+    bool is_separator_obstacle(const Separator& separator) const override;
+    void notify_obstacle_reached() override;
+    void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
         const Sprite* victim_sprite,

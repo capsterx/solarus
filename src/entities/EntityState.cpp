@@ -798,7 +798,7 @@ bool Entity::State::can_persist_on_stream(const Stream& /* stream */) const {
  *
  * \return true if the entity can take stairs in this state
  */
-bool Entity::State::can_take_stairs() const {
+bool Entity::State::get_can_take_stairs() const {
   return false;
 }
 
@@ -912,7 +912,7 @@ bool Entity::State::can_avoid_explosion() const {
  *
  * \return \c true if the entity can use jumpers in this state.
  */
-bool Entity::State::can_take_jumper() const {
+bool Entity::State::get_can_take_jumper() const {
   return false;
 }
 
@@ -1074,7 +1074,7 @@ bool Entity::State::is_cutting_with_sword(Entity& /* detector */) {
  *
  * \return true if the entity can swing his sword in this state
  */
-bool Entity::State::can_start_sword() const {
+bool Entity::State::get_can_start_sword() const {
   return false;
 }
 
@@ -1086,7 +1086,7 @@ bool Entity::State::can_start_sword() const {
  * \param item The equipment item to obtain.
  * \return true if the entity can pick that treasure in this state.
  */
-bool Entity::State::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Entity::State::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return false;
 }
 
@@ -1097,7 +1097,7 @@ bool Entity::State::can_pick_treasure(EquipmentItem& /* item */) const {
  *
  * \return \c true if the shield is active is this state.
  */
-bool Entity::State::can_use_shield() const {
+bool Entity::State::get_can_use_shield() const {
   return true;
 }
 
@@ -1109,7 +1109,7 @@ bool Entity::State::can_use_shield() const {
  * \param item The equipment item to check.
  * \return true if the entity can use an equipment item in this state.
  */
-bool Entity::State::can_start_item(EquipmentItem& /* item */) const {
+bool Entity::State::get_can_start_item(EquipmentItem& /* item */) const {
   return false;
 }
 

@@ -129,7 +129,7 @@ bool Hero::PushingState::can_avoid_stream(const Stream& /* stream */) const {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::PushingState::can_start_sword() const {
+bool Hero::PushingState::get_can_start_sword() const {
   return !is_moving_grabbed_entity();
 }
 
@@ -280,7 +280,7 @@ bool Hero::PushingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::PushingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::PushingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

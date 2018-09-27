@@ -34,24 +34,24 @@ class Hero::HookshotState: public HeroState {
 
     explicit HookshotState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
 
-    virtual bool is_touching_ground() const override;
-    virtual bool can_avoid_deep_water() const override;
-    virtual bool can_avoid_hole() const override;
-    virtual bool can_avoid_ice() const override;
-    virtual bool can_avoid_lava() const override;
-    virtual bool can_avoid_prickle() const override;
-    virtual bool can_avoid_teletransporter() const override;
-    virtual bool can_avoid_stream(const Stream& stream) const override;
-    virtual bool is_stairs_obstacle(const Stairs& stairs) const override;
-    virtual bool is_sensor_obstacle(const Sensor& sensor) const override;
-    virtual bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const override;
-    virtual bool can_avoid_switch() const override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual void notify_obstacle_reached() override;
+    bool is_touching_ground() const override;
+    bool can_avoid_deep_water() const override;
+    bool can_avoid_hole() const override;
+    bool can_avoid_ice() const override;
+    bool can_avoid_lava() const override;
+    bool can_avoid_prickle() const override;
+    bool can_avoid_teletransporter() const override;
+    bool can_avoid_stream(const Stream& stream) const override;
+    bool is_stairs_obstacle(const Stairs& stairs) const override;
+    bool is_sensor_obstacle(const Sensor& sensor) const override;
+    bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const override;
+    bool can_avoid_switch() const override;
+    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    void notify_obstacle_reached() override;
 
   private:
 

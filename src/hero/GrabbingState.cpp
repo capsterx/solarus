@@ -103,7 +103,7 @@ bool Hero::GrabbingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::GrabbingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::GrabbingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

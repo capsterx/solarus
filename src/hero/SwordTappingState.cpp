@@ -146,14 +146,14 @@ bool Hero::SwordTappingState::can_sword_hit_crystal() const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwordTappingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwordTappingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::SwordTappingState::can_use_shield() const {
+bool Hero::SwordTappingState::get_can_use_shield() const {
   return false;
 }
 
