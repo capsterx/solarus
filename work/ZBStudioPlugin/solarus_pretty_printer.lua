@@ -8,19 +8,15 @@ local function copy_table(src)
   return dst
 end
 
-local function add_pretty_print(meta,properties)  
-  local function pget_bak(obj,getter)
+local function add_pretty_print(name,meta,properties)  
+  local function get(obj,getter)
     local function table_unwrap(t)
       if not t[2] then return t[1] end
       return t
     end
-    
-    local t = {pcall(getter,obj)}
-    if t[1] then
-      table.remove(t,1)
-      return table_unwrap(t)
-    end
-    return getter
+    local t = {getter(obj)}
+    if t[1] == nil then return "nil" end
+    return table_unwrap(t)
   end
   
   -- add serialize function to be picked by 'serpent'
@@ -29,9 +25,8 @@ local function add_pretty_print(meta,properties)
     t.type = sol.main.get_type(obj)
     --add all properties found in the object :
     
-    for _,pname in ipairs(properties) do 
-      local val = meta[pname](obj)
-      val = val == nil and "nil" or val
+    for _,pname in ipairs(properties) do
+      local val = get(obj,meta[pname])
       local pget = pname:match"get_(.*)"
       if pget then
         t[pget] = val
@@ -46,13 +41,13 @@ local function add_pretty_print(meta,properties)
       end
     end
     
-    
+    t.metatable = meta
     return t
   end
 end
 
 local function entity(...)
-  return {"get_type","get_map","get_game","get_size","get_origin","get_position","get_center_position","get_facing_position","get_facing_entity","get_groud_position","get_ground_bellow","get_bounding_box","get_layer","get_draw_override","get_weight", "get_controlling_stream", "get_movement", "get_properties","is_enabled","is_draw_in_y_order","is_visible",...}
+  return {"get_type","get_map","get_game","get_size","get_origin","get_position","get_center_position","get_facing_position","get_facing_entity","get_ground_position","get_ground_below","get_bounding_box","get_layer","get_draw_override","get_weight", "get_controlling_stream", "get_movement", "get_properties","is_enabled","is_drawn_in_y_order","is_visible",...}
 end
 
 local function drawable(...)
@@ -69,7 +64,7 @@ local properties = {
   map = {"get_id","get_game","get_world","get_floor","get_min_layer","get_max_layer","get_size","get_location","get_tileset","get_music","get_camera","get_crystal_state","get_hero"},
   item = {"get_name","get_map","get_savegame_variable","get_amount_savegame_variable","get_can_disappear"}, --TODO: complete
   surface = drawable("get_size"),
-  text_surface = drawable("get_horizontal_alignement","get_vertical_alignement","get_font","get_rendering_mode","get_color","get_font_size","get_text","get_size"),
+  text_surface = drawable("get_horizontal_alignment","get_vertical_alignment","get_font","get_rendering_mode","get_color","get_font_size","get_text","get_size"),
   sprite = drawable("get_animation_set","get_animation","is_animation_started","get_direction","get_num_directions","get_frame","get_num_frames","get_frame_delay","get_size","get_origin","get_frame_src_xy","is_paused","get_ignore_suspend"),
   timer = {"is_with_sound","is_suspended","is_suspended_with_map","get_remaining_time"},
   movement = movement(), --TODO complete
@@ -91,7 +86,7 @@ local properties = {
   carried_object = entity("get_damage_on_enemies","get_destruction_sound"),
   chest = entity("is_open","get_treasure"),
   shop_treasure = entity(),
-  enemy = entity("get_breed","get_life","get_damage","is_pushed_back_when_hurt","get_push_hero_on_sword","get_can_hurt_hero_running","get_hurt_style","get_dying_style","get_can_attack","get_minimum_shield_needed","is_traversable","get_attacking_collision_mode","has_layer_independent_collisions","get_obstacle_behaviour","is_immobilized"),
+  enemy = entity("get_breed","get_life","get_damage","is_pushed_back_when_hurt","get_push_hero_on_sword","get_can_hurt_hero_running","get_hurt_style","get_dying_sprite_id","get_can_attack","get_minimum_shield_needed","is_traversable","get_attacking_collision_mode","has_layer_independent_collisions","get_obstacle_behavior","is_immobilized"),
   npc = entity("is_traversable"),
   block = entity("is_pushable","is_pullable","get_max_moves"),
   jumper = entity(),
@@ -171,8 +166,8 @@ local types = {
 
 local function check_props(name,meta,props)
   for _,p in ipairs(props) do
-    if not type(meta[p]) == 'function' then
-      print(string.format("object %s has no property called %s",name,p))
+    if not (type(meta[p]) == 'function') then
+      error(string.format("object %s has no property called %s",name,p))
     end
   end
 end
@@ -184,5 +179,7 @@ for _, type in ipairs(types) do
   assert(meta ~= nil)
   local props = properties[type] or {}
   check_props(type,meta,props)
-  add_pretty_print(meta,props)
+  add_pretty_print(type,meta,props)
 end
+
+print("Successfully registered all pretty printers")
