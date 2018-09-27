@@ -18,10 +18,15 @@ function map:on_started()
   assert_equal(state:get_draw_override(), nil)
   state:set_draw_override(draw_override)
   assert_equal(state:get_draw_override(), draw_override)
+
 end
 
 function map:on_opening_transition_finished()
-  expected_color = { 0, 0, 255 }
+
+  function state:on_pre_draw(camera)
+    assert_equal(sol.main.get_type(camera), "camera")
+    expected_color = { 0, 0, 255 }
+  end
   hero:start_state(state)
 end
 

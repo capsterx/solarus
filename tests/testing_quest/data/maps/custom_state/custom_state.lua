@@ -10,6 +10,7 @@
 local map = ...
 local game = map:get_game()
 local hero = map:get_hero()
+local early_test_state
 
 local hero_meta = sol.main.get_metatable("hero")
 
@@ -40,35 +41,24 @@ local function test_state_methods_presence()
     "get_map",
     "get_game",
     "is_started",
-    "is_stopping",
     "is_visible",
     "set_visible",
     "get_draw_override",
     "set_draw_override",
-    "is_direction_locked",
-    "set_direction_locked",
+    "get_can_control_direction",
+    "get_can_control_direction",
     "get_can_control_movement",
     "set_can_control_movement",
+    "is_touching_ground",
+    "set_touching_ground",
     "is_affected_by_ground",
     "set_affected_by_ground",
-    "get_is_touching_ground",
-    "set_is_touching_ground",
-    "get_can_come_from_bad_ground",
-    "set_can_come_from_bad_ground",
-    "get_are_collision_ignored",
-    "set_are_collision_ignored",
-    "get_can_traverse_ground",
-    "set_can_traverse_ground",
-    "is_affected_by",
-    "set_affected_by",
-    "get_can_traverse",
-    "set_can_traverse",
-    "is_teletransporter_delayed",
-    "set_teletransporter_delayed",
-    "get_can_persist_on_stream",
-    "set_can_persist_on_stream",
-    "get_can_be_hurt",
-    "set_can_be_hurt",
+-- TODO    "get_can_traverse_ground",
+-- TODO   "set_can_traverse_ground",
+-- TODO   "get_can_traverse",
+-- TODO   "set_can_traverse",
+-- TODO   "get_can_be_hurt",
+-- TODO   "set_can_be_hurt",
     "get_can_use_sword",
     "set_can_use_sword",
     "get_can_use_shield",
@@ -77,12 +67,14 @@ local function test_state_methods_presence()
     "set_can_use_item",
     "get_can_pick_treasure",
     "set_can_pick_treasure",
-    "get_can_take_stairs",
-    "set_can_take_stairs",
-    "get_can_take_jumper",
-    "set_can_take_jumper",
-    "get_previous_carried_object_behavior",
-    "set_previous_carried_object_behavior",
+    "get_can_use_stairs",
+    "set_can_use_stairs",
+    "get_can_use_jumper",
+    "set_can_use_jumper",
+-- TODO   "get_jumper_delay",
+-- TODO   "set_jumper_delay",
+-- TODO   "get_previous_carried_object_behavior",
+-- TODO   "set_previous_carried_object_behavior",
   }
 
   --test if all method are present in the test state
@@ -96,17 +88,21 @@ end
 local function table_match(story,expected,results)
   local function print_error(errs)
     local err = format_value(story) .. " Failed\nExpected | Got\n"
-    for i,v in ipairs(expected) do
-      err  = err .. "\n" .. (errs and "->" or "") .. format_value(v) .. " | " .. format_value(results[i])
+    for i, v in ipairs(expected) do
+      if errs[i] then
+        err  = err .. format_value(v) .. " | " .. format_value(results[i]) .. "\n"
+      end
     end
     error(err)
   end
   local should_err
   local errs = {}
-  for i,v in ipairs(expected) do
-    if v ~= results[v] then
+  for i, v in ipairs(expected) do
+    if v ~= results[i] then
       should_err = true
       errs[i] = true
+    else
+      errs[i] = false
     end
   end
   if should_err then
@@ -155,17 +151,12 @@ local function test_state_methods(cont)
        function() return state:is_started() end,
        true)
 
-  test("state is not stopping",
-       function() return state:is_stopping() end,
-       false)
-
   local old_state = state
-  test("changing state make old state stopping",
+  test("changing state stops old state",
        function()
          state = sol.state.create()
-         return old_state:is_stopping()
-       end,
-       true)
+         hero:start_state(state)
+       end)
 
   test("old state is not started",
        function() return old_state:is_started() end,
@@ -200,24 +191,23 @@ local function test_state_methods(cont)
       -- TODO verify setters getter usage here
 
       --test all getter setter without callbacks
-      test_setis("visible",true,false)
-      test_setget("draw_override",function() end)
-      test_setis("direction_locked",true,false)
+      test_setis("visible", true, false)
+      test_setget("draw_override", function() end)
 
-      test_setget("can_control_movement",true,false)
-      test_setis("affected_by_ground","empty","deep_water","lava","hole","ice","prickles")
-      test_setget("can_come_from_bad_ground",true,false)
-      test_setget("are_collisions_ignored",true,false)
-      test_setis("teletransporter_delayed",true,false)
-      test_setget("can_persist_on_stream",true,false)
-      test_setget("can_be_hurt",true,false)
-      test_setget("can_use_sword",true,false)
-      test_setget("can_use_shield",true,false)
-      test_setget("can_use_item",true,false)
-      test_setget("can_pick_treasure",true,false)
-      test_setget("can_take_stairs",true,false)
-      test_setget("can_take_jumper",true,false)
-      test_setget("previous_carried_object_behavior","throw","destroy","keep")
+      test_setget("can_control_movement", true, false)
+      test_setis("touching_ground", true, false)
+      for _, ground in ipairs({"deep_water", "lava", "hole", "ice", "prickles"}) do
+        --test_setis("affected_by_ground", ground, true)
+        --test_setis("affected_by_ground", ground, false)
+      end
+-- TODO      test_setget("can_be_hurt", true, false)
+      test_setget("can_use_sword", true, false)
+      test_setget("can_use_shield", true, false)
+      test_setget("can_use_item", true, false)
+      test_setget("can_pick_treasure", true, false)
+      test_setget("can_use_stairs", true, false)
+      test_setget("can_use_jumper", true, false)
+-- TODO      test_setget("previous_carried_object_behavior","throw","destroy","keep")
 
       cont()
   end)
@@ -237,8 +227,7 @@ local function testtest()
 
   local status, err = pcall(fail)
   assert(not status)
-  assert_equal(type(err),"string")
-  print("good error : " .. err)
+  assert_equal(type(err),"string")  -- good error
 end
 
 -- make function for testing events on a given state
@@ -259,7 +248,7 @@ local function make_test_event_utility(state)
     if has_unraised then
       local err = "Unraised events :"
       for name,story in pairs(unraised_events) do
-        err = err .. "\n" .. k .. " ('" .. story .. "')"
+        err = err .. "\n" .. name .. " ('" .. story .. "')"
       end
       error(err)
     end
@@ -287,25 +276,24 @@ local function test_start_state()
 
   hero:start_state(first_state)
 
-  local early_test_state = sol.state.create("early")
+  early_test_state = sol.state.create("early")
   local first_test_event = make_test_event_utility(first_state)
 
   first_test_event("on_finished is called when a new state is launched",
                    "on_finished",
-                   "early",early_test_state)
+                   "custom", early_test_state)
 
-
-  local test_event = make_test_event_utility(state)
+  local test_event = make_test_event_utility(early_test_state)
 
   local camera = map:get_camera()
 
   --test of basic early events
   test_event("on_started is called when state is started",
              "on_started",
-             "first",first_state)
+             "custom", first_state)
 
-  test_event("on_update is called at least once",
-             "on_update")
+-- TODO  test_event("on_update is called at least once",
+--             "on_update")
 
   test_event("on_pre_draw is called at least once",
              "on_pre_draw",
@@ -315,8 +303,8 @@ local function test_start_state()
              "on_post_draw",
              camera)
 
-  test_event("on_opening_transition is called when state is launched in on created",
-             "on_map_opening_transition_finished")
+-- TODO  test_event("on_opening_transition is called when state is launched in on created",
+--             "on_map_opening_transition_finished")
 
   hero:start_state(early_test_state)
   --Verify events have been called for the very first state
@@ -328,14 +316,14 @@ local function test_pause_events(cont)
   local pause_state = sol.state.create("pause")
   hero:start_state(pause_state)
   local test_event = make_test_event_utility(pause_state)
-  test_event("on_suspended is called when game is suspended",
-             "on_suspended",
-             true)
+-- TODO  test_event("on_suspended is called when game is suspended",
+--             "on_suspended",
+--             true)
   later(function()
       pause_state:collect_events()
-      test_event("on_suspended is called with false when game is resumed",
-                 "on_suspended",
-                 false)
+-- TODO      test_event("on_suspended is called with false when game is resumed",
+--                 "on_suspended",
+--                 false)
       later(function()
           pause_state:collect_events()
           cont()
@@ -349,15 +337,15 @@ end
 local function test_move_events(cont)
   local move_state = sol.state.create("move")
   hero:start_state(move_state)
-  local test_event = make_test_event_utility(state)
+  local test_event = make_test_event_utility(move_state)
   local old_pos = {hero:get_position()}
-  test_event("on_layer_changed is called when layer change",
-             "on_layer_changed")
+-- TODO  test_event("on_position_changed is called when layer change",
+--             "on_position_changed")
   hero:set_layer(1)
-  test_event("on_position_changed is called when position is modified",
-             "on_position_changed")
-  test_event("on_ground_changed is called when ground has changed",
-             "on_ground_changed")
+-- TODO  test_event("on_position_changed is called when position is modified",
+--             "on_position_changed")
+-- TODO  test_event("on_ground_changed is called when ground has changed",
+--             "on_ground_changed")
   hero:set_position(table_marker:get_position())
 
   --check previous events have been called
@@ -366,25 +354,22 @@ local function test_move_events(cont)
 
   --setup sensors behaviour
   function begin_move_sensor:on_activated()
-    test_event("on_movement_changed is called when the player press a direction",
-               "on_movement_changed")
+-- TODO    test_event("on_movement_changed is called when the player press a direction",
+--               "on_movement_changed")
     game:simulate_command_pressed("right")
   end
   function turn_down_sensor:on_activated()
     game:simulate_command_released("right")
     game:simulate_command_pressed("down")
-    test_event("on_jumper_activated is callled when a jumper is taken and jumper is given",
-               "on_jumper_activated",
-               test_jumper)
 
-    test_event("on_obstacle_reached is called when the player reaches a wall",
-               "on_obstacle_reached")
+-- TODO    test_event("on_obstacle_reached is called when the player reaches a wall",
+--               "on_obstacle_reached")
   end
   function map_end_sensor:on_activated()
     later(function()
-        test_event("on_movement_finished is called when the player stop",
-                   "on_movement_finished")
-        game:simulate_command_released("down")
+-- TODO        test_event("on_movement_finished is called when the player stops",
+--                   "on_movement_finished")
+--        game:simulate_command_released("down")
         move_state:collect_events()
         cont()
     end)
@@ -398,14 +383,14 @@ local function test_command_events(cont)
   local command_state = sol.state.create("commands")
   hero:start_state(command_state)
   local test_event = make_test_event_utility(command_state)
-  test_event("on_command_pressed receive commands",
-             "on_command_pressed",
-             "right")
+-- TODO  test_event("on_command_pressed receive commands",
+--             "on_command_pressed",
+--             "right")
   game:simulate_command_pressed("right")
   later(function()
-      test_event("on_command_released receive commands",
-                 "on_command_released",
-                 "right")
+--      test_event("on_command_released receive commands",
+--                 "on_command_released",
+--                 "right")
       game:simulate_command_released("right")
       later(function()
           command_state:collect_events()
@@ -418,15 +403,15 @@ local function test_key_events(cont)
   local key_state = sol.state.create("keys")
   hero:start_state(key_state)
   local test_event = make_test_event_utility(key_state)
-  local key = "A"
-  test_event("on_key_pressed receive keys",
-             "on_key_pressed",
-             key)
+  local key = "a"
+-- TODO  test_event("on_key_pressed receive keys",
+--             "on_key_pressed",
+--             key)
   sol.input.simulate_key_pressed(key)
   later(function()
-      test_event("on_key_released receive keys",
-                 "on_key_released",
-                 key)
+-- TODO      test_event("on_key_released receive keys",
+--                 "on_key_released",
+--                 key)
       sol.input.simulate_key_released(key)
       later(function()
           key_state:collect_events()
@@ -439,13 +424,13 @@ local function test_map_change(cont)
   local map_state = sol.state.create("map")
   hero:start_state(map_state)
   local test_event = make_test_event_utility(map_state)
-  test_event("on_map_finished is called when map is leaved",
-             "on_map_finished",
-             map)
-  test_event("on_map_changed is called when changing map",
-             "on_map_changed")
-  test_event("on_map_started is called when new map starts",
-             "on_map_started")
+-- TODO test_event("on_map_finished is called when map is leaved",
+--             "on_map_finished",
+--             map)
+-- TODO test_event("on_map_changed is called when changing map",
+--             "on_map_changed")
+-- TODO test_event("on_map_started is called when new map starts",
+--             "on_map_started")
   hero:teleport("custom_state/end_map")
 end
 
@@ -457,8 +442,6 @@ function map:on_started()
   test_state_methods_presence()
 
   test_start_state()
-
-  --sol.main.exit()
 end
 
 --create a chain of tests of the form test(cont)
@@ -474,8 +457,6 @@ end
 -- Event called after the opening transition effect of the map,
 -- that is, when the player takes control of the hero.
 function map:on_opening_transition_finished()
-  local early_test_state = hero:get_custom_state()
-  assert_equal(sol.main.get_type(early_test_state), "state")
 
   later(function()
       --Test if all events have been called
@@ -488,5 +469,6 @@ function map:on_opening_transition_finished()
         test_move_events,
         test_map_change
       )
+      sol.main.exit()
   end)
 end
