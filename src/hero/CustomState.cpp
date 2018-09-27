@@ -37,6 +37,7 @@ CustomState::CustomState(
   can_control_direction(true),
   can_control_movement(true),
   player_movement(),
+  touching_ground(true),
   ignored_grounds() {
 
 }
@@ -177,6 +178,21 @@ void CustomState::start_player_movement() {
       hero.get_walking_speed()
   );
   hero.set_movement(player_movement);
+}
+
+/**
+ * \copydoc Entity::State::is_touching_ground
+ */
+bool CustomState::is_touching_ground() const {
+  return touching_ground;
+}
+
+/**
+ * \brief Sets whether the entity is in contact with the ground.
+ * \param touching_ground \c true if the entity is in contact with the ground.
+ */
+void CustomState::set_touching_ground(bool touching_ground) {
+  this->touching_ground = touching_ground;
 }
 
 /**

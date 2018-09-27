@@ -1197,6 +1197,8 @@ class LuaContext {
       state_api_set_can_control_movement,
       state_api_get_draw_override,
       state_api_set_draw_override,
+      state_api_is_touching_ground,
+      state_api_set_touching_ground,
       state_api_is_affected_by_ground,
       state_api_set_affected_by_ground,
 

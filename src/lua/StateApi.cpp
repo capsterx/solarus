@@ -59,6 +59,8 @@ void LuaContext::register_state_module() {
     { "set_can_control_movement", state_api_set_can_control_movement },
     { "get_draw_override", state_api_get_draw_override },
     { "set_draw_override", state_api_set_draw_override },
+    { "is_touching_ground", state_api_is_touching_ground },
+    { "set_touching_ground", state_api_set_touching_ground },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
     { "set_affected_by_ground", state_api_set_affected_by_ground },
   };
@@ -332,7 +334,7 @@ int LuaContext::state_api_set_can_control_direction(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_control_direction = LuaTools::opt_boolean(l, 2, true);
+    bool can_control_direction = LuaTools::check_boolean(l, 2);
 
     state.set_can_control_direction(can_control_direction);
 
@@ -364,7 +366,7 @@ int LuaContext::state_api_set_can_control_movement(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_control_movement = LuaTools::opt_boolean(l, 2, true);
+    bool can_control_movement = LuaTools::check_boolean(l, 2);
 
     state.set_can_control_movement(can_control_movement);
 
@@ -413,6 +415,38 @@ int LuaContext::state_api_set_draw_override(lua_State* l) {
     }
 
     state.set_draw_override(draw_override);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_touching_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_touching_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.is_touching_ground());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_touching_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_touching_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool touching_ground = LuaTools::check_boolean(l, 2);
+
+    state.set_touching_ground(touching_ground);
 
     return 0;
   });

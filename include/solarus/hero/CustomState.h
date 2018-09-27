@@ -53,6 +53,8 @@ class CustomState: public HeroState {
     void set_can_control_movement(bool can_control_movement);
     bool get_can_control_movement() const override;
 
+    bool is_touching_ground() const override;
+    void set_touching_ground(bool touching_ground);
     bool is_affected_by_ground(Ground ground) const;
     void set_affected_by_ground(Ground ground, bool affected);
     bool can_avoid_deep_water() const override;
@@ -78,6 +80,7 @@ class CustomState: public HeroState {
     bool can_control_movement;             /**< Whether the player controls the hero's movement. */
     std::shared_ptr<PlayerMovement>
         player_movement;                   /**< The movement, if controlled by the player. */
+    bool touching_ground;                  /**< Whether the entity is in contact with the ground. */
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
 };
 
