@@ -71,10 +71,10 @@ void LuaContext::register_state_module() {
     { "set_can_use_item", state_api_set_can_use_item },
     { "get_can_pick_treasure", state_api_get_can_pick_treasure },
     { "set_can_pick_treasure", state_api_set_can_pick_treasure },
-    { "get_can_take_stairs", state_api_get_can_take_stairs },
-    { "set_can_take_stairs", state_api_set_can_take_stairs },
-    { "get_can_take_jumper", state_api_get_can_take_jumper },
-    { "set_can_take_jumper", state_api_set_can_take_jumper },
+    { "get_can_use_stairs", state_api_get_can_use_stairs },
+    { "set_can_use_stairs", state_api_set_can_use_stairs },
+    { "get_can_use_jumper", state_api_get_can_use_jumper },
+    { "set_can_use_jumper", state_api_set_can_use_jumper },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -627,11 +627,11 @@ int LuaContext::state_api_set_can_pick_treasure(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:get_can_take_stairs().
+ * \brief Implementation of state:get_can_use_stairs().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_get_can_take_stairs(lua_State* l) {
+int LuaContext::state_api_get_can_use_stairs(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
@@ -642,11 +642,11 @@ int LuaContext::state_api_get_can_take_stairs(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:set_can_take_stairs().
+ * \brief Implementation of state:set_can_use_stairs().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_set_can_take_stairs(lua_State* l) {
+int LuaContext::state_api_set_can_use_stairs(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
@@ -659,11 +659,11 @@ int LuaContext::state_api_set_can_take_stairs(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:get_can_take_jumper().
+ * \brief Implementation of state:get_can_use_jumper().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_get_can_take_jumper(lua_State* l) {
+int LuaContext::state_api_get_can_use_jumper(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
@@ -674,11 +674,11 @@ int LuaContext::state_api_get_can_take_jumper(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:set_can_take_jumper().
+ * \brief Implementation of state:set_can_use_jumper().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_set_can_take_jumper(lua_State* l) {
+int LuaContext::state_api_set_can_use_jumper(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
