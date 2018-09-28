@@ -161,7 +161,7 @@ bool Hero::FreeState::is_free() const {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::FreeState::can_start_sword() const {
+bool Hero::FreeState::get_can_start_sword() const {
   return true;
 }
 
@@ -170,7 +170,7 @@ bool Hero::FreeState::can_start_sword() const {
  * \param item The equipment item to check.
  * \return true if the hero can use this equipment item in this state.
  */
-bool Hero::FreeState::can_start_item(EquipmentItem& /* item */) const {
+bool Hero::FreeState::get_can_start_item(EquipmentItem& /* item */) const {
 
   return get_entity().get_ground_below() != Ground::HOLE;
 }
@@ -180,7 +180,7 @@ bool Hero::FreeState::can_start_item(EquipmentItem& /* item */) const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::FreeState::can_take_stairs() const {
+bool Hero::FreeState::get_can_take_stairs() const {
   return true;
 }
 

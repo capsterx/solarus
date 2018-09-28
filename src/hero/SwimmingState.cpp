@@ -179,7 +179,7 @@ bool Hero::SwimmingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwimmingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwimmingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

@@ -122,7 +122,7 @@ bool Hero::SpinAttackState::can_sword_hit_crystal() const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SpinAttackState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SpinAttackState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

@@ -282,7 +282,7 @@ bool Hero::PlayerMovementState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::PlayerMovementState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::PlayerMovementState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
@@ -294,7 +294,7 @@ bool Hero::PlayerMovementState::can_pick_treasure(EquipmentItem& /* item */) con
  *
  * \return \c true if the hero can use jumpers in this state.
  */
-bool Hero::PlayerMovementState::can_take_jumper() const {
+bool Hero::PlayerMovementState::get_can_take_jumper() const {
   return true;
 }
 

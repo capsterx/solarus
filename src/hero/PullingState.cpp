@@ -255,7 +255,7 @@ bool Hero::PullingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::PullingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::PullingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

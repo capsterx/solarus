@@ -138,7 +138,7 @@ bool HeroState::is_jumper_obstacle(
     return false;
   }
 
-  if (!can_take_jumper()) {
+  if (!get_can_take_jumper()) {
     // If jumpers cannot be used in this state, consider their active region
     // as obstacles and their inactive region as traversable.
     // The active region should be an obstacle.

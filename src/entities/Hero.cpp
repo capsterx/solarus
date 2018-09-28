@@ -1764,7 +1764,7 @@ void Hero::notify_collision_with_stream(
 void Hero::notify_collision_with_stairs(
     Stairs& stairs, CollisionMode collision_mode) {
 
-  if (get_state()->can_take_stairs()) {
+  if (get_state()->get_can_take_stairs()) {
 
     Stairs::Way stairs_way;
     if (stairs.is_inside_floor()) {
@@ -2545,7 +2545,7 @@ void Hero::start_pulling() {
  */
 bool Hero::can_pick_treasure(EquipmentItem& item) {
 
-  return get_state()->can_pick_treasure(item);
+  return get_state()->get_can_pick_treasure(item);
 }
 
 /**
@@ -2623,7 +2623,7 @@ bool Hero::can_pull() const {
  */
 bool Hero::can_use_shield() const {
 
-  return get_state()->can_use_shield();
+  return get_state()->get_can_use_shield();
 }
 
 
@@ -2639,7 +2639,7 @@ bool Hero::can_start_sword() const {
     return false;
   }
 
-  return get_state()->can_start_sword();
+  return get_state()->get_can_start_sword();
 }
 
 /**
@@ -2679,7 +2679,7 @@ bool Hero::can_start_item(EquipmentItem& item) {
     return false;
   }
 
-  return get_state()->can_start_item(item);
+  return get_state()->get_can_start_item(item);
 }
 
 /**

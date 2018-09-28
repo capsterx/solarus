@@ -32,20 +32,20 @@ class Hero::FreeState: public Hero::PlayerMovementState {
 
     explicit FreeState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
-    virtual void notify_action_command_pressed() override;
-    virtual void notify_obstacle_reached() override;
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
+    void notify_action_command_pressed() override;
+    void notify_obstacle_reached() override;
 
-    virtual bool is_free() const override;
-    virtual bool can_start_sword() const override;
-    virtual bool can_start_item(EquipmentItem& item) const override;
-    virtual bool can_take_stairs() const override;
-    virtual CarriedObject::Behavior get_previous_carried_object_behavior() const override;
-    virtual void set_animation_stopped() override;
-    virtual void set_animation_walking() override;
+    bool is_free() const override;
+    bool get_can_start_sword() const override;
+    bool get_can_start_item(EquipmentItem& item) const override;
+    bool get_can_take_stairs() const override;
+    CarriedObject::Behavior get_previous_carried_object_behavior() const override;
+    void set_animation_stopped() override;
+    void set_animation_walking() override;
 
   private:
 

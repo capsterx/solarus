@@ -189,14 +189,14 @@ void Hero::CarryingState::throw_item() {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::CarryingState::can_start_sword() const {
+bool Hero::CarryingState::get_can_start_sword() const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::CarryingState::can_use_shield() const {
+bool Hero::CarryingState::get_can_use_shield() const {
   return false;
 }
 
@@ -205,7 +205,7 @@ bool Hero::CarryingState::can_use_shield() const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::CarryingState::can_take_stairs() const {
+bool Hero::CarryingState::get_can_take_stairs() const {
   return true;
 }
 

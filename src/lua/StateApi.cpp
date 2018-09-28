@@ -57,8 +57,24 @@ void LuaContext::register_state_module() {
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
     { "set_can_control_movement", state_api_set_can_control_movement },
+    { "get_draw_override", state_api_get_draw_override },
+    { "set_draw_override", state_api_set_draw_override },
+    { "is_touching_ground", state_api_is_touching_ground },
+    { "set_touching_ground", state_api_set_touching_ground },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
     { "set_affected_by_ground", state_api_set_affected_by_ground },
+    { "get_can_use_sword", state_api_get_can_use_sword },
+    { "set_can_use_sword", state_api_set_can_use_sword },
+    { "get_can_use_shield", state_api_get_can_use_shield },
+    { "set_can_use_shield", state_api_set_can_use_shield },
+    { "get_can_use_item", state_api_get_can_use_item },
+    { "set_can_use_item", state_api_set_can_use_item },
+    { "get_can_pick_treasure", state_api_get_can_pick_treasure },
+    { "set_can_pick_treasure", state_api_set_can_pick_treasure },
+    { "get_can_use_stairs", state_api_get_can_use_stairs },
+    { "set_can_use_stairs", state_api_set_can_use_stairs },
+    { "get_can_use_jumper", state_api_get_can_use_jumper },
+    { "set_can_use_jumper", state_api_set_can_use_jumper },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -100,6 +116,23 @@ std::shared_ptr<CustomState> LuaContext::check_state(lua_State* l, int index) {
  */
 void LuaContext::push_state(lua_State* l, CustomState& state) {
   push_userdata(l, state);
+}
+
+/**
+ * \brief Calls the draw override function of a custom state.
+ * \param draw_override The draw override function.
+ * \param state The state to draw.
+ * \param camera The camera where to draw the entity.
+ */
+void LuaContext::do_state_draw_override_function(
+    const ScopedLuaRef& draw_override,
+    CustomState& state,
+    Camera& camera
+) {
+  push_ref(current_l, draw_override);
+  push_state(current_l, state);
+  push_camera(current_l, camera);
+  call_function(2, 0, "state draw override");
 }
 
 /**
@@ -313,7 +346,7 @@ int LuaContext::state_api_set_can_control_direction(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_control_direction = LuaTools::opt_boolean(l, 2, true);
+    bool can_control_direction = LuaTools::check_boolean(l, 2);
 
     state.set_can_control_direction(can_control_direction);
 
@@ -345,9 +378,87 @@ int LuaContext::state_api_set_can_control_movement(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_control_movement = LuaTools::opt_boolean(l, 2, true);
+    bool can_control_movement = LuaTools::check_boolean(l, 2);
 
     state.set_can_control_movement(can_control_movement);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_draw_override(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    ScopedLuaRef draw_override = state.get_draw_override();
+    if (draw_override.is_empty()) {
+      lua_pushnil(l);
+    }
+    else {
+      push_ref(l, draw_override);
+    }
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_draw_override().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_draw_override(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    ScopedLuaRef draw_override;
+    if (lua_gettop(l) >= 2) {
+      if (lua_isfunction(l, 2)) {
+        draw_override = LuaTools::check_function(l, 2);
+      }
+      else if (!lua_isnil(l, 2)) {
+        LuaTools::type_error(l, 2, "function or nil");
+      }
+    }
+
+    state.set_draw_override(draw_override);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:is_touching_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_is_touching_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.is_touching_ground());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_touching_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_touching_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool touching_ground = LuaTools::check_boolean(l, 2);
+
+    state.set_touching_ground(touching_ground);
 
     return 0;
   });
@@ -382,6 +493,198 @@ int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
     bool affected = LuaTools::opt_boolean(l, 3, true);
 
     state.set_affected_by_ground(ground, affected);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_sword().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_sword(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_start_sword());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_sword().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_sword(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_sword = LuaTools::check_boolean(l, 2);
+
+    state.set_can_start_sword(can_use_sword);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_shield().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_shield(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_use_shield());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_shield().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_shield(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_shield = LuaTools::check_boolean(l, 2);
+
+    state.set_can_use_shield(can_use_shield);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_item().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_item(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_start_item());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_item().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_item(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_use_item = LuaTools::check_boolean(l, 2);
+
+    state.set_can_start_item(can_use_item);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_pick_treasure().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_pick_treasure(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_pick_treasure());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_pick_treasure().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_pick_treasure(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_pick_treasure = LuaTools::check_boolean(l, 2);
+
+    state.set_can_pick_treasure(can_pick_treasure);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_stairs().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_stairs(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_stairs());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_stairs().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_stairs(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_stairs = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_stairs(can_take_stairs);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_jumper().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_jumper(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_jumper());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_jumper().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_jumper(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_jumper = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_jumper(can_take_jumper);
 
     return 0;
   });
@@ -430,6 +733,46 @@ void LuaContext::state_on_finished(
   }
   remove_timers(-1);  // Stop timers associated to this state.
   lua_pop(current_l, 1);
+}
+
+/**
+ * \brief Calls the on_pre_draw() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param camera The camera where to draw the entity.
+ */
+void LuaContext::state_on_pre_draw(CustomState& state, Camera& camera) {
+
+  if (!userdata_has_field(state, "on_pre_draw")) {
+    return;
+  }
+  run_on_main([this, &state, &camera](lua_State* l){
+    push_state(l, state);
+    on_pre_draw(camera);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_post_draw() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param camera The camera where to draw the entity.
+ */
+void LuaContext::state_on_post_draw(CustomState& state, Camera& camera) {
+
+  if (!userdata_has_field(state, "on_post_draw")) {
+    return;
+  }
+  run_on_main([this, &state, &camera](lua_State* l){
+    push_state(l, state);
+    on_post_draw(camera);
+    lua_pop(l, 1);
+  });
 }
 
 }

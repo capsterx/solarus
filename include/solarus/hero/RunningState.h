@@ -32,33 +32,33 @@ class Hero::RunningState: public HeroState {
 
     RunningState(Hero& hero, GameCommand command);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
     bool is_pressing_running_key() const;
-    virtual void notify_direction_command_pressed(int direction4) override;
-    virtual void notify_obstacle_reached() override;
-    virtual int get_wanted_movement_direction8() const override;
+    void notify_direction_command_pressed(int direction4) override;
+    void notify_obstacle_reached() override;
+    int get_wanted_movement_direction8() const override;
 
-    virtual bool can_take_jumper() const override;
-    virtual void notify_jumper_activated(Jumper& jumper) override;
-    virtual bool can_take_stairs() const override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool can_sword_hit_crystal() const override;
-    virtual bool can_start_gameover_sequence() const override;
-    virtual bool is_touching_ground() const override;
-    virtual bool can_avoid_deep_water() const override;
-    virtual bool can_avoid_hole() const override;
-    virtual bool can_avoid_lava() const override;
-    virtual bool can_avoid_prickle() const override;
-    virtual bool can_avoid_teletransporter() const override;
-    virtual bool can_avoid_stream(const Stream& stream) const override;
-    virtual bool can_persist_on_stream(const Stream& stream) const override;
-    virtual bool is_sensor_obstacle(const Sensor& sensor) const override;
-    virtual bool is_cutting_with_sword(Entity& entity) override;
-    virtual int get_sword_damage_factor() const override;
+    bool get_can_take_jumper() const override;
+    void notify_jumper_activated(Jumper& jumper) override;
+    bool get_can_take_stairs() const override;
+    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool can_sword_hit_crystal() const override;
+    bool can_start_gameover_sequence() const override;
+    bool is_touching_ground() const override;
+    bool can_avoid_deep_water() const override;
+    bool can_avoid_hole() const override;
+    bool can_avoid_lava() const override;
+    bool can_avoid_prickle() const override;
+    bool can_avoid_teletransporter() const override;
+    bool can_avoid_stream(const Stream& stream) const override;
+    bool can_persist_on_stream(const Stream& stream) const override;
+    bool is_sensor_obstacle(const Sensor& sensor) const override;
+    bool is_cutting_with_sword(Entity& entity) override;
+    int get_sword_damage_factor() const override;
 
   private:
 

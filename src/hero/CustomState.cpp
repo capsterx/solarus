@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Map.h"
+#include "solarus/entities/Hero.h"
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/hero/CustomState.h"
@@ -31,10 +33,18 @@ CustomState::CustomState(
   HeroState("custom"),
   description(description),
   visible(true),
+  draw_override(),
   can_control_direction(true),
   can_control_movement(true),
   player_movement(),
-  ignored_grounds() {
+  touching_ground(true),
+  ignored_grounds(),
+  can_start_sword(true),
+  can_use_shield(true),
+  can_start_item(true),
+  can_pick_treasure(true),
+  can_take_stairs(true),
+  can_take_jumper(true) {
 
 }
 
@@ -76,6 +86,22 @@ bool CustomState::is_visible() const {
  */
 void CustomState::set_visible(bool visible) {
   this->visible = visible;
+}
+
+/**
+ * \brief Returns the Lua draw function of this entity if any.
+ * \return The draw override or an empty ref.
+ */
+ScopedLuaRef CustomState::get_draw_override() const {
+  return draw_override;
+}
+
+/**
+ * \brief Sets the Lua draw function of this entity.
+ * \param draw_override The draw override or an empty ref.
+ */
+void CustomState::set_draw_override(const ScopedLuaRef& draw_override) {
+  this->draw_override = draw_override;
 }
 
 /**
@@ -161,6 +187,21 @@ void CustomState::start_player_movement() {
 }
 
 /**
+ * \copydoc Entity::State::is_touching_ground
+ */
+bool CustomState::is_touching_ground() const {
+  return touching_ground;
+}
+
+/**
+ * \brief Sets whether the entity is in contact with the ground.
+ * \param touching_ground \c true if the entity is in contact with the ground.
+ */
+void CustomState::set_touching_ground(bool touching_ground) {
+  this->touching_ground = touching_ground;
+}
+
+/**
  * \brief Returns whether the effect of the given ground is avoided.
  * \param ground A ground type.
  * \return \c true if this ground has no effect in this state.
@@ -222,6 +263,112 @@ bool CustomState::can_avoid_prickle() const {
 }
 
 /**
+ * \copydoc Entity::State::can_start_sword
+ */
+bool CustomState::get_can_start_sword() const {
+  return can_start_sword;
+}
+
+/**
+ * \brief Sets whether the sword can be used during this state.
+ * \param can_start_sword \c true to allow the sword.
+ */
+void CustomState::set_can_start_sword(bool can_start_sword) {
+  this->can_start_sword = can_start_sword;
+}
+
+/**
+ * \copydoc Entity::State::can_use_shield
+ */
+bool CustomState::get_can_use_shield() const {
+  return can_use_shield;
+}
+
+/**
+ * \brief Sets whether the shield can be used during this state.
+ * \param can_use_shield \c true to allow the shield.
+ */
+void CustomState::set_can_use_shield(bool can_use_shield) {
+  this->can_use_shield = can_use_shield;
+}
+
+/**
+ * \brief Returns whether equipment items can be used during this state.
+ * \return \c true if items are allowed.
+ */
+bool CustomState::get_can_start_item() const {
+  return can_start_item;
+}
+
+/**
+ * \copydoc Entity::State::can_start_item
+ */
+bool CustomState::get_can_start_item(EquipmentItem& /* item */) const {
+  return get_can_start_item();
+}
+
+/**
+ * \brief Sets whether equipment items can be used during this state.
+ * \param can_start_item \c true to allow items.
+ */
+void CustomState::set_can_start_item(bool can_start_item) {
+  this->can_start_item = can_start_item;
+}
+
+/**
+ * \brief Returns whether treasures can be picked during this state.
+ * \return \c true if treasures can be picked.
+ */
+bool CustomState::get_can_pick_treasure() const {
+  return can_pick_treasure;
+}
+
+/**
+ * \copydoc Entity::State::can_pick_treasure
+ */
+bool CustomState::get_can_pick_treasure(EquipmentItem& /* item */) const {
+  return get_can_pick_treasure();
+}
+
+/**
+ * \brief Sets whether treasures can be picked during this state.
+ * \param can_pick_treasure \c true to allow to pick treasures.
+ */
+void CustomState::set_can_pick_treasure(bool can_pick_treasure) {
+  this->can_pick_treasure = can_pick_treasure;
+}
+
+/**
+ * \copydoc Entity::State::can_take_stairs
+ */
+bool CustomState::get_can_take_stairs() const {
+  return can_take_stairs;
+}
+
+/**
+ * \brief Sets whether stairs can be used during this state.
+ * \param can_take_stairs \c true to allow stairs.
+ */
+void CustomState::set_can_take_stairs(bool can_take_stairs) {
+  this->can_take_stairs = can_take_stairs;
+}
+
+/**
+ * \copydoc Entity::State::can_take_jumper
+ */
+bool CustomState::get_can_take_jumper() const {
+  return can_take_jumper;
+}
+
+/**
+ * \brief Sets whether jumpers can be used during this state.
+ * \param can_take_jumper \c true to allow jumpers.
+ */
+void CustomState::set_can_take_jumper(bool can_take_jumper) {
+  this->can_take_jumper = can_take_jumper;
+}
+
+/**
  * \copydoc Entity::State::start
  */
 void CustomState::start(const State* previous_state) {
@@ -276,6 +423,23 @@ void CustomState::update() {
   HeroState::update();
 
   // TODO
+}
+
+/**
+ * \copydoc Entity::State::draw_on_map
+ */
+void CustomState::draw_on_map() {
+
+  Camera& camera = *get_entity().get_map().get_camera();
+  get_lua_context().state_on_pre_draw(*this, camera);
+  if (draw_override.is_empty()) {
+    // Use the built-in default state draw.
+    HeroState::draw_on_map();
+  }
+  else {
+    get_lua_context().do_state_draw_override_function(draw_override, *this, camera);
+  }
+  get_lua_context().state_on_post_draw(*this, camera);
 }
 
 }

@@ -32,11 +32,11 @@ class Hero::SwordLoadingState: public Hero::PlayerMovementState {
 
     explicit SwordLoadingState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
-    virtual void notify_obstacle_reached() override;
-    virtual void notify_attacked_enemy(
+    void start(const State* previous_state) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
+    void notify_obstacle_reached() override;
+    void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
         const Sprite* victim_sprite,
@@ -44,12 +44,12 @@ class Hero::SwordLoadingState: public Hero::PlayerMovementState {
         bool killed
     ) override;
 
-    virtual bool is_direction_locked() const override;
-    virtual bool can_take_stairs() const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool can_use_shield() const override;
-    virtual void set_animation_stopped() override;
-    virtual void set_animation_walking() override;
+    bool is_direction_locked() const override;
+    bool get_can_take_stairs() const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool get_can_use_shield() const override;
+    void set_animation_stopped() override;
+    void set_animation_walking() override;
 
   private:
 

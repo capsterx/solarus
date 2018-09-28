@@ -31,11 +31,11 @@ class Hero::GrabbingState: public HeroState {
 
     explicit GrabbingState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void update() override;
-    virtual bool is_grabbing_or_pulling() const override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
+    void start(const State* previous_state) override;
+    void update() override;
+    bool is_grabbing_or_pulling() const override;
+    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
 
 };
 

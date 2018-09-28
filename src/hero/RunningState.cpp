@@ -203,7 +203,7 @@ int Hero::RunningState::get_wanted_movement_direction8() const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::RunningState::can_take_stairs() const {
+bool Hero::RunningState::get_can_take_stairs() const {
   return !is_bouncing();
 }
 
@@ -215,7 +215,7 @@ bool Hero::RunningState::can_take_stairs() const {
  *
  * \return true if the hero can use jumpers in this state
  */
-bool Hero::RunningState::can_take_jumper() const {
+bool Hero::RunningState::get_can_take_jumper() const {
   return !is_bouncing();
 }
 
@@ -261,7 +261,7 @@ bool Hero::RunningState::can_be_hurt(Entity* attacker) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::RunningState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::RunningState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
