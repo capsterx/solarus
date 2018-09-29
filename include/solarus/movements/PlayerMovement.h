@@ -36,7 +36,7 @@ class PlayerMovement: public StraightMovement {
     // creation and destruction
     explicit PlayerMovement(int speed);
 
-    virtual void update() override;
+    void update() override;
 
     int get_moving_speed() const;
     void set_moving_speed(int moving_speed);

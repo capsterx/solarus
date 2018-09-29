@@ -8,6 +8,7 @@ set(lua_test_maps
   "oriented_collisions"
   "custom_state/custom_state"
   "custom_state/draw_override"
+  "custom_state/jumper"
   "teletransportation_tests/main"
   "bugs/486_diagonal_dynamic_tiles"
   "bugs/496_stream_speed_0"

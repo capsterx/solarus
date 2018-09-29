@@ -38,6 +38,13 @@ class CustomState: public HeroState {
     explicit CustomState(const std::string& description);
     const std::string& get_lua_type_name() const override;
 
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+
+    void update() override;
+    void set_suspended(bool suspended) override;
+    void draw_on_map() override;
+
     const std::string& get_description() const;
     void set_description(const std::string& description);
     bool is_visible() const override;
@@ -77,16 +84,16 @@ class CustomState: public HeroState {
     void set_can_take_stairs(bool can_take_stairs);
     bool get_can_take_jumper() const override;
     void set_can_take_jumper(bool can_take_jumper);
-
-    void start(const State* previous_state) override;
-    void stop(const State* next_state) override;
-
-    void update() override;
-    void draw_on_map() override;
+    uint32_t get_jumper_delay() const;
+    void set_jumper_delay(uint32_t jumper_delay);
+    void notify_jumper_activated(Jumper& jumper) override;
+    void notify_position_changed() override;
 
   private:
 
     void start_player_movement();
+    void update_jumper();
+    void cancel_jumper();
 
     std::string description;               /**< Description of this state or an empty string. */
     bool visible;                          /**< Whether the entity is visible during this state. */
@@ -103,6 +110,11 @@ class CustomState: public HeroState {
     bool can_pick_treasure;                /**< Whether treasures can be picked in this state. */
     bool can_take_stairs;                  /**< Whether stairs can be used in this state. */
     bool can_take_jumper;                  /**< Whether jumpers can be used in this state. */
+    std::shared_ptr<Jumper>
+        current_jumper;                    /**< The jumper about to be triggered or nullptr. */
+    uint32_t jumper_start_date;            /**< Date when to trigger the jumper
+                                            * (in case there is a delay). */
+    uint32_t jumper_delay;                 /**< Delay before a jumper activates. */
 };
 
 }

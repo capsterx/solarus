@@ -75,6 +75,8 @@ void LuaContext::register_state_module() {
     { "set_can_use_stairs", state_api_set_can_use_stairs },
     { "get_can_use_jumper", state_api_get_can_use_jumper },
     { "set_can_use_jumper", state_api_set_can_use_jumper },
+    { "get_jumper_delay", state_api_get_jumper_delay },
+    { "set_jumper_delay", state_api_set_jumper_delay },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -685,6 +687,41 @@ int LuaContext::state_api_set_can_use_jumper(lua_State* l) {
     bool can_take_jumper = LuaTools::check_boolean(l, 2);
 
     state.set_can_take_jumper(can_take_jumper);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_jumper_delay().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_jumper_delay(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushinteger(l, state.get_jumper_delay());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_jumper_delay().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_jumper_delay(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    int jumper_delay = LuaTools::check_int(l, 2);
+
+    if (jumper_delay < 0) {
+      LuaTools::arg_error(l, 2, "Jumper delay should be positive or zero");
+    }
+    state.set_jumper_delay(jumper_delay);
 
     return 0;
   });

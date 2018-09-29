@@ -71,8 +71,8 @@ local function test_state_methods_presence()
     "set_can_use_stairs",
     "get_can_use_jumper",
     "set_can_use_jumper",
--- TODO   "get_jumper_delay",
--- TODO   "set_jumper_delay",
+    "get_jumper_delay",
+    "set_jumper_delay",
 -- TODO   "get_previous_carried_object_behavior",
 -- TODO   "set_previous_carried_object_behavior",
   }

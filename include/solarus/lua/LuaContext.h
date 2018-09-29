@@ -1213,6 +1213,8 @@ class LuaContext {
       state_api_set_can_use_stairs,
       state_api_get_can_use_jumper,
       state_api_set_can_use_jumper,
+      state_api_get_jumper_delay,
+      state_api_set_jumper_delay,
 
       // available to all userdata types
       userdata_meta_gc,

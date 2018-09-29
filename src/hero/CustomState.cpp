@@ -15,7 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/Map.h"
+#include "solarus/core/System.h"
 #include "solarus/entities/Hero.h"
+#include "solarus/entities/Jumper.h"
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/hero/CustomState.h"
@@ -44,7 +46,10 @@ CustomState::CustomState(
   can_start_item(true),
   can_pick_treasure(true),
   can_take_stairs(true),
-  can_take_jumper(true) {
+  can_take_jumper(true),
+  current_jumper(),
+  jumper_start_date(0),
+  jumper_delay(200)  {
 
 }
 
@@ -54,6 +59,126 @@ CustomState::CustomState(
  */
 const std::string& CustomState::get_lua_type_name() const {
   return LuaContext::state_module_name;
+}
+
+/**
+ * \copydoc Entity::State::start
+ */
+void CustomState::start(const State* previous_state) {
+
+  HeroState::start(previous_state);
+
+  if (get_can_control_movement()) {
+    start_player_movement();
+  }
+
+  std::string previous_state_name;
+  const CustomState* previous_custom_state = nullptr;
+  if (previous_state != nullptr) {
+    previous_state_name = previous_state->get_name();
+    if (previous_state_name == "custom") {
+      previous_custom_state = static_cast<const CustomState*>(previous_state);
+    }
+  }
+  get_lua_context().state_on_started(
+        *this, previous_state_name, const_cast<CustomState*>(previous_custom_state));  // TODO
+}
+
+/**
+ * \copydoc Entity::State::stop
+ */
+void CustomState::stop(const State* next_state) {
+
+  HeroState::stop(next_state);
+
+  if (get_can_control_movement()) {
+    get_entity().clear_movement();
+  }
+  cancel_jumper();
+  player_movement = nullptr;
+
+  std::string next_state_name;
+  const CustomState* next_custom_state = nullptr;
+  if (next_state != nullptr) {
+    next_state_name = next_state->get_name();
+    if (next_state_name == "custom") {
+      next_custom_state = static_cast<const CustomState*>(next_state);
+    }
+  }
+  get_lua_context().state_on_finished(
+        *this, next_state_name, const_cast<CustomState*>(next_custom_state));  // TODO
+}
+
+/**
+ * \copydoc Entity::State::update
+ */
+void CustomState::update() {
+
+  HeroState::update();
+
+  if (is_suspended()) {
+    return;
+  }
+
+  update_jumper();
+}
+
+/**
+ * \brief Checks if it is time to activate a jumper.
+ */
+void CustomState::update_jumper() {
+
+  if (!get_can_take_jumper() || current_jumper == nullptr) {
+    return;
+  }
+
+  Hero& hero = get_entity();
+
+  const int jump_direction8 = current_jumper->get_direction();
+  if (!current_jumper->is_enabled()
+      || current_jumper->is_being_removed()
+      || !current_jumper->is_in_jump_position(hero, hero.get_bounding_box(), false)) {
+
+    // Cancel the jumper preparation.
+    current_jumper = nullptr;
+    jumper_start_date = 0;
+  }
+  else if (System::now() >= jumper_start_date) {
+    // Time to make the jump and everything is okay.
+    hero.start_jumping(
+        jump_direction8, current_jumper->get_jump_length(), true, true);
+  }
+}
+
+/**
+ * \copydoc Entity::State::set_suspended
+ */
+void CustomState::set_suspended(bool suspended) {
+
+  HeroState::set_suspended(suspended);
+
+  if (!suspended) {
+    if (jumper_start_date != 0) {
+      jumper_start_date += System::now() - get_when_suspended();
+    }
+  }
+}
+
+/**
+ * \copydoc Entity::State::draw_on_map
+ */
+void CustomState::draw_on_map() {
+
+  Camera& camera = *get_entity().get_map().get_camera();
+  get_lua_context().state_on_pre_draw(*this, camera);
+  if (draw_override.is_empty()) {
+    // Use the built-in default state draw.
+    HeroState::draw_on_map();
+  }
+  else {
+    get_lua_context().do_state_draw_override_function(draw_override, *this, camera);
+  }
+  get_lua_context().state_on_post_draw(*this, camera);
 }
 
 /**
@@ -369,77 +494,59 @@ void CustomState::set_can_take_jumper(bool can_take_jumper) {
 }
 
 /**
- * \copydoc Entity::State::start
+ * \brief Returns the delay before jumpers activate.
+ * \return The jumper delay in milliseconds.
  */
-void CustomState::start(const State* previous_state) {
-
-  HeroState::start(previous_state);
-
-  if (get_can_control_movement()) {
-    start_player_movement();
-  }
-
-  std::string previous_state_name;
-  const CustomState* previous_custom_state = nullptr;
-  if (previous_state != nullptr) {
-    previous_state_name = previous_state->get_name();
-    if (previous_state_name == "custom") {
-      previous_custom_state = static_cast<const CustomState*>(previous_state);
-    }
-  }
-  get_lua_context().state_on_started(
-        *this, previous_state_name, const_cast<CustomState*>(previous_custom_state));  // TODO
+uint32_t CustomState::get_jumper_delay() const {
+  return jumper_delay;
 }
 
 /**
- * \copydoc Entity::State::stop
+ * \brief Sets the delay before jumpers activate.
+ * \param jumper_delay The jumper delay in milliseconds.
  */
-void CustomState::stop(const State* next_state) {
-
-  HeroState::stop(next_state);
-
-  if (get_can_control_movement()) {
-    get_entity().clear_movement();
-  }
-  player_movement = nullptr;
-
-  std::string next_state_name;
-  const CustomState* next_custom_state = nullptr;
-  if (next_state != nullptr) {
-    next_state_name = next_state->get_name();
-    if (next_state_name == "custom") {
-      next_custom_state = static_cast<const CustomState*>(next_state);
-    }
-  }
-  get_lua_context().state_on_finished(
-        *this, next_state_name, const_cast<CustomState*>(next_custom_state));  // TODO
+void CustomState::set_jumper_delay(uint32_t jumper_delay) {
+  this->jumper_delay = jumper_delay;
 }
 
 /**
- * \copydoc Entity::State::update
+ * \brief Notifies this state that the hero has just changed its
+ * position.
  */
-void CustomState::update() {
+void CustomState::notify_position_changed() {
 
-  HeroState::update();
-
-  // TODO
+  // Stop the preparation to a jump if any.
+  cancel_jumper();
 }
 
 /**
- * \copydoc Entity::State::draw_on_map
+ * \copydoc Entity::State::notify_jumper_activated
  */
-void CustomState::draw_on_map() {
+void CustomState::notify_jumper_activated(Jumper& jumper) {
 
-  Camera& camera = *get_entity().get_map().get_camera();
-  get_lua_context().state_on_pre_draw(*this, camera);
-  if (draw_override.is_empty()) {
-    // Use the built-in default state draw.
-    HeroState::draw_on_map();
+  if (!get_can_take_jumper()) {
+    return;
   }
-  else {
-    get_lua_context().do_state_draw_override_function(draw_override, *this, camera);
+  if (&jumper == current_jumper.get()) {
+    // We already know.
+    return;
   }
-  get_lua_context().state_on_post_draw(*this, camera);
+
+  // Add a small delay before jumping.
+  current_jumper = std::static_pointer_cast<Jumper>(jumper.shared_from_this());
+  jumper_start_date = System::now() + get_jumper_delay();
+  update_jumper();
+}
+
+/**
+ * \brief Cancels the jumper preparation that was ongoing if any.
+ */
+void CustomState::cancel_jumper() {
+
+  if (current_jumper != nullptr) {
+    current_jumper = nullptr;
+    jumper_start_date = 0;
+  }
 }
 
 }
