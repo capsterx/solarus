@@ -143,7 +143,7 @@ void CustomState::update_pushing() {
     return;
   }
 
-  if (!is_suspended()) {
+  if (is_suspended()) {
     return;
   }
 
@@ -153,15 +153,17 @@ void CustomState::update_pushing() {
 
   if (pushing_direction4 != -1) {
     // The entity is currently pushing.
-    int movement_direction4 = get_wanted_movement_direction8();
-    if (movement_direction4 == -1) {
+    int movement_direction8 = get_wanted_movement_direction8();
+    if (movement_direction8 == -1) {
       const std::shared_ptr<Movement> movement = get_entity().get_movement();
       if (movement != nullptr) {
-        movement_direction4 = movement->get_displayed_direction4();
+        movement_direction8 = movement->get_displayed_direction4() * 2;
       }
     }
-    // The movement direction has changed: stop trying to push.
-    pushing_direction4 = -1;
+    if (movement_direction8 != pushing_direction4 * 2) {
+      // The movement direction has changed: stop trying to push.
+      pushing_direction4 = -1;
+    }
   }
 }
 
@@ -174,7 +176,7 @@ void CustomState::update_jumper() {
     return;
   }
 
-  if (!is_suspended()) {
+  if (is_suspended()) {
     return;
   }
 
