@@ -69,6 +69,10 @@ void LuaContext::register_state_module() {
     { "set_can_use_shield", state_api_set_can_use_shield },
     { "get_can_use_item", state_api_get_can_use_item },
     { "set_can_use_item", state_api_set_can_use_item },
+    { "get_can_push", state_api_get_can_push },
+    { "set_can_push", state_api_set_can_push },
+    { "get_pushing_delay", state_api_get_pushing_delay },
+    { "set_pushing_delay", state_api_set_pushing_delay },
     { "get_can_pick_treasure", state_api_get_can_pick_treasure },
     { "set_can_pick_treasure", state_api_set_can_pick_treasure },
     { "get_can_use_stairs", state_api_get_can_use_stairs },
@@ -591,6 +595,73 @@ int LuaContext::state_api_set_can_use_item(lua_State* l) {
     bool can_use_item = LuaTools::check_boolean(l, 2);
 
     state.set_can_start_item(can_use_item);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_push().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_push(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_push());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_push().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_push(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_push = LuaTools::check_boolean(l, 2);
+
+    state.set_can_push(can_push);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_pushing_delay().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_pushing_delay(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushinteger(l, state.get_pushing_delay());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_pushing_delay().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_pushing_delay(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    int pushing_delay = LuaTools::check_int(l, 2);
+
+    if (pushing_delay < 0) {
+      LuaTools::arg_error(l, 2, "Pushing delay should be positive or zero");
+    }
+    state.set_pushing_delay(pushing_delay);
 
     return 0;
   });

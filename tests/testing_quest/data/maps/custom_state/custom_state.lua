@@ -65,6 +65,10 @@ local function test_state_methods_presence()
     "set_can_use_shield",
     "get_can_use_item",
     "set_can_use_item",
+    "get_can_push",
+    "set_can_push",
+    "get_pushing_delay",
+    "set_pushing_delay",
     "get_can_pick_treasure",
     "set_can_pick_treasure",
     "get_can_use_stairs",
@@ -80,7 +84,7 @@ local function test_state_methods_presence()
   --test if all method are present in the test state
   local test_state = sol.state.create("test_state")
   for _,m in ipairs(methods) do
-    assert_method(test_state,m)
+    assert_method(test_state, m)
   end
 end
 
@@ -204,6 +208,8 @@ local function test_state_methods(cont)
       test_setget("can_use_sword", true, false)
       test_setget("can_use_shield", true, false)
       test_setget("can_use_item", true, false)
+      test_setget("can_push", true, false)
+      test_setget("pushing_delay", 0, 1000, 800)
       test_setget("can_pick_treasure", true, false)
       test_setget("can_use_stairs", true, false)
       test_setget("can_use_jumper", true, false)

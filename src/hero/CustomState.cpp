@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Equipment.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
 #include "solarus/entities/Hero.h"
@@ -21,6 +22,7 @@
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
 #include "solarus/hero/CustomState.h"
+#include "solarus/hero/PushingState.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/PlayerMovement.h"
 
@@ -44,10 +46,14 @@ CustomState::CustomState(
   can_start_sword(true),
   can_use_shield(true),
   can_start_item(true),
+  can_push(true),
+  pushing_delay(1000),
+  pushing_direction4(-1),
+  start_pushing_date(0),
   can_pick_treasure(true),
   can_take_stairs(true),
   can_take_jumper(true),
-  current_jumper(),
+  current_jumper(nullptr),
   jumper_start_date(0),
   jumper_delay(200)  {
 
@@ -71,6 +77,10 @@ void CustomState::start(const State* previous_state) {
   if (get_can_control_movement()) {
     start_player_movement();
   }
+  pushing_direction4 = -1;
+  start_pushing_date = 0;
+  current_jumper = nullptr;
+  jumper_start_date = 0;
 
   std::string previous_state_name;
   const CustomState* previous_custom_state = nullptr;
@@ -120,13 +130,53 @@ void CustomState::update() {
     return;
   }
 
+  update_pushing();
   update_jumper();
 }
 
 /**
- * \brief Checks if it is time to activate a jumper.
+ * \brief Updates the preparation of pushing.
+ */
+void CustomState::update_pushing() {
+
+  if (!is_current_state()) {
+    return;
+  }
+
+  if (!is_suspended()) {
+    return;
+  }
+
+  if (!get_can_push()) {
+    return;
+  }
+
+  if (pushing_direction4 != -1) {
+    // The entity is currently pushing.
+    int movement_direction4 = get_wanted_movement_direction8();
+    if (movement_direction4 == -1) {
+      const std::shared_ptr<Movement> movement = get_entity().get_movement();
+      if (movement != nullptr) {
+        movement_direction4 = movement->get_displayed_direction4();
+      }
+    }
+    // The movement direction has changed: stop trying to push.
+    pushing_direction4 = -1;
+  }
+}
+
+/**
+ * \brief Updates the preparation of activating a jumper.
  */
 void CustomState::update_jumper() {
+
+  if (!is_current_state()) {
+    return;
+  }
+
+  if (!is_suspended()) {
+    return;
+  }
 
   if (!get_can_take_jumper() || current_jumper == nullptr) {
     return;
@@ -160,6 +210,9 @@ void CustomState::set_suspended(bool suspended) {
   if (!suspended) {
     if (jumper_start_date != 0) {
       jumper_start_date += System::now() - get_when_suspended();
+    }
+    if (start_pushing_date != 0) {
+      start_pushing_date += System::now() - get_when_suspended();
     }
   }
 }
@@ -441,6 +494,38 @@ void CustomState::set_can_start_item(bool can_start_item) {
 }
 
 /**
+ * \brief Returns whether pushing is allowed from this state.
+ * \return \c true if pushing is allowed.
+ */
+bool CustomState::get_can_push() const {
+  return can_push;
+}
+
+/**
+ * \brief Sets whether pushing is allowed from this state.
+ * \param can_push \c true to allow to push.
+ */
+void CustomState::set_can_push(bool can_push) {
+  this->can_push = can_push;
+}
+
+/**
+ * \brief Returns the delay before pushing in this state.
+ * \return The pushing delay in milliseconds.
+ */
+uint32_t CustomState::get_pushing_delay() const {
+  return pushing_delay;
+}
+
+/**
+ * \brief Sets the delay before pushing in this state.
+ * \param pushing_delay The pushing delay in milliseconds.
+ */
+void CustomState::set_pushing_delay(uint32_t pushing_delay) {
+  this->pushing_delay = pushing_delay;
+}
+
+/**
  * \brief Returns whether treasures can be picked during this state.
  * \return \c true if treasures can be picked.
  */
@@ -510,13 +595,41 @@ void CustomState::set_jumper_delay(uint32_t jumper_delay) {
 }
 
 /**
- * \brief Notifies this state that the hero has just changed its
- * position.
+ * \copydoc Entity::State::notify_position_changed
  */
 void CustomState::notify_position_changed() {
 
+  Entity::State::notify_position_changed();
+
   // Stop the preparation to a jump if any.
   cancel_jumper();
+}
+
+/**
+ * \copydoc Entity::State::notify_obstacle_reached
+ */
+void CustomState::notify_obstacle_reached() {
+
+  Entity::State::notify_obstacle_reached();
+
+  // See if we should prepare to push.
+  if (get_can_push()) {
+    Hero& hero = get_entity();
+    Equipment& equipment = get_equipment();
+    if (hero.is_facing_point_on_obstacle() &&   // He is really facing an obstacle.
+        equipment.has_ability(Ability::PUSH)    // He is able to push.
+    ) {
+      uint32_t now = System::now();
+      if (pushing_direction4 == -1) {
+        // Start state "pushing" after a delay.
+        start_pushing_date = now + get_pushing_delay();
+        pushing_direction4 = hero.get_animation_direction();
+      }
+      if (pushing_direction4 != -1 && now >= start_pushing_date) {
+        hero.start_pushing();
+      }
+    }
+  }
 }
 
 /**

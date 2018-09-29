@@ -77,6 +77,10 @@ class CustomState: public HeroState {
     bool get_can_start_item() const;
     bool get_can_start_item(EquipmentItem& item) const override;
     void set_can_start_item(bool can_start_item);
+    bool get_can_push() const;
+    void set_can_push(bool can_push);
+    uint32_t get_pushing_delay() const;
+    void set_pushing_delay(uint32_t pushing_delay);
     bool get_can_pick_treasure() const;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     void set_can_pick_treasure(bool can_pick_treasure);
@@ -88,10 +92,12 @@ class CustomState: public HeroState {
     void set_jumper_delay(uint32_t jumper_delay);
     void notify_jumper_activated(Jumper& jumper) override;
     void notify_position_changed() override;
+    void notify_obstacle_reached() override;
 
   private:
 
     void start_player_movement();
+    void update_pushing();
     void update_jumper();
     void cancel_jumper();
 
@@ -106,7 +112,12 @@ class CustomState: public HeroState {
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
     bool can_start_sword;                  /**< Whether the sword can be used in this state. */
     bool can_use_shield;                   /**< Whether the shield can be used in this state. */
-    bool can_start_item;                   /**< Whether the item can be used in this state. */
+    bool can_start_item;                   /**< Whether items can be used in this state. */
+    bool can_push;                         /**< Whether pushing is allowed in this state. */
+    uint32_t pushing_delay;                /**< Delay before pushing. */
+    int pushing_direction4;                /**< Direction where trying to
+                                            * push an obstacle: 0 to 3 or -1 */
+    uint32_t start_pushing_date;           /**< Date when state pushing should start. */
     bool can_pick_treasure;                /**< Whether treasures can be picked in this state. */
     bool can_take_stairs;                  /**< Whether stairs can be used in this state. */
     bool can_take_jumper;                  /**< Whether jumpers can be used in this state. */

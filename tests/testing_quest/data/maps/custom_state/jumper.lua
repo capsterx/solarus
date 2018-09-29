@@ -15,7 +15,7 @@ end
 
 function map:on_opening_transition_finished()
 
-  sol.timer.start(4000, function()
+  sol.timer.start(map, 4000, function()
     assert_equal_xy(hero, jumper_3_before_sensor)
     sol.main.exit()
   end)
