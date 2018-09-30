@@ -707,5 +707,16 @@ void CarriedObject::notify_collision_with_stairs(Stairs& stairs, CollisionMode /
   }
 }
 
+const std::string EnumInfoTraits<CarriedObject::Behavior>::pretty_name = "carried object behavior";
+
+/**
+ * \brief Lua name of each value of the ActionKeyEffect enum.
+ */
+const EnumInfo<CarriedObject::Behavior>::names_type EnumInfoTraits<CarriedObject::Behavior>::names = {
+  { CarriedObject::Behavior::THROW, "throw" },
+  { CarriedObject::Behavior::REMOVE, "remove" },
+  { CarriedObject::Behavior::KEEP, "keep" }
+};
+
 }
 

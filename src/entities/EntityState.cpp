@@ -1139,12 +1139,12 @@ std::shared_ptr<CarriedObject> Entity::State::get_carried_object() const {
 /**
  * \brief Returns the action to do with an item previously carried by the entity when this state starts.
  *
- * Returns CarriedObject::BEHAVIOR_THROW by default.
+ * Returns CarriedObject::Behavior::THROW by default.
  *
  * \return the action to do with a previous carried object when this state starts
  */
 CarriedObject::Behavior Entity::State::get_previous_carried_object_behavior() const {
-  return CarriedObject::BEHAVIOR_THROW;
+  return CarriedObject::Behavior::THROW;
 }
 
 }

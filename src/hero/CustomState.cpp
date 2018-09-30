@@ -597,6 +597,21 @@ void CustomState::set_jumper_delay(uint32_t jumper_delay) {
 }
 
 /**
+ * \copydoc Entity::State::get_previous_carried_object_behavior
+ */
+CarriedObject::Behavior CustomState::get_previous_carried_object_behavior() const {
+  return previous_carried_object_behavior;
+}
+
+/**
+ * \brief Sets what happens to an object that was carried the previous state.
+ * \param behavior The action to do.
+ */
+void CustomState::set_previous_carried_object_behavior(CarriedObject::Behavior behavior) {
+  this->previous_carried_object_behavior = behavior;
+}
+
+/**
  * \copydoc Entity::State::notify_position_changed
  */
 void CustomState::notify_position_changed() {

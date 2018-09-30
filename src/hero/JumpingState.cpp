@@ -45,7 +45,7 @@ Hero::JumpingState::JumpingState(
   HeroState(hero, "jumping"),
   carried_object() {
 
-  if (get_previous_carried_object_behavior() == CarriedObject::BEHAVIOR_KEEP) {
+  if (get_previous_carried_object_behavior() == CarriedObject::Behavior::KEEP) {
     // Keep the carried object of the previous state.
     carried_object = hero.get_carried_object();
   }
@@ -99,19 +99,19 @@ void Hero::JumpingState::stop(const State* next_state) {
 
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       carried_object->throw_item(get_sprites().get_animation_direction());
       get_entities().add_entity(carried_object);
       carried_object = nullptr;
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
+    case CarriedObject::Behavior::REMOVE:
       carried_object = nullptr;
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_KEEP:
+    case CarriedObject::Behavior::KEEP:
       // The next state is now the owner and has incremented the refcount.
       carried_object = nullptr;
       break;
@@ -327,7 +327,7 @@ std::shared_ptr<CarriedObject> Hero::JumpingState::get_carried_object() const {
  */
 CarriedObject::Behavior Hero::JumpingState::get_previous_carried_object_behavior() const {
 
-  return CarriedObject::BEHAVIOR_KEEP;
+  return CarriedObject::Behavior::KEEP;
 }
 
 }

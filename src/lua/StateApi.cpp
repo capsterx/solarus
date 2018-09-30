@@ -81,6 +81,8 @@ void LuaContext::register_state_module() {
     { "set_can_use_jumper", state_api_set_can_use_jumper },
     { "get_jumper_delay", state_api_get_jumper_delay },
     { "set_jumper_delay", state_api_set_jumper_delay },
+    { "get_previous_carried_object_behavior", state_api_get_previous_carried_object_behavior },
+    { "set_previous_carried_object_behavior", state_api_set_previous_carried_object_behavior },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -794,6 +796,38 @@ int LuaContext::state_api_set_jumper_delay(lua_State* l) {
     }
     state.set_jumper_delay(jumper_delay);
 
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_previous_carried_object_behavior().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_previous_carried_object_behavior(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    CarriedObject::Behavior behavior = state.get_previous_carried_object_behavior();
+    push_string(l, enum_to_name(behavior));
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_previous_carried_object_behavior().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_previous_carried_object_behavior(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    CarriedObject::Behavior behavior = LuaTools::check_enum<CarriedObject::Behavior>(l, 2);
+
+    state.set_previous_carried_object_behavior(behavior);
     return 0;
   });
 }

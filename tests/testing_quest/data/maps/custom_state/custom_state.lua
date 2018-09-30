@@ -77,8 +77,8 @@ local function test_state_methods_presence()
     "set_can_use_jumper",
     "get_jumper_delay",
     "set_jumper_delay",
--- TODO   "get_previous_carried_object_behavior",
--- TODO   "set_previous_carried_object_behavior",
+    "get_previous_carried_object_behavior",
+    "set_previous_carried_object_behavior",
   }
 
   --test if all method are present in the test state
@@ -201,8 +201,8 @@ local function test_state_methods(cont)
       test_setget("can_control_movement", true, false)
       test_setis("touching_ground", true, false)
       for _, ground in ipairs({"deep_water", "lava", "hole", "ice", "prickles"}) do
-        --test_setis("affected_by_ground", ground, true)
-        --test_setis("affected_by_ground", ground, false)
+        test_setis("affected_by_ground", ground, true)
+        test_setis("affected_by_ground", ground, false)
       end
 -- TODO      test_setget("can_be_hurt", true, false)
       test_setget("can_use_sword", true, false)
@@ -213,7 +213,7 @@ local function test_state_methods(cont)
       test_setget("can_pick_treasure", true, false)
       test_setget("can_use_stairs", true, false)
       test_setget("can_use_jumper", true, false)
--- TODO      test_setget("previous_carried_object_behavior","throw","destroy","keep")
+      test_setget("previous_carried_object_behavior", "throw", "remove", "keep")
 
       cont()
   end)

@@ -71,12 +71,12 @@ void Hero::CarryingState::stop(const State* next_state) {
 
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       throw_item();
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
-    case CarriedObject::BEHAVIOR_KEEP:
+    case CarriedObject::Behavior::REMOVE:
+    case CarriedObject::Behavior::KEEP:
       carried_object = nullptr;
       break;
 
@@ -236,7 +236,7 @@ std::shared_ptr<CarriedObject> Hero::CarryingState::get_carried_object() const {
  */
 CarriedObject::Behavior Hero::CarryingState::get_previous_carried_object_behavior() const {
 
-  return CarriedObject::BEHAVIOR_KEEP;
+  return CarriedObject::Behavior::KEEP;
 }
 
 }

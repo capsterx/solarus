@@ -91,6 +91,8 @@ class CustomState: public HeroState {
     uint32_t get_jumper_delay() const;
     void set_jumper_delay(uint32_t jumper_delay);
     void notify_jumper_activated(Jumper& jumper) override;
+    CarriedObject::Behavior get_previous_carried_object_behavior() const override;
+    void set_previous_carried_object_behavior(CarriedObject::Behavior behavior);
     void notify_position_changed() override;
     void notify_obstacle_reached() override;
 
@@ -126,6 +128,9 @@ class CustomState: public HeroState {
     uint32_t jumper_start_date;            /**< Date when to trigger the jumper
                                             * (in case there is a delay). */
     uint32_t jumper_delay;                 /**< Delay before a jumper activates. */
+    CarriedObject::Behavior
+        previous_carried_object_behavior;  /**< What happens during this state to an object that
+                                            * was carried in the previous state. */
 };
 
 }
