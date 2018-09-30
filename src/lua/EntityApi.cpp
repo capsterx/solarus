@@ -2859,7 +2859,7 @@ int LuaContext::hero_api_start_state(lua_State* l) {
     Hero& hero = *check_hero(l, 1);
     std::shared_ptr<CustomState> state = check_state(l, 2);
 
-    if (state->has_entity()) {
+    if (state->is_current_state()) {
       LuaTools::arg_error(l, 1, "This state is already active");
     }
     hero.start_custom_state(state);

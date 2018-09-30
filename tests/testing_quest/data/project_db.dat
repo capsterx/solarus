@@ -123,6 +123,7 @@ map{ id = "custom_state/draw_override", description = "get/set_draw_override()" 
 map{ id = "custom_state/end_map", description = "End of custom states tests" }
 map{ id = "custom_state/jumper", description = "get/set_can_take_jumper(), get_set_jumper_delay()" }
 map{ id = "custom_state/pushing", description = "get/set_can_push(), get/set_pushing_delay()" }
+map{ id = "custom_state/reuse_state", description = "Using the same state object a second time" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
 map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }

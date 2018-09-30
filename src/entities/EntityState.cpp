@@ -105,8 +105,6 @@ const Entity& Entity::State::get_entity() const {
  */
 void Entity::State::set_entity(Entity& entity) {
 
-  Debug::check_assertion(this->entity == nullptr,
-                         "This state is already associated to an entity");
   this->entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
   if (entity.is_on_map()) {
     this->map = std::static_pointer_cast<Map>(entity.get_map().shared_from_this());
