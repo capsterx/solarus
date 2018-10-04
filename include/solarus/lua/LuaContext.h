@@ -1043,7 +1043,7 @@ class LuaContext {
       hero_api_start_running,
       hero_api_start_hurt,
       hero_api_start_state,
-      hero_api_get_custom_state,
+      hero_api_get_state_object,
       camera_api_get_position_on_screen,
       camera_api_set_position_on_screen,
       camera_api_get_state,

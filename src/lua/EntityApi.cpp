@@ -209,7 +209,7 @@ void LuaContext::register_entity_module() {
       { "start_running", hero_api_start_running },
       { "start_hurt", hero_api_start_hurt },
       { "get_state", entity_api_get_state },
-      { "get_custom_state", hero_api_get_custom_state },
+      { "get_state_object", hero_api_get_state_object },
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     hero_methods.insert(hero_methods.end(), {
@@ -2869,11 +2869,11 @@ int LuaContext::hero_api_start_state(lua_State* l) {
 }
 
 /**
- * \brief Implementation of hero:get_custom_state().
+ * \brief Implementation of hero:get_state_object().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::hero_api_get_custom_state(lua_State* l) {
+int LuaContext::hero_api_get_state_object(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const Hero& hero = *check_hero(l, 1);

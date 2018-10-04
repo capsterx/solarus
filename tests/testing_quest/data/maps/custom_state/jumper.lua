@@ -31,7 +31,7 @@ function map:on_opening_transition_finished()
 
   function jumper_1_before_sensor:on_activated()
     assert_equal(hero:get_state(), "custom")
-    assert_equal(hero:get_custom_state(), state_1)
+    assert_equal(hero:get_state_object(), state_1)
     assert_equal(state_1:get_jumper_delay(), 500)
     expected_jump_time = sol.main.get_elapsed_time() + state_1:get_jumper_delay()
   end
@@ -40,7 +40,7 @@ end
 function jumper_1_after_sensor:on_activated()
 
   assert_equal(hero:get_state(), "jumping")
-  assert_equal(hero:get_custom_state(), nil)
+  assert_equal(hero:get_state_object(), nil)
 
   state_2 = sol.state.create()
   assert_equal(state_2:get_can_use_jumper(), true)
@@ -55,7 +55,7 @@ end
 
 function jumper_2_before_sensor:on_activated()
   assert_equal(hero:get_state(), "custom")
-  assert_equal(hero:get_custom_state(), state_2)
+  assert_equal(hero:get_state_object(), state_2)
   assert_equal(state_2:get_jumper_delay(), 0)
   expected_jump_time = sol.main.get_elapsed_time() + state_2:get_jumper_delay()
 end
@@ -63,7 +63,7 @@ end
 function jumper_2_after_sensor:on_activated()
 
   assert_equal(hero:get_state(), "jumping")
-  assert_equal(hero:get_custom_state(), nil)
+  assert_equal(hero:get_state_object(), nil)
 
   state_3 = sol.state.create()
   assert_equal(state_3:get_can_use_jumper(), true)

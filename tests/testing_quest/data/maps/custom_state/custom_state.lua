@@ -29,7 +29,7 @@ local function test_interface_presence()
   --Test for api methods
   assert_method(hero_meta, "start_state")
   assert_method(hero_meta, "get_state")
-  assert_method(hero_meta, "get_custom_state")
+  assert_method(hero_meta, "get_state_object")
 end
 
 
