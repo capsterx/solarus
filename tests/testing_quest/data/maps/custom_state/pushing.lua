@@ -10,7 +10,9 @@ function map:on_opening_transition_finished()
   assert_equal(state:get_pushing_delay(), 1000)
   hero:start_state(state)
   hero:set_animation("walking")
-  assert_equal(hero:get_state(), "custom")
+  local state_name, state_object = hero:get_state()
+  assert_equal(state_name, "custom")
+  assert_equal(state_object, state)
   assert_equal(hero:get_state_object(), state)
   game:simulate_command_pressed("down")
 end
@@ -32,7 +34,9 @@ function sensor_1:on_activated()
     -- Stop pushing.
     game:simulate_command_released("down")
     sol.timer.start(map, 100, function()
-      assert_equal(hero:get_state(), "free")
+      local state_name, state_object = hero:get_state()
+      assert_equal(state_name, "free")
+      assert_equal(state_object, nil)
 
       -- 2: Pushing allowed with custom delay (300).
       local state = sol.state.create()
@@ -60,7 +64,9 @@ function sensor_2:on_activated()
   assert_equal(state:get_pushing_delay(), 300)
   expected_push_time = sol.main.get_elapsed_time() + state:get_pushing_delay() + 10
   sol.timer.start(map, 1000, function()
-    assert_equal(hero:get_state(), "pushing")
+    local state_name, state_object = hero:get_state()
+    assert_equal(state_name, "pushing")
+    assert_equal(state_object, nil)
 
     -- 3: Pushing not allowed.
     local state = sol.state.create()

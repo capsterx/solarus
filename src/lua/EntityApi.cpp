@@ -1950,9 +1950,14 @@ int LuaContext::entity_api_get_state(lua_State* l) {
     std::string state_name = entity.get_state_name();
     if (state_name.empty()) {
       lua_pushnil(l);
+      return 1;
     }
-    else {
-      push_string(l, state_name);
+
+    push_string(l, state_name);
+    if (state_name == "custom") {
+      CustomState& state = *std::static_pointer_cast<CustomState>(entity.get_state());
+      push_state(l, state);
+      return 2;
     }
     return 1;
   });
