@@ -77,8 +77,8 @@ local function test_state_methods_presence()
     "set_can_use_jumper",
     "get_jumper_delay",
     "set_jumper_delay",
-    "get_previous_carried_object_behavior",
-    "set_previous_carried_object_behavior",
+    "get_carried_object_action",
+    "set_carried_object_action",
   }
 
   --test if all method are present in the test state
@@ -213,7 +213,7 @@ local function test_state_methods(cont)
       test_setget("can_pick_treasure", true, false)
       test_setget("can_use_stairs", true, false)
       test_setget("can_use_jumper", true, false)
-      test_setget("previous_carried_object_behavior", "throw", "remove", "keep")
+      test_setget("carried_object_action", "throw", "remove", "keep")
 
       cont()
   end)

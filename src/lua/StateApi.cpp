@@ -81,8 +81,8 @@ void LuaContext::register_state_module() {
     { "set_can_use_jumper", state_api_set_can_use_jumper },
     { "get_jumper_delay", state_api_get_jumper_delay },
     { "set_jumper_delay", state_api_set_jumper_delay },
-    { "get_previous_carried_object_behavior", state_api_get_previous_carried_object_behavior },
-    { "set_previous_carried_object_behavior", state_api_set_previous_carried_object_behavior },
+    { "get_carried_object_action", state_api_get_carried_object_action },
+    { "set_carried_object_action", state_api_set_carried_object_action },
   };
 
   const std::vector<luaL_Reg> metamethods = {
@@ -801,11 +801,11 @@ int LuaContext::state_api_set_jumper_delay(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:get_previous_carried_object_behavior().
+ * \brief Implementation of state:get_carried_object_action().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_get_previous_carried_object_behavior(lua_State* l) {
+int LuaContext::state_api_get_carried_object_action(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
@@ -817,11 +817,11 @@ int LuaContext::state_api_get_previous_carried_object_behavior(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:set_previous_carried_object_behavior().
+ * \brief Implementation of state:set_carried_object_action().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_set_previous_carried_object_behavior(lua_State* l) {
+int LuaContext::state_api_set_carried_object_action(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);

@@ -1219,8 +1219,8 @@ class LuaContext {
       state_api_set_can_use_jumper,
       state_api_get_jumper_delay,
       state_api_set_jumper_delay,
-      state_api_get_previous_carried_object_behavior,
-      state_api_set_previous_carried_object_behavior,
+      state_api_get_carried_object_action,
+      state_api_set_carried_object_action,
 
       // available to all userdata types
       userdata_meta_gc,

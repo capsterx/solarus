@@ -4,9 +4,9 @@ local game = map:get_game()
 function map:on_opening_transition_finished()
 
   local state = sol.state.create()
-  assert_equal(state:get_previous_carried_object_behavior(), "throw")
-  state:set_previous_carried_object_behavior("keep")
-  assert_equal(state:get_previous_carried_object_behavior(), "keep")
+  assert_equal(state:get_carried_object_action(), "throw")
+  state:set_carried_object_action("keep")
+  assert_equal(state:get_carried_object_action(), "keep")
 
   game:simulate_command_pressed("action")
   sol.timer.start(map, 1000, function()
