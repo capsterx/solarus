@@ -489,6 +489,27 @@ bool CustomState::can_avoid_prickle() const {
 }
 
 /**
+ * \copydoc Entity::State::is_affected_by_shallow_water()
+ */
+bool CustomState::is_affected_by_shallow_water() const {
+  return is_affected_by_ground(Ground::SHALLOW_WATER);
+}
+
+/**
+ * \copydoc Entity::State::is_affected_by_grass
+ */
+bool CustomState::is_affected_by_grass() const {
+  return is_affected_by_ground(Ground::GRASS);
+}
+
+/**
+ * \copydoc Entity::State::is_affected_by_ladder
+ */
+bool CustomState::is_affected_by_ladder() const {
+  return is_affected_by_ground(Ground::LADDER);
+}
+
+/**
  * \copydoc Entity::State::can_start_sword
  */
 bool CustomState::get_can_start_sword() const {

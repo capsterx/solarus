@@ -1299,15 +1299,24 @@ void Hero::notify_ground_below_changed() {
     break;
 
   case Ground::SHALLOW_WATER:
-    start_shallow_water();
+    if (!suspended &&
+        get_state()->is_affected_by_shallow_water()) {
+      start_shallow_water();
+     }
     break;
 
   case Ground::GRASS:
-    start_grass();
+    if (!suspended &&
+        get_state()->is_affected_by_grass()) {
+      start_grass();
+    }
     break;
 
   case Ground::LADDER:
-    set_walking_speed(normal_walking_speed * 3 / 5);
+    if (!suspended &&
+        get_state()->is_affected_by_ladder()) {
+      set_walking_speed(normal_walking_speed * 3 / 5);
+    }
     break;
 
   case Ground::WALL:

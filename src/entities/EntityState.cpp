@@ -616,6 +616,39 @@ bool Entity::State::can_avoid_prickle() const {
 }
 
 /**
+ * \brief Returns whether shallow water affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if shallow water affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_shallow_water() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether grass affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if grass affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_grass() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether ladders affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if ladders affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_ladder() const {
+  return true;
+}
+
+/**
  * \brief Returns whether the entity is touching the ground in the current state.
  *
  * Returns true by default.

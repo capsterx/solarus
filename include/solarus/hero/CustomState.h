@@ -70,6 +70,9 @@ class CustomState: public HeroState {
     bool can_avoid_ice() const override;
     bool can_avoid_lava() const override;
     bool can_avoid_prickle() const override;
+    bool is_affected_by_shallow_water() const override;
+    bool is_affected_by_grass() const override;
+    bool is_affected_by_ladder() const override;
 
     bool get_can_start_sword() const override;
     void set_can_start_sword(bool can_start_sword);

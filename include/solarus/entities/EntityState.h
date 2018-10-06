@@ -96,6 +96,9 @@ class Entity::State : public ExportableToLua {
     virtual bool can_avoid_ice() const;
     virtual bool can_avoid_lava() const;
     virtual bool can_avoid_prickle() const;
+    virtual bool is_affected_by_shallow_water() const;
+    virtual bool is_affected_by_grass() const;
+    virtual bool is_affected_by_ladder() const;
     virtual bool is_touching_ground() const;
     virtual bool can_come_from_bad_ground() const;
     virtual void notify_ground_changed();
