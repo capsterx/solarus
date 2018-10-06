@@ -1299,15 +1299,13 @@ void Hero::notify_ground_below_changed() {
     break;
 
   case Ground::SHALLOW_WATER:
-    if (!suspended &&
-        get_state()->is_affected_by_shallow_water()) {
+    if (get_state()->is_affected_by_shallow_water()) {
       start_shallow_water();
      }
     break;
 
   case Ground::GRASS:
-    if (!suspended &&
-        get_state()->is_affected_by_grass()) {
+    if (get_state()->is_affected_by_grass()) {
       start_grass();
     }
     break;
