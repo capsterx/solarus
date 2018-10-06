@@ -107,13 +107,10 @@ void Hero::JumpingState::stop(const State* next_state) {
       break;
 
     case CarriedObject::Behavior::REMOVE:
-      carried_object = nullptr;
       get_sprites().set_lifted_item(nullptr);
       break;
 
     case CarriedObject::Behavior::KEEP:
-      // The next state is now the owner and has incremented the refcount.
-      carried_object = nullptr;
       break;
 
     default:

@@ -41,6 +41,7 @@ class CustomState: public HeroState {
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
 
+    void set_map(Map& map) override;
     void update() override;
     void set_suspended(bool suspended) override;
     void draw_on_map() override;
@@ -93,8 +94,10 @@ class CustomState: public HeroState {
     void notify_jumper_activated(Jumper& jumper) override;
     CarriedObject::Behavior get_previous_carried_object_behavior() const override;
     void set_previous_carried_object_behavior(CarriedObject::Behavior behavior);
+    std::shared_ptr<CarriedObject> get_carried_object() const override;
     void notify_position_changed() override;
     void notify_obstacle_reached() override;
+    void notify_layer_changed() override;
 
   private:
 
@@ -130,7 +133,9 @@ class CustomState: public HeroState {
     uint32_t jumper_delay;                 /**< Delay before a jumper activates. */
     CarriedObject::Behavior
         previous_carried_object_behavior;  /**< What happens during this state to an object that
-                                            * was carried in the previous state. */
+                                            * was carried in the previous state. */    
+    std::shared_ptr<CarriedObject>
+        carried_object;                    /**< Object carried by the entity if any. */
 };
 
 }

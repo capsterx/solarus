@@ -56,7 +56,8 @@ CustomState::CustomState(
   current_jumper(nullptr),
   jumper_start_date(0),
   jumper_delay(200),
-  previous_carried_object_behavior(CarriedObject::Behavior::THROW) {
+  previous_carried_object_behavior(CarriedObject::Behavior::THROW),
+  carried_object(nullptr) {
 
 }
 
@@ -83,6 +84,14 @@ void CustomState::start(const State* previous_state) {
   current_jumper = nullptr;
   jumper_start_date = 0;
 
+  if (get_previous_carried_object_behavior() == CarriedObject::Behavior::KEEP &&
+      previous_state != nullptr) {
+    // Keep the carried object of the previous state.
+    carried_object = previous_state->get_carried_object();
+    HeroSprites& sprites = get_sprites();
+    sprites.set_lifted_item(carried_object);
+  }
+
   std::string previous_state_name;
   const CustomState* previous_custom_state = nullptr;
   if (previous_state != nullptr) {
@@ -108,6 +117,26 @@ void CustomState::stop(const State* next_state) {
   cancel_jumper();
   player_movement = nullptr;
 
+  if (carried_object != nullptr) {
+
+    switch (next_state->get_previous_carried_object_behavior()) {
+
+    case CarriedObject::Behavior::THROW:
+      carried_object->throw_item(get_sprites().get_animation_direction());
+      get_entities().add_entity(carried_object);
+      get_sprites().set_lifted_item(nullptr);
+      break;
+
+    case CarriedObject::Behavior::REMOVE:
+      get_sprites().set_lifted_item(nullptr);
+      break;
+
+    case CarriedObject::Behavior::KEEP:
+      // The next state is now the owner and has incremented the refcount.
+      break;
+    }
+  }
+
   std::string next_state_name;
   const CustomState* next_custom_state = nullptr;
   if (next_state != nullptr) {
@@ -121,18 +150,30 @@ void CustomState::stop(const State* next_state) {
 }
 
 /**
+ * \copydoc Entity::State::set_map
+ */
+void CustomState::set_map(Map& map) {
+
+  HeroState::set_map(map);
+
+  if (carried_object != nullptr) {
+    carried_object->set_map(map);
+  }
+}
+
+/**
  * \copydoc Entity::State::update
  */
 void CustomState::update() {
 
   HeroState::update();
 
-  if (is_suspended()) {
-    return;
-  }
-
   update_pushing();
   update_jumper();
+
+  if (carried_object != nullptr) {
+    carried_object->update();
+  }
 }
 
 /**
@@ -217,6 +258,10 @@ void CustomState::set_suspended(bool suspended) {
     if (start_pushing_date != 0) {
       start_pushing_date += System::now() - get_when_suspended();
     }
+  }
+
+  if (carried_object != nullptr) {
+    carried_object->set_suspended(suspended);
   }
 }
 
@@ -613,6 +658,13 @@ void CustomState::set_previous_carried_object_behavior(CarriedObject::Behavior b
 }
 
 /**
+ * \copydoc Entity::State::get_carried_object
+ */
+std::shared_ptr<CarriedObject> CustomState::get_carried_object() const {
+  return carried_object;
+}
+
+/**
  * \copydoc Entity::State::notify_position_changed
  */
 void CustomState::notify_position_changed() {
@@ -647,6 +699,16 @@ void CustomState::notify_obstacle_reached() {
         hero.start_pushing();
       }
     }
+  }
+}
+
+/**
+ * \copydoc Entity::State::notify_layer_changed
+ */
+void CustomState::notify_layer_changed() {
+
+  if (carried_object != nullptr) {
+    carried_object->set_layer(get_entity().get_layer());
   }
 }
 

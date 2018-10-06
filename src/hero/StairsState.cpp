@@ -144,11 +144,7 @@ void Hero::StairsState::stop(const State* next_state) {
       break;
 
     case CarriedObject::Behavior::KEEP:
-      carried_object = nullptr;
       break;
-
-    default:
-      Debug::die("Invalid carried object behavior");
     }
   }
 }

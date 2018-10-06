@@ -77,11 +77,7 @@ void Hero::CarryingState::stop(const State* next_state) {
 
     case CarriedObject::Behavior::REMOVE:
     case CarriedObject::Behavior::KEEP:
-      carried_object = nullptr;
       break;
-
-    default:
-      Debug::die("Invalid carried object behavior");
     }
   }
 }
