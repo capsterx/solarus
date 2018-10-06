@@ -55,7 +55,8 @@ CustomState::CustomState(
   can_take_jumper(true),
   current_jumper(nullptr),
   jumper_start_date(0),
-  jumper_delay(200)  {
+  jumper_delay(200),
+  previous_carried_object_behavior(CarriedObject::Behavior::THROW) {
 
 }
 
