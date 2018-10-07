@@ -116,6 +116,9 @@ class CustomState: public HeroState {
     bool is_affected_by_grass() const override;
     bool is_affected_by_ladder() const override;
 
+    bool get_can_be_hurt() const;
+    bool get_can_be_hurt(Entity* attacker) const override;
+    void set_can_be_hurt(bool can_be_hurt);
     bool get_can_start_sword() const override;
     void set_can_start_sword(bool can_start_sword);
     bool get_can_use_shield() const override;
@@ -162,6 +165,7 @@ class CustomState: public HeroState {
         player_movement;                   /**< The movement, if controlled by the player. */
     bool touching_ground;                  /**< Whether the entity is in contact with the ground. */
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
+    bool can_be_hurt;                      /**< Whether the entity be hurt in this state. */
     bool can_start_sword;                  /**< Whether the sword can be used in this state. */
     bool can_use_shield;                   /**< Whether the shield can be used in this state. */
     bool can_start_item;                   /**< Whether items can be used in this state. */

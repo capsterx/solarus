@@ -55,6 +55,7 @@ CustomState::CustomState(
   player_movement(),
   touching_ground(true),
   ignored_grounds(),
+  can_be_hurt(true),
   can_start_sword(true),
   can_use_shield(true),
   can_start_item(true),
@@ -978,6 +979,29 @@ bool CustomState::is_affected_by_grass() const {
  */
 bool CustomState::is_affected_by_ladder() const {
   return is_affected_by_ground(Ground::LADDER);
+}
+
+/**
+ * \brief Returns whether the entity can be hurt during this state.
+ * \return \c true if the entity can be hurt.
+ */
+bool CustomState::get_can_be_hurt() const {
+  return can_be_hurt;
+}
+
+/**
+ * \copydoc Entity::State::get_can_be_hurt
+ */
+bool CustomState::get_can_be_hurt(Entity* /* attacker */) const {
+  return get_can_be_hurt();
+}
+
+/**
+ * \brief Sets whether the entity can be hurt during this state.
+ * \param can_be_hurt \c true to allow to hurt the entity.
+ */
+void CustomState::set_can_be_hurt(bool can_be_hurt) {
+  this->can_be_hurt = can_be_hurt;
 }
 
 /**

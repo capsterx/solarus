@@ -45,7 +45,7 @@ class Hero::PushingState: public HeroState {
     void notify_obstacle_reached() override;
     void notify_position_changed() override;
 
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool is_shallow_water_obstacle() const override;
     bool is_deep_water_obstacle() const override;

@@ -132,7 +132,7 @@ bool Hero::SpinAttackState::get_can_pick_treasure(EquipmentItem& /* item */) con
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::SpinAttackState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::SpinAttackState::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 

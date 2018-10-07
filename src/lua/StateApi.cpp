@@ -67,6 +67,8 @@ void LuaContext::register_state_module() {
     { "set_touching_ground", state_api_set_touching_ground },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
     { "set_affected_by_ground", state_api_set_affected_by_ground },
+    { "get_can_be_hurt", state_api_get_can_be_hurt },
+    { "set_can_be_hurt", state_api_set_can_be_hurt },
     { "get_can_use_sword", state_api_get_can_use_sword },
     { "set_can_use_sword", state_api_set_can_use_sword },
     { "get_can_use_shield", state_api_get_can_use_shield },
@@ -599,6 +601,38 @@ int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
     bool affected = LuaTools::opt_boolean(l, 3, true);
 
     state.set_affected_by_ground(ground, affected);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_be_hurt().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_be_hurt(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_be_hurt());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_be_hurt().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_be_hurt(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_be_hurt = LuaTools::check_boolean(l, 2);
+
+    state.set_can_be_hurt(can_be_hurt);
 
     return 0;
   });

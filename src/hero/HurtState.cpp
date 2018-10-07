@@ -193,7 +193,7 @@ bool Hero::HurtState::is_separator_obstacle(Separator& /* separator */) {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::HurtState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::HurtState::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 

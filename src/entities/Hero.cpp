@@ -2192,7 +2192,7 @@ void Hero::update_invincibility() {
  * \return \c true if the hero can be hurt.
  */
 bool Hero::can_be_hurt(Entity* attacker) const {
-  return !is_invincible() && get_state()->can_be_hurt(attacker);
+  return !is_invincible() && get_state()->get_can_be_hurt(attacker);
 }
 
 /**

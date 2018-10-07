@@ -47,8 +47,8 @@ local function test_state_methods_presence()
     "set_touching_ground",
     "is_affected_by_ground",
     "set_affected_by_ground",
--- TODO   "get_can_be_hurt",
--- TODO   "set_can_be_hurt",
+    "get_can_be_hurt",
+    "set_can_be_hurt",
     "get_can_use_sword",
     "set_can_use_sword",
     "get_can_use_shield",
@@ -182,8 +182,6 @@ local function test_state_methods(cont)
         test_setter(name,"set_","get_",...)
       end
 
-      -- TODO verify setters getter usage here
-
       --test all getter setter without callbacks
       test_setis("visible", true, false)
       test_setget("draw_override", function() end)
@@ -194,7 +192,7 @@ local function test_state_methods(cont)
         test_setis("affected_by_ground", ground, true)
         test_setis("affected_by_ground", ground, false)
       end
--- TODO      test_setget("can_be_hurt", true, false)
+      test_setget("can_be_hurt", true, false)
       test_setget("can_use_sword", true, false)
       test_setget("can_use_shield", true, false)
       test_setget("can_use_item", true, false)

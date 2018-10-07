@@ -1204,6 +1204,8 @@ class LuaContext {
       state_api_set_touching_ground,
       state_api_is_affected_by_ground,
       state_api_set_affected_by_ground,
+      state_api_get_can_be_hurt,
+      state_api_set_can_be_hurt,
       state_api_get_can_use_sword,
       state_api_set_can_use_sword,
       state_api_get_can_use_shield,

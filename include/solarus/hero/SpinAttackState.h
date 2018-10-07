@@ -35,7 +35,7 @@ class Hero::SpinAttackState: public HeroState {
     void stop(const State* next_state) override;
     void update() override;
     bool can_sword_hit_crystal() const override;
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool is_cutting_with_sword(Entity& entity) override;
     int get_sword_damage_factor() const override;

@@ -246,7 +246,7 @@ void Hero::PullingState::stop_moving_pulled_entity() {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::PullingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PullingState::get_can_be_hurt(Entity* /* attacker */) const {
   return !is_moving_grabbed_entity();
 }
 
