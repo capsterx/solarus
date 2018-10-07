@@ -170,7 +170,7 @@ int Hero::SwimmingState::get_fast_swimming_speed() const {
  * \param stairs some stairs
  * \return true if the stairs are obstacle in this state
  */
-bool Hero::SwimmingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
+bool Hero::SwimmingState::is_stairs_obstacle(Stairs& /* stairs */) {
   return false;
 }
 

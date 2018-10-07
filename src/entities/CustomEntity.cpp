@@ -138,7 +138,7 @@ void CustomEntity::set_sprites_direction(int direction) {
  * \param type Type of entity to test.
  * \return The corresponding traversable property.
  */
-const CustomEntity::TraversableInfo& CustomEntity::get_traversable_by_entity_info(
+const TraversableInfo& CustomEntity::get_traversable_by_entity_info(
     EntityType type) {
 
   const auto it = traversable_by_entities_type.find(type);
@@ -296,7 +296,7 @@ bool CustomEntity::is_obstacle_for(Entity& other) {
  * \param type Type of entity to test.
  * \return The corresponding traversable property.
  */
-const CustomEntity::TraversableInfo& CustomEntity::get_can_traverse_entity_info(
+const TraversableInfo& CustomEntity::get_can_traverse_entity_info(
     EntityType type) {
 
   // Find the obstacle settings.
@@ -410,7 +410,7 @@ void CustomEntity::set_can_traverse_entities(
 /**
  * \brief Restores the default setting of whether this custom entity can
  * traverse other entities of the specified type.
- callback_ref This reverts the settings of previous calls to
+ * This reverts the settings of previous calls to
  * set_can_traverse_entities(EntityType, bool)
  * and
  * set_can_traverse_entities(EntityType, const ScopedLuaRef&).
@@ -1269,82 +1269,6 @@ bool CustomEntity::get_follow_streams() const {
  */
 void CustomEntity::set_follow_streams(bool follow_streams) {
   this->follow_streams = follow_streams;
-}
-
-/**
- * \brief Empty constructor.
- */
-CustomEntity::TraversableInfo::TraversableInfo():
-    lua_context(nullptr),
-    traversable_test_ref(),
-    traversable(false) {
-
-}
-
-/**
- * \brief Creates a boolean traversable property.
- * \param lua_context The Lua context.
- * \param traversable The value to store.
- */
-CustomEntity::TraversableInfo::TraversableInfo(
-    LuaContext& lua_context,
-    bool traversable
-):
-    lua_context(&lua_context),
-    traversable_test_ref(),
-    traversable(traversable) {
-
-}
-
-/**
- * \brief Creates a traversable property as a Lua boolean function.
- * \param lua_context The Lua context.
- * \param traversable_test_ref Lua ref to a function.
- */
-CustomEntity::TraversableInfo::TraversableInfo(
-    LuaContext& lua_context,
-    const ScopedLuaRef& traversable_test_ref
-):
-    lua_context(&lua_context),
-    traversable_test_ref(traversable_test_ref),
-    traversable(false) {
-
-}
-
-/**
- * \brief Returns whether this traversable property is empty.
- * \return \c true if no property is set.
- */
-bool CustomEntity::TraversableInfo::is_empty() const {
-
-  return lua_context == nullptr;
-}
-
-/**
- * \brief Tests this traversable property with the specified other entity.
- *
- * This traversable property must not be empty.
- *
- * \param current_entity A custom entity.
- * \param other_entity Another entity.
- * \return \c true if traversing is allowed, \c false otherwise.
- */
-bool CustomEntity::TraversableInfo::is_traversable(
-    CustomEntity& current_entity,
-    Entity& other_entity
-) const {
-
-  Debug::check_assertion(!is_empty(), "Empty traversable info");
-
-  if (traversable_test_ref.is_empty()) {
-    // A fixed boolean was set.
-    return traversable;
-  }
-
-  // A Lua boolean function was set.
-  return lua_context->do_custom_entity_traversable_test_function(
-      traversable_test_ref, current_entity, other_entity
-  );
 }
 
 /**

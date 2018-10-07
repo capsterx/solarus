@@ -1530,19 +1530,21 @@ bool Hero::is_ladder_obstacle() const {
 }
 
 /**
- * \copydoc Entity::is_block_obstacle
+ * \copydoc Entity::is_hero_obstacle
  */
-bool Hero::is_block_obstacle(Block& block) {
-  return block.is_hero_obstacle(*this);
+bool Hero::is_hero_obstacle(Hero& hero) {
+  return get_state()->is_hero_obstacle(hero);
 }
 
 /**
- * \brief Returns whether a teletransporter is currently considered as an obstacle.
- *
- * This depends on the hero's state.
- *
- * \param teletransporter a teletransporter
- * \return true if the teletransporter is currently an obstacle for the hero
+ * \copydoc Entity::is_block_obstacle
+ */
+bool Hero::is_block_obstacle(Block& block) {
+  return get_state()->is_block_obstacle(block);
+}
+
+/**
+ * \copydoc Entity::is_teletransporter_obstacle
  */
 bool Hero::is_teletransporter_obstacle(Teletransporter& teletransporter) {
   return get_state()->is_teletransporter_obstacle(teletransporter);
@@ -1556,30 +1558,59 @@ bool Hero::is_stream_obstacle(Stream& stream) {
 }
 
 /**
- * \brief Returns whether some stairs are currently considered as an obstacle for this entity.
- * \param stairs an stairs entity
- * \return true if the stairs are currently an obstacle for this entity
+ * \copydoc Entity::is_stairs_obstacle
  */
 bool Hero::is_stairs_obstacle(Stairs& stairs) {
   return get_state()->is_stairs_obstacle(stairs);
 }
 
 /**
- * \brief Returns whether a sensor is currently considered as an obstacle for the hero.
- * \param sensor a sensor (not used here)
- * \return true if this sensor is currently an obstacle for the hero
+ * \copydoc Entity::is_sensor_obstacle
  */
 bool Hero::is_sensor_obstacle(Sensor& sensor) {
   return get_state()->is_sensor_obstacle(sensor);
 }
 
 /**
- * \brief Returns whether a raised crystal block is currently considered as an obstacle for this entity.
- * \param raised_block a crystal block raised
- * \return true if the raised block is currently an obstacle for this entity
+ * \copydoc Entity::is_switch_obstacle
  */
-bool Hero::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
-  return !is_on_raised_blocks();
+bool Hero::is_switch_obstacle(Switch& sw) {
+  return get_state()->is_switch_obstacle(sw);
+}
+
+/**
+ * \copydoc Entity::is_raised_block_obstacle
+ */
+bool Hero::is_raised_block_obstacle(CrystalBlock& raised_block) {
+  return get_state()->is_raised_block_obstacle(raised_block);
+}
+
+/**
+ * \copydoc Entity::is_crystal_obstacle
+ */
+bool Hero::is_crystal_obstacle(Crystal& crystal) {
+  return get_state()->is_crystal_obstacle(crystal);
+}
+
+/**
+ * \copydoc Entity::is_npc_obstacle
+ */
+bool Hero::is_npc_obstacle(Npc& npc) {
+  return get_state()->is_npc_obstacle(npc);
+}
+
+/**
+ * \copydoc Entity::is_door_obstacle
+ */
+bool Hero::is_door_obstacle(Door& door) {
+  return get_state()->is_door_obstacle(door);
+}
+
+/**
+ * \copydoc Entity::is_enemy_obstacle
+ */
+bool Hero::is_enemy_obstacle(Enemy& enemy) {
+  return get_state()->is_enemy_obstacle(enemy);
 }
 
 /**
@@ -1590,6 +1621,13 @@ bool Hero::is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_positio
 }
 
 /**
+ * \copydoc Entity::is_destructible_obstacle
+ */
+bool Hero::is_destructible_obstacle(Destructible& destructible) {
+  return get_state()->is_destructible_obstacle(destructible);
+}
+
+/**
  * \copydoc Entity::is_separator_obstacle
  */
 bool Hero::is_separator_obstacle(Separator& separator) {
@@ -1597,9 +1635,7 @@ bool Hero::is_separator_obstacle(Separator& separator) {
 }
 
 /**
- * \brief This function is called when a destructible item detects a non-pixel perfect collision with this entity.
- * \param destructible the destructible item
- * \param collision_mode the collision mode that detected the event
+ * \copydoc Entity::notify_collision_with_destructible
  */
 void Hero::notify_collision_with_destructible(
     Destructible& destructible, CollisionMode collision_mode) {

@@ -177,11 +177,18 @@ class Hero: public Entity {
     bool is_ladder_obstacle() const override;
     bool is_block_obstacle(Block& block) override;
     bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_hero_obstacle(Hero& hero) override;
     bool is_stream_obstacle(Stream& stream) override;
     bool is_stairs_obstacle(Stairs& stairs) override;
     bool is_sensor_obstacle(Sensor& sensor) override;
+    bool is_switch_obstacle(Switch& sw) override;
     bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
+    bool is_crystal_obstacle(Crystal& crystal) override;
+    bool is_npc_obstacle(Npc& npc) override;
+    bool is_door_obstacle(Door& block) override;
+    bool is_enemy_obstacle(Enemy& enemy) override;
     bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
+    bool is_destructible_obstacle(Destructible& destructible) override;
     bool is_separator_obstacle(Separator& separator) override;
 
     /**

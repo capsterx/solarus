@@ -49,9 +49,9 @@ class Hero::JumpingState: public HeroState {
     int get_wanted_movement_direction8() const override;
     bool can_start_gameover_sequence() const override;
     bool is_touching_ground() const override;
-    bool is_stairs_obstacle(const Stairs& stairs) const override;
-    bool is_sensor_obstacle(const Sensor& sensor) const override;
-    bool is_separator_obstacle(const Separator& separator) const override;
+    bool is_stairs_obstacle(Stairs& stairs) override;
+    bool is_sensor_obstacle(Sensor& sensor) override;
+    bool is_separator_obstacle(Separator& separator) override;
     bool can_avoid_deep_water() const override;
     bool can_avoid_hole() const override;
     bool can_avoid_ice() const override;

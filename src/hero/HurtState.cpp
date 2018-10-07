@@ -160,14 +160,14 @@ bool Hero::HurtState::is_touching_ground() const {
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::HurtState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
   return true;
 }
 
 /**
  * \copydoc Entity::State::is_stream_obstacle
  */
-bool Hero::HurtState::is_stream_obstacle(const Stream& /* stream */) const {
+bool Hero::HurtState::is_stream_obstacle(Stream& /* stream */) {
   return true;
 }
 
@@ -176,14 +176,14 @@ bool Hero::HurtState::is_stream_obstacle(const Stream& /* stream */) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::HurtState::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Hero::HurtState::is_sensor_obstacle(Sensor& /* sensor */) {
   return true;
 }
 
 /**
  * \copydoc Entity::State::is_separator_obstacle
  */
-bool Hero::HurtState::is_separator_obstacle(const Separator& /* separator */) const {
+bool Hero::HurtState::is_separator_obstacle(Separator& /* separator */) {
   return true;
 }
 

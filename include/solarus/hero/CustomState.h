@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/entities/Ground.h"
+#include "solarus/entities/TraversableInfo.h"
 #include "solarus/hero/HeroState.h"
 #include <set>
 
@@ -60,6 +61,32 @@ class CustomState: public HeroState {
 
     void set_can_control_movement(bool can_control_movement);
     bool get_can_control_movement() const override;
+
+    void set_can_traverse_entities(bool traversable);
+    void set_can_traverse_entities(const ScopedLuaRef& traversable_test_ref);
+    void reset_can_traverse_entities();
+    void set_can_traverse_entities(EntityType type, bool traversable);
+    void set_can_traverse_entities(
+        EntityType type,
+        const ScopedLuaRef& traversable_test_ref
+    );
+    void reset_can_traverse_entities(EntityType type);
+
+    bool is_hero_obstacle(Hero& hero) override;
+    bool is_block_obstacle(Block& block) override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_stream_obstacle(Stream& stream) override;
+    bool is_stairs_obstacle(Stairs& stairs) override;
+    bool is_sensor_obstacle(Sensor& sensor) override;
+    bool is_switch_obstacle(Switch& sw) override;
+    bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
+    bool is_crystal_obstacle(Crystal& crystal) override;
+    bool is_npc_obstacle(Npc& npc) override;
+    bool is_door_obstacle(Door& block) override;
+    bool is_enemy_obstacle(Enemy& enemy) override;
+    bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
+    bool is_destructible_obstacle(Destructible& destructible) override;
+    bool is_separator_obstacle(Separator& separator) override;
 
     bool get_can_traverse_ground(Ground ground) const;
     void set_can_traverse_ground(Ground ground, bool traversable);
@@ -119,6 +146,8 @@ class CustomState: public HeroState {
 
   private:
 
+    const TraversableInfo& get_can_traverse_entity_info(EntityType type);
+
     void start_player_movement();
     void update_pushing();
     void update_jumper();
@@ -154,6 +183,10 @@ class CustomState: public HeroState {
                                             * was carried in the previous state. */    
     std::shared_ptr<CarriedObject>
         carried_object;                    /**< Object carried by the entity if any. */
+    TraversableInfo
+        can_traverse_entities_general;     /**< Whether the entity can traverse other entities by default. */
+    std::map<EntityType, TraversableInfo>
+        can_traverse_entities_type;        /**< Whether the entity can traverse entities of a type. */
     std::map<Ground, bool>
         can_traverse_grounds;              /**< Whether the entity can traverse each kind of ground. */
 };

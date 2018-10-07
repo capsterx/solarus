@@ -189,7 +189,7 @@ bool Hero::SwordSwingingState::is_cutting_with_sword(
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SwordSwingingState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero was pushed by an enemy, don't go on a teletransporter
   return get_entity().get_movement() != nullptr;

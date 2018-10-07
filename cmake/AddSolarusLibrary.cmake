@@ -126,6 +126,7 @@ file(
   include/solarus/entities/TilePtr.h
   include/solarus/entities/TilesetData.h
   include/solarus/entities/Tileset.h
+  include/solarus/entities/TraversableInfo.h
   include/solarus/entities/Wall.h
 
   include/solarus/graphics/BlendMode.h
@@ -331,6 +332,7 @@ file(
   src/entities/TilePattern.cpp
   src/entities/Tileset.cpp
   src/entities/TilesetData.cpp
+  src/entities/TraversableInfo.cpp
   src/entities/Wall.cpp
 
   src/graphics/BlendModeInfo.cpp

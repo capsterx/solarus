@@ -2864,7 +2864,7 @@ bool Entity::is_crystal_obstacle(Crystal& /* crystal */) {
 /**
  * \brief Returns whether a non-playing character is currently considered as an obstacle by this entity.
  *
- * This function returns true by default.
+ * By default, this depends on the NPC.
  *
  * \param npc a non-playing character
  * \return true if the NPC is currently an obstacle for this entity

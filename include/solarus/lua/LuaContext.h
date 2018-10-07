@@ -304,9 +304,9 @@ class LuaContext {
         Entity& entity,
         Camera& camera
     );
-    bool do_custom_entity_traversable_test_function(
+    bool do_traversable_test_function(
         const ScopedLuaRef& traversable_test_ref,
-        CustomEntity& custom_entity,
+        ExportableToLua& userdata,
         Entity& other_entity
     );
     bool do_custom_entity_collision_test_function(
@@ -1197,6 +1197,7 @@ class LuaContext {
       state_api_set_can_control_direction,
       state_api_get_can_control_movement,
       state_api_set_can_control_movement,
+      state_api_set_can_traverse,
       state_api_get_can_traverse_ground,
       state_api_set_can_traverse_ground,
       state_api_is_touching_ground,

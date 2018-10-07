@@ -302,7 +302,7 @@ bool Hero::PullingState::is_prickle_obstacle() const {
 /**
  * \copydoc Entity::State::is_stream_obstacle
  */
-bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
+bool Hero::PullingState::is_stream_obstacle(Stream& /* stream */) {
   return true;
 }
 
@@ -310,7 +310,7 @@ bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::PullingState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 

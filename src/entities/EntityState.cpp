@@ -21,10 +21,13 @@
 #include "solarus/core/Game.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
+#include "solarus/entities/Door.h"
 #include "solarus/entities/EntityState.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Jumper.h"
+#include "solarus/entities/Npc.h"
 #include "solarus/entities/Stairs.h"
+#include "solarus/entities/Switch.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/LuaContext.h"
@@ -807,15 +810,41 @@ bool Entity::State::is_ladder_obstacle() const {
 }
 
 /**
+ * \brief Returns whether a hero is considered as an obstacle in this state.
+ *
+ * Returns false by default.
+ *
+ * \param hero A hero.
+ * \return \c true if the hero is an obstacle in this state.
+ */
+bool Entity::State::is_hero_obstacle(
+    Hero& /* hero */) {
+  return false;
+}
+
+/**
+ * \brief Returns whether a block is considered as an obstacle in this state.
+ *
+ * Returns true by default.
+ *
+ * \param block A block.
+ * \return \c true if the block is an obstacle in this state.
+ */
+bool Entity::State::is_block_obstacle(
+    Block& /* block */) {
+  return true;
+}
+
+/**
  * \brief Returns whether a teletransporter is considered as an obstacle in this state.
  *
  * Returns false by default.
  *
- * \param teletransporter a teletransporter
- * \return true if the teletransporter is an obstacle in this state
+ * \param teletransporter A teletransporter.
+ * \return \c true if the teletransporter is an obstacle in this state.
  */
 bool Entity::State::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
   return false;
 }
 
@@ -849,7 +878,7 @@ bool Entity::State::is_teletransporter_delayed() const {
  * \return \c true if the stream is an obstacle in this state.
  */
 bool Entity::State::is_stream_obstacle(
-    const Stream& /* stream */) const {
+    Stream& /* stream */) {
   return false;
 }
 
@@ -893,7 +922,7 @@ bool Entity::State::get_can_take_stairs() const {
  * \param stairs Some stairs.
  * \return \c true if the stairs are obstacle in this state.
  */
-bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
+bool Entity::State::is_stairs_obstacle(Stairs& stairs) {
 
   // The entity may overlap stairs in rare cases,
   // for example if the hero arrived by swimming over them
@@ -911,10 +940,82 @@ bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
  *
  * Returns false by default.
  *
- * \param sensor a sensor
- * \return true if the sensor is an obstacle in this state
+ * \param sensor A sensor.
+ * \return \c true if the sensor is an obstacle in this state.
  */
-bool Entity::State::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Entity::State::is_sensor_obstacle(Sensor& /* sensor */) {
+  return false;
+}
+
+/**
+ * \brief Returns whether a switch is considered as an obstacle in this state.
+ *
+ * By default, this function returns true for solid switches and false for other ones.
+ *
+ * \param sw A switch.
+ * \return \c true if the switch is an obstacle in this state.
+ */
+bool Entity::State::is_switch_obstacle(Switch& sw) {
+  return sw.is_solid();
+}
+
+/**
+ * \brief Returns whether a raised crystal block is currently considered as an obstacle in this state.
+ *
+ * This function returns true by default.
+ *
+ * \param raised_block A crystal block raised.
+ * \return \c true if the raised block is currently an obstacle in this state.
+ */
+bool Entity::State::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
+  return true;
+}
+
+/**
+ * \brief Returns whether a crystal is currently considered as an obstacle in this state.
+ *
+ * This function returns true by default.
+ *
+ * \param crystal A crystal.
+ * \return \c true if the crystal is currently an obstacle in this state.
+ */
+bool Entity::State::is_crystal_obstacle(Crystal& /* crystal */) {
+  return true;
+}
+
+/**
+ * \brief Returns whether a non-playing character is currently considered as an obstacle in this state.
+ *
+ * By default, this depends on the NPC.
+ *
+ * \param npc A non-playing character.
+ * \return \c true if the NPC is currently an obstacle in this state.
+ */
+bool Entity::State::is_npc_obstacle(Npc& npc) {
+  return !npc.is_traversable();
+}
+
+/**
+ * \brief Returns whether a door is currently considered as an obstacle in this state.
+ *
+ * By default, this function returns \c true unless the door is open.
+ *
+ * \param door A door.
+ * \return \c true if the door is currently an obstacle in this state.
+ */
+bool Entity::State::is_door_obstacle(Door& door) {
+  return !door.is_open();
+}
+
+/**
+ * \brief Returns whether an enemy is currently considered as an obstacle by this entity.
+ *
+ * This function returns false by default.
+ *
+ * \param enemy An enemy/
+ * \return \c true if the enemy is currently an obstacle in this state.
+ */
+bool Entity::State::is_enemy_obstacle(Enemy& /* enemy */) {
   return false;
 }
 
@@ -927,7 +1028,7 @@ bool Entity::State::is_sensor_obstacle(const Sensor& /* sensor */) const {
  * entity position.
  */
 bool Entity::State::is_jumper_obstacle(
-    const Jumper& /* jumper */, const Rectangle& /* candidate_position */) const {
+    Jumper& /* jumper */, const Rectangle& /* candidate_position */) {
   return true;
 }
 
@@ -940,8 +1041,20 @@ bool Entity::State::is_jumper_obstacle(
  * \param separator A separator.
  * \return \c true if the separator is an obstacle in this state.
  */
-bool Entity::State::is_separator_obstacle(const Separator& /* separator */) const {
+bool Entity::State::is_separator_obstacle(Separator& /* separator */) {
   return false;
+}
+
+/**
+ * \brief Returns whether a destructible is considered as an obstacle in this state.
+ *
+ * By default, this function returns true.
+ *
+ * \param destructible A destructible object.
+ * \return \c true if the destructible object is currently an obstacle in this state.
+ */
+bool Entity::State::is_destructible_obstacle(Destructible& /* destructible */) {
+  return true;
 }
 
 /**

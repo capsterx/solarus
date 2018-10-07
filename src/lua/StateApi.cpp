@@ -17,6 +17,7 @@
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Game.h"
 #include "solarus/core/Map.h"
+#include "solarus/entities/EntityTypeInfo.h"
 #include "solarus/entities/GroundInfo.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
@@ -59,6 +60,7 @@ void LuaContext::register_state_module() {
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
     { "set_can_control_movement", state_api_set_can_control_movement },
+    { "set_can_traverse", state_api_set_can_traverse },
     { "get_can_traverse_ground", state_api_get_can_traverse_ground },
     { "set_can_traverse_ground", state_api_set_can_traverse_ground },
     { "is_touching_ground", state_api_is_touching_ground },
@@ -437,6 +439,64 @@ int LuaContext::state_api_set_draw_override(lua_State* l) {
     }
 
     state.set_draw_override(draw_override);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_traverse().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_traverse(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    bool type_specific = false;
+    EntityType type = EntityType::TILE;
+    int index = 2;
+    if (lua_isstring(l, index)) {
+      ++index;
+      type_specific = true;
+      type = LuaTools::check_enum<EntityType>(
+          l, 2
+      );
+    }
+
+    if (lua_isnil(l, index)) {
+      // Reset the setting.
+      if (!type_specific) {
+        state.reset_can_traverse_entities();
+      }
+      else {
+        state.reset_can_traverse_entities(type);
+      }
+    }
+    else if (lua_isboolean(l, index)) {
+      // Boolean value.
+      bool traversable = lua_toboolean(l, index);
+      if (!type_specific) {
+        state.set_can_traverse_entities(traversable);
+      }
+      else {
+        state.set_can_traverse_entities(type, traversable);
+      }
+    }
+    else if (lua_isfunction(l, index)) {
+      // Custom boolean function.
+      const ScopedLuaRef& traversable_test_ref = LuaTools::check_function(l, index);
+      if (!type_specific) {
+        state.set_can_traverse_entities(traversable_test_ref);
+      }
+      else {
+        state.set_can_traverse_entities(type, traversable_test_ref);
+      }
+    }
+    else {
+      LuaTools::type_error(l, index, "boolean, function or nil");
+    }
 
     return 0;
   });

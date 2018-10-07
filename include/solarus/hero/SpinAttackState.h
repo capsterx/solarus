@@ -43,8 +43,8 @@ class Hero::SpinAttackState: public HeroState {
     bool is_hole_obstacle() const override;
     bool is_lava_obstacle() const override;
     bool is_prickle_obstacle() const override;
-    bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
-    bool is_separator_obstacle(const Separator& separator) const override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_separator_obstacle(Separator& separator) override;
     void notify_obstacle_reached() override;
     void notify_attacked_enemy(
         EnemyAttack attack,

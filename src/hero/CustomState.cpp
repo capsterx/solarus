@@ -17,10 +17,22 @@
 #include "solarus/core/Equipment.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
+#include "solarus/entities/Block.h"
+#include "solarus/entities/Crystal.h"
+#include "solarus/entities/CrystalBlock.h"
+#include "solarus/entities/Destructible.h"
+#include "solarus/entities/Door.h"
+#include "solarus/entities/Enemy.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Jumper.h"
+#include "solarus/entities/Npc.h"
+#include "solarus/entities/Sensor.h"
+#include "solarus/entities/Separator.h"
+#include "solarus/entities/Stairs.h"
 #include "solarus/entities/Stream.h"
 #include "solarus/entities/StreamAction.h"
+#include "solarus/entities/Switch.h"
+#include "solarus/entities/Teletransporter.h"
 #include "solarus/hero/CustomState.h"
 #include "solarus/hero/PushingState.h"
 #include "solarus/lua/LuaContext.h"
@@ -58,6 +70,8 @@ CustomState::CustomState(
   jumper_delay(200),
   previous_carried_object_behavior(CarriedObject::Behavior::THROW),
   carried_object(nullptr),
+  can_traverse_entities_general(),
+  can_traverse_entities_type(),
   can_traverse_grounds() {
 
 }
@@ -411,6 +425,319 @@ void CustomState::start_player_movement() {
       hero.get_walking_speed()
   );
   hero.set_movement(player_movement);
+}
+
+/**
+ * \brief Returns the info about whether the entity can traverse a
+ * type of entity in this state.
+ * \param type Type of entity to test.
+ * \return The corresponding traversable property.
+ */
+const TraversableInfo& CustomState::get_can_traverse_entity_info(
+    EntityType type) {
+
+  // Find the obstacle settings.
+  const auto it = can_traverse_entities_type.find(type);
+  if (it != can_traverse_entities_type.end()) {
+    // This entity type overrides the general setting.
+    return it->second;
+  }
+
+  return can_traverse_entities_general;
+}
+
+/**
+ * \brief Sets whether the entity can traverse other entities in this state.
+ *
+ * This applies to entities that are not overridden by
+ * set_can_traverse_entities(EntityType, bool)
+ * or
+ * set_can_traverse_entities(EntityType, const ScopedLuaRef&).
+ *
+ * \param traversable \c true to allow the entity to traverse other entities.
+ */
+void CustomState::set_can_traverse_entities(bool traversable) {
+
+  can_traverse_entities_general = TraversableInfo(
+      get_lua_context(),
+      traversable
+  );
+}
+
+/**
+ * \brief Registers a Lua function to decide if the entity can traverse
+ * other entities in this state.
+ *
+ * This applies to entities that are not overridden by
+ * set_can_traverse_entities(EntityType, bool)
+ * or
+ * set_can_traverse_entities(EntityType, const ScopedLuaRef&).
+ *
+ * \param traversable_test_ref Lua ref to a function that will do the test.
+ */
+void CustomState::set_can_traverse_entities(const ScopedLuaRef& traversable_test_ref) {
+
+  can_traverse_entities_general = TraversableInfo(
+      get_lua_context(),
+      traversable_test_ref
+  );
+}
+
+/**
+ * \brief Restores the default setting of whether the entity can
+ * traverse other entities in this state.
+ *
+ * This reverts the settings of previous calls to
+ * set_can_traverse_entities(bool)
+ * and
+ * set_can_traverse_entities(const ScopedLuaRef&).
+ */
+void CustomState::reset_can_traverse_entities() {
+
+  can_traverse_entities_general = TraversableInfo();
+}
+
+/**
+ * \brief Sets whether the entity can traverse other entities
+ * of the specified type in this state.
+ *
+ * This overrides for a specific type whatever was set by
+ * set_can_traverse_entities(bool)
+ * or
+ * set_can_traverse_entities(const ScopedLuaRef&).
+ *
+ * \param type A type of entities.
+ * \param traversable \c true to allow the entity to traverse other entities
+ * of the specified type in this state
+ */
+void CustomState::set_can_traverse_entities(
+    EntityType type,
+    bool traversable
+) {
+
+  can_traverse_entities_type[type] = TraversableInfo(
+      get_lua_context(),
+      traversable
+  );
+}
+
+/**
+ * \brief Registers a Lua function to decide if the entity can
+ * traverse other entities of the specified type in this state.
+ *
+ * This overrides for a specific type whatever was set by
+ * set_can_traverse_entities(bool)
+ * or
+ * set_can_traverse_entities(const ScopedLuaRef&).
+ *
+ * \param type A type of entities.
+ * \param traversable_test_ref Lua ref to a function that will do the test.
+ */
+void CustomState::set_can_traverse_entities(
+    EntityType type,
+    const ScopedLuaRef& traversable_test_ref
+) {
+
+  can_traverse_entities_type[type] = TraversableInfo(
+      get_lua_context(),
+      traversable_test_ref
+  );
+}
+
+/**
+ * \brief Restores the default setting of whether the entity can
+ * traverse other entities of the specified type in this state.
+ *
+ * This reverts the settings of previous calls to
+ * set_can_traverse_entities(EntityType, bool)
+ * and
+ * set_can_traverse_entities(EntityType, const ScopedLuaRef&).
+ *
+ * \param type A type of entities.
+ */
+void CustomState::reset_can_traverse_entities(EntityType type) {
+
+  can_traverse_entities_type.erase(type);
+}
+
+/**
+ * \copydoc Entity::State::is_hero_obstacle
+ */
+bool CustomState::is_hero_obstacle(Hero& hero) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(hero.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, hero);
+  }
+  return Hero::State::is_hero_obstacle(hero);
+}
+
+/**
+ * \copydoc Entity::State::is_block_obstacle
+ */
+bool CustomState::is_block_obstacle(Block& block) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(block.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, block);
+  }
+  return Hero::State::is_block_obstacle(block);
+}
+
+/**
+ * \copydoc Entity::State::is_teletransporter_obstacle
+ */
+bool CustomState::is_teletransporter_obstacle(Teletransporter& teletransporter) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(teletransporter.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, teletransporter);
+  }
+  return Hero::State::is_teletransporter_obstacle(teletransporter);
+}
+
+/**
+ * \copydoc Entity::State::is_stream_obstacle
+ */
+bool CustomState::is_stream_obstacle(Stream& stream) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(stream.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, stream);
+  }
+  return Hero::State::is_stream_obstacle(stream);
+}
+
+/**
+ * \copydoc Entity::State::is_stairs_obstacle
+ */
+bool CustomState::is_stairs_obstacle(Stairs& stairs) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(stairs.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, stairs);
+  }
+  return Hero::State::is_stairs_obstacle(stairs);
+}
+
+/**
+ * \copydoc Entity::State::is_sensor_obstacle
+ */
+bool CustomState::is_sensor_obstacle(Sensor& sensor) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(sensor.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, sensor);
+  }
+  return Hero::State::is_sensor_obstacle(sensor);
+}
+
+/**
+ * \copydoc Entity::State::is_switch_obstacle
+ */
+bool CustomState::is_switch_obstacle(Switch& sw) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(sw.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, sw);
+  }
+  return Hero::State::is_switch_obstacle(sw);
+}
+
+/**
+ * \copydoc Entity::State::is_raised_block_obstacle
+ */
+bool CustomState::is_raised_block_obstacle(CrystalBlock& raised_block) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(raised_block.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, raised_block);
+  }
+  return Hero::State::is_raised_block_obstacle(raised_block);
+}
+
+/**
+ * \copydoc Entity::State::is_crystal_obstacle
+ */
+bool CustomState::is_crystal_obstacle(Crystal& crystal) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(crystal.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, crystal);
+  }
+  return Hero::State::is_crystal_obstacle(crystal);
+}
+
+/**
+ * \copydoc Entity::State::is_npc_obstacle
+ */
+bool CustomState::is_npc_obstacle(Npc& npc) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(npc.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, npc);
+  }
+  return Hero::State::is_npc_obstacle(npc);
+}
+
+/**
+ * \copydoc Entity::State::is_door_obstacle
+ */
+bool CustomState::is_door_obstacle(Door& door) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(door.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, door);
+  }
+  return Hero::State::is_door_obstacle(door);
+}
+
+/**
+ * \copydoc Entity::State::is_enemy_obstacle
+ */
+bool CustomState::is_enemy_obstacle(Enemy& enemy) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(enemy.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, enemy);
+  }
+  return Hero::State::is_enemy_obstacle(enemy);
+}
+
+/**
+ * \copydoc Entity::State::is_jumper_obstacle
+ */
+bool CustomState::is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(jumper.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, jumper);
+  }
+  return Hero::State::is_jumper_obstacle(jumper, candidate_position);
+}
+
+/**
+ * \copydoc Entity::State::is_destructible_obstacle
+ */
+bool CustomState::is_destructible_obstacle(Destructible& destructible) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(destructible.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, destructible);
+  }
+  return Hero::State::is_destructible_obstacle(destructible);
+}
+
+/**
+ * \copydoc Entity::State::is_separator_obstacle
+ */
+bool CustomState::is_separator_obstacle(Separator& separator) {
+
+  const TraversableInfo& info = get_can_traverse_entity_info(separator.get_type());
+  if (!info.is_empty()) {
+    return !info.is_traversable(*this, separator);
+  }
+  return Hero::State::is_separator_obstacle(separator);
 }
 
 /**

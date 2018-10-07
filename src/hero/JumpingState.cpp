@@ -261,7 +261,7 @@ bool Hero::JumpingState::can_avoid_stream(const Stream& /* stream */) const {
  * \param stairs some stairs
  * \return true if the stairs are obstacle in this state
  */
-bool Hero::JumpingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
+bool Hero::JumpingState::is_stairs_obstacle(Stairs& /* stairs */) {
   // allow to jump over stairs covered by water
   return get_entity().get_ground_below() != Ground::DEEP_WATER;
 }
@@ -271,8 +271,7 @@ bool Hero::JumpingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::JumpingState::is_sensor_obstacle(const Sensor& /* sensor */) const {
-
+bool Hero::JumpingState::is_sensor_obstacle(Sensor& /* sensor */) {
   return false;
 }
 
@@ -280,7 +279,7 @@ bool Hero::JumpingState::is_sensor_obstacle(const Sensor& /* sensor */) const {
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::JumpingState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 

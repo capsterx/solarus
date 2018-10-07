@@ -5956,14 +5956,14 @@ void LuaContext::push_custom_entity(lua_State* l, CustomEntity& entity) {
 /**
  * \brief Calls the specified a Lua traversable test function.
  * \param traversable_test_ref Lua ref to a traversable test function.
- * \param custom_entity The custom entity that is testing if it can traverse
+ * \param userdata The object that is testing if it can traverse
  * or be traversed by another entity.
  * \param other_entity The other entity.
  * \return \c true if the traversable test function returned \c true.
  */
-bool LuaContext::do_custom_entity_traversable_test_function(
+bool LuaContext::do_traversable_test_function(
     const ScopedLuaRef& traversable_test_ref,
-    CustomEntity& custom_entity,
+    ExportableToLua& userdata,
     Entity& other_entity) {
 
   Debug::check_assertion(!traversable_test_ref.is_empty(),
@@ -5975,7 +5975,7 @@ bool LuaContext::do_custom_entity_traversable_test_function(
   Debug::check_assertion(lua_isfunction(current_l, -1),
       "Traversable test is not a function"
   );
-  push_custom_entity(current_l, custom_entity);
+  push_userdata(current_l, userdata);
   push_entity(current_l, other_entity);
   if (!LuaTools::call_function(current_l, 2, 1, "traversable test function")) {
     // Error in the traversable test function.
@@ -6226,7 +6226,6 @@ int LuaContext::custom_entity_api_set_can_traverse(lua_State* l) {
     }
     else if (lua_isfunction(l, index)) {
       // Custom boolean function.
-
       const ScopedLuaRef& traversable_test_ref = LuaTools::check_function(l, index);
       if (!type_specific) {
         entity.set_can_traverse_entities(traversable_test_ref);

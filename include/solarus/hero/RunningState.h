@@ -56,7 +56,7 @@ class Hero::RunningState: public HeroState {
     bool can_avoid_teletransporter() const override;
     bool can_avoid_stream(const Stream& stream) const override;
     bool can_persist_on_stream(const Stream& stream) const override;
-    bool is_sensor_obstacle(const Sensor& sensor) const override;
+    bool is_sensor_obstacle(Sensor& sensor) override;
     bool is_cutting_with_sword(Entity& entity) override;
     int get_sword_damage_factor() const override;
 

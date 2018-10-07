@@ -209,7 +209,7 @@ bool Hero::SpinAttackState::is_prickle_obstacle() const {
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SpinAttackState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero is pushed by an enemy or making a super spin attack,
   // don't go on a teletransporter
@@ -220,7 +220,7 @@ bool Hero::SpinAttackState::is_teletransporter_obstacle(
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::SpinAttackState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 

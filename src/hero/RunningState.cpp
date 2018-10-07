@@ -349,7 +349,7 @@ bool Hero::RunningState::can_persist_on_stream(const Stream& stream) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::RunningState::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Hero::RunningState::is_sensor_obstacle(Sensor& /* sensor */) {
   return is_bouncing();
 }
 
