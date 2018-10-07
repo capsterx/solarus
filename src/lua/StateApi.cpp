@@ -53,12 +53,14 @@ void LuaContext::register_state_module() {
     { "is_started", state_api_is_started },
     { "is_visible", state_api_is_visible },
     { "set_visible", state_api_set_visible },
+    { "get_draw_override", state_api_get_draw_override },
+    { "set_draw_override", state_api_set_draw_override },
     { "get_can_control_direction", state_api_get_can_control_direction },
     { "set_can_control_direction", state_api_set_can_control_direction },
     { "get_can_control_movement", state_api_get_can_control_movement },
     { "set_can_control_movement", state_api_set_can_control_movement },
-    { "get_draw_override", state_api_get_draw_override },
-    { "set_draw_override", state_api_set_draw_override },
+    { "get_can_traverse_ground", state_api_get_can_traverse_ground },
+    { "set_can_traverse_ground", state_api_set_can_traverse_ground },
     { "is_touching_ground", state_api_is_touching_ground },
     { "set_touching_ground", state_api_set_touching_ground },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
@@ -435,6 +437,42 @@ int LuaContext::state_api_set_draw_override(lua_State* l) {
     }
 
     state.set_draw_override(draw_override);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:can_traverse_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_traverse_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+    Ground ground = LuaTools::check_enum<Ground>(l, 2);
+
+    bool traversable = state.get_can_traverse_ground(ground);
+
+    lua_pushboolean(l, traversable);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_traverse_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_traverse_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    Ground ground = LuaTools::check_enum<Ground>(l, 2);
+    bool traversable = LuaTools::check_boolean(l, 3);
+
+    state.set_can_traverse_ground(ground, traversable);
 
     return 0;
   });

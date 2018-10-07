@@ -61,6 +61,21 @@ class CustomState: public HeroState {
     void set_can_control_movement(bool can_control_movement);
     bool get_can_control_movement() const override;
 
+    bool get_can_traverse_ground(Ground ground) const;
+    void set_can_traverse_ground(Ground ground, bool traversable);
+
+    bool is_traversable_obstacle() const override;
+    bool is_wall_obstacle() const override;
+    bool is_low_wall_obstacle() const override;
+    bool is_grass_obstacle() const override;
+    bool is_shallow_water_obstacle() const override;
+    bool is_deep_water_obstacle() const override;
+    bool is_hole_obstacle() const override;
+    bool is_ice_obstacle() const override;
+    bool is_lava_obstacle() const override;
+    bool is_prickle_obstacle() const override;
+    bool is_ladder_obstacle() const override;
+
     bool is_touching_ground() const override;
     void set_touching_ground(bool touching_ground);
     bool is_affected_by_ground(Ground ground) const;
@@ -139,6 +154,8 @@ class CustomState: public HeroState {
                                             * was carried in the previous state. */    
     std::shared_ptr<CarriedObject>
         carried_object;                    /**< Object carried by the entity if any. */
+    std::map<Ground, bool>
+        can_traverse_grounds;              /**< Whether the entity can traverse each kind of ground. */
 };
 
 }

@@ -1453,48 +1453,77 @@ bool Hero::is_obstacle_for(Entity& other) {
 }
 
 /**
- * \brief Returns whether shallow water is currently considered as an obstacle for the hero.
- * \return true if shallow water is currently an obstacle for the hero
+ * \copydoc Entity::is_traversable_obstacle
+ */
+bool Hero::is_traversable_obstacle() const {
+  return get_state()->is_traversable_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_wall_obstacle
+ */
+bool Hero::is_wall_obstacle() const {
+  return get_state()->is_wall_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_low_wall_obstacle
+ */
+bool Hero::is_low_wall_obstacle() const {
+  return get_state()->is_low_wall_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_grass_obstacle
+ */
+bool Hero::is_grass_obstacle() const {
+  return get_state()->is_grass_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_shallow_water_obstacle
  */
 bool Hero::is_shallow_water_obstacle() const {
   return get_state()->is_shallow_water_obstacle();
 }
 
 /**
- * \brief Returns whether deep water is currently considered as an obstacle for the hero.
- * \return true if deep water is currently an obstacle for the hero
+ * \copydoc Entity::is_deep_water_obstacle
  */
 bool Hero::is_deep_water_obstacle() const {
   return get_state()->is_deep_water_obstacle();
 }
 
 /**
- * \brief Returns whether a hole is currently considered as an obstacle for the hero.
- * \return true if the holes are currently an obstacle for the hero
+ * \copydoc Entity::is_hole_obstacle
  */
 bool Hero::is_hole_obstacle() const {
   return get_state()->is_hole_obstacle();
 }
 
 /**
- * \brief Returns whether lava is currently considered as an obstacle for the hero.
- * \return true if lava is currently an obstacle for the hero
+ * \copydoc Entity::is_ice_obstacle
+ */
+bool Hero::is_ice_obstacle() const {
+  return get_state()->is_ice_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_lava_obstacle
  */
 bool Hero::is_lava_obstacle() const {
   return get_state()->is_lava_obstacle();
 }
 
 /**
- * \brief Returns whether prickles are currently considered as an obstacle for the hero.
- * \return true if prickles are currently an obstacle for the hero
+ * \copydoc Entity::is_prickle_obstacle
  */
 bool Hero::is_prickle_obstacle() const {
   return get_state()->is_prickle_obstacle();
 }
 
 /**
- * \brief Returns whether a ladder is currently considered as an obstacle for the hero.
- * \return true if the ladders are currently an obstacle for the hero
+ * \copydoc Entity::is_ladder_obstacle
  */
 bool Hero::is_ladder_obstacle() const {
   return get_state()->is_ladder_obstacle();

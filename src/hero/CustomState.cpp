@@ -57,7 +57,8 @@ CustomState::CustomState(
   jumper_start_date(0),
   jumper_delay(200),
   previous_carried_object_behavior(CarriedObject::Behavior::THROW),
-  carried_object(nullptr) {
+  carried_object(nullptr),
+  can_traverse_grounds() {
 
 }
 
@@ -410,6 +411,149 @@ void CustomState::start_player_movement() {
       hero.get_walking_speed()
   );
   hero.set_movement(player_movement);
+}
+
+/**
+ * \brief Returns whether the entity can traverse a kind of ground in this state.
+ * \param ground A kind of ground.
+ * \return \c true if this custom entity can traverse this kind of ground.
+ */
+bool CustomState::get_can_traverse_ground(Ground ground) const {
+
+  const auto& it = can_traverse_grounds.find(ground);
+
+  if (it != can_traverse_grounds.end()) {
+    // Return the boolean value that was set.
+    return it->second;
+  }
+
+  // Return a default value.
+  switch (ground) {
+
+    case Ground::EMPTY:
+    case Ground::TRAVERSABLE:
+    case Ground::GRASS:
+    case Ground::ICE:
+    case Ground::LADDER:
+    case Ground::DEEP_WATER:
+    case Ground::SHALLOW_WATER:
+    case Ground::HOLE:
+    case Ground::PRICKLE:
+    case Ground::LAVA:
+      return true;
+
+    case Ground::WALL:
+    case Ground::LOW_WALL:
+    case Ground::WALL_TOP_RIGHT:
+    case Ground::WALL_TOP_LEFT:
+    case Ground::WALL_BOTTOM_LEFT:
+    case Ground::WALL_BOTTOM_RIGHT:
+    case Ground::WALL_TOP_RIGHT_WATER:
+    case Ground::WALL_TOP_LEFT_WATER:
+    case Ground::WALL_BOTTOM_LEFT_WATER:
+    case Ground::WALL_BOTTOM_RIGHT_WATER:
+      return false;
+  }
+
+  return false;
+}
+
+/**
+ * \brief Sets whether the entity can traverse a kind of ground in this state.
+ * \param ground A kind of ground.
+ * \param traversable \c true to make this kind of ground traversable.
+ */
+void CustomState::set_can_traverse_ground(Ground ground, bool traversable) {
+
+  can_traverse_grounds[ground] = traversable;
+}
+
+/**
+ * \copydoc Entity::State::is_traversable_obstacle
+ */
+bool CustomState::is_traversable_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::TRAVERSABLE);
+}
+
+/**
+ * \copydoc Entity::State::is_wall_obstacle
+ */
+bool CustomState::is_wall_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::WALL);
+}
+
+/**
+ * \copydoc Entity::State::is_low_wall_obstacle
+ */
+bool CustomState::is_low_wall_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::LOW_WALL);
+}
+
+/**
+ * \copydoc Entity::State::is_grass_obstacle
+ */
+bool CustomState::is_grass_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::GRASS);
+}
+
+/**
+ * \copydoc Entity::State::is_shallow_water_obstacle
+ */
+bool CustomState::is_shallow_water_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::SHALLOW_WATER);
+}
+
+/**
+ * \copydoc Entity::State::is_deep_water_obstacle
+ */
+bool CustomState::is_deep_water_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::DEEP_WATER);
+}
+
+/**
+ * \copydoc Entity::State::is_hole_obstacle
+ */
+bool CustomState::is_hole_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::HOLE);
+}
+
+/**
+ * \copydoc Entity::State::is_ice_obstacle
+ */
+bool CustomState::is_ice_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::ICE);
+}
+
+/**
+ * \copydoc Entity::State::is_lava_obstacle
+ */
+bool CustomState::is_lava_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::LAVA);
+}
+
+/**
+ * \copydoc Entity::State::is_prickle_obstacle
+ */
+bool CustomState::is_prickle_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::PRICKLE);
+}
+
+/**
+ * \copydoc Entity::State::is_ladder_obstacle
+ */
+bool CustomState::is_ladder_obstacle() const {
+
+  return !get_can_traverse_ground(Ground::LADDER);
 }
 
 /**

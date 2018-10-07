@@ -686,6 +686,50 @@ bool Entity::State::are_collisions_ignored() const {
 }
 
 /**
+ * \brief Returns whether traversable ground is considered an obstacle in this state.
+ *
+ * Returns \c false by default.
+ *
+ * \return \c true if traversable ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_traversable_obstacle() const {
+  return false;
+}
+
+/**
+ * \brief Returns whether wall ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if wall ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_wall_obstacle() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether low wall ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if low wall ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_low_wall_obstacle() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether grass ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if grass ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_grass_obstacle() const {
+  return false;
+}
+
+/**
  * \brief Returns whether shallow water is considered as an obstacle in this state.
  *
  * Returns false by default.
@@ -715,6 +759,17 @@ bool Entity::State::is_deep_water_obstacle() const {
  * \return true if the holes are considered as obstacles in this state
  */
 bool Entity::State::is_hole_obstacle() const {
+  return false;
+}
+
+/**
+ * \brief Returns whether ice ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if ice ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_ice_obstacle() const {
   return false;
 }
 

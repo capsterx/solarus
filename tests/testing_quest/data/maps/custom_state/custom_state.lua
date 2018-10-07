@@ -1,12 +1,3 @@
--- Lua script of map custom_state.
--- This script is executed every time the hero enters this map.
-
--- Feel free to modify the code below.
--- You can add more events and remove the ones you don't need.
-
--- See the Solarus Lua API documentation:
--- http://www.solarus-games.org/doc/latest
-
 local map = ...
 local game = map:get_game()
 local hero = map:get_hero()
@@ -49,14 +40,14 @@ local function test_state_methods_presence()
     "get_can_control_direction",
     "get_can_control_movement",
     "set_can_control_movement",
+    "get_can_traverse_ground",
+    "set_can_traverse_ground",
+-- TODO   "get_can_traverse",
+-- TODO   "set_can_traverse",
     "is_touching_ground",
     "set_touching_ground",
     "is_affected_by_ground",
     "set_affected_by_ground",
--- TODO    "get_can_traverse_ground",
--- TODO   "set_can_traverse_ground",
--- TODO   "get_can_traverse",
--- TODO   "set_can_traverse",
 -- TODO   "get_can_be_hurt",
 -- TODO   "set_can_be_hurt",
     "get_can_use_sword",

@@ -105,9 +105,14 @@ class Entity::State : public ExportableToLua {
 
     // obstacles and collisions
     virtual bool are_collisions_ignored() const;
+    virtual bool is_traversable_obstacle() const;
+    virtual bool is_wall_obstacle() const;
+    virtual bool is_low_wall_obstacle() const;
+    virtual bool is_grass_obstacle() const;
     virtual bool is_shallow_water_obstacle() const;
     virtual bool is_deep_water_obstacle() const;
     virtual bool is_hole_obstacle() const;
+    virtual bool is_ice_obstacle() const;
     virtual bool is_lava_obstacle() const;
     virtual bool is_prickle_obstacle() const;
     virtual bool is_ladder_obstacle() const;
