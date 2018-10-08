@@ -1010,6 +1010,26 @@ void LuaContext::state_on_finished(
 }
 
 /**
+ * \brief Calls the on_update() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ */
+void LuaContext::state_on_update(CustomState& state) {
+
+  if (!userdata_has_field(state, "on_update")) {
+    return;
+  }
+
+  run_on_main([this, &state](lua_State* l){
+    push_state(l, state);
+    on_update();
+    lua_pop(l, 1);
+  });
+}
+
+/**
  * \brief Calls the on_pre_draw() method of a Lua custom state.
  *
  * Does nothing if the method is not defined.

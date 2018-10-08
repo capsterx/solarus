@@ -286,8 +286,8 @@ local function test_start_state()
              "on_started",
              "custom", first_state)
 
--- TODO  test_event("on_update is called at least once",
---             "on_update")
+  test_event("on_update is called at least once",
+             "on_update")
 
   test_event("on_pre_draw is called at least once",
              "on_pre_draw",

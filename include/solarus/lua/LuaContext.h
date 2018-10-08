@@ -506,6 +506,7 @@ class LuaContext {
         CustomState& state,
         const std::string& next_state_name,
         CustomState* next_state);
+    void state_on_update(CustomState& state);
     void state_on_pre_draw(CustomState& state, Camera& camera);
     void state_on_post_draw(CustomState& state, Camera& camera);
 

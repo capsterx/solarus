@@ -190,6 +190,8 @@ void CustomState::update() {
   if (carried_object != nullptr) {
     carried_object->update();
   }
+
+  get_lua_context().state_on_update(*this);
 }
 
 /**
