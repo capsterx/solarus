@@ -178,6 +178,28 @@ void CustomState::set_map(Map& map) {
 }
 
 /**
+ * \copydoc Entity::State::notify_map_opening_transition_finished
+ */
+void CustomState::notify_map_started(
+    Map& map, const std::shared_ptr<Destination>& destination) {
+
+  HeroState::notify_map_started(map, destination);
+
+  get_lua_context().state_on_map_started(*this, map, destination);
+}
+
+/**
+ * \copydoc Entity::State::notify_map_opening_transition_finished
+ */
+void CustomState::notify_map_opening_transition_finished(
+    Map& map, const std::shared_ptr<Destination>& destination) {
+
+  HeroState::notify_map_opening_transition_finished(map, destination);
+
+  get_lua_context().state_on_map_opening_transition_finished(*this, map, destination);
+}
+
+/**
  * \copydoc Entity::State::update
  */
 void CustomState::update() {
@@ -281,6 +303,8 @@ void CustomState::set_suspended(bool suspended) {
   if (carried_object != nullptr) {
     carried_object->set_suspended(suspended);
   }
+
+  get_lua_context().state_on_suspended(*this, suspended);
 }
 
 /**
@@ -1187,7 +1211,7 @@ std::shared_ptr<CarriedObject> CustomState::get_carried_object() const {
  */
 void CustomState::notify_position_changed() {
 
-  Entity::State::notify_position_changed();
+  HeroState::notify_position_changed();
 
   // Stop the preparation to a jump if any.
   cancel_jumper();
@@ -1198,7 +1222,7 @@ void CustomState::notify_position_changed() {
  */
 void CustomState::notify_obstacle_reached() {
 
-  Entity::State::notify_obstacle_reached();
+  HeroState::notify_obstacle_reached();
 
   // See if we should prepare to push.
   if (get_can_push()) {
@@ -1225,6 +1249,8 @@ void CustomState::notify_obstacle_reached() {
  */
 void CustomState::notify_layer_changed() {
 
+  HeroState::notify_layer_changed();
+
   if (carried_object != nullptr) {
     carried_object->set_layer(get_entity().get_layer());
   }
@@ -1234,6 +1260,8 @@ void CustomState::notify_layer_changed() {
  * \copydoc Entity::State::notify_jumper_activated
  */
 void CustomState::notify_jumper_activated(Jumper& jumper) {
+
+  HeroState::notify_jumper_activated(jumper);
 
   if (!get_can_take_jumper()) {
     return;

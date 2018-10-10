@@ -591,9 +591,14 @@ void Entities::bring_to_back(Entity& entity) {
 }
 
 /**
- * \brief Notifies all entities of the map that the map has just become active.
+ * \brief Notifies all entities of the map that the map is started.
+ *
+ * The map script has no been executed yet at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
  */
-void Entities::notify_map_started() {
+void Entities::notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination) {
 
   // Setup non-animated tiles pre-drawing.
   for (int layer = map.get_min_layer(); layer <= map.get_max_layer(); ++layer) {
@@ -610,23 +615,61 @@ void Entities::notify_map_started() {
   // Now, tiles_in_animated_regions contains the tiles that won't be optimized.
   // Notify entities.
   for (const EntityPtr& entity: all_entities) {
-    entity->notify_map_started();
+    entity->notify_map_starting(map, destination);
     entity->notify_tileset_changed();
   }
-  hero->notify_map_started();
+  hero->notify_map_starting(map, destination);
   hero->notify_tileset_changed();
+}
+
+/**
+ * \brief Notifies all entities of the map that the map has just started.
+ *
+ * map:on_started() has been called already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entities::notify_map_started(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  for (const EntityPtr& entity: all_entities) {
+    entity->notify_map_started(map, destination);
+  }
+  hero->notify_map_started(map, destination);
+}
+
+/**
+ * \brief Notifies all entities that the opening transition
+ * of the map is finishing.
+ *
+ * map:on_opening_transition_finished() has not been called yet at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entities::notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  for (const EntityPtr& entity: all_entities) {
+    entity->notify_map_opening_transition_finishing(map, destination);
+  }
+  hero->notify_map_opening_transition_finishing(map, destination);
 }
 
 /**
  * \brief Notifies all entities that the opening transition
  * of the map is finished.
+ *
+ * map:on_opening_transition_finished() has been called already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
  */
-void Entities::notify_map_opening_transition_finished() {
+void Entities::notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) {
 
   for (const EntityPtr& entity: all_entities) {
-    entity->notify_map_opening_transition_finished();
+    entity->notify_map_opening_transition_finished(map, destination);
   }
-  hero->notify_map_opening_transition_finished();
+  hero->notify_map_opening_transition_finished(map, destination);
 }
 
 /**

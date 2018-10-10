@@ -108,7 +108,7 @@ class SOLARUS_API Map: public ExportableToLua {
     // current destination point
     void set_destination(const std::string& destination_name);
     const std::string& get_destination_name() const;
-    Destination* get_destination();
+    std::shared_ptr<Destination> get_destination();
     int get_destination_side() const;
 
     // collisions with obstacles (checked before a move)

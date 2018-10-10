@@ -536,15 +536,24 @@ void Hero::notify_creating() {
 }
 
 /**
- * \copydoc Entity::notify_map_started
+ * \copydoc Entity::notify_map_starting
  */
-void Hero::notify_map_started() {
+void Hero::notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination) {
 
-  Entity::notify_map_started();
-  get_hero_sprites().notify_map_started();
+  Entity::notify_map_starting(map, destination);
+  get_hero_sprites().notify_map_starting();
 
   // At this point the map is known and loaded. Notify the state.
   get_state()->set_map(get_map());
+}
+
+/**
+ * \copydoc Entity::notify_map_started
+ */
+void Hero::notify_map_started(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_started(map, destination);
+  get_state()->notify_map_started(map, destination);
 }
 
 /**
@@ -677,7 +686,7 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
 
       // Normal case: the location is specified by a destination point object.
 
-      Destination* destination = map.get_destination();
+      const std::shared_ptr<Destination> destination = map.get_destination();
 
       if (destination == nullptr) {
         // This is embarrassing: there is no valid destination that we can use.
@@ -732,13 +741,11 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
 }
 
 /**
- * \brief This function is called when the opening transition of the map is finished.
- *
- * The position of the hero is changed if necessary.
+ * \copydoc Entity::notify_map_opening_transition_finishing
  */
-void Hero::notify_map_opening_transition_finished() {
+void Hero::notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) {
 
-  Entity::notify_map_opening_transition_finished();
+  Entity::notify_map_opening_transition_finishing(map, destination);
 
   int side = get_map().get_destination_side();
   if (side != -1) {
@@ -771,6 +778,15 @@ void Hero::notify_map_opening_transition_finished() {
   if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
     start_state_from_ground();
   }
+}
+
+/**
+ * \copydoc Entity::notify_map_opening_transition_finished
+ */
+void Hero::notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_opening_transition_finished(map, destination);
+  get_state()->notify_map_opening_transition_finished(map, destination);
 }
 
 /**

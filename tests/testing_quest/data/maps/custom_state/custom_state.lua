@@ -162,24 +162,38 @@ local function test_state_methods(cont)
            function() return state:is_started() end,
            true)
 
-      --test the given setter with several values
-      local function test_setter(name,set,get,...)
+      -- test the given setter with several values
+      local function test_setter(name_and_params, set, get, ...)
+        local name
+        local params
+
+        if type(name_and_params) == "string" then
+          name = name_and_params
+          params = { state }
+        else
+          name = name_and_params[1]
+          table.remove(name_and_params, 1)
+          params = { state, unpack(name_and_params) }
+        end
+
         local vals = {...}
-        for _,v in ipairs(vals) do
+        for _, v in ipairs(vals) do
+          params[#params + 1] = v
           test("setting '" .. name .. "' to " .. format_value(v),
-               function() state[set .. name](state,v) end)
+               function() state[set .. name](unpack(params)) end)
+          params[#params] = nil
           test("getting '" .. name .. "', should be " .. format_value(v),
-               function() return state[get .. name](state) end,
+               function() return state[get .. name](unpack(params)) end,
                v)
         end
       end
 
       local function test_setis(name,...)
-        test_setter(name,"set_","is_",...)
+        test_setter(name, "set_", "is_", ...)
       end
 
       local function test_setget(name,...)
-        test_setter(name,"set_","get_",...)
+        test_setter(name, "set_", "get_", ...)
       end
 
       --test all getter setter without callbacks
@@ -189,8 +203,7 @@ local function test_state_methods(cont)
       test_setget("can_control_movement", true, false)
       test_setis("touching_ground", true, false)
       for _, ground in ipairs({"deep_water", "lava", "hole", "ice", "prickles"}) do
-        test_setis("affected_by_ground", ground, true)
-        test_setis("affected_by_ground", ground, false)
+        test_setis({"affected_by_ground", ground}, true, false)
       end
       test_setget("can_be_hurt", true, false)
       test_setget("can_use_sword", true, false)
@@ -271,6 +284,7 @@ local function test_start_state()
   hero:start_state(first_state)
 
   early_test_state = sol.state.create("early")
+  early_test_state:set_touching_ground(false)  -- To avoid free state being started by default.
   local first_test_event = make_test_event_utility(first_state)
 
   first_test_event("on_finished is called when a new state is launched",
@@ -297,8 +311,8 @@ local function test_start_state()
              "on_post_draw",
              camera)
 
--- TODO  test_event("on_opening_transition is called when state is launched in on created",
---             "on_map_opening_transition_finished")
+  test_event("on_map_opening_transition_finished is called when state is launched in on created",
+             "on_map_opening_transition_finished")
 
   hero:start_state(early_test_state)
   --Verify events have been called for the very first state
@@ -310,14 +324,14 @@ local function test_pause_events(cont)
   local pause_state = sol.state.create("pause")
   hero:start_state(pause_state)
   local test_event = make_test_event_utility(pause_state)
--- TODO  test_event("on_suspended is called when game is suspended",
---             "on_suspended",
---             true)
+  test_event("on_suspended is called when game is suspended",
+             "on_suspended",
+             true)
   later(function()
       pause_state:collect_events()
--- TODO      test_event("on_suspended is called with false when game is resumed",
---                 "on_suspended",
---                 false)
+      test_event("on_suspended is called with false when game is resumed",
+                 "on_suspended",
+                 false)
       later(function()
           pause_state:collect_events()
           cont()
@@ -327,7 +341,7 @@ local function test_pause_events(cont)
   map:get_game():set_suspended(true)
 end
 
---test events related to movement and call continuation cont
+-- test events related to movement and call continuation cont
 local function test_move_events(cont)
   local move_state = sol.state.create("move")
   hero:start_state(move_state)
@@ -338,8 +352,8 @@ local function test_move_events(cont)
   hero:set_layer(1)
 -- TODO  test_event("on_position_changed is called when position is modified",
 --             "on_position_changed")
--- TODO  test_event("on_ground_changed is called when ground has changed",
---             "on_ground_changed")
+-- TODO  test_event("on_ground_below_changed is called when ground has changed",
+--             "on_ground_below_changed")
   hero:set_position(table_marker:get_position())
 
   --check previous events have been called
@@ -363,7 +377,7 @@ local function test_move_events(cont)
     later(function()
 -- TODO        test_event("on_movement_finished is called when the player stops",
 --                   "on_movement_finished")
---        game:simulate_command_released("down")
+        game:simulate_command_released("down")
         move_state:collect_events()
         cont()
     end)
@@ -414,8 +428,9 @@ local function test_key_events(cont)
   end)
 end
 
-local function test_map_change(cont)
+local function test_map_change()
   local map_state = sol.state.create("map")
+  map_state:set_touching_ground(false)
   hero:start_state(map_state)
   local test_event = make_test_event_utility(map_state)
 -- TODO test_event("on_map_finished is called when map is leaved",
@@ -426,6 +441,8 @@ local function test_map_change(cont)
 -- TODO test_event("on_map_started is called when new map starts",
 --             "on_map_started")
   hero:teleport("custom_state/end_map")
+
+  -- The rest is in map:on_opening_transition_finished of the new map.
 end
 
 -- Event called at initialization time, as soon as this map is loaded.
@@ -443,17 +460,15 @@ local function test_chain(test,...)
   local other_tests = {...}
   if test then
     test(function()
-        test_chain(unpack(other_tests))
+      test_chain(unpack(other_tests))
     end)
   end
 end
 
--- Event called after the opening transition effect of the map,
--- that is, when the player takes control of the hero.
 function map:on_opening_transition_finished()
 
   later(function()
-      --Test if all events have been called
+      -- Test if all events have been called.
       early_test_state:collect_events()
       test_chain(
         test_state_methods,
@@ -463,6 +478,5 @@ function map:on_opening_transition_finished()
         test_move_events,
         test_map_change
       )
-      sol.main.exit()
   end)
 end

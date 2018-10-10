@@ -177,7 +177,7 @@ class LuaContext {
         const ScopedLuaRef& status_ref
     );
     void run_item(EquipmentItem& item);
-    void run_map(Map& map, Destination* destination);
+    void run_map(Map& map, const std::shared_ptr<Destination>& destination);
     void run_enemy(Enemy& enemy);
     void run_custom_entity(CustomEntity& custom_entity);
 
@@ -423,13 +423,13 @@ class LuaContext {
     bool game_on_command_released(Game& game, GameCommand command);
 
     // Map events.
-    void map_on_started(Map& map, Destination* destination);
+    void map_on_started(Map& map, const std::shared_ptr<Destination>& destination);
     void map_on_finished(Map& map);
     void map_on_update(Map& map);
     void map_on_draw(Map& map, const SurfacePtr& dst_surface);
     void map_on_suspended(Map& map, bool suspended);
     void map_on_opening_transition_finished(Map& map,
-        Destination* destination);
+        const std::shared_ptr<Destination>& destination);
     void map_on_obtaining_treasure(Map& map, const Treasure& treasure);
     void map_on_obtained_treasure(Map& map, const Treasure& treasure);
     bool map_on_input(Map& map, const InputEvent& event);
@@ -507,8 +507,22 @@ class LuaContext {
         const std::string& next_state_name,
         CustomState* next_state);
     void state_on_update(CustomState& state);
+    void state_on_suspended(CustomState& state, bool suspended);
     void state_on_pre_draw(CustomState& state, Camera& camera);
     void state_on_post_draw(CustomState& state, Camera& camera);
+    void state_on_map_started(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
+    void state_on_map_opening_transition_finished(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
+    void state_on_map_finished(CustomState& state);
+    void state_on_map_changed(CustomState& state, Map& map);
+    void state_on_position_changed(CustomState& state, const Point& xy, int layer);
+    void state_on_obstacle_reached(CustomState& state, Movement& movement);
+    void state_on_movement_started(CustomState& state, Movement& movement);
+    void state_on_movement_changed(CustomState& state, Movement& movement);
+    void state_on_movement_finished(CustomState& state);
+    void state_on_ground_below_changed(CustomState& state, Ground ground_below);
+    bool state_on_input(CustomState& state, const InputEvent& event);
+    bool state_on_command_pressed(CustomState& state, GameCommand command);
+    bool state_on_command_released(CustomState& state, GameCommand command);
 
     // Implementation of the API.
 
@@ -1472,8 +1486,8 @@ private:
     void on_position_changed(const Point& xy);
     void on_obstacle_reached();
     void on_changed();
-    void on_started(Destination* destination);
-    void on_opening_transition_finished(Destination* destination);
+    void on_started(const std::shared_ptr<Destination>& destination);
+    void on_opening_transition_finished(const std::shared_ptr<Destination>& destination);
     void on_obtaining_treasure(const Treasure& treasure);
     void on_obtained_treasure(const Treasure& treasure);
     void on_state_changing(const std::string& state_name, const std::string& next_state_name);
@@ -1537,6 +1551,10 @@ private:
     void on_immobilized();
     bool on_attacking_hero(Hero& hero, Sprite* attacker_sprite);
     void on_ground_below_changed(Ground ground_below);
+    void on_map_started(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    void on_map_opening_transition_finished(
+        Map& map, const std::shared_ptr<Destination>& destination);
 
     // Functions exported to Lua for internal needs.
     static FunctionExportedToLua

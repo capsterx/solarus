@@ -94,10 +94,12 @@ class Hero: public Entity {
      * Functions called when the player goes to another map.
      */
     void notify_creating() override;
-    void notify_map_started() override;
+    void notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination) override;
     void notify_tileset_changed() override;
     void place_on_destination(Map& map, const Rectangle& previous_map_location);
-    void notify_map_opening_transition_finished() override;
+    void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) override;
 
     /**
      * \name Position.

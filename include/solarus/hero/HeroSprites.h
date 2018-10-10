@@ -53,7 +53,7 @@ class HeroSprites {
     void draw_on_map();
     void set_suspended(bool suspended);
     void rebuild_equipment();
-    void notify_map_started();
+    void notify_map_starting();
     void notify_tileset_changed();
 
     const std::string& get_tunic_sprite_id() const;

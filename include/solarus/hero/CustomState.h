@@ -43,6 +43,10 @@ class CustomState: public HeroState {
     void stop(const State* next_state) override;
 
     void set_map(Map& map) override;
+    void notify_map_started(
+        Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_opening_transition_finished(
+        Map& map, const std::shared_ptr<Destination>& destination) override;
     void update() override;
     void set_suspended(bool suspended) override;
     void draw_on_map() override;

@@ -463,6 +463,30 @@ void Entity::State::set_map(Map& map) {
 }
 
 /**
+ * \brief Notifies this state that the map of its entity was just started.
+ *
+ * The map script has been executed already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::State::notify_map_started(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
+ * \brief Notifies this state that the opening transition of the map is finished.
+ * \param map The map.
+ *
+ * map:on_opening_transition_finished() has been executed already at this point.
+ *
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::State::notify_map_opening_transition_finished(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
  * \brief Returns whether the game over sequence can start in the current state.
  * \return true if the game over sequence can start in the current state
  */

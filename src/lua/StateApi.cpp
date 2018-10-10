@@ -1030,6 +1030,26 @@ void LuaContext::state_on_update(CustomState& state) {
 }
 
 /**
+ * \brief Calls the on_suspended() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param suspended \c true if the state is suspended.
+ */
+void LuaContext::state_on_suspended(CustomState& state, bool suspended) {
+
+  if (!userdata_has_field(state, "on_suspended")) {
+    return;
+  }
+  run_on_main([this, &state, suspended](lua_State* l){
+    push_state(l, state);
+    on_suspended(suspended);
+    lua_pop(l, 1);
+  });
+}
+
+/**
  * \brief Calls the on_pre_draw() method of a Lua custom state.
  *
  * Does nothing if the method is not defined.
@@ -1065,6 +1085,50 @@ void LuaContext::state_on_post_draw(CustomState& state, Camera& camera) {
   run_on_main([this, &state, &camera](lua_State* l){
     push_state(l, state);
     on_post_draw(camera);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_map_started() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void LuaContext::state_on_map_started(
+    CustomState& state, Map& map, const std::shared_ptr<Destination>& destination) {
+
+  if (!userdata_has_field(state, "on_map_started")) {
+    return;
+  }
+  run_on_main([this, &state, &map, &destination](lua_State* l){
+    push_state(l, state);
+    on_map_started(map, destination);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_map_opening_transition_finished() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void LuaContext::state_on_map_opening_transition_finished(
+    CustomState& state, Map& map, const std::shared_ptr<Destination>& destination) {
+
+  if (!userdata_has_field(state, "on_map_opening_transition_finished")) {
+    return;
+  }
+  run_on_main([this, &state, &map, &destination](lua_State* l){
+    push_state(l, state);
+    on_map_opening_transition_finished(map, destination);
     lua_pop(l, 1);
   });
 }

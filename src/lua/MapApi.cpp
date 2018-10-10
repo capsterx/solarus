@@ -2358,9 +2358,9 @@ int LuaContext::map_api_create_entity(lua_State* l) {
  * Does nothing if the method is not defined.
  *
  * \param map A map.
- * \param destination The destination point used (nullptr if it's a special one).
+ * \param destination The destination point used (nullptr if it is a special one).
  */
-void LuaContext::map_on_started(Map& map, Destination* destination) {
+void LuaContext::map_on_started(Map& map, const std::shared_ptr<Destination>& destination) {
 
   if (!userdata_has_field(map, "on_started")) {
     return;
@@ -2525,7 +2525,7 @@ void LuaContext::map_on_suspended(Map& map, bool suspended) {
  * \param destination The destination point used (nullptr if it is a special one).
  */
 void LuaContext::map_on_opening_transition_finished(Map& map,
-    Destination* destination) {
+    const std::shared_ptr<Destination>& destination) {
 
   if (!userdata_has_field(map, "on_opening_transition_finished")) {
     //return;

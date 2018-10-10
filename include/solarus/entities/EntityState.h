@@ -74,6 +74,10 @@ class Entity::State : public ExportableToLua {
 
     // game
     virtual void set_map(Map& map);
+    virtual void notify_map_started(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finished(
+        Map& map, const std::shared_ptr<Destination>& destination);
     virtual bool can_start_gameover_sequence() const;
 
     // sprites
