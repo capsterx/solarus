@@ -557,6 +557,64 @@ void Hero::notify_map_started(Map& map, const std::shared_ptr<Destination>& dest
 }
 
 /**
+ * \copydoc Entity::notify_map_opening_transition_finishing
+ */
+void Hero::notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_opening_transition_finishing(map, destination);
+
+  int side = get_map().get_destination_side();
+  if (side != -1) {
+    // the hero was placed on the side of the map:
+    // there was a scrolling between the previous map and this one
+
+    switch (side) {
+
+    case 0: // right side
+      set_x(get_map().get_width() - 8);
+      break;
+
+    case 1: // top side
+      set_y(13);
+      break;
+
+    case 2: // left side
+      set_x(8);
+      break;
+
+    case 3: // bottom side
+      set_y(get_map().get_height() - 3);
+      break;
+
+    default:
+      Debug::die("Invalid destination side");
+    }
+  }
+  check_position();
+  if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
+    start_state_from_ground();
+  }
+}
+
+/**
+ * \copydoc Entity::notify_map_opening_transition_finished
+ */
+void Hero::notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_opening_transition_finished(map, destination);
+  get_state()->notify_map_opening_transition_finished(map, destination);
+}
+
+/**
+ * \copydoc Entity::notify_map_finished
+ */
+void Hero::notify_map_finished() {
+
+  Entity::notify_map_finished();
+  get_state()->notify_map_finished();
+}
+
+/**
  * \copydoc Entity::notify_tileset_changed
  */
 void Hero::notify_tileset_changed() {
@@ -738,55 +796,6 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
       }
     }
   }
-}
-
-/**
- * \copydoc Entity::notify_map_opening_transition_finishing
- */
-void Hero::notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) {
-
-  Entity::notify_map_opening_transition_finishing(map, destination);
-
-  int side = get_map().get_destination_side();
-  if (side != -1) {
-    // the hero was placed on the side of the map:
-    // there was a scrolling between the previous map and this one
-
-    switch (side) {
-
-    case 0: // right side
-      set_x(get_map().get_width() - 8);
-      break;
-
-    case 1: // top side
-      set_y(13);
-      break;
-
-    case 2: // left side
-      set_x(8);
-      break;
-
-    case 3: // bottom side
-      set_y(get_map().get_height() - 3);
-      break;
-
-    default:
-      Debug::die("Invalid destination side");
-    }
-  }
-  check_position();
-  if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
-    start_state_from_ground();
-  }
-}
-
-/**
- * \copydoc Entity::notify_map_opening_transition_finished
- */
-void Hero::notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) {
-
-  Entity::notify_map_opening_transition_finished(map, destination);
-  get_state()->notify_map_opening_transition_finished(map, destination);
 }
 
 /**

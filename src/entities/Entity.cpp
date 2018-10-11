@@ -432,6 +432,12 @@ void Entity::notify_map_opening_transition_finished(
 }
 
 /**
+ * \brief Notifies this entity that the map is being stopped.
+ */
+void Entity::notify_map_finished() {
+}
+
+/**
  * \brief Notifies this entity that the tileset of the map has just changed.
  *
  * This is useful for tileset-dependent sprites such as doors and blocks.

@@ -1555,6 +1555,7 @@ private:
         Map& map, const std::shared_ptr<Destination>& destination);
     void on_map_opening_transition_finished(
         Map& map, const std::shared_ptr<Destination>& destination);
+    void on_map_finished();
 
     // Functions exported to Lua for internal needs.
     static FunctionExportedToLua

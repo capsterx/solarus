@@ -129,6 +129,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination);
     virtual void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination);
     virtual void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_finished();
     virtual void notify_tileset_changed();
     Game& get_game();
     const Game& get_game() const;

@@ -695,8 +695,10 @@ void Entities::notify_tileset_changed() {
 void Entities::notify_map_finished() {
 
   for (const EntityPtr& entity: all_entities) {
+    entity->notify_map_finished();
     notify_entity_removed(*entity);
   }
+  hero->notify_map_finished();
 }
 
 /**

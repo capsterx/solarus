@@ -487,6 +487,12 @@ void Entity::State::notify_map_opening_transition_finished(
 }
 
 /**
+ * \brief Notifies this state that the map is being stopped.
+ */
+void Entity::State::notify_map_finished() {
+}
+
+/**
  * \brief Returns whether the game over sequence can start in the current state.
  * \return true if the game over sequence can start in the current state
  */

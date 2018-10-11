@@ -433,9 +433,8 @@ local function test_map_change()
   map_state:set_touching_ground(false)
   hero:start_state(map_state)
   local test_event = make_test_event_utility(map_state)
--- TODO test_event("on_map_finished is called when map is leaved",
---             "on_map_finished",
---             map)
+  test_event("on_map_finished is called when map is leaved",
+             "on_map_finished")
 -- TODO test_event("on_map_changed is called when changing map",
 --             "on_map_changed")
 -- TODO test_event("on_map_started is called when new map starts",

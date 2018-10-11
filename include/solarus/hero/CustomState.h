@@ -47,6 +47,7 @@ class CustomState: public HeroState {
         Map& map, const std::shared_ptr<Destination>& destination) override;
     void notify_map_opening_transition_finished(
         Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_finished() override;
     void update() override;
     void set_suspended(bool suspended) override;
     void draw_on_map() override;

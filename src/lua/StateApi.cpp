@@ -1133,4 +1133,23 @@ void LuaContext::state_on_map_opening_transition_finished(
   });
 }
 
+/**
+ * \brief Calls the on_map_finished() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ */
+void LuaContext::state_on_map_finished(CustomState& state) {
+
+  if (!userdata_has_field(state, "on_map_finished")) {
+    return;
+  }
+  run_on_main([this, &state](lua_State* l){
+    push_state(l, state);
+    on_map_finished();
+    lua_pop(l, 1);
+  });
+}
+
 }

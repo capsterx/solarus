@@ -3178,6 +3178,17 @@ void LuaContext::on_map_opening_transition_finished(
 }
 
 /**
+ * \brief Calls the on_map_finished() method of the object on top of the stack.
+ */
+void LuaContext::on_map_finished() {
+
+  check_callback_thread();
+  if (find_method("on_map_finished")) {
+    call_function(1, 0, "on_map_finished");
+  }
+}
+
+/**
  * \brief Function called when an unprotected Lua error occurs.
  * \param l The Lua context.
  * \return Number of values to return to Lua.

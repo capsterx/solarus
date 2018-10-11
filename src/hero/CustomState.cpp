@@ -200,6 +200,16 @@ void CustomState::notify_map_opening_transition_finished(
 }
 
 /**
+ * \copydoc Entity::State::notify_map_opening_transition_finished
+ */
+void CustomState::notify_map_finished() {
+
+  HeroState::notify_map_finished();
+
+  get_lua_context().state_on_map_finished(*this);
+}
+
+/**
  * \copydoc Entity::State::update
  */
 void CustomState::update() {
