@@ -1225,6 +1225,9 @@ void CustomState::notify_position_changed() {
 
   // Stop the preparation to a jump if any.
   cancel_jumper();
+
+  get_lua_context().state_on_position_changed(
+        *this, get_entity().get_xy(), get_entity().get_layer());
 }
 
 /**

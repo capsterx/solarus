@@ -1022,7 +1022,7 @@ void LuaContext::state_on_update(CustomState& state) {
     return;
   }
 
-  run_on_main([this, &state](lua_State* l){
+  run_on_main([this, &state](lua_State* l) {
     push_state(l, state);
     on_update();
     lua_pop(l, 1);
@@ -1042,7 +1042,7 @@ void LuaContext::state_on_suspended(CustomState& state, bool suspended) {
   if (!userdata_has_field(state, "on_suspended")) {
     return;
   }
-  run_on_main([this, &state, suspended](lua_State* l){
+  run_on_main([this, &state, suspended](lua_State* l) {
     push_state(l, state);
     on_suspended(suspended);
     lua_pop(l, 1);
@@ -1062,7 +1062,7 @@ void LuaContext::state_on_pre_draw(CustomState& state, Camera& camera) {
   if (!userdata_has_field(state, "on_pre_draw")) {
     return;
   }
-  run_on_main([this, &state, &camera](lua_State* l){
+  run_on_main([this, &state, &camera](lua_State* l) {
     push_state(l, state);
     on_pre_draw(camera);
     lua_pop(l, 1);
@@ -1082,7 +1082,7 @@ void LuaContext::state_on_post_draw(CustomState& state, Camera& camera) {
   if (!userdata_has_field(state, "on_post_draw")) {
     return;
   }
-  run_on_main([this, &state, &camera](lua_State* l){
+  run_on_main([this, &state, &camera](lua_State* l) {
     push_state(l, state);
     on_post_draw(camera);
     lua_pop(l, 1);
@@ -1104,7 +1104,7 @@ void LuaContext::state_on_map_started(
   if (!userdata_has_field(state, "on_map_started")) {
     return;
   }
-  run_on_main([this, &state, &map, &destination](lua_State* l){
+  run_on_main([this, &state, &map, &destination](lua_State* l) {
     push_state(l, state);
     on_map_started(map, destination);
     lua_pop(l, 1);
@@ -1126,7 +1126,7 @@ void LuaContext::state_on_map_opening_transition_finished(
   if (!userdata_has_field(state, "on_map_opening_transition_finished")) {
     return;
   }
-  run_on_main([this, &state, &map, &destination](lua_State* l){
+  run_on_main([this, &state, &map, &destination](lua_State* l) {
     push_state(l, state);
     on_map_opening_transition_finished(map, destination);
     lua_pop(l, 1);
@@ -1145,9 +1145,30 @@ void LuaContext::state_on_map_finished(CustomState& state) {
   if (!userdata_has_field(state, "on_map_finished")) {
     return;
   }
-  run_on_main([this, &state](lua_State* l){
+  run_on_main([this, &state](lua_State* l) {
     push_state(l, state);
     on_map_finished();
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_map_finished() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param xy The new coordinates.
+ * \param layer The new layer.
+ */
+void LuaContext::state_on_position_changed(CustomState& state, const Point& xy, int layer) {
+
+  if (!userdata_has_field(state, "on_position_changed")) {
+    return;
+  }
+  run_on_main([this, &state, xy, layer](lua_State* l) {
+    push_state(l, state);
+    on_position_changed(xy, layer);
     lua_pop(l, 1);
   });
 }

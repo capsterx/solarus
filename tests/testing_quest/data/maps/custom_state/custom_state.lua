@@ -347,11 +347,11 @@ local function test_move_events(cont)
   hero:start_state(move_state)
   local test_event = make_test_event_utility(move_state)
   local old_pos = {hero:get_position()}
--- TODO  test_event("on_position_changed is called when layer change",
---             "on_position_changed")
+  test_event("on_position_changed is called when layer change",
+             "on_position_changed")
   hero:set_layer(1)
--- TODO  test_event("on_position_changed is called when position is modified",
---             "on_position_changed")
+  test_event("on_position_changed is called when position is modified",
+             "on_position_changed")
 -- TODO  test_event("on_ground_below_changed is called when ground has changed",
 --             "on_ground_below_changed")
   hero:set_position(table_marker:get_position())

@@ -513,7 +513,6 @@ class LuaContext {
     void state_on_map_started(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
     void state_on_map_opening_transition_finished(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
     void state_on_map_finished(CustomState& state);
-    void state_on_map_changed(CustomState& state, Map& map);
     void state_on_position_changed(CustomState& state, const Point& xy, int layer);
     void state_on_obstacle_reached(CustomState& state, Movement& movement);
     void state_on_movement_started(CustomState& state, Movement& movement);
