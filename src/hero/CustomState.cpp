@@ -1231,6 +1231,29 @@ void CustomState::notify_position_changed() {
 }
 
 /**
+ * \copydoc Entity::State::notify_layer_changed
+ */
+void CustomState::notify_layer_changed() {
+
+  HeroState::notify_layer_changed();
+
+  if (carried_object != nullptr) {
+    carried_object->set_layer(get_entity().get_layer());
+  }
+}
+
+/**
+ * \copydoc Entity::State::notify_ground_below_changed
+ */
+void CustomState::notify_ground_below_changed() {
+
+  HeroState::notify_ground_below_changed();
+
+  get_lua_context().state_on_ground_below_changed(
+        *this, get_entity().get_ground_below());
+}
+
+/**
  * \copydoc Entity::State::notify_obstacle_reached
  */
 void CustomState::notify_obstacle_reached() {
@@ -1255,17 +1278,50 @@ void CustomState::notify_obstacle_reached() {
       }
     }
   }
+
+  const std::shared_ptr<Movement>& movement = get_entity().get_movement();
+  if (movement != nullptr) {
+    get_lua_context().state_on_obstacle_reached(*this, *movement);
+  }
 }
 
 /**
- * \copydoc Entity::State::notify_layer_changed
+ * \copydoc Entity::State::notify_movement_started
  */
-void CustomState::notify_layer_changed() {
+void CustomState::notify_movement_started() {
 
-  HeroState::notify_layer_changed();
+  HeroState::notify_movement_started();
 
-  if (carried_object != nullptr) {
-    carried_object->set_layer(get_entity().get_layer());
+  const std::shared_ptr<Movement>& movement = get_entity().get_movement();
+  if (movement != nullptr &&
+      get_entity().are_movement_notifications_enabled()) {
+    get_lua_context().state_on_movement_started(*this, *movement);
+  }
+}
+
+/**
+ * \copydoc Entity::State::notify_movement_finished
+ */
+void CustomState::notify_movement_finished() {
+
+  HeroState::notify_movement_finished();
+
+  if (get_entity().are_movement_notifications_enabled()) {
+    get_lua_context().state_on_movement_finished(*this);
+  }
+}
+
+/**
+ * \copydoc Entity::State::notify_movement_changed
+ */
+void CustomState::notify_movement_changed() {
+
+  HeroState::notify_movement_changed();
+
+  const std::shared_ptr<Movement>& movement = get_entity().get_movement();
+  if (movement != nullptr &&
+      get_entity().are_movement_notifications_enabled()) {
+    get_lua_context().state_on_movement_changed(*this, *movement);
   }
 }
 

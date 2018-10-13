@@ -108,3 +108,12 @@ sensor{
   height = 16,
 }
 
+sensor{
+  name = "before_end_sensor",
+  layer = 0,
+  x = 264,
+  y = 117,
+  width = 16,
+  height = 16,
+}
+

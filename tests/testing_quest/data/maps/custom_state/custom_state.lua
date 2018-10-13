@@ -341,7 +341,7 @@ local function test_pause_events(cont)
   map:get_game():set_suspended(true)
 end
 
--- test events related to movement and call continuation cont
+-- Test events related to movement and call continuation cont.
 local function test_move_events(cont)
   local move_state = sol.state.create("move")
   hero:start_state(move_state)
@@ -352,38 +352,46 @@ local function test_move_events(cont)
   hero:set_layer(1)
   test_event("on_position_changed is called when position is modified",
              "on_position_changed")
--- TODO  test_event("on_ground_below_changed is called when ground has changed",
---             "on_ground_below_changed")
+  test_event("on_ground_below_changed is called when ground has changed",
+             "on_ground_below_changed")
   hero:set_position(table_marker:get_position())
 
-  --check previous events have been called
+  -- Check previous events have been called.
   move_state:collect_events()
 
-
-  --setup sensors behaviour
+  -- Setup sensors behavior.
   function begin_move_sensor:on_activated()
--- TODO    test_event("on_movement_changed is called when the player press a direction",
---               "on_movement_changed")
+    test_event("on_movement_changed is called when the player press a direction",
+               "on_movement_changed")
     game:simulate_command_pressed("right")
   end
   function turn_down_sensor:on_activated()
     game:simulate_command_released("right")
     game:simulate_command_pressed("down")
 
--- TODO    test_event("on_obstacle_reached is called when the player reaches a wall",
---               "on_obstacle_reached")
+    test_event("on_obstacle_reached is called when the player reaches a wall",
+               "on_obstacle_reached")
+  end
+  function before_end_sensor:on_activated()
+    -- Start a movement that has an end.
+    game:simulate_command_released("down")
+    hero:start_state(move_state)
+    local movement = sol.movement.create("straight")
+    movement:set_angle(3 * math.pi / 2)
+    movement:set_speed(88)
+    movement:set_max_distance(32)
+    movement:start(hero)
+    test_event("on_movement_finished is called when the movement finishes",
+               "on_movement_finished")
   end
   function map_end_sensor:on_activated()
     later(function()
--- TODO        test_event("on_movement_finished is called when the player stops",
---                   "on_movement_finished")
-        game:simulate_command_released("down")
-        move_state:collect_events()
-        cont()
+      move_state:collect_events()
+      cont()
     end)
   end
 
-  --set the hero at small path beginning
+  -- Set the hero at small path beginning.
   hero:set_position(begin_move_sensor:get_position())
 end
 
@@ -435,13 +443,11 @@ local function test_map_change()
   local test_event = make_test_event_utility(map_state)
   test_event("on_map_finished is called when map is leaved",
              "on_map_finished")
--- TODO test_event("on_map_changed is called when changing map",
---             "on_map_changed")
 -- TODO test_event("on_map_started is called when new map starts",
 --             "on_map_started")
   hero:teleport("custom_state/end_map")
 
-  -- The rest is in map:on_opening_transition_finished of the new map.
+  -- The rest is in map:on_opening_transition_finished() of the new map.
 end
 
 -- Event called at initialization time, as soon as this map is loaded.

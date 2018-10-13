@@ -1103,10 +1103,27 @@ bool Hero::is_direction_locked() const {
 }
 
 /**
- * \brief This function is called when the movement of the entity is finished.
+ * \brief This function is called when the hero's position is changed.
  */
-void Hero::notify_movement_finished() {
-  get_state()->notify_movement_finished();
+void Hero::notify_position_changed() {
+
+  if (is_on_map()) {
+    get_entities().notify_entity_bounding_box_changed(*this);
+  }
+
+  check_position();
+  get_state()->notify_position_changed();
+
+  if (are_movement_notifications_enabled()) {
+    get_lua_context()->entity_on_position_changed(*this, get_xy(), get_layer());
+  }
+}
+
+/**
+ * \brief This function is called when the layer of this entity has just changed.
+ */
+void Hero::notify_layer_changed() {
+  get_state()->notify_layer_changed();
 }
 
 /**
@@ -1126,20 +1143,42 @@ void Hero::notify_obstacle_reached() {
 }
 
 /**
- * \brief This function is called when the hero's position is changed.
+ * \brief This function is called when the movement of the entity starts.
  */
-void Hero::notify_position_changed() {
+void Hero::notify_movement_started() {
 
-  if (is_on_map()) {
-    get_entities().notify_entity_bounding_box_changed(*this);
-  }
+  Entity::notify_movement_started();
+  get_state()->notify_movement_started();
+}
 
+/**
+ * \brief This function is called when the movement of the entity is finished.
+ */
+void Hero::notify_movement_finished() {
+
+  Entity::notify_movement_finished();
+  get_state()->notify_movement_finished();
+}
+
+/**
+ * \brief Updates the hero depending on its movement.
+ *
+ * This function is called when the hero's movement direction changes (for instance
+ * because the player pressed or released a directional key, or the hero just reached an obstacle).
+ * It updates the hero's animations and collisions according to the new movement.
+ */
+void Hero::notify_movement_changed() {
+
+  update_direction();
+
+  // let the state pick the animation corresponding to the movement tried by the player
+  get_state()->notify_movement_changed();
   check_position();
-  get_state()->notify_position_changed();
 
-  if (are_movement_notifications_enabled()) {
-    get_lua_context()->entity_on_position_changed(*this, get_xy(), get_layer());
+  if (get_ground_below() == Ground::ICE) {
+    update_ice();
   }
+  Entity::notify_movement_changed();
 }
 
 /**
@@ -1211,34 +1250,6 @@ void Hero::check_position() {
       }
     }
   }
-}
-
-/**
- * \brief This function is called when the layer of this entity has just changed.
- */
-void Hero::notify_layer_changed() {
-  get_state()->notify_layer_changed();
-}
-
-/**
- * \brief Updates the hero depending on its movement.
- *
- * This function is called when the hero's movement direction changes (for instance
- * because the player pressed or released a directional key, or the hero just reached an obstacle).
- * It updates the hero's animations and collisions according to the new movement.
- */
-void Hero::notify_movement_changed() {
-
-  update_direction();
-
-  // let the state pick the animation corresponding to the movement tried by the player
-  get_state()->notify_movement_changed();
-  check_position();
-
-  if (get_ground_below() == Ground::ICE) {
-    update_ice();
-  }
-  Entity::notify_movement_changed();
 }
 
 /**
@@ -1363,7 +1374,7 @@ void Hero::notify_ground_below_changed() {
   }
 
   // Notify the state.
-  get_state()->notify_ground_changed();
+  get_state()->notify_ground_below_changed();
 }
 
 /**

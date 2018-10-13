@@ -89,11 +89,12 @@ class Entity::State : public ExportableToLua {
     virtual bool get_can_control_movement() const;
     virtual int get_wanted_movement_direction8() const;
     virtual void notify_walking_speed_changed();
+    virtual void notify_position_changed();
     virtual void notify_layer_changed();
+    virtual void notify_obstacle_reached();
+    virtual void notify_movement_started();
     virtual void notify_movement_changed();
     virtual void notify_movement_finished();
-    virtual void notify_obstacle_reached();
-    virtual void notify_position_changed();
 
     // ground
     virtual bool can_avoid_deep_water() const;
@@ -106,7 +107,7 @@ class Entity::State : public ExportableToLua {
     virtual bool is_affected_by_ladder() const;
     virtual bool is_touching_ground() const;
     virtual bool can_come_from_bad_ground() const;
-    virtual void notify_ground_changed();
+    virtual void notify_ground_below_changed();
 
     // obstacles and collisions
     virtual bool are_collisions_ignored() const;

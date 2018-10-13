@@ -1153,7 +1153,7 @@ void LuaContext::state_on_map_finished(CustomState& state) {
 }
 
 /**
- * \brief Calls the on_map_finished() method of a Lua custom state.
+ * \brief Calls the on_position_changed() method of a Lua custom state.
  *
  * Does nothing if the method is not defined.
  *
@@ -1169,6 +1169,109 @@ void LuaContext::state_on_position_changed(CustomState& state, const Point& xy, 
   run_on_main([this, &state, xy, layer](lua_State* l) {
     push_state(l, state);
     on_position_changed(xy, layer);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the state_on_ground_below_changed() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param ground_below The new ground below the entity.
+ */
+void LuaContext::state_on_ground_below_changed(CustomState& state, Ground ground_below) {
+
+  if (!userdata_has_field(state, "on_ground_below_changed")) {
+    return;
+  }
+
+  run_on_main([this, &state, ground_below](lua_State* l){
+    push_state(l, state);
+    on_ground_below_changed(ground_below);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_obstacle_reached() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param movement The movement that reached an obstacle.
+ */
+void LuaContext::state_on_obstacle_reached(CustomState& state, Movement& movement) {
+
+  if (!userdata_has_field(state, "on_obstacle_reached")) {
+    return;
+  }
+  run_on_main([this, &state, &movement](lua_State* l) {
+    push_state(l, state);
+    on_obstacle_reached(movement);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_movement_started() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param movement The movement that has just started.
+ */
+void LuaContext::state_on_movement_started(CustomState& state, Movement& movement) {
+
+  if (!userdata_has_field(state, "on_movement_started")) {
+    return;
+  }
+
+  run_on_main([this, &state, &movement](lua_State* l) {
+    push_state(l, state);
+    on_movement_started(movement);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_movement_changed() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param movement The movement of the entity.
+ */
+void LuaContext::state_on_movement_changed(CustomState& state, Movement& movement) {
+
+  if (!userdata_has_field(state, "on_movement_changed")) {
+    return;
+  }
+
+  run_on_main([this, &state, &movement](lua_State* l) {
+    push_state(l, state);
+    on_movement_changed(movement);
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_movement_finished() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ */
+void LuaContext::state_on_movement_finished(CustomState& state) {
+
+  if (!userdata_has_field(state, "on_movement_finished")) {
+    return;
+  }
+
+  run_on_main([this, &state](lua_State* l) {
+    push_state(l, state);
+    on_movement_finished();
     lua_pop(l, 1);
   });
 }

@@ -216,6 +216,7 @@ void Entity::State::start(const State* /* previous_state */) {
 
   Debug::check_assertion(entity != nullptr, "No entity specified");
 
+  stopping = false;
   set_suspended(entity->is_suspended());
 
   // Notify Lua.
@@ -558,25 +559,16 @@ void Entity::State::notify_walking_speed_changed() {
 }
 
 /**
- * \brief Notifies this state that the layer has changed.
+ * \brief Notifies this state that the entity has just changed its
+ * position.
+ */
+void Entity::State::notify_position_changed() {
+}
+
+/**
+ * \brief Notifies this state that the layer of the entity has changed.
  */
 void Entity::State::notify_layer_changed() {
-}
-
-/**
- * \brief Notifies this state that the movement has changed.
- *
- * This function is called when the entity's movement direction changes (for instance
- * because the player pressed or released a directional key, or the entity just reached an obstacle).
- * The animations and collisions should be updated according to the new movement.
- */
-void Entity::State::notify_movement_changed() {
-}
-
-/**
- * \brief Notifies this state that the movement if finished.
- */
-void Entity::State::notify_movement_finished() {
 }
 
 /**
@@ -587,10 +579,25 @@ void Entity::State::notify_obstacle_reached() {
 }
 
 /**
- * \brief Notifies this state that the entity has just changed its
- * position.
+ * \brief Notifies this state that a movement has started.
  */
-void Entity::State::notify_position_changed() {
+void Entity::State::notify_movement_started() {
+}
+
+/**
+ * \brief Notifies this state that the movement is finished.
+ */
+void Entity::State::notify_movement_finished() {
+}
+
+/**
+ * \brief Notifies this state that the movement has changed.
+ *
+ * This function is called when the entity's movement direction changes (for instance
+ * because the player pressed or released a directional key, or the entity just reached an obstacle).
+ * The animations and collisions should be updated according to the new movement.
+ */
+void Entity::State::notify_movement_changed() {
 }
 
 /**
@@ -705,9 +712,9 @@ bool Entity::State::can_come_from_bad_ground() const {
 }
 
 /**
- * \brief Notifies this state that the ground was just changed.
+ * \brief Notifies this state that the ground below the entity has just changed.
  */
-void Entity::State::notify_ground_changed() {
+void Entity::State::notify_ground_below_changed() {
 }
 
 /**

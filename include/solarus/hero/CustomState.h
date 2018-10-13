@@ -149,8 +149,12 @@ class CustomState: public HeroState {
     void set_previous_carried_object_behavior(CarriedObject::Behavior behavior);
     std::shared_ptr<CarriedObject> get_carried_object() const override;
     void notify_position_changed() override;
-    void notify_obstacle_reached() override;
     void notify_layer_changed() override;
+    void notify_ground_below_changed() override;
+    void notify_obstacle_reached() override;
+    void notify_movement_started() override;
+    void notify_movement_changed() override;
+    void notify_movement_finished() override;
 
   private:
 

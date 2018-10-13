@@ -6635,7 +6635,7 @@ void LuaContext::entity_on_obstacle_reached(
   if (!userdata_has_field(entity, "on_obstacle_reached")) {
     return;
   }
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_obstacle_reached(movement);
     lua_pop(l, 1);
@@ -6648,15 +6648,16 @@ void LuaContext::entity_on_obstacle_reached(
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param movement The movement that has just started.
  */
-  void LuaContext::entity_on_movement_started(
-      Entity& entity, Movement& movement) {
+void LuaContext::entity_on_movement_started(
+    Entity& entity, Movement& movement) {
 
   if (!userdata_has_field(entity, "on_movement_started")) {
     return;
   }
 
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_movement_started(movement);
     lua_pop(l, 1);
@@ -6678,7 +6679,7 @@ void LuaContext::entity_on_movement_changed(
     return;
   }
 
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_movement_changed(movement);
     lua_pop(l, 1);
@@ -6698,7 +6699,7 @@ void LuaContext::entity_on_movement_finished(Entity& entity) {
     return;
   }
 
-  run_on_main([this,&entity](lua_State* l){
+  run_on_main([this, &entity](lua_State* l) {
     push_entity(l, entity);
     on_movement_finished();
     lua_pop(l, 1);
@@ -7475,7 +7476,7 @@ bool LuaContext::enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* attac
     return false;
   }
 
-  //TODO make this on main
+  // TODO make this on main
   check_callback_thread();
 
   push_enemy(current_l, enemy);
@@ -7499,7 +7500,7 @@ void LuaContext::custom_entity_on_ground_below_changed(
     return;
   }
 
-  run_on_main([this,&custom_entity,ground_below](lua_State* l){
+  run_on_main([this, &custom_entity, ground_below](lua_State* l) {
     push_custom_entity(l, custom_entity);
     on_ground_below_changed(ground_below);
     lua_pop(l, 1);

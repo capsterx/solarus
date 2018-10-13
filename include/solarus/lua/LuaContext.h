@@ -514,11 +514,11 @@ class LuaContext {
     void state_on_map_opening_transition_finished(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
     void state_on_map_finished(CustomState& state);
     void state_on_position_changed(CustomState& state, const Point& xy, int layer);
+    void state_on_ground_below_changed(CustomState& state, Ground ground_below);
     void state_on_obstacle_reached(CustomState& state, Movement& movement);
     void state_on_movement_started(CustomState& state, Movement& movement);
     void state_on_movement_changed(CustomState& state, Movement& movement);
     void state_on_movement_finished(CustomState& state);
-    void state_on_ground_below_changed(CustomState& state, Ground ground_below);
     bool state_on_input(CustomState& state, const InputEvent& event);
     bool state_on_command_pressed(CustomState& state, GameCommand command);
     bool state_on_command_released(CustomState& state, GameCommand command);

@@ -249,10 +249,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     void start_stream_action(std::unique_ptr<StreamAction> stream_action);
     void stop_stream_action();
 
-    virtual void notify_obstacle_reached();
     virtual void notify_position_changed();
     virtual void notify_layer_changed();
     virtual void notify_ground_below_changed();
+    virtual void notify_obstacle_reached();
     virtual void notify_movement_started();
     virtual void notify_movement_finished();
     virtual void notify_movement_changed();

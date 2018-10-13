@@ -136,9 +136,10 @@ class Hero: public Entity {
     int get_real_movement_direction8();
     bool is_moving_towards(int direction4) const;
     bool is_direction_locked() const;
-    void notify_obstacle_reached() override;
     void notify_position_changed() override;
     void notify_layer_changed() override;
+    void notify_obstacle_reached() override;
+    void notify_movement_started() override;
     void notify_movement_changed() override;
     void notify_movement_finished() override;
     void reset_movement();
