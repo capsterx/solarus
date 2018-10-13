@@ -1357,5 +1357,18 @@ void CustomState::cancel_jumper() {
   }
 }
 
+/**
+ * \copydoc Entity::State::notify_attacked_enemy
+ */
+void CustomState::notify_attacked_enemy(
+    EnemyAttack attack,
+    Enemy& victim,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
+    bool /* killed */) {
+
+  get_lua_context().state_on_attacked_enemy(*this, victim, victim_sprite, attack, result);
+}
+
 }
 

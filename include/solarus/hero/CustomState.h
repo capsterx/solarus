@@ -153,8 +153,14 @@ class CustomState: public HeroState {
     void notify_ground_below_changed() override;
     void notify_obstacle_reached() override;
     void notify_movement_started() override;
-    void notify_movement_changed() override;
     void notify_movement_finished() override;
+    void notify_movement_changed() override;
+    void notify_attacked_enemy(
+        EnemyAttack attack,
+        Enemy& victim,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
+        bool killed) override;
 
   private:
 

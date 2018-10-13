@@ -412,8 +412,8 @@ void Arrow::notify_collision_with_enemy(
 void Arrow::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& victim,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& result,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& result,
     bool killed) {
 
   if (result.type == EnemyReaction::ReactionType::PROTECTED) {

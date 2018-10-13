@@ -32,6 +32,7 @@
 #include "solarus/entities/Destination.h"
 #include "solarus/entities/Door.h"
 #include "solarus/entities/Enemy.h"
+#include "solarus/entities/EnemyAttack.h"
 #include "solarus/entities/GroundInfo.h"
 #include "solarus/entities/Npc.h"
 #include "solarus/entities/Pickable.h"
@@ -3116,6 +3117,41 @@ bool LuaContext::on_attacking_hero(Hero& hero, Sprite* attacker_sprite) {
     return true;
   }
   return false;
+}
+
+/**
+ * \brief Calls the on_attacked_enemy() method of the object on top of the stack.
+ * \param The enemy that was attacked.
+ * \param enemy_sprite Sprite that was attacked if any.
+ * \param attack How the enemy was attacked.
+ * \param reaction How the enemy reacted to the attack.
+ */
+void LuaContext::on_attacked_enemy(
+    Enemy& enemy,
+    Sprite* enemy_sprite,
+    EnemyAttack attack,
+    const EnemyReaction::Reaction& reaction
+) {
+  check_callback_thread();
+  if (find_method("on_attacked_enemy")) {
+    push_enemy(current_l, enemy);
+    if (enemy_sprite == nullptr) {
+      lua_pushnil(current_l);
+    } else {
+      push_sprite(current_l, *enemy_sprite);
+    }
+    push_string(current_l, Enemy::attack_names.find(attack)->second);
+
+    if (reaction.type == EnemyReaction::ReactionType::HURT) {
+      lua_pushinteger(current_l, reaction.life_lost);
+    } else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+      reaction.callback.push(current_l);
+    } else {
+      push_string(current_l, enum_to_name(reaction.type));
+    }
+
+    call_function(5, 0, "on_attacked_enemy");
+  }
 }
 
 /**

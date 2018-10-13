@@ -149,8 +149,8 @@ class Entity::State : public ExportableToLua {
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed);
     virtual int get_sword_damage_factor() const;
     virtual bool get_can_be_hurt(Entity* attacker) const;

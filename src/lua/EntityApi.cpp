@@ -5422,12 +5422,10 @@ int LuaContext::enemy_api_get_attack_consequence(lua_State* l) {
     if (reaction.type == EnemyReaction::ReactionType::HURT) {
       // Return the life damage.
       lua_pushinteger(l, reaction.life_lost);
-    }
-    else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+    } else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
       // Return the callback.
       reaction.callback.push(l);
-    }
-    else {
+    } else {
       // Return a string.
       push_string(l, enum_to_name(reaction.type));
     }

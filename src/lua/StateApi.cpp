@@ -1276,4 +1276,33 @@ void LuaContext::state_on_movement_finished(CustomState& state) {
   });
 }
 
+/**
+ * \brief Calls the on_attacked_enemy() method of a Lua custom state.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param state A custom state.
+ * \param The enemy that was attacked.
+ * \param enemy_sprite Sprite that was attacked if any.
+ * \param attack How the enemy was attacked.
+ * \param reaction How the enemy reacted to the attack.
+ */
+void LuaContext::state_on_attacked_enemy(
+    CustomState& state,
+    Enemy& enemy,
+    Sprite* enemy_sprite,
+    EnemyAttack attack,
+    const EnemyReaction::Reaction& reaction
+) {
+  if (!userdata_has_field(state, "on_attacked_enemy")) {
+    return;
+  }
+
+  run_on_main([this, &state, &enemy, &enemy_sprite, &attack, &reaction](lua_State* l) {
+    push_state(l, state);
+    on_attacked_enemy(enemy, enemy_sprite, attack, reaction);
+    lua_pop(l, 1);
+  });
+}
+
 }

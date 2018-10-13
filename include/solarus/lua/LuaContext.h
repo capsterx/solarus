@@ -64,6 +64,7 @@ class Door;
 class Drawable;
 class DynamicTile;
 class Enemy;
+class EnemyReaction;
 class Entity;
 class EntityData;
 class ExportableToLua;
@@ -519,6 +520,13 @@ class LuaContext {
     void state_on_movement_started(CustomState& state, Movement& movement);
     void state_on_movement_changed(CustomState& state, Movement& movement);
     void state_on_movement_finished(CustomState& state);
+    void state_on_attacked_enemy(
+        CustomState& state,
+        Enemy& enemy,
+        Sprite* enemy_sprite,
+        EnemyAttack attack,
+        const EnemyReaction::Reaction& reaction
+    );
     bool state_on_input(CustomState& state, const InputEvent& event);
     bool state_on_command_pressed(CustomState& state, GameCommand command);
     bool state_on_command_released(CustomState& state, GameCommand command);
@@ -1549,6 +1557,12 @@ private:
     void on_dead();
     void on_immobilized();
     bool on_attacking_hero(Hero& hero, Sprite* attacker_sprite);
+    void on_attacked_enemy(
+        Enemy& enemy,
+        Sprite* enemy_sprite,
+        EnemyAttack attack,
+        const EnemyReaction::Reaction& reaction
+    );
     void on_ground_below_changed(Ground ground_below);
     void on_map_started(
         Map& map, const std::shared_ptr<Destination>& destination);
