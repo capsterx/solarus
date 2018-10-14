@@ -318,6 +318,39 @@ void CustomState::set_suspended(bool suspended) {
 }
 
 /**
+ * \copydoc Entity::State::notify_input
+ */
+bool CustomState::notify_input(const InputEvent& event) {
+  return get_lua_context().state_on_input(*this, event);
+}
+
+/**
+ * \copydoc Entity::State::notify_command_pressed
+ */
+void CustomState::notify_command_pressed(GameCommand command) {
+
+  // See if the state script handles the command.
+  if (get_lua_context().state_on_command_pressed(*this, command)) {
+    return;
+  }
+
+  Entity::State::notify_command_pressed(command);
+}
+
+/**
+ * \copydoc Entity::State::notify_command_released
+ */
+void CustomState::notify_command_released(GameCommand command) {
+
+  // See if the state script handles the command.
+  if (get_lua_context().state_on_command_released(*this, command)) {
+    return;
+  }
+
+  Entity::State::notify_command_released(command);
+}
+
+/**
  * \copydoc Entity::State::draw_on_map
  */
 void CustomState::draw_on_map() {

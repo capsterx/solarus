@@ -259,7 +259,7 @@ const Equipment& Game::get_equipment() const {
 
 /**
  * \brief This function is called when a low-level input event occurs during the game.
- * \param event the event to handle
+ * \param event The event to handle.
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool Game::notify_input(const InputEvent& event) {
@@ -269,11 +269,14 @@ bool Game::notify_input(const InputEvent& event) {
     if (!handled) {
       handled = current_map->notify_input(event);
       if (!handled) {
-        // Built-in behavior:
-        // the GameCommands object will transform the low-level input event into
-        // a high-level game command event (i.e. a command_pressed event or
-        // a command_released event).
-        commands->notify_input(event);
+        handled = hero->notify_input(event);
+        if (!handled) {
+          // Built-in behavior:
+          // the GameCommands object will transform the low-level input event into
+          // a high-level game command event (i.e. a command_pressed event or
+          // a command_released event).
+          commands->notify_input(event);
+        }
       }
     }
   }

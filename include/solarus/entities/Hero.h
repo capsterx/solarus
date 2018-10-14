@@ -34,6 +34,7 @@ class EquipmentItem;
 class EquipmentItemUsage;
 class HeroSprites;
 class HeroState;
+class InputEvent;
 class Map;
 class Treasure;
 
@@ -70,6 +71,7 @@ class Hero: public Entity {
     void update() override;
     void built_in_draw(Camera& camera) override;
     void set_suspended(bool suspended) override;
+    bool notify_input(const InputEvent& event);
     void notify_command_pressed(GameCommand command) override;
     void notify_command_released(GameCommand command) override;
 

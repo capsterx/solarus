@@ -399,14 +399,14 @@ local function test_command_events(cont)
   local command_state = sol.state.create("commands")
   hero:start_state(command_state)
   local test_event = make_test_event_utility(command_state)
--- TODO  test_event("on_command_pressed receive commands",
---             "on_command_pressed",
---             "right")
+  test_event("on_command_pressed receive commands",
+             "on_command_pressed",
+             "right")
   game:simulate_command_pressed("right")
   later(function()
---      test_event("on_command_released receive commands",
---                 "on_command_released",
---                 "right")
+      test_event("on_command_released receive commands",
+                 "on_command_released",
+                 "right")
       game:simulate_command_released("right")
       later(function()
           command_state:collect_events()
@@ -420,14 +420,14 @@ local function test_key_events(cont)
   hero:start_state(key_state)
   local test_event = make_test_event_utility(key_state)
   local key = "a"
--- TODO  test_event("on_key_pressed receive keys",
---             "on_key_pressed",
---             key)
+  test_event("on_key_pressed receive keys",
+             "on_key_pressed",
+             key)
   sol.input.simulate_key_pressed(key)
   later(function()
--- TODO      test_event("on_key_released receive keys",
---                 "on_key_released",
---                 key)
+      test_event("on_key_released receive keys",
+                 "on_key_released",
+                 key)
       sol.input.simulate_key_released(key)
       later(function()
           key_state:collect_events()

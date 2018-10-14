@@ -434,6 +434,17 @@ void Hero::built_in_draw(Camera& /* camera */) {
 }
 
 /**
+ * \brief This function is called when a low-level input event occurs.
+ * \param event The event to handle.
+ * \return \c true if the event was handled.
+ * If \c false, notify_command_pressed/released() can then still be called
+ * if they apply.
+ */
+bool Hero::notify_input(const InputEvent& event) {
+  return get_state()->notify_input(event);
+}
+
+/**
  * \brief This function is called when a game command is pressed
  * and the game is not suspended.
  * \param command The command pressed.

@@ -1305,4 +1305,74 @@ void LuaContext::state_on_attacked_enemy(
   });
 }
 
+/**
+ * \brief Notifies a Lua custom state that an input event has just occurred.
+ *
+ * The appropriate callback in the state is triggered if it exists.
+ * Also notifies the menus of the state if the state itself does not handle the
+ * event.
+ *
+ * \param event The input event to handle.
+ * \param state A custom state.
+ * \return \c true if the event was handled and should stop being propagated.
+ */
+bool LuaContext::state_on_input(CustomState& state, const InputEvent& event) {
+
+  push_state(current_l, state);
+  bool handled = on_input(event);
+  if (!handled) {
+    handled = menus_on_input(-1, event);
+  }
+  lua_pop(current_l, 1);
+  return handled;
+}
+
+/**
+ * \brief Calls the on_command_pressed() method of a Lua custom state.
+ *
+ * Also notifies the menus of the state if the state itself does not handle the
+ * event.
+ *
+ * \param state A state.
+ * \param command The command pressed.
+ * \return \c true if the event was handled and should stop being propagated.
+ */
+bool LuaContext::state_on_command_pressed(CustomState& state, GameCommand command) {
+
+  bool handled = false;
+  push_state(current_l, state);
+  if (userdata_has_field(state, "on_command_pressed")) {
+    handled = on_command_pressed(command);
+  }
+  if (!handled) {
+    handled = menus_on_command_pressed(-1, command);
+  }
+  lua_pop(current_l, 1);
+  return handled;
+}
+
+/**
+ * \brief Calls the on_command_released() method of a Lua custom state.
+ *
+ * Also notifies the menus of the state if the state itself does not handle the
+ * event.
+ *
+ * \param state A state.
+ * \param command The command released.
+ * \return \c true if the event was handled and should stop being propagated.
+ */
+bool LuaContext::state_on_command_released(CustomState& state, GameCommand command) {
+
+  bool handled = false;
+  push_state(current_l, state);
+  if (userdata_has_field(state, "on_command_released")) {
+    handled = on_command_released(command);
+  }
+  if (!handled) {
+    handled = menus_on_command_released(-1, command);
+  }
+  lua_pop(current_l, 1);
+  return handled;
+}
+
 }

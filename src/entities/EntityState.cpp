@@ -305,6 +305,16 @@ uint32_t Entity::State::get_when_suspended() const {
 }
 
 /**
+ * \brief This function is called when a low-level input event occurs during this state.
+ * \param event The event to handle.
+ * If \c false, notify_command_pressed/released() can then still be called
+ * if they apply.
+ */
+bool Entity::State::notify_input(const InputEvent& /* event */) {
+  return false;
+}
+
+/**
  * \brief This function is called when a game command is pressed and the game
  * is not suspended.
  * \param command The command pressed.
