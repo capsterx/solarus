@@ -34,6 +34,7 @@ local interpreter = {
     local engine_cmd = "solarus-run" --TODO take windows (and mac) into account
     local cmd = string.format("%s %s",engine_cmd,projdir)
     if rundebug then
+      ide:GetDebugger():SetOptions({runstart = true})
       --adapt command to run debug connection
       local code = string.format(
 [[local path=package.path;package.path='%s;%s;'..path;local mdb=require('mobdebug');require('solarus_pretty_printer');package.path=path;mdb.coro();mdb.start()]],
@@ -43,7 +44,8 @@ local interpreter = {
     end
     CommandLineRun(cmd,projdir,true,false)
   end,
-  hasdebugger = true
+  hasdebugger = true,
+  takeparameters = true
 }
 
 return {
