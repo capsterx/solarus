@@ -1,0 +1,156 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 80,
+  width = 320,
+  height = 48,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 64,
+  width = 320,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 64,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 128,
+  width = 320,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 160,
+  width = 320,
+  height = 80,
+  pattern = "86",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 144,
+  width = 320,
+  height = 64,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 192,
+  width = 320,
+  height = 16,
+  pattern = "34",
+}
+
+sensor{
+  name = "jumper_2_before_sensor",
+  layer = 0,
+  x = 24,
+  y = 125,
+  width = 16,
+  height = 16,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 3,
+}
+
+jumper{
+  layer = 0,
+  x = 0,
+  y = 64,
+  width = 320,
+  height = 8,
+  direction = 6,
+  jump_length = 32,
+}
+
+jumper{
+  layer = 0,
+  x = 0,
+  y = 128,
+  width = 320,
+  height = 8,
+  direction = 6,
+  jump_length = 40,
+}
+
+sensor{
+  name = "jumper_1_after_sensor",
+  layer = 0,
+  x = 24,
+  y = 93,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "jumper_1_before_sensor",
+  layer = 0,
+  x = 24,
+  y = 61,
+  width = 16,
+  height = 16,
+}
+
+jumper{
+  layer = 0,
+  x = 0,
+  y = 192,
+  width = 320,
+  height = 8,
+  direction = 6,
+  jump_length = 40,
+}
+
+sensor{
+  name = "jumper_2_after_sensor",
+  layer = 0,
+  x = 24,
+  y = 157,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "jumper_3_before_sensor",
+  layer = 0,
+  x = 24,
+  y = 189,
+  width = 16,
+  height = 16,
+}
+

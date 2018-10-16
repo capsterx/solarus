@@ -34,18 +34,18 @@ class Hero::SwordSwingingState: public HeroState {
     void stop(const State* next_state) override;
     void update() override;
     bool get_can_start_sword() const override;
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool get_can_use_shield() const override;
     bool can_sword_hit_crystal() const override;
     bool is_cutting_with_sword(Entity& entity) override;
-    bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
     void notify_obstacle_reached() override;
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 

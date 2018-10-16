@@ -240,7 +240,7 @@ void Hero::RunningState::notify_jumper_activated(Jumper& jumper) {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::RunningState::can_be_hurt(Entity* attacker) const {
+bool Hero::RunningState::get_can_be_hurt(Entity* attacker) const {
 
   if (phase == 0) {
     // Preparing to run.
@@ -349,7 +349,7 @@ bool Hero::RunningState::can_persist_on_stream(const Stream& stream) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::RunningState::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Hero::RunningState::is_sensor_obstacle(Sensor& /* sensor */) {
   return is_bouncing();
 }
 

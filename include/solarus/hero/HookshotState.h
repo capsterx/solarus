@@ -45,11 +45,11 @@ class Hero::HookshotState: public HeroState {
     bool can_avoid_prickle() const override;
     bool can_avoid_teletransporter() const override;
     bool can_avoid_stream(const Stream& stream) const override;
-    bool is_stairs_obstacle(const Stairs& stairs) const override;
-    bool is_sensor_obstacle(const Sensor& sensor) const override;
-    bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const override;
+    bool is_stairs_obstacle(Stairs& stairs) override;
+    bool is_sensor_obstacle(Sensor& sensor) override;
+    bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
     bool can_avoid_switch() const override;
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     void notify_obstacle_reached() override;
 

@@ -118,7 +118,7 @@ bool Hero::SwordSwingingState::get_can_start_sword() const {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::SwordSwingingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::SwordSwingingState::get_can_be_hurt(Entity* /* attacker */) const {
   return true;
 }
 
@@ -189,7 +189,7 @@ bool Hero::SwordSwingingState::is_cutting_with_sword(
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SwordSwingingState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero was pushed by an enemy, don't go on a teletransporter
   return get_entity().get_movement() != nullptr;
@@ -216,8 +216,8 @@ void Hero::SwordSwingingState::notify_obstacle_reached() {
 void Hero::SwordSwingingState::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (attack == EnemyAttack::SWORD &&

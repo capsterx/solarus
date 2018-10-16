@@ -246,7 +246,7 @@ void Hero::PullingState::stop_moving_pulled_entity() {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::PullingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PullingState::get_can_be_hurt(Entity* /* attacker */) const {
   return !is_moving_grabbed_entity();
 }
 
@@ -302,7 +302,7 @@ bool Hero::PullingState::is_prickle_obstacle() const {
 /**
  * \copydoc Entity::State::is_stream_obstacle
  */
-bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
+bool Hero::PullingState::is_stream_obstacle(Stream& /* stream */) {
   return true;
 }
 
@@ -310,7 +310,7 @@ bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::PullingState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 

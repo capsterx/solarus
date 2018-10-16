@@ -513,8 +513,8 @@ void CarriedObject::notify_collision_with_enemy(
 void CarriedObject::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& result,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (result.type != EnemyReaction::ReactionType::IGNORED &&
@@ -706,6 +706,17 @@ void CarriedObject::notify_collision_with_stairs(Stairs& stairs, CollisionMode /
     break_one_layer_above = true; // show the destruction animation above the stairs
   }
 }
+
+const std::string EnumInfoTraits<CarriedObject::Behavior>::pretty_name = "carried object behavior";
+
+/**
+ * \brief Lua name of each value of the CarriedObject::Behavior enum.
+ */
+const EnumInfo<CarriedObject::Behavior>::names_type EnumInfoTraits<CarriedObject::Behavior>::names = {
+  { CarriedObject::Behavior::THROW, "throw" },
+  { CarriedObject::Behavior::REMOVE, "remove" },
+  { CarriedObject::Behavior::KEEP, "keep" }
+};
 
 }
 

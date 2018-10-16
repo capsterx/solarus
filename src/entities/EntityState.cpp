@@ -21,10 +21,13 @@
 #include "solarus/core/Game.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
+#include "solarus/entities/Door.h"
 #include "solarus/entities/EntityState.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Jumper.h"
+#include "solarus/entities/Npc.h"
 #include "solarus/entities/Stairs.h"
+#include "solarus/entities/Switch.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/hero/HeroSprites.h"
 #include "solarus/lua/LuaContext.h"
@@ -105,8 +108,6 @@ const Entity& Entity::State::get_entity() const {
  */
 void Entity::State::set_entity(Entity& entity) {
 
-  Debug::check_assertion(this->entity == nullptr,
-                         "This state is already associated to an entity");
   this->entity = std::static_pointer_cast<Entity>(entity.shared_from_this());
   if (entity.is_on_map()) {
     this->map = std::static_pointer_cast<Map>(entity.get_map().shared_from_this());
@@ -215,6 +216,7 @@ void Entity::State::start(const State* /* previous_state */) {
 
   Debug::check_assertion(entity != nullptr, "No entity specified");
 
+  stopping = false;
   set_suspended(entity->is_suspended());
 
   // Notify Lua.
@@ -300,6 +302,16 @@ void Entity::State::set_suspended(bool suspended) {
  */
 uint32_t Entity::State::get_when_suspended() const {
   return when_suspended;
+}
+
+/**
+ * \brief This function is called when a low-level input event occurs during this state.
+ * \param event The event to handle.
+ * If \c false, notify_command_pressed/released() can then still be called
+ * if they apply.
+ */
+bool Entity::State::notify_input(const InputEvent& /* event */) {
+  return false;
 }
 
 /**
@@ -462,6 +474,36 @@ void Entity::State::set_map(Map& map) {
 }
 
 /**
+ * \brief Notifies this state that the map of its entity was just started.
+ *
+ * The map script has been executed already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::State::notify_map_started(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
+ * \brief Notifies this state that the opening transition of the map is finished.
+ * \param map The map.
+ *
+ * map:on_opening_transition_finished() has been executed already at this point.
+ *
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::State::notify_map_opening_transition_finished(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
+ * \brief Notifies this state that the map is being stopped.
+ */
+void Entity::State::notify_map_finished() {
+}
+
+/**
  * \brief Returns whether the game over sequence can start in the current state.
  * \return true if the game over sequence can start in the current state
  */
@@ -527,25 +569,16 @@ void Entity::State::notify_walking_speed_changed() {
 }
 
 /**
- * \brief Notifies this state that the layer has changed.
+ * \brief Notifies this state that the entity has just changed its
+ * position.
+ */
+void Entity::State::notify_position_changed() {
+}
+
+/**
+ * \brief Notifies this state that the layer of the entity has changed.
  */
 void Entity::State::notify_layer_changed() {
-}
-
-/**
- * \brief Notifies this state that the movement has changed.
- *
- * This function is called when the entity's movement direction changes (for instance
- * because the player pressed or released a directional key, or the entity just reached an obstacle).
- * The animations and collisions should be updated according to the new movement.
- */
-void Entity::State::notify_movement_changed() {
-}
-
-/**
- * \brief Notifies this state that the movement if finished.
- */
-void Entity::State::notify_movement_finished() {
 }
 
 /**
@@ -556,10 +589,25 @@ void Entity::State::notify_obstacle_reached() {
 }
 
 /**
- * \brief Notifies this state that the entity has just changed its
- * position.
+ * \brief Notifies this state that a movement has started.
  */
-void Entity::State::notify_position_changed() {
+void Entity::State::notify_movement_started() {
+}
+
+/**
+ * \brief Notifies this state that the movement is finished.
+ */
+void Entity::State::notify_movement_finished() {
+}
+
+/**
+ * \brief Notifies this state that the movement has changed.
+ *
+ * This function is called when the entity's movement direction changes (for instance
+ * because the player pressed or released a directional key, or the entity just reached an obstacle).
+ * The animations and collisions should be updated according to the new movement.
+ */
+void Entity::State::notify_movement_changed() {
 }
 
 /**
@@ -618,6 +666,39 @@ bool Entity::State::can_avoid_prickle() const {
 }
 
 /**
+ * \brief Returns whether shallow water affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if shallow water affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_shallow_water() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether grass affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if grass affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_grass() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether ladders affects the entity in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if ladders affects the entity in this state.
+ */
+bool Entity::State::is_affected_by_ladder() const {
+  return true;
+}
+
+/**
  * \brief Returns whether the entity is touching the ground in the current state.
  *
  * Returns true by default.
@@ -641,9 +722,9 @@ bool Entity::State::can_come_from_bad_ground() const {
 }
 
 /**
- * \brief Notifies this state that the ground was just changed.
+ * \brief Notifies this state that the ground below the entity has just changed.
  */
-void Entity::State::notify_ground_changed() {
+void Entity::State::notify_ground_below_changed() {
 }
 
 /**
@@ -651,6 +732,50 @@ void Entity::State::notify_ground_changed() {
  * \return true if the collisions are ignored
  */
 bool Entity::State::are_collisions_ignored() const {
+  return false;
+}
+
+/**
+ * \brief Returns whether traversable ground is considered an obstacle in this state.
+ *
+ * Returns \c false by default.
+ *
+ * \return \c true if traversable ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_traversable_obstacle() const {
+  return false;
+}
+
+/**
+ * \brief Returns whether wall ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if wall ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_wall_obstacle() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether low wall ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if low wall ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_low_wall_obstacle() const {
+  return true;
+}
+
+/**
+ * \brief Returns whether grass ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if grass ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_grass_obstacle() const {
   return false;
 }
 
@@ -688,6 +813,17 @@ bool Entity::State::is_hole_obstacle() const {
 }
 
 /**
+ * \brief Returns whether ice ground is considered an obstacle in this state.
+ *
+ * Returns \c true by default.
+ *
+ * \return \c true if ice ground is considered an obstacle in this state.
+ */
+bool Entity::State::is_ice_obstacle() const {
+  return false;
+}
+
+/**
  * \brief Returns whether lava is considered as an obstacle in this state.
  *
  * Returns false by default.
@@ -721,15 +857,41 @@ bool Entity::State::is_ladder_obstacle() const {
 }
 
 /**
+ * \brief Returns whether a hero is considered as an obstacle in this state.
+ *
+ * Returns false by default.
+ *
+ * \param hero A hero.
+ * \return \c true if the hero is an obstacle in this state.
+ */
+bool Entity::State::is_hero_obstacle(
+    Hero& /* hero */) {
+  return false;
+}
+
+/**
+ * \brief Returns whether a block is considered as an obstacle in this state.
+ *
+ * Returns true by default.
+ *
+ * \param block A block.
+ * \return \c true if the block is an obstacle in this state.
+ */
+bool Entity::State::is_block_obstacle(
+    Block& /* block */) {
+  return true;
+}
+
+/**
  * \brief Returns whether a teletransporter is considered as an obstacle in this state.
  *
  * Returns false by default.
  *
- * \param teletransporter a teletransporter
- * \return true if the teletransporter is an obstacle in this state
+ * \param teletransporter A teletransporter.
+ * \return \c true if the teletransporter is an obstacle in this state.
  */
 bool Entity::State::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
   return false;
 }
 
@@ -763,7 +925,7 @@ bool Entity::State::is_teletransporter_delayed() const {
  * \return \c true if the stream is an obstacle in this state.
  */
 bool Entity::State::is_stream_obstacle(
-    const Stream& /* stream */) const {
+    Stream& /* stream */) {
   return false;
 }
 
@@ -807,7 +969,7 @@ bool Entity::State::get_can_take_stairs() const {
  * \param stairs Some stairs.
  * \return \c true if the stairs are obstacle in this state.
  */
-bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
+bool Entity::State::is_stairs_obstacle(Stairs& stairs) {
 
   // The entity may overlap stairs in rare cases,
   // for example if the hero arrived by swimming over them
@@ -825,10 +987,82 @@ bool Entity::State::is_stairs_obstacle(const Stairs& stairs) const {
  *
  * Returns false by default.
  *
- * \param sensor a sensor
- * \return true if the sensor is an obstacle in this state
+ * \param sensor A sensor.
+ * \return \c true if the sensor is an obstacle in this state.
  */
-bool Entity::State::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Entity::State::is_sensor_obstacle(Sensor& /* sensor */) {
+  return false;
+}
+
+/**
+ * \brief Returns whether a switch is considered as an obstacle in this state.
+ *
+ * By default, this function returns true for solid switches and false for other ones.
+ *
+ * \param sw A switch.
+ * \return \c true if the switch is an obstacle in this state.
+ */
+bool Entity::State::is_switch_obstacle(Switch& sw) {
+  return sw.is_solid();
+}
+
+/**
+ * \brief Returns whether a raised crystal block is currently considered as an obstacle in this state.
+ *
+ * This function returns true by default.
+ *
+ * \param raised_block A crystal block raised.
+ * \return \c true if the raised block is currently an obstacle in this state.
+ */
+bool Entity::State::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
+  return true;
+}
+
+/**
+ * \brief Returns whether a crystal is currently considered as an obstacle in this state.
+ *
+ * This function returns true by default.
+ *
+ * \param crystal A crystal.
+ * \return \c true if the crystal is currently an obstacle in this state.
+ */
+bool Entity::State::is_crystal_obstacle(Crystal& /* crystal */) {
+  return true;
+}
+
+/**
+ * \brief Returns whether a non-playing character is currently considered as an obstacle in this state.
+ *
+ * By default, this depends on the NPC.
+ *
+ * \param npc A non-playing character.
+ * \return \c true if the NPC is currently an obstacle in this state.
+ */
+bool Entity::State::is_npc_obstacle(Npc& npc) {
+  return !npc.is_traversable();
+}
+
+/**
+ * \brief Returns whether a door is currently considered as an obstacle in this state.
+ *
+ * By default, this function returns \c true unless the door is open.
+ *
+ * \param door A door.
+ * \return \c true if the door is currently an obstacle in this state.
+ */
+bool Entity::State::is_door_obstacle(Door& door) {
+  return !door.is_open();
+}
+
+/**
+ * \brief Returns whether an enemy is currently considered as an obstacle by this entity.
+ *
+ * This function returns false by default.
+ *
+ * \param enemy An enemy/
+ * \return \c true if the enemy is currently an obstacle in this state.
+ */
+bool Entity::State::is_enemy_obstacle(Enemy& /* enemy */) {
   return false;
 }
 
@@ -841,7 +1075,7 @@ bool Entity::State::is_sensor_obstacle(const Sensor& /* sensor */) const {
  * entity position.
  */
 bool Entity::State::is_jumper_obstacle(
-    const Jumper& /* jumper */, const Rectangle& /* candidate_position */) const {
+    Jumper& /* jumper */, const Rectangle& /* candidate_position */) {
   return true;
 }
 
@@ -854,8 +1088,20 @@ bool Entity::State::is_jumper_obstacle(
  * \param separator A separator.
  * \return \c true if the separator is an obstacle in this state.
  */
-bool Entity::State::is_separator_obstacle(const Separator& /* separator */) const {
+bool Entity::State::is_separator_obstacle(Separator& /* separator */) {
   return false;
+}
+
+/**
+ * \brief Returns whether a destructible is considered as an obstacle in this state.
+ *
+ * By default, this function returns true.
+ *
+ * \param destructible A destructible object.
+ * \return \c true if the destructible object is currently an obstacle in this state.
+ */
+bool Entity::State::is_destructible_obstacle(Destructible& /* destructible */) {
+  return true;
 }
 
 /**
@@ -941,8 +1187,8 @@ void Entity::State::notify_jumper_activated(Jumper& /* jumper */) {
 void Entity::State::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& /* result */,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& /* result */,
     bool /* killed */) {
 }
 
@@ -968,7 +1214,7 @@ int Entity::State::get_sword_damage_factor() const {
  * (or nullptr if the source of the attack is not an entity)
  * \return true if the entity can be hurt in this state
  */
-bool Entity::State::can_be_hurt(Entity* /* attacker */) const {
+bool Entity::State::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 
@@ -1139,12 +1385,12 @@ std::shared_ptr<CarriedObject> Entity::State::get_carried_object() const {
 /**
  * \brief Returns the action to do with an item previously carried by the entity when this state starts.
  *
- * Returns CarriedObject::BEHAVIOR_THROW by default.
+ * Returns CarriedObject::Behavior::THROW by default.
  *
  * \return the action to do with a previous carried object when this state starts
  */
 CarriedObject::Behavior Entity::State::get_previous_carried_object_behavior() const {
-  return CarriedObject::BEHAVIOR_THROW;
+  return CarriedObject::Behavior::THROW;
 }
 
 }

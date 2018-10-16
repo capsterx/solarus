@@ -36,7 +36,8 @@ Hero::PlayerMovementState::PlayerMovementState(
   HeroState(hero, state_name),
   player_movement(),
   current_jumper(),
-  jumper_start_date(0) {
+  jumper_start_date(0),
+  jumper_delay(200) {
 }
 
 /**
@@ -273,7 +274,7 @@ void Hero::PlayerMovementState::notify_layer_changed() {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::PlayerMovementState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PlayerMovementState::get_can_be_hurt(Entity* /* attacker */) const {
   return true;
 }
 
@@ -311,11 +312,11 @@ void Hero::PlayerMovementState::notify_jumper_activated(Jumper& jumper) {
 
   // Add a small delay before jumping.
   current_jumper = std::static_pointer_cast<Jumper>(jumper.shared_from_this());
-  jumper_start_date = System::now() + 200;
+  jumper_start_date = System::now() + get_jumper_delay();
 }
 
 /**
- * \brief Cancels the jump preparation that was ongoing if any.
+ * \brief Cancels the jumper preparation that was ongoing if any.
  */
 void Hero::PlayerMovementState::cancel_jumper() {
 
@@ -323,6 +324,22 @@ void Hero::PlayerMovementState::cancel_jumper() {
     current_jumper = nullptr;
     jumper_start_date = 0;
   }
+}
+
+/**
+ * \brief Returns the delay before jumpers activate.
+ * \return The jumper delay in milliseconds.
+ */
+uint32_t Hero::PlayerMovementState::get_jumper_delay() const {
+  return jumper_delay;
+}
+
+/**
+ * \brief Sets the delay before jumpers activate.
+ * \param jumper_delay The jumper delay in milliseconds.
+ */
+void Hero::PlayerMovementState::set_jumper_delay(uint32_t jumper_delay) {
+  this->jumper_delay = jumper_delay;
 }
 
 }

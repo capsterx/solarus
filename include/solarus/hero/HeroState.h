@@ -39,7 +39,9 @@ class HeroState: public Entity::State {
     void notify_attack_command_pressed() override;
     void notify_item_command_pressed(int slot) override;
 
-    bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const override;
+    bool is_block_obstacle(Block& block) override;
+    bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
+    bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
 
   protected:
 

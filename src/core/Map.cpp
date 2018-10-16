@@ -401,7 +401,7 @@ const std::string& Map::get_destination_name() const {
  *
  * \return The destination point previously set, or nullptr.
  */
-Destination* Map::get_destination() {
+std::shared_ptr<Destination> Map::get_destination() {
 
   if (destination_name == "_same"
       || destination_name.substr(0,5) == "_side") {
@@ -436,7 +436,7 @@ Destination* Map::get_destination() {
     destination = get_entities().get_default_destination();
   }
 
-  return destination.get();
+  return destination;
 }
 
 /**
@@ -723,8 +723,10 @@ void Map::start() {
   this->started = true;
 
   Music::play(music_id, true);
-  this->entities->notify_map_started();
-  get_lua_context().run_map(*this, get_destination());
+  std::shared_ptr<Destination> destination = get_destination();
+  this->entities->notify_map_starting(*this, destination);
+  get_lua_context().run_map(*this, destination);
+  this->entities->notify_map_started(*this, destination);
 }
 
 /**
@@ -762,8 +764,10 @@ void Map::notify_opening_transition_finished() {
   }
 
   check_suspended();
-  entities->notify_map_opening_transition_finished();
-  get_lua_context().map_on_opening_transition_finished(*this, get_destination());
+  std::shared_ptr<Destination> destination = get_destination();
+  entities->notify_map_opening_transition_finishing(*this, destination);
+  get_lua_context().map_on_opening_transition_finished(*this, destination);
+  entities->notify_map_opening_transition_finished(*this, destination);
 }
 
 /**

@@ -124,7 +124,7 @@ void Hero::TreasureState::draw_on_map() {
  * \copydoc Entity::State::get_previous_carried_object_behavior
  */
 CarriedObject::Behavior Hero::TreasureState::get_previous_carried_object_behavior() const {
-  return CarriedObject::BEHAVIOR_DESTROY;
+  return CarriedObject::Behavior::REMOVE;
 }
 
 /**

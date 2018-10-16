@@ -50,6 +50,16 @@ function assert_equal_color(actual_rgba, expected_rgba)
   end
 end
 
+function assert_equal_xy(actual_entity, expected_entity)
+
+  local actual_x, actual_y, actual_width, actual_height = actual_entity:get_bounding_box()
+  local expected_x, expected_y, expected_width, expected_height = expected_entity:get_bounding_box()
+  assert_equal(actual_x, expected_x)
+  assert_equal(actual_y, expected_y)
+  assert_equal(actual_width, expected_width)
+  assert_equal(actual_height, expected_height)
+end
+
 function sol.main:on_started()
 
   assert_equal(sol.language.get_language(), "en")

@@ -44,7 +44,7 @@ class Hero::RunningState: public HeroState {
     bool get_can_take_jumper() const override;
     void notify_jumper_activated(Jumper& jumper) override;
     bool get_can_take_stairs() const override;
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool can_sword_hit_crystal() const override;
     bool can_start_gameover_sequence() const override;
@@ -56,7 +56,7 @@ class Hero::RunningState: public HeroState {
     bool can_avoid_teletransporter() const override;
     bool can_avoid_stream(const Stream& stream) const override;
     bool can_persist_on_stream(const Stream& stream) const override;
-    bool is_sensor_obstacle(const Sensor& sensor) const override;
+    bool is_sensor_obstacle(Sensor& sensor) override;
     bool is_cutting_with_sword(Entity& entity) override;
     int get_sword_damage_factor() const override;
 

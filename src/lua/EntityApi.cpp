@@ -209,7 +209,7 @@ void LuaContext::register_entity_module() {
       { "start_running", hero_api_start_running },
       { "start_hurt", hero_api_start_hurt },
       { "get_state", entity_api_get_state },
-      { "get_custom_state", hero_api_get_custom_state },
+      { "get_state_object", hero_api_get_state_object },
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     hero_methods.insert(hero_methods.end(), {
@@ -1950,9 +1950,14 @@ int LuaContext::entity_api_get_state(lua_State* l) {
     std::string state_name = entity.get_state_name();
     if (state_name.empty()) {
       lua_pushnil(l);
+      return 1;
     }
-    else {
-      push_string(l, state_name);
+
+    push_string(l, state_name);
+    if (state_name == "custom") {
+      CustomState& state = *std::static_pointer_cast<CustomState>(entity.get_state());
+      push_state(l, state);
+      return 2;
     }
     return 1;
   });
@@ -2859,7 +2864,7 @@ int LuaContext::hero_api_start_state(lua_State* l) {
     Hero& hero = *check_hero(l, 1);
     std::shared_ptr<CustomState> state = check_state(l, 2);
 
-    if (state->has_entity()) {
+    if (state->is_current_state()) {
       LuaTools::arg_error(l, 1, "This state is already active");
     }
     hero.start_custom_state(state);
@@ -2869,11 +2874,11 @@ int LuaContext::hero_api_start_state(lua_State* l) {
 }
 
 /**
- * \brief Implementation of hero:get_custom_state().
+ * \brief Implementation of hero:get_state_object().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::hero_api_get_custom_state(lua_State* l) {
+int LuaContext::hero_api_get_state_object(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const Hero& hero = *check_hero(l, 1);
@@ -5417,12 +5422,10 @@ int LuaContext::enemy_api_get_attack_consequence(lua_State* l) {
     if (reaction.type == EnemyReaction::ReactionType::HURT) {
       // Return the life damage.
       lua_pushinteger(l, reaction.life_lost);
-    }
-    else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+    } else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
       // Return the callback.
       reaction.callback.push(l);
-    }
-    else {
+    } else {
       // Return a string.
       push_string(l, enum_to_name(reaction.type));
     }
@@ -5951,14 +5954,14 @@ void LuaContext::push_custom_entity(lua_State* l, CustomEntity& entity) {
 /**
  * \brief Calls the specified a Lua traversable test function.
  * \param traversable_test_ref Lua ref to a traversable test function.
- * \param custom_entity The custom entity that is testing if it can traverse
+ * \param userdata The object that is testing if it can traverse
  * or be traversed by another entity.
  * \param other_entity The other entity.
  * \return \c true if the traversable test function returned \c true.
  */
-bool LuaContext::do_custom_entity_traversable_test_function(
+bool LuaContext::do_traversable_test_function(
     const ScopedLuaRef& traversable_test_ref,
-    CustomEntity& custom_entity,
+    ExportableToLua& userdata,
     Entity& other_entity) {
 
   Debug::check_assertion(!traversable_test_ref.is_empty(),
@@ -5970,7 +5973,7 @@ bool LuaContext::do_custom_entity_traversable_test_function(
   Debug::check_assertion(lua_isfunction(current_l, -1),
       "Traversable test is not a function"
   );
-  push_custom_entity(current_l, custom_entity);
+  push_userdata(current_l, userdata);
   push_entity(current_l, other_entity);
   if (!LuaTools::call_function(current_l, 2, 1, "traversable test function")) {
     // Error in the traversable test function.
@@ -6221,7 +6224,6 @@ int LuaContext::custom_entity_api_set_can_traverse(lua_State* l) {
     }
     else if (lua_isfunction(l, index)) {
       // Custom boolean function.
-
       const ScopedLuaRef& traversable_test_ref = LuaTools::check_function(l, index);
       if (!type_specific) {
         entity.set_can_traverse_entities(traversable_test_ref);
@@ -6631,7 +6633,7 @@ void LuaContext::entity_on_obstacle_reached(
   if (!userdata_has_field(entity, "on_obstacle_reached")) {
     return;
   }
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_obstacle_reached(movement);
     lua_pop(l, 1);
@@ -6644,15 +6646,16 @@ void LuaContext::entity_on_obstacle_reached(
  * Does nothing if the method is not defined.
  *
  * \param entity A map entity.
+ * \param movement The movement that has just started.
  */
-  void LuaContext::entity_on_movement_started(
-      Entity& entity, Movement& movement) {
+void LuaContext::entity_on_movement_started(
+    Entity& entity, Movement& movement) {
 
   if (!userdata_has_field(entity, "on_movement_started")) {
     return;
   }
 
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_movement_started(movement);
     lua_pop(l, 1);
@@ -6674,7 +6677,7 @@ void LuaContext::entity_on_movement_changed(
     return;
   }
 
-  run_on_main([this,&entity,&movement](lua_State* l){
+  run_on_main([this, &entity, &movement](lua_State* l) {
     push_entity(l, entity);
     on_movement_changed(movement);
     lua_pop(l, 1);
@@ -6694,7 +6697,7 @@ void LuaContext::entity_on_movement_finished(Entity& entity) {
     return;
   }
 
-  run_on_main([this,&entity](lua_State* l){
+  run_on_main([this, &entity](lua_State* l) {
     push_entity(l, entity);
     on_movement_finished();
     lua_pop(l, 1);
@@ -7471,7 +7474,7 @@ bool LuaContext::enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* attac
     return false;
   }
 
-  //TODO make this on main
+  // TODO make this on main
   check_callback_thread();
 
   push_enemy(current_l, enemy);
@@ -7495,7 +7498,7 @@ void LuaContext::custom_entity_on_ground_below_changed(
     return;
   }
 
-  run_on_main([this,&custom_entity,ground_below](lua_State* l){
+  run_on_main([this, &custom_entity, ground_below](lua_State* l) {
     push_custom_entity(l, custom_entity);
     on_ground_below_changed(ground_below);
     lua_pop(l, 1);

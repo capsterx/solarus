@@ -132,7 +132,7 @@ bool Hero::SpinAttackState::get_can_pick_treasure(EquipmentItem& /* item */) con
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::SpinAttackState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::SpinAttackState::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 
@@ -209,7 +209,7 @@ bool Hero::SpinAttackState::is_prickle_obstacle() const {
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SpinAttackState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero is pushed by an enemy or making a super spin attack,
   // don't go on a teletransporter
@@ -220,7 +220,7 @@ bool Hero::SpinAttackState::is_teletransporter_obstacle(
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::SpinAttackState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 
@@ -246,8 +246,8 @@ void Hero::SpinAttackState::notify_obstacle_reached() {
 void Hero::SpinAttackState::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   Hero& hero = get_entity();

@@ -323,19 +323,6 @@ bool Entity::is_initialized() const {
 }
 
 /**
- * \brief Notifies this entity that its map has just started.
- *
- * The map was being loaded and is now ready.
- */
-void Entity::notify_map_started() {
-
-  if (!initialized) {
-    // The map is now ready: we can finish the initialization of the entity.
-    finish_initialization();
-  }
-}
-
-/**
  * \brief Finishes the initialization of this entity once the map is loaded.
  *
  * This function must be called once the map is ready.
@@ -385,14 +372,69 @@ void Entity::notify_created() {
 }
 
 /**
- * \brief Notifies this entity that the opening transition
- * of the map is finished.
+ * \brief Notifies this entity that its map is just starting.
+ *
+ * The entities are all loaded and the map is now ready.
+ * The map script has not been executed yet at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
  */
-void Entity::notify_map_opening_transition_finished() {
+void Entity::notify_map_starting(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+
+  if (!initialized) {
+    // The map is now ready: we can finish the initialization of the entity.
+    finish_initialization();
+  }
+}
+
+/**
+ * \brief Notifies this entity that its map was just started.
+ *
+ * The map script has been executed already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::notify_map_started(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
+ * \brief Notifies this entity that the opening transition
+ * of the map is finishing.
+ *
+ * map:on_opening_transition_finished() has not been called yet at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::notify_map_opening_transition_finishing(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
 
   if (is_ground_observer()) {
     update_ground_below();
   }
+}
+
+/**
+ * \brief Notifies this entity that the opening transition
+ * of the map is finished.
+ *
+ * map:on_opening_transition_finished() has been called already at this point.
+ *
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void Entity::notify_map_opening_transition_finished(
+    Map& /* map */, const std::shared_ptr<Destination>& /* destination */) {
+}
+
+/**
+ * \brief Notifies this entity that the map is being stopped.
+ */
+void Entity::notify_map_finished() {
 }
 
 /**
@@ -2864,7 +2906,7 @@ bool Entity::is_crystal_obstacle(Crystal& /* crystal */) {
 /**
  * \brief Returns whether a non-playing character is currently considered as an obstacle by this entity.
  *
- * This function returns true by default.
+ * By default, this depends on the NPC.
  *
  * \param npc a non-playing character
  * \return true if the NPC is currently an obstacle for this entity
@@ -3401,8 +3443,8 @@ void Entity::notify_collision_with_enemy(Enemy& /* enemy */, Sprite& /* this_spr
 void Entity::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& /* result */,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& /* result */,
     bool /* killed */) {
 }
 

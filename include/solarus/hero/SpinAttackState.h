@@ -35,7 +35,7 @@ class Hero::SpinAttackState: public HeroState {
     void stop(const State* next_state) override;
     void update() override;
     bool can_sword_hit_crystal() const override;
-    bool can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) const override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool is_cutting_with_sword(Entity& entity) override;
     int get_sword_damage_factor() const override;
@@ -43,14 +43,14 @@ class Hero::SpinAttackState: public HeroState {
     bool is_hole_obstacle() const override;
     bool is_lava_obstacle() const override;
     bool is_prickle_obstacle() const override;
-    bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
-    bool is_separator_obstacle(const Separator& separator) const override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_separator_obstacle(Separator& separator) override;
     void notify_obstacle_reached() override;
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 

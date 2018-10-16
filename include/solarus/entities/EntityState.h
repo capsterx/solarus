@@ -61,8 +61,9 @@ class Entity::State : public ExportableToLua {
     bool is_suspended() const;
     virtual void set_suspended(bool suspended);
     uint32_t get_when_suspended() const;
-    void notify_command_pressed(GameCommand command);
-    void notify_command_released(GameCommand command);
+    virtual bool notify_input(const InputEvent& event);
+    virtual void notify_command_pressed(GameCommand command);
+    virtual void notify_command_released(GameCommand command);
     virtual void notify_action_command_pressed();
     virtual void notify_action_command_released();
     virtual void notify_attack_command_pressed();
@@ -74,6 +75,11 @@ class Entity::State : public ExportableToLua {
 
     // game
     virtual void set_map(Map& map);
+    virtual void notify_map_started(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finished(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_finished();
     virtual bool can_start_gameover_sequence() const;
 
     // sprites
@@ -84,11 +90,12 @@ class Entity::State : public ExportableToLua {
     virtual bool get_can_control_movement() const;
     virtual int get_wanted_movement_direction8() const;
     virtual void notify_walking_speed_changed();
+    virtual void notify_position_changed();
     virtual void notify_layer_changed();
+    virtual void notify_obstacle_reached();
+    virtual void notify_movement_started();
     virtual void notify_movement_changed();
     virtual void notify_movement_finished();
-    virtual void notify_obstacle_reached();
-    virtual void notify_position_changed();
 
     // ground
     virtual bool can_avoid_deep_water() const;
@@ -96,28 +103,45 @@ class Entity::State : public ExportableToLua {
     virtual bool can_avoid_ice() const;
     virtual bool can_avoid_lava() const;
     virtual bool can_avoid_prickle() const;
+    virtual bool is_affected_by_shallow_water() const;
+    virtual bool is_affected_by_grass() const;
+    virtual bool is_affected_by_ladder() const;
     virtual bool is_touching_ground() const;
     virtual bool can_come_from_bad_ground() const;
-    virtual void notify_ground_changed();
+    virtual void notify_ground_below_changed();
 
     // obstacles and collisions
     virtual bool are_collisions_ignored() const;
+    virtual bool is_traversable_obstacle() const;
+    virtual bool is_wall_obstacle() const;
+    virtual bool is_low_wall_obstacle() const;
+    virtual bool is_grass_obstacle() const;
     virtual bool is_shallow_water_obstacle() const;
     virtual bool is_deep_water_obstacle() const;
     virtual bool is_hole_obstacle() const;
+    virtual bool is_ice_obstacle() const;
     virtual bool is_lava_obstacle() const;
     virtual bool is_prickle_obstacle() const;
     virtual bool is_ladder_obstacle() const;
-    virtual bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const;
+    virtual bool is_hero_obstacle(Hero& hero);
+    virtual bool is_block_obstacle(Block& block);
+    virtual bool is_teletransporter_obstacle(Teletransporter& teletransporter);
     virtual bool can_avoid_teletransporter() const;
     virtual bool is_teletransporter_delayed() const;
-    virtual bool is_stream_obstacle(const Stream& stream) const;
+    virtual bool is_stream_obstacle(Stream& stream);
     virtual bool can_avoid_stream(const Stream& stream) const;
     virtual bool can_persist_on_stream(const Stream& stream) const;
-    virtual bool is_stairs_obstacle(const Stairs& stairs) const;
-    virtual bool is_sensor_obstacle(const Sensor& sensor) const;
-    virtual bool is_jumper_obstacle(const Jumper& jumper, const Rectangle& candidate_position) const;
-    virtual bool is_separator_obstacle(const Separator& separator) const;
+    virtual bool is_stairs_obstacle(Stairs& stairs);
+    virtual bool is_sensor_obstacle(Sensor& sensor);
+    virtual bool is_switch_obstacle(Switch& sw);
+    virtual bool is_raised_block_obstacle(CrystalBlock& raised_block);
+    virtual bool is_crystal_obstacle(Crystal& crystal);
+    virtual bool is_npc_obstacle(Npc& npc);
+    virtual bool is_door_obstacle(Door& block);
+    virtual bool is_enemy_obstacle(Enemy& enemy);
+    virtual bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position);
+    virtual bool is_destructible_obstacle(Destructible& destructible);
+    virtual bool is_separator_obstacle(Separator& separator);
     virtual bool can_avoid_sensor() const;
     virtual bool can_avoid_explosion() const;
     virtual bool can_avoid_switch() const;
@@ -126,11 +150,11 @@ class Entity::State : public ExportableToLua {
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed);
     virtual int get_sword_damage_factor() const;
-    virtual bool can_be_hurt(Entity* attacker) const;
+    virtual bool get_can_be_hurt(Entity* attacker) const;
 
     // state specific
     virtual bool is_free() const;

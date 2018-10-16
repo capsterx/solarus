@@ -42,24 +42,26 @@ class Hero::PlayerMovementState: public HeroState {
 
     virtual ~PlayerMovementState();
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void set_map(Map& map) override;
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void set_map(Map& map) override;
 
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
     virtual void set_animation_stopped();
     virtual void set_animation_walking();
-    virtual bool get_can_control_movement() const override;
-    virtual int get_wanted_movement_direction8() const override;
-    virtual void notify_walking_speed_changed() override;
-    virtual void notify_movement_changed() override;
-    virtual void notify_position_changed() override;
-    virtual void notify_layer_changed() override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool get_can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool get_can_take_jumper() const override;
-    virtual void notify_jumper_activated(Jumper& jumper) override;
+    bool get_can_control_movement() const override;
+    int get_wanted_movement_direction8() const override;
+    void notify_walking_speed_changed() override;
+    void notify_movement_changed() override;
+    void notify_position_changed() override;
+    void notify_layer_changed() override;
+    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool get_can_take_jumper() const override;
+    void notify_jumper_activated(Jumper& jumper) override;
+    uint32_t get_jumper_delay() const;
+    void set_jumper_delay(uint32_t jumper_delay);
 
   protected:
 
@@ -80,6 +82,7 @@ class Hero::PlayerMovementState: public HeroState {
         current_jumper;                /**< The jumper about to be triggered or nullptr */
     uint32_t jumper_start_date;        /**< Date to trigger the jumper
                                         * (because a small delay is necessary) */
+    uint32_t jumper_delay;             /**< Delay before a jumper activates. */
 
 };
 

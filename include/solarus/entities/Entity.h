@@ -44,6 +44,7 @@ class Chest;
 class CommandsEffects;
 class Crystal;
 class CrystalBlock;
+class Destination;
 class Destructible;
 class Door;
 class Enemy;
@@ -122,10 +123,13 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_on_map() const;
     void set_map(Map& map);
     Map& get_map() const;
-    virtual void notify_map_started();
     virtual void notify_creating();
     virtual void notify_created();
-    virtual void notify_map_opening_transition_finished();
+    virtual void notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_finished();
     virtual void notify_tileset_changed();
     Game& get_game();
     const Game& get_game() const;
@@ -245,10 +249,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     void start_stream_action(std::unique_ptr<StreamAction> stream_action);
     void stop_stream_action();
 
-    virtual void notify_obstacle_reached();
     virtual void notify_position_changed();
     virtual void notify_layer_changed();
     virtual void notify_ground_below_changed();
+    virtual void notify_obstacle_reached();
     virtual void notify_movement_started();
     virtual void notify_movement_finished();
     virtual void notify_movement_changed();
@@ -342,8 +346,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed);
 
     // Interactions.

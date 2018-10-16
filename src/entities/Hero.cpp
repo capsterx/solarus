@@ -434,6 +434,17 @@ void Hero::built_in_draw(Camera& /* camera */) {
 }
 
 /**
+ * \brief This function is called when a low-level input event occurs.
+ * \param event The event to handle.
+ * \return \c true if the event was handled.
+ * If \c false, notify_command_pressed/released() can then still be called
+ * if they apply.
+ */
+bool Hero::notify_input(const InputEvent& event) {
+  return get_state()->notify_input(event);
+}
+
+/**
  * \brief This function is called when a game command is pressed
  * and the game is not suspended.
  * \param command The command pressed.
@@ -536,15 +547,82 @@ void Hero::notify_creating() {
 }
 
 /**
- * \copydoc Entity::notify_map_started
+ * \copydoc Entity::notify_map_starting
  */
-void Hero::notify_map_started() {
+void Hero::notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination) {
 
-  Entity::notify_map_started();
-  get_hero_sprites().notify_map_started();
+  Entity::notify_map_starting(map, destination);
+  get_hero_sprites().notify_map_starting();
 
   // At this point the map is known and loaded. Notify the state.
   get_state()->set_map(get_map());
+}
+
+/**
+ * \copydoc Entity::notify_map_started
+ */
+void Hero::notify_map_started(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_started(map, destination);
+  get_state()->notify_map_started(map, destination);
+}
+
+/**
+ * \copydoc Entity::notify_map_opening_transition_finishing
+ */
+void Hero::notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_opening_transition_finishing(map, destination);
+
+  int side = get_map().get_destination_side();
+  if (side != -1) {
+    // the hero was placed on the side of the map:
+    // there was a scrolling between the previous map and this one
+
+    switch (side) {
+
+    case 0: // right side
+      set_x(get_map().get_width() - 8);
+      break;
+
+    case 1: // top side
+      set_y(13);
+      break;
+
+    case 2: // left side
+      set_x(8);
+      break;
+
+    case 3: // bottom side
+      set_y(get_map().get_height() - 3);
+      break;
+
+    default:
+      Debug::die("Invalid destination side");
+    }
+  }
+  check_position();
+  if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
+    start_state_from_ground();
+  }
+}
+
+/**
+ * \copydoc Entity::notify_map_opening_transition_finished
+ */
+void Hero::notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) {
+
+  Entity::notify_map_opening_transition_finished(map, destination);
+  get_state()->notify_map_opening_transition_finished(map, destination);
+}
+
+/**
+ * \copydoc Entity::notify_map_finished
+ */
+void Hero::notify_map_finished() {
+
+  Entity::notify_map_finished();
+  get_state()->notify_map_finished();
 }
 
 /**
@@ -677,7 +755,7 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
 
       // Normal case: the location is specified by a destination point object.
 
-      Destination* destination = map.get_destination();
+      const std::shared_ptr<Destination> destination = map.get_destination();
 
       if (destination == nullptr) {
         // This is embarrassing: there is no valid destination that we can use.
@@ -728,48 +806,6 @@ void Hero::place_on_destination(Map& map, const Rectangle& previous_map_location
         check_position();  // To appear initially swimming, for example.
       }
     }
-  }
-}
-
-/**
- * \brief This function is called when the opening transition of the map is finished.
- *
- * The position of the hero is changed if necessary.
- */
-void Hero::notify_map_opening_transition_finished() {
-
-  Entity::notify_map_opening_transition_finished();
-
-  int side = get_map().get_destination_side();
-  if (side != -1) {
-    // the hero was placed on the side of the map:
-    // there was a scrolling between the previous map and this one
-
-    switch (side) {
-
-    case 0: // right side
-      set_x(get_map().get_width() - 8);
-      break;
-
-    case 1: // top side
-      set_y(13);
-      break;
-
-    case 2: // left side
-      set_x(8);
-      break;
-
-    case 3: // bottom side
-      set_y(get_map().get_height() - 3);
-      break;
-
-    default:
-      Debug::die("Invalid destination side");
-    }
-  }
-  check_position();
-  if (get_state()->is_touching_ground()) {  // Don't change the state during stairs.
-    start_state_from_ground();
   }
 }
 
@@ -1078,10 +1114,27 @@ bool Hero::is_direction_locked() const {
 }
 
 /**
- * \brief This function is called when the movement of the entity is finished.
+ * \brief This function is called when the hero's position is changed.
  */
-void Hero::notify_movement_finished() {
-  get_state()->notify_movement_finished();
+void Hero::notify_position_changed() {
+
+  if (is_on_map()) {
+    get_entities().notify_entity_bounding_box_changed(*this);
+  }
+
+  check_position();
+  get_state()->notify_position_changed();
+
+  if (are_movement_notifications_enabled()) {
+    get_lua_context()->entity_on_position_changed(*this, get_xy(), get_layer());
+  }
+}
+
+/**
+ * \brief This function is called when the layer of this entity has just changed.
+ */
+void Hero::notify_layer_changed() {
+  get_state()->notify_layer_changed();
 }
 
 /**
@@ -1101,20 +1154,42 @@ void Hero::notify_obstacle_reached() {
 }
 
 /**
- * \brief This function is called when the hero's position is changed.
+ * \brief This function is called when the movement of the entity starts.
  */
-void Hero::notify_position_changed() {
+void Hero::notify_movement_started() {
 
-  if (is_on_map()) {
-    get_entities().notify_entity_bounding_box_changed(*this);
-  }
+  Entity::notify_movement_started();
+  get_state()->notify_movement_started();
+}
 
+/**
+ * \brief This function is called when the movement of the entity is finished.
+ */
+void Hero::notify_movement_finished() {
+
+  Entity::notify_movement_finished();
+  get_state()->notify_movement_finished();
+}
+
+/**
+ * \brief Updates the hero depending on its movement.
+ *
+ * This function is called when the hero's movement direction changes (for instance
+ * because the player pressed or released a directional key, or the hero just reached an obstacle).
+ * It updates the hero's animations and collisions according to the new movement.
+ */
+void Hero::notify_movement_changed() {
+
+  update_direction();
+
+  // let the state pick the animation corresponding to the movement tried by the player
+  get_state()->notify_movement_changed();
   check_position();
-  get_state()->notify_position_changed();
 
-  if (are_movement_notifications_enabled()) {
-    get_lua_context()->entity_on_position_changed(*this, get_xy(), get_layer());
+  if (get_ground_below() == Ground::ICE) {
+    update_ice();
   }
+  Entity::notify_movement_changed();
 }
 
 /**
@@ -1186,34 +1261,6 @@ void Hero::check_position() {
       }
     }
   }
-}
-
-/**
- * \brief This function is called when the layer of this entity has just changed.
- */
-void Hero::notify_layer_changed() {
-  get_state()->notify_layer_changed();
-}
-
-/**
- * \brief Updates the hero depending on its movement.
- *
- * This function is called when the hero's movement direction changes (for instance
- * because the player pressed or released a directional key, or the hero just reached an obstacle).
- * It updates the hero's animations and collisions according to the new movement.
- */
-void Hero::notify_movement_changed() {
-
-  update_direction();
-
-  // let the state pick the animation corresponding to the movement tried by the player
-  get_state()->notify_movement_changed();
-  check_position();
-
-  if (get_ground_below() == Ground::ICE) {
-    update_ice();
-  }
-  Entity::notify_movement_changed();
 }
 
 /**
@@ -1299,15 +1346,22 @@ void Hero::notify_ground_below_changed() {
     break;
 
   case Ground::SHALLOW_WATER:
-    start_shallow_water();
+    if (get_state()->is_affected_by_shallow_water()) {
+      start_shallow_water();
+     }
     break;
 
   case Ground::GRASS:
-    start_grass();
+    if (get_state()->is_affected_by_grass()) {
+      start_grass();
+    }
     break;
 
   case Ground::LADDER:
-    set_walking_speed(normal_walking_speed * 3 / 5);
+    if (!suspended &&
+        get_state()->is_affected_by_ladder()) {
+      set_walking_speed(normal_walking_speed * 3 / 5);
+    }
     break;
 
   case Ground::WALL:
@@ -1331,7 +1385,7 @@ void Hero::notify_ground_below_changed() {
   }
 
   // Notify the state.
-  get_state()->notify_ground_changed();
+  get_state()->notify_ground_below_changed();
 }
 
 /**
@@ -1446,67 +1500,98 @@ bool Hero::is_obstacle_for(Entity& other) {
 }
 
 /**
- * \brief Returns whether shallow water is currently considered as an obstacle for the hero.
- * \return true if shallow water is currently an obstacle for the hero
+ * \copydoc Entity::is_traversable_obstacle
+ */
+bool Hero::is_traversable_obstacle() const {
+  return get_state()->is_traversable_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_wall_obstacle
+ */
+bool Hero::is_wall_obstacle() const {
+  return get_state()->is_wall_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_low_wall_obstacle
+ */
+bool Hero::is_low_wall_obstacle() const {
+  return get_state()->is_low_wall_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_grass_obstacle
+ */
+bool Hero::is_grass_obstacle() const {
+  return get_state()->is_grass_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_shallow_water_obstacle
  */
 bool Hero::is_shallow_water_obstacle() const {
   return get_state()->is_shallow_water_obstacle();
 }
 
 /**
- * \brief Returns whether deep water is currently considered as an obstacle for the hero.
- * \return true if deep water is currently an obstacle for the hero
+ * \copydoc Entity::is_deep_water_obstacle
  */
 bool Hero::is_deep_water_obstacle() const {
   return get_state()->is_deep_water_obstacle();
 }
 
 /**
- * \brief Returns whether a hole is currently considered as an obstacle for the hero.
- * \return true if the holes are currently an obstacle for the hero
+ * \copydoc Entity::is_hole_obstacle
  */
 bool Hero::is_hole_obstacle() const {
   return get_state()->is_hole_obstacle();
 }
 
 /**
- * \brief Returns whether lava is currently considered as an obstacle for the hero.
- * \return true if lava is currently an obstacle for the hero
+ * \copydoc Entity::is_ice_obstacle
+ */
+bool Hero::is_ice_obstacle() const {
+  return get_state()->is_ice_obstacle();
+}
+
+/**
+ * \copydoc Entity::is_lava_obstacle
  */
 bool Hero::is_lava_obstacle() const {
   return get_state()->is_lava_obstacle();
 }
 
 /**
- * \brief Returns whether prickles are currently considered as an obstacle for the hero.
- * \return true if prickles are currently an obstacle for the hero
+ * \copydoc Entity::is_prickle_obstacle
  */
 bool Hero::is_prickle_obstacle() const {
   return get_state()->is_prickle_obstacle();
 }
 
 /**
- * \brief Returns whether a ladder is currently considered as an obstacle for the hero.
- * \return true if the ladders are currently an obstacle for the hero
+ * \copydoc Entity::is_ladder_obstacle
  */
 bool Hero::is_ladder_obstacle() const {
   return get_state()->is_ladder_obstacle();
 }
 
 /**
- * \copydoc Entity::is_block_obstacle
+ * \copydoc Entity::is_hero_obstacle
  */
-bool Hero::is_block_obstacle(Block& block) {
-  return block.is_hero_obstacle(*this);
+bool Hero::is_hero_obstacle(Hero& hero) {
+  return get_state()->is_hero_obstacle(hero);
 }
 
 /**
- * \brief Returns whether a teletransporter is currently considered as an obstacle.
- *
- * This depends on the hero's state.
- *
- * \param teletransporter a teletransporter
- * \return true if the teletransporter is currently an obstacle for the hero
+ * \copydoc Entity::is_block_obstacle
+ */
+bool Hero::is_block_obstacle(Block& block) {
+  return get_state()->is_block_obstacle(block);
+}
+
+/**
+ * \copydoc Entity::is_teletransporter_obstacle
  */
 bool Hero::is_teletransporter_obstacle(Teletransporter& teletransporter) {
   return get_state()->is_teletransporter_obstacle(teletransporter);
@@ -1520,30 +1605,59 @@ bool Hero::is_stream_obstacle(Stream& stream) {
 }
 
 /**
- * \brief Returns whether some stairs are currently considered as an obstacle for this entity.
- * \param stairs an stairs entity
- * \return true if the stairs are currently an obstacle for this entity
+ * \copydoc Entity::is_stairs_obstacle
  */
 bool Hero::is_stairs_obstacle(Stairs& stairs) {
   return get_state()->is_stairs_obstacle(stairs);
 }
 
 /**
- * \brief Returns whether a sensor is currently considered as an obstacle for the hero.
- * \param sensor a sensor (not used here)
- * \return true if this sensor is currently an obstacle for the hero
+ * \copydoc Entity::is_sensor_obstacle
  */
 bool Hero::is_sensor_obstacle(Sensor& sensor) {
   return get_state()->is_sensor_obstacle(sensor);
 }
 
 /**
- * \brief Returns whether a raised crystal block is currently considered as an obstacle for this entity.
- * \param raised_block a crystal block raised
- * \return true if the raised block is currently an obstacle for this entity
+ * \copydoc Entity::is_switch_obstacle
  */
-bool Hero::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
-  return !is_on_raised_blocks();
+bool Hero::is_switch_obstacle(Switch& sw) {
+  return get_state()->is_switch_obstacle(sw);
+}
+
+/**
+ * \copydoc Entity::is_raised_block_obstacle
+ */
+bool Hero::is_raised_block_obstacle(CrystalBlock& raised_block) {
+  return get_state()->is_raised_block_obstacle(raised_block);
+}
+
+/**
+ * \copydoc Entity::is_crystal_obstacle
+ */
+bool Hero::is_crystal_obstacle(Crystal& crystal) {
+  return get_state()->is_crystal_obstacle(crystal);
+}
+
+/**
+ * \copydoc Entity::is_npc_obstacle
+ */
+bool Hero::is_npc_obstacle(Npc& npc) {
+  return get_state()->is_npc_obstacle(npc);
+}
+
+/**
+ * \copydoc Entity::is_door_obstacle
+ */
+bool Hero::is_door_obstacle(Door& door) {
+  return get_state()->is_door_obstacle(door);
+}
+
+/**
+ * \copydoc Entity::is_enemy_obstacle
+ */
+bool Hero::is_enemy_obstacle(Enemy& enemy) {
+  return get_state()->is_enemy_obstacle(enemy);
 }
 
 /**
@@ -1554,6 +1668,13 @@ bool Hero::is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_positio
 }
 
 /**
+ * \copydoc Entity::is_destructible_obstacle
+ */
+bool Hero::is_destructible_obstacle(Destructible& destructible) {
+  return get_state()->is_destructible_obstacle(destructible);
+}
+
+/**
  * \copydoc Entity::is_separator_obstacle
  */
 bool Hero::is_separator_obstacle(Separator& separator) {
@@ -1561,9 +1682,7 @@ bool Hero::is_separator_obstacle(Separator& separator) {
 }
 
 /**
- * \brief This function is called when a destructible item detects a non-pixel perfect collision with this entity.
- * \param destructible the destructible item
- * \param collision_mode the collision mode that detected the event
+ * \copydoc Entity::notify_collision_with_destructible
  */
 void Hero::notify_collision_with_destructible(
     Destructible& destructible, CollisionMode collision_mode) {
@@ -2059,8 +2178,8 @@ void Hero::try_snap_to_facing_entity() {
 void Hero::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool killed) {
 
   get_state()->notify_attacked_enemy(attack, victim, victim_sprite, result, killed);
@@ -2120,7 +2239,7 @@ void Hero::update_invincibility() {
  * \return \c true if the hero can be hurt.
  */
 bool Hero::can_be_hurt(Entity* attacker) const {
-  return !is_invincible() && get_state()->can_be_hurt(attacker);
+  return !is_invincible() && get_state()->get_can_be_hurt(attacker);
 }
 
 /**

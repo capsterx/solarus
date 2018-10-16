@@ -62,15 +62,15 @@ class Hookshot: public Entity {
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
     void notify_collision_with_chest(Chest& chest) override;
     void notify_collision_with_destructible(Destructible& destructible, CollisionMode collision_mode) override;
     void notify_collision_with_block(Block& block) override;
     void notify_collision_with_switch(Switch& sw, CollisionMode collision_mode) override;
-     void notify_collision_with_crystal(Crystal& crystal, CollisionMode collision_mode) override;
+    void notify_collision_with_crystal(Crystal& crystal, CollisionMode collision_mode) override;
 
   private:
 

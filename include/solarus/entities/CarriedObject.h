@@ -43,10 +43,10 @@ class CarriedObject: public Entity {
     /**
      * Indicates what to do with a carried object.
      */
-    enum Behavior {
-      BEHAVIOR_THROW,          /**< make the hero throw the item */
-      BEHAVIOR_DESTROY,        /**< destroy the item silently */
-      BEHAVIOR_KEEP            /**< let the hero continue to carry the item */
+    enum class Behavior {
+      THROW,       /**< Make the hero throw the object. */
+      REMOVE,      /**< Destroy the object silently. */
+      KEEP         /**< Let the hero continue to carry the object. */
     };
 
     CarriedObject(
@@ -109,8 +109,8 @@ class CarriedObject: public Entity {
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 
@@ -144,6 +144,12 @@ class CarriedObject: public Entity {
 
     static const std::string lifting_trajectories[4];   /**< trajectory of the lifting movement for each direction */
 
+};
+
+template <>
+struct SOLARUS_API EnumInfoTraits<CarriedObject::Behavior> {
+  static const std::string pretty_name;
+  static const EnumInfo<CarriedObject::Behavior>::names_type names;
 };
 
 }

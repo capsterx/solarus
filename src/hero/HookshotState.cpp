@@ -131,7 +131,7 @@ bool Hero::HookshotState::can_avoid_stream(const Stream& /* stream */) const {
  * \param stairs some stairs
  * \return true if the stairs are obstacle in this state
  */
-bool Hero::HookshotState::is_stairs_obstacle(const Stairs& /* stairs */) const {
+bool Hero::HookshotState::is_stairs_obstacle(Stairs& /* stairs */) {
 
   // allow to fly over stairs covered by water
   return get_entity().get_ground_below() != Ground::DEEP_WATER;
@@ -142,7 +142,7 @@ bool Hero::HookshotState::is_stairs_obstacle(const Stairs& /* stairs */) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::HookshotState::is_sensor_obstacle(const Sensor& /* sensor */) const {
+bool Hero::HookshotState::is_sensor_obstacle(Sensor& /* sensor */) {
   return false;
 }
 
@@ -150,7 +150,7 @@ bool Hero::HookshotState::is_sensor_obstacle(const Sensor& /* sensor */) const {
  * \copydoc Entity::State::is_jumper_obstacle
  */
 bool Hero::HookshotState::is_jumper_obstacle(
-    const Jumper& /* jumper */, const Rectangle& /* candidate_position */) const {
+    Jumper& /* jumper */, const Rectangle& /* candidate_position */) {
   return false;
 }
 
@@ -168,7 +168,7 @@ bool Hero::HookshotState::can_avoid_switch() const {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::HookshotState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::HookshotState::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 

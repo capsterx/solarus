@@ -40,13 +40,13 @@ class Hero::SwordTappingState: public HeroState {
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool get_can_use_shield() const override;
     bool is_cutting_with_sword(Entity& entity) override;
-    bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
     void notify_obstacle_reached() override;
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 

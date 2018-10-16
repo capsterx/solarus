@@ -32,6 +32,7 @@
 #include "solarus/entities/Destination.h"
 #include "solarus/entities/Door.h"
 #include "solarus/entities/Enemy.h"
+#include "solarus/entities/EnemyAttack.h"
 #include "solarus/entities/GroundInfo.h"
 #include "solarus/entities/Npc.h"
 #include "solarus/entities/Pickable.h"
@@ -296,10 +297,10 @@ bool LuaContext::notify_input(const InputEvent& event) {
  * The Lua file of this map is automatically loaded.
  *
  * \param map The map started.
- * \param destination The destination point used if it's a normal one,
+ * \param destination The destination point used if it is a normal one,
  * nullptr otherwise.
  */
-void LuaContext::run_map(Map& map, Destination* destination) {
+void LuaContext::run_map(Map& map, const std::shared_ptr<Destination>& destination) {
 
   // Compute the file name, depending on the id of the map.
   std::string file_name = std::string("maps/") + map.get_id();
@@ -1531,7 +1532,7 @@ int LuaContext::userdata_meta_index_as_table(lua_State* l) {
  * @brief checks if the LuaContext is in a event-friendly context
  */
 void LuaContext::check_callback_thread() const {
-  Debug::check_assertion(current_l==main_l,"Events should be called on main");
+  Debug::check_assertion(current_l == main_l, "Events should be called in the main Lua thread");
 }
 
 /**
@@ -2293,9 +2294,9 @@ void LuaContext::on_changed() {
 
 /**
  * \brief Calls the on_started() method of the object on top of the stack.
- * \param destination The destination point used (nullptr if it's a special one).
+ * \param destination The destination point used (nullptr if it is a special one).
  */
-void LuaContext::on_started(Destination* destination) {
+void LuaContext::on_started(const std::shared_ptr<Destination>& destination) {
   check_callback_thread();
   if (find_method("on_started")) {
     if (destination == nullptr) {
@@ -2310,9 +2311,9 @@ void LuaContext::on_started(Destination* destination) {
 
 /**
  * \brief Calls the on_opening_transition_finished() method of the object on top of the stack.
- * \param destination The destination point used (nullptr if it's a special one).
+ * \param destination The destination point used (nullptr if it is a special one).
  */
-void LuaContext::on_opening_transition_finished(Destination* destination) {
+void LuaContext::on_opening_transition_finished(const std::shared_ptr<Destination>& destination) {
   check_callback_thread();
   if (find_method("on_opening_transition_finished")) {
     if (destination == nullptr) {
@@ -3128,6 +3129,41 @@ bool LuaContext::on_attacking_hero(Hero& hero, Sprite* attacker_sprite) {
 }
 
 /**
+ * \brief Calls the on_attacked_enemy() method of the object on top of the stack.
+ * \param The enemy that was attacked.
+ * \param enemy_sprite Sprite that was attacked if any.
+ * \param attack How the enemy was attacked.
+ * \param reaction How the enemy reacted to the attack.
+ */
+void LuaContext::on_attacked_enemy(
+    Enemy& enemy,
+    Sprite* enemy_sprite,
+    EnemyAttack attack,
+    const EnemyReaction::Reaction& reaction
+) {
+  check_callback_thread();
+  if (find_method("on_attacked_enemy")) {
+    push_enemy(current_l, enemy);
+    if (enemy_sprite == nullptr) {
+      lua_pushnil(current_l);
+    } else {
+      push_sprite(current_l, *enemy_sprite);
+    }
+    push_string(current_l, Enemy::attack_names.find(attack)->second);
+
+    if (reaction.type == EnemyReaction::ReactionType::HURT) {
+      lua_pushinteger(current_l, reaction.life_lost);
+    } else if (reaction.type == EnemyReaction::ReactionType::LUA_CALLBACK) {
+      reaction.callback.push(current_l);
+    } else {
+      push_string(current_l, enum_to_name(reaction.type));
+    }
+
+    call_function(5, 0, "on_attacked_enemy");
+  }
+}
+
+/**
  * \brief Calls the on_ground_below_changed() method of the object on top of the stack.
  * \param ground_below The new ground below the object.
  */
@@ -3141,6 +3177,59 @@ void LuaContext::on_ground_below_changed(Ground ground_below) {
       push_string(current_l, enum_to_name(ground_below));
     }
     call_function(2, 0, "on_ground_below_changed");
+  }
+}
+
+/**
+ * \brief Calls the on_map_started() method of the object on top of the stack.
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void LuaContext::on_map_started(
+    Map& map, const std::shared_ptr<Destination>& destination) {
+
+  check_callback_thread();
+  if (find_method("on_map_started")) {
+    push_map(current_l, map);
+    if (destination == nullptr) {
+      lua_pushnil(current_l);
+    }
+    else {
+      push_entity(current_l, *destination);
+    }
+    call_function(3, 0, "on_map_started");
+  }
+}
+
+/**
+ * \brief Calls the on_map_opening_transition_finished() method of the object on top of the stack.
+ * \param map The map.
+ * \param destination Destination entity where the hero is placed or nullptr.
+ */
+void LuaContext::on_map_opening_transition_finished(
+    Map& map, const std::shared_ptr<Destination>& destination) {
+
+  check_callback_thread();
+  if (find_method("on_map_opening_transition_finished")) {
+    push_map(current_l, map);
+    if (destination == nullptr) {
+      lua_pushnil(current_l);
+    }
+    else {
+      push_entity(current_l, *destination);
+    }
+    call_function(3, 0, "on_map_opening_transition_finished");
+  }
+}
+
+/**
+ * \brief Calls the on_map_finished() method of the object on top of the stack.
+ */
+void LuaContext::on_map_finished() {
+
+  check_callback_thread();
+  if (find_method("on_map_finished")) {
+    call_function(1, 0, "on_map_finished");
   }
 }
 

@@ -45,7 +45,7 @@ Hero::JumpingState::JumpingState(
   HeroState(hero, "jumping"),
   carried_object() {
 
-  if (get_previous_carried_object_behavior() == CarriedObject::BEHAVIOR_KEEP) {
+  if (get_previous_carried_object_behavior() == CarriedObject::Behavior::KEEP) {
     // Keep the carried object of the previous state.
     carried_object = hero.get_carried_object();
   }
@@ -99,21 +99,18 @@ void Hero::JumpingState::stop(const State* next_state) {
 
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       carried_object->throw_item(get_sprites().get_animation_direction());
       get_entities().add_entity(carried_object);
       carried_object = nullptr;
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
-      carried_object = nullptr;
+    case CarriedObject::Behavior::REMOVE:
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_KEEP:
-      // The next state is now the owner and has incremented the refcount.
-      carried_object = nullptr;
+    case CarriedObject::Behavior::KEEP:
       break;
 
     default:
@@ -264,7 +261,7 @@ bool Hero::JumpingState::can_avoid_stream(const Stream& /* stream */) const {
  * \param stairs some stairs
  * \return true if the stairs are obstacle in this state
  */
-bool Hero::JumpingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
+bool Hero::JumpingState::is_stairs_obstacle(Stairs& /* stairs */) {
   // allow to jump over stairs covered by water
   return get_entity().get_ground_below() != Ground::DEEP_WATER;
 }
@@ -274,8 +271,7 @@ bool Hero::JumpingState::is_stairs_obstacle(const Stairs& /* stairs */) const {
  * \param sensor a sensor
  * \return true if the sensor is an obstacle in this state
  */
-bool Hero::JumpingState::is_sensor_obstacle(const Sensor& /* sensor */) const {
-
+bool Hero::JumpingState::is_sensor_obstacle(Sensor& /* sensor */) {
   return false;
 }
 
@@ -283,7 +279,7 @@ bool Hero::JumpingState::is_sensor_obstacle(const Sensor& /* sensor */) const {
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::JumpingState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 
@@ -309,7 +305,7 @@ bool Hero::JumpingState::can_avoid_switch() const {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::JumpingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::JumpingState::get_can_be_hurt(Entity* /* attacker */) const {
   return false;
 }
 
@@ -327,7 +323,7 @@ std::shared_ptr<CarriedObject> Hero::JumpingState::get_carried_object() const {
  */
 CarriedObject::Behavior Hero::JumpingState::get_previous_carried_object_behavior() const {
 
-  return CarriedObject::BEHAVIOR_KEEP;
+  return CarriedObject::Behavior::KEEP;
 }
 
 }

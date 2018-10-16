@@ -327,8 +327,8 @@ void Hookshot::notify_collision_with_enemy(
 void Hookshot::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& result,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (result.type != EnemyReaction::ReactionType::IGNORED && !is_going_back()) {

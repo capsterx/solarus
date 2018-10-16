@@ -174,7 +174,7 @@ bool Hero::SwordTappingState::is_cutting_with_sword(Entity& entity) {
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SwordTappingState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero was pushed by an enemy, don't go on a teletransporter
   return get_entity().get_movement() != nullptr;
@@ -198,8 +198,8 @@ void Hero::SwordTappingState::notify_obstacle_reached() {
 void Hero::SwordTappingState::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (attack == EnemyAttack::SWORD &&

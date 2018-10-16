@@ -43,7 +43,7 @@ class Hero::SwimmingState: public Hero::PlayerMovementState {
     void notify_action_command_pressed() override;
     void notify_attack_command_pressed() override;
 
-    bool is_stairs_obstacle(const Stairs& stairs) const override;
+    bool is_stairs_obstacle(Stairs& stairs) override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
 
   private:

@@ -960,7 +960,7 @@ void HeroSprites::set_suspended(bool suspended) {
 /**
  * \brief Notifies the hero's sprites that a map has just become active.
  */
-void HeroSprites::notify_map_started() {
+void HeroSprites::notify_map_starting() {
 
   // Some sprites may be tileset dependent.
   notify_tileset_changed();

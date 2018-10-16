@@ -34,6 +34,7 @@ class EquipmentItem;
 class EquipmentItemUsage;
 class HeroSprites;
 class HeroState;
+class InputEvent;
 class Map;
 class Treasure;
 
@@ -70,6 +71,7 @@ class Hero: public Entity {
     void update() override;
     void built_in_draw(Camera& camera) override;
     void set_suspended(bool suspended) override;
+    bool notify_input(const InputEvent& event);
     void notify_command_pressed(GameCommand command) override;
     void notify_command_released(GameCommand command) override;
 
@@ -94,10 +96,13 @@ class Hero: public Entity {
      * Functions called when the player goes to another map.
      */
     void notify_creating() override;
-    void notify_map_started() override;
+    void notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination) override;
+    void notify_map_finished() override;
     void notify_tileset_changed() override;
     void place_on_destination(Map& map, const Rectangle& previous_map_location);
-    void notify_map_opening_transition_finished() override;
 
     /**
      * \name Position.
@@ -133,9 +138,10 @@ class Hero: public Entity {
     int get_real_movement_direction8();
     bool is_moving_towards(int direction4) const;
     bool is_direction_locked() const;
-    void notify_obstacle_reached() override;
     void notify_position_changed() override;
     void notify_layer_changed() override;
+    void notify_obstacle_reached() override;
+    void notify_movement_started() override;
     void notify_movement_changed() override;
     void notify_movement_finished() override;
     void reset_movement();
@@ -164,19 +170,31 @@ class Hero: public Entity {
      * Information about what is considered as an obstacle for the hero.
      */
     bool is_obstacle_for(Entity& other) override;
+    bool is_traversable_obstacle() const override;
+    bool is_wall_obstacle() const override;
+    bool is_low_wall_obstacle() const override;
+    bool is_grass_obstacle() const override;
     bool is_shallow_water_obstacle() const override;
     bool is_deep_water_obstacle() const override;
     bool is_hole_obstacle() const override;
+    bool is_ice_obstacle() const override;
     bool is_lava_obstacle() const override;
     bool is_prickle_obstacle() const override;
     bool is_ladder_obstacle() const override;
     bool is_block_obstacle(Block& block) override;
     bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    bool is_hero_obstacle(Hero& hero) override;
     bool is_stream_obstacle(Stream& stream) override;
     bool is_stairs_obstacle(Stairs& stairs) override;
     bool is_sensor_obstacle(Sensor& sensor) override;
+    bool is_switch_obstacle(Switch& sw) override;
     bool is_raised_block_obstacle(CrystalBlock& raised_block) override;
+    bool is_crystal_obstacle(Crystal& crystal) override;
+    bool is_npc_obstacle(Npc& npc) override;
+    bool is_door_obstacle(Door& block) override;
+    bool is_enemy_obstacle(Enemy& enemy) override;
     bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
+    bool is_destructible_obstacle(Destructible& destructible) override;
     bool is_separator_obstacle(Separator& separator) override;
 
     /**
@@ -212,8 +230,8 @@ class Hero: public Entity {
     void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
     int get_sword_damage_factor() const;
