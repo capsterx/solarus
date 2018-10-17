@@ -1506,6 +1506,10 @@ int LuaContext::game_api_get_commands_direction(lua_State* l) {
   return state_boundary_handle(l, [&] {
     Savegame& savegame = *check_game(l, 1);
 
+    if(!savegame.get_game()) {
+      return 0;
+    }
+
     GameCommands& commands = savegame.get_game()->get_commands();
     int wanted_direction8 = commands.get_wanted_direction8();
     if (wanted_direction8 == -1) {

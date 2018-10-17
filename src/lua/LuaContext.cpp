@@ -43,6 +43,7 @@
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
+#include "solarus/core/Arguments.h"
 #include <sstream>
 
 namespace Solarus {
@@ -104,7 +105,7 @@ MainLoop& LuaContext::get_main_loop() {
 /**
  * \brief Initializes Lua.
  */
-void LuaContext::initialize() {
+void LuaContext::initialize(const Arguments& args) {
 
   // Create an execution context.
   main_l = current_l = luaL_newstate();
@@ -173,6 +174,14 @@ void LuaContext::initialize() {
   }
 
   Debug::check_assertion(lua_gettop(current_l) == 0, "Non-empty Lua stack after initialization");
+
+
+  //Do the script passed as arg
+  std::string arg_script = args.get_argument_value("-s");
+  if(!arg_script.empty()) {
+    Debug::warning("Running script arg \"" + arg_script + "\"");
+    do_string(arg_script,"script argument (-s)");
+  }
 
   // Execute the main file.
   do_file_if_exists("main");

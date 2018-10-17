@@ -207,7 +207,7 @@ MainLoop::MainLoop(const Arguments& args):
   // because Lua might change the video mode initially.
   lua_context = std::unique_ptr<LuaContext>(new LuaContext(*this));
   Video::show_window();
-  lua_context->initialize();
+  lua_context->initialize(args);
   Video::hide_window();
 
   // Set up the Lua console.
@@ -460,7 +460,7 @@ void MainLoop::step() {
     }
     else {
       lua_context->exit();
-      lua_context->initialize();
+      lua_context->initialize(Arguments());
       Music::stop_playing();
     }
   }
