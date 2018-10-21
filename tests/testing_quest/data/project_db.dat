@@ -150,6 +150,7 @@ map{ id = "teletransportation_tests/start_scrolling_sword_charged", description 
 map{ id = "traversable", description = "Traversable test area" }
 
 tileset{ id = "castle", description = "Castle" }
+tileset{ id = "castle_grayscale", description = "Castle (grayscale)" }
 tileset{ id = "castle_no_sprites_file", description = "Castle (no sprites file)" }
 tileset{ id = "overworld", description = "Overworld" }
 

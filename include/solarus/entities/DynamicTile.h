@@ -46,8 +46,9 @@ class DynamicTile: public Entity {
         int layer,
         const Point& xy,
         const Size& size,
-        const Tileset& tileset,
-        const std::string& tile_pattern_id
+        const std::string& tile_pattern_id,
+        const std::shared_ptr<TilePattern>& tile_pattern,
+        const Tileset* tileset
     );
 
     virtual EntityType get_type() const override;
@@ -56,12 +57,14 @@ class DynamicTile: public Entity {
     Ground get_modified_ground() const override;
     bool is_drawn_at_its_position() const override;
     void built_in_draw(Camera& camera) override;
+    void notify_tileset_changed() override;
 
   private:
 
     const std::string tile_pattern_id; /**< Id of the tile pattern. */
-    const TilePattern& tile_pattern;   /**< Pattern of the tile. */
-    const Tileset& tileset;                  /**< Tileet of the pattern. */
+    std::shared_ptr<TilePattern>
+        tile_pattern;                  /**< Pattern of the tile. */
+    const Tileset* tileset;            /**< Tileset of the pattern (nullptr means the one of the map). */
 
 };
 

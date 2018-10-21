@@ -4,8 +4,8 @@ local expected_color
 
 function map:on_opening_transition_finished()
 
-  map:set_tileset("overworld")
-  expected_color = { 0, 0, 255 }
+  map:set_tileset("castle_grayscale")
+  expected_color = { 65, 65, 65 }
 end
 
 function map:on_draw(dst_surface)

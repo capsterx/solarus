@@ -678,9 +678,11 @@ void Entities::notify_map_opening_transition_finished(Map& map, const std::share
  */
 void Entities::notify_tileset_changed() {
 
-  // Redraw optimized tiles (i.e. non animated ones).
   for (int layer = map.get_min_layer(); layer <= map.get_max_layer(); ++layer) {
     non_animated_regions[layer]->notify_tileset_changed();
+    for (const TilePtr& tile : tiles_in_animated_regions[layer]) {
+      tile->notify_tileset_changed();
+    }
   }
 
   for (const EntityPtr& entity: all_entities) {

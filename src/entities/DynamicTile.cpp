@@ -27,24 +27,25 @@ namespace Solarus {
 
 /**
  * \brief Creates a new dynamic tile on the map.
- * \param name a name to identify this tile
- * \param layer layer of the tile
- * \param xy Coordinates of the tile on the map
- * \param size Size of the tile (the pattern can be repeated)
- * \param tileset The tileset to use.
- * \param tile_pattern_id id of the tile pattern in the tileset
+ * \param name A name to identify this entity.
+ * \param layer Layer of the tile.
+ * \param xy Coordinates of the tile on the map.
+ * \param size Size of the tile (the pattern can be repeated).
+ * \param tile_pattern_id Id of the tile pattern in the tileset.
+ * \param tileset The tileset to use (nullptr means the one of the map).
  */
 DynamicTile::DynamicTile(
     const std::string& name,
     int layer,
     const Point& xy,
     const Size& size,
-    const Tileset& tileset,
-    const std::string& tile_pattern_id
+    const std::string& tile_pattern_id,
+    const std::shared_ptr<TilePattern>& tile_pattern,
+    const Tileset* tileset
 ) :
   Entity(name, 0, layer, xy, size),
   tile_pattern_id(tile_pattern_id),
-  tile_pattern(tileset.get_tile_pattern(tile_pattern_id)),
+  tile_pattern(tile_pattern),
   tileset(tileset) {
 
   set_tiled(true);
@@ -72,14 +73,14 @@ const std::string& DynamicTile::get_tile_pattern_id() const {
  * \return The ground defined by this entity.
  */
 Ground DynamicTile::get_modified_ground() const {
-  return tile_pattern.get_ground();
+  return tile_pattern->get_ground();
 }
 
 /**
  * \copydoc Entity::is_drawn_at_its_position()
  */
 bool DynamicTile::is_drawn_at_its_position() const {
-  return tile_pattern.is_drawn_at_its_position();
+  return tile_pattern->is_drawn_at_its_position();
 }
 
 /**
@@ -93,14 +94,27 @@ void DynamicTile::built_in_draw(Camera& camera) {
       get_top_left_y() - camera_position.get_y(),
       get_width(), get_height());
 
-  tile_pattern.fill_surface(
+  const Tileset* tileset = this->tileset != nullptr ? this->tileset : &get_map().get_tileset();
+  tile_pattern->fill_surface(
       camera.get_surface(),
       dst_position,
-      tileset,
+      *tileset,
       camera_position.get_xy()
   );
 
   Entity::built_in_draw(camera);
+}
+
+/**
+ * \copydoc Entity::notify_tileset_changed
+ */
+void DynamicTile::notify_tileset_changed() {
+
+  // The tileset of the map has changed.
+  // Update the pattern if we use that tileset.
+  if (tileset == nullptr) {
+    tile_pattern = get_map().get_tileset().get_tile_pattern(tile_pattern_id);
+  }
 }
 
 }

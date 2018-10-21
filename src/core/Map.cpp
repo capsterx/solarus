@@ -475,8 +475,8 @@ SurfacePtr Map::get_camera_surface() {
  * This function is called when the game is being suspended
  * or resumed.
  *
- * \param suspended true to suspend the movement and the animations,
- * false to resume them
+ * \param suspended \c true to suspend the movement and the animations,
+ * \c false to resume them.
  */
 void Map::set_suspended(bool suspended) {
 
@@ -488,7 +488,7 @@ void Map::set_suspended(bool suspended) {
 
 /**
  * \brief This function is called when a low-level input event occurs on this map.
- * \param event the event to handle
+ * \param event The event to handle.
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool Map::notify_input(const InputEvent& event) {
@@ -502,10 +502,10 @@ bool Map::notify_input(const InputEvent& event) {
  */
 void Map::update() {
 
-  // detect whether the game has just been suspended or resumed
+  // Detect whether the game has just been suspended or resumed.
   check_suspended();
 
-  // update the elements
+  // Update the elements.
   tileset->update();
   entities->update();
   get_lua_context().map_on_update(*this);
