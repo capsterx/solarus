@@ -31,6 +31,7 @@
 #include "solarus/entities/Stairs.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/graphics/Sprite.h"
+#include "solarus/lua/LuaContext.h"
 #include "solarus/movements/PixelMovement.h"
 #include "solarus/movements/RelativeMovement.h"
 #include "solarus/movements/StraightMovement.h"
@@ -237,6 +238,8 @@ void CarriedObject::throw_item(int direction) {
   this->y_increment = -2;
   this->next_down_date = System::now() + 40;
   this->item_height = 18;
+
+  get_lua_context()->carried_object_on_thrown(*this);
 }
 
 /**
@@ -298,6 +301,7 @@ void CarriedObject::break_item() {
   }
   is_throwing = false;
   is_breaking = true;
+  get_lua_context()->carried_object_on_breaking(*this);
 }
 
 /**
@@ -413,6 +417,7 @@ void CarriedObject::update() {
         -18,
         true
     ));
+    get_lua_context()->carried_object_on_lifted(*this);
   }
 
   // when the item has finished flying, destroy it

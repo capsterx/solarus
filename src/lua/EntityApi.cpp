@@ -480,6 +480,7 @@ void LuaContext::register_entity_module() {
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     carried_object_methods.insert(carried_object_methods.end(), {
+        { "get_carrier", carried_object_api_get_carrier },
         { "get_destruction_sound", carried_object_api_get_destruction_sound },
         { "set_destruction_sound", carried_object_api_set_destruction_sound },
         { "get_damage_on_enemies", carried_object_api_get_damage_on_enemies },
@@ -4879,6 +4880,27 @@ void LuaContext::push_carried_object(lua_State* l, CarriedObject& carried_object
 }
 
 /**
+ * \brief Implementation of carried_object:get_carrier().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_get_carrier(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CarriedObject& carried_object = *check_carried_object(l, 1);
+
+    const EntityPtr& carrier = carried_object.get_carrier();
+    if (carrier == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_entity(l, *carrier);
+    }
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of carried_object:get_destruction_sound().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -6899,6 +6921,65 @@ void LuaContext::npc_on_collision_fire(Npc& npc) {
   run_on_main([this,&npc](lua_State* l){
     push_npc(l, npc);
     on_collision_fire();
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_lifted() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_lifted(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_lifted")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_lifted();
+    lua_pop(l, 1);
+  });
+}
+
+
+/**
+ * \brief Calls the on_thrown() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_thrown(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_thrown")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_thrown();
+    lua_pop(l, 1);
+  });
+}
+
+
+/**
+ * \brief Calls the on_breaking() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_breaking(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_breaking")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_breaking();
     lua_pop(l, 1);
   });
 }

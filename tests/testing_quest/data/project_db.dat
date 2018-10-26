@@ -37,6 +37,7 @@ map{ id = "bugs/1221_custom_entity_follow_stream", description = "#1221: Allow c
 map{ id = "bugs/1228_crash_map_get_hero/1", description = "#1128: Crash in map:get_hero() after the map is closed" }
 map{ id = "bugs/1228_crash_map_get_hero/2", description = "Map 2" }
 map{ id = "bugs/1230_entity_on_lifting", description = "#1230: entity:on_lifting" }
+map{ id = "bugs/1233_carried_object_events", description = "#1233: Carried object events" }
 map{ id = "bugs/1236_entity_timer_not_suspended", description = "#1236: Entity timer continues when the map is suspended" }
 map{ id = "bugs/1247_hero_state_changing", description = "#1247: hero:on_state_changing()" }
 map{ id = "bugs/1260_entity_draw_override", description = "#1260: entity:get/set_draw_override()" }

@@ -145,8 +145,7 @@ void Hero::CarryingState::update() {
   if (is_current_state()) {
     carried_object->update();
 
-    if (!is_suspended()) {
-
+    if (is_current_state() && !is_suspended()) {
       if (carried_object->is_broken()) {
         carried_object = nullptr;
         Hero& hero = get_entity();

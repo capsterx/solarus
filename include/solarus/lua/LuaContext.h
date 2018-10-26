@@ -468,6 +468,9 @@ class LuaContext {
     void destination_on_activated(Destination& destination);
     void teletransporter_on_activated(Teletransporter& teletransporter);
     void npc_on_collision_fire(Npc& npc);
+    void carried_object_on_lifted(CarriedObject& carried_object);
+    void carried_object_on_thrown(CarriedObject& carried_object);
+    void carried_object_on_breaking(CarriedObject& carried_object);
     bool chest_on_opened(Chest& chest, const Treasure& treasure);
     void block_on_moving(Block& block);
     void block_on_moved(Block& block);
@@ -1143,6 +1146,7 @@ class LuaContext {
       destructible_api_get_modified_ground,
       dynamic_tile_api_get_pattern_id,
       dynamic_tile_api_get_modified_ground,
+      carried_object_api_get_carrier,
       carried_object_api_get_destruction_sound,
       carried_object_api_set_destruction_sound,
       carried_object_api_get_damage_on_enemies,
@@ -1459,7 +1463,6 @@ private:
     // Events.
     void check_callback_thread() const;
 
-
     void on_started();
     void on_started(const std::string& previous_state_name, CustomState* previous_state);
     void on_finished();
@@ -1517,6 +1520,9 @@ private:
     void on_collision_fire();
     void on_collision_explosion();
     void on_collision_enemy(Enemy& enemy, Sprite& other_sprite, Sprite& this_sprite);
+    void on_lifted();
+    void on_thrown();
+    void on_breaking();
     bool on_buying();
     void on_bought();
     void on_opened();
