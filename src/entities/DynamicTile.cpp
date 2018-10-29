@@ -18,6 +18,7 @@
 #include "solarus/core/Game.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/QuestFiles.h"
+#include "solarus/core/ResourceProvider.h"
 #include "solarus/entities/DynamicTile.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Tileset.h"
@@ -77,6 +78,30 @@ Ground DynamicTile::get_modified_ground() const {
 }
 
 /**
+ * \brief Returns the tileset of this dynamic tile.
+ * \return The tileset used (\c nullptr if map's tileset is used).
+ */
+const Tileset* DynamicTile::get_tileset() const {
+  return this->tileset;
+}
+
+/**
+ * \brief Set the tileset for this dynamic tile.
+ * \param tileset The tileset (\c nullptr to use the map's tileset).
+ */
+void DynamicTile::set_tileset(const Tileset* tileset) {
+    this->tileset = tileset;
+}
+
+/**
+ * \brief Set the tileset for this dynamic tile by tileset id.
+ * \param tileset_id Id of the tileset to use.
+ */
+void DynamicTile::set_tileset(const std::string& tileset_id) {
+    tileset = &get_game().get_resource_provider().get_tileset(tileset_id);
+}
+
+/**
  * \copydoc Entity::is_drawn_at_its_position()
  */
 bool DynamicTile::is_drawn_at_its_position() const {
@@ -118,4 +143,3 @@ void DynamicTile::notify_tileset_changed() {
 }
 
 }
-

@@ -101,6 +101,7 @@ New features:
 * Add an event camera:on_state_changing().
 * Add a method camera:get_surface() (#1265).
 * Add an event camera:on_state_changing().
+* Add methods dynamic_tile:get/set_tileset() (#1175).
 * Add methods door:open(), door:close() and door:set_open() (#1007).
 * Add methods stairs:get_direction() and stairs:is_inner() (#1037).
 * destructible:on_lifting() now gives a carried object parameter.

@@ -500,6 +500,8 @@ void LuaContext::register_entity_module() {
   std::vector<luaL_Reg> dynamic_tile_methods = {
       { "get_pattern_id", dynamic_tile_api_get_pattern_id },
       { "get_modified_ground", dynamic_tile_api_get_modified_ground },
+      { "get_tileset", dynamic_tile_api_get_tileset },
+      { "set_tileset", dynamic_tile_api_set_tileset },
   };
 
   dynamic_tile_methods.insert(dynamic_tile_methods.end(), common_methods.begin(), common_methods.end());
@@ -5038,6 +5040,53 @@ int LuaContext::dynamic_tile_api_get_modified_ground(lua_State* l) {
 
     push_string(l, enum_to_name(modified_ground));
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of dynamic_tile:get_tileset().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::dynamic_tile_api_get_tileset(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const DynamicTile& dynamic_tile = *check_dynamic_tile(l, 1);
+
+    const Tileset* tileset = dynamic_tile.get_tileset();
+    if (tileset) {
+        push_string(l, tileset->get_id());
+    }
+    else {
+        lua_pushnil(l);
+    }
+
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of dynamic_tile:set_tileset().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::dynamic_tile_api_set_tileset(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    DynamicTile& dynamic_tile = *check_dynamic_tile(l, 1);
+
+    if (lua_isstring(l, 2)) {
+      const std::string& tileset_id = LuaTools::check_string(l, 2);
+      dynamic_tile.set_tileset(tileset_id);
+    }
+    else if (lua_isnil(l, 2)) {
+      dynamic_tile.set_tileset(nullptr);
+    }
+    else {
+      LuaTools::type_error(l, 2, "string or nil");
+    }
+
+    return 0;
   });
 }
 
