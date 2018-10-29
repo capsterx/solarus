@@ -159,7 +159,7 @@ int LuaContext::state_api_create(lua_State* l) {
   return state_boundary_handle(l, [&] {
     const std::string& description = LuaTools::opt_string(l, 1, "");
 
-    std::shared_ptr<CustomState> state = std::make_shared<CustomState>(description);
+    std::shared_ptr<CustomState> state = std::make_shared<CustomState>(get(), description);
 
     push_state(l, *state);
     return 1;

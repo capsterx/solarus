@@ -123,6 +123,7 @@ set(lua_test_maps
   "bugs/1269_coroutines"
   "bugs/1268_movement_ignore_suspend_in_timer"
   "bugs/1275_map_set_tileset"
+  "bugs/1286_crash_state_set_can_traverse"
 )
 
 # Test that should not fail when there are errors.

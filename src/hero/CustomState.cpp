@@ -42,11 +42,14 @@ namespace Solarus {
 
 /**
  * \brief Constructor.
+ * \param lua_context The Lua context.
  * \param description Description of this state or an empty string.
  */
 CustomState::CustomState(
+    LuaContext& lua_context,
     const std::string& description):
   HeroState("custom"),
+  lua_context(lua_context),
   description(description),
   visible(true),
   draw_override(),
@@ -83,6 +86,17 @@ CustomState::CustomState(
  */
 const std::string& CustomState::get_lua_type_name() const {
   return LuaContext::state_module_name;
+}
+
+/**
+ * \brief Returns the Lua context of this state.
+ *
+ * TODO store in EntityState instead of hiding a method
+ *
+ * \return The Lua context.
+ */
+LuaContext& CustomState::get_lua_context() {
+  return lua_context;
 }
 
 /**

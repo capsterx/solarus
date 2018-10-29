@@ -37,8 +37,10 @@ class CustomState: public HeroState {
 
   public:
 
-    explicit CustomState(const std::string& description);
+    CustomState(LuaContext& lua_context, const std::string& description);
     const std::string& get_lua_type_name() const override;
+
+    LuaContext& get_lua_context();
 
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
@@ -175,6 +177,7 @@ class CustomState: public HeroState {
     void update_jumper();
     void cancel_jumper();
 
+    LuaContext& lua_context;               /**< The Lua context. */
     std::string description;               /**< Description of this state or an empty string. */
     bool visible;                          /**< Whether the entity is visible during this state. */
     ScopedLuaRef draw_override;            /**< Optional Lua function that draws the entity during this state. */
