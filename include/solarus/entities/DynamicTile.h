@@ -55,6 +55,9 @@ class DynamicTile: public Entity {
 
     const std::string& get_tile_pattern_id() const;
     Ground get_modified_ground() const override;
+    const Tileset* get_tileset() const;
+    void set_tileset(const Tileset* tileset);
+    void set_tileset(const std::string& tileset_id);
     bool is_drawn_at_its_position() const override;
     void built_in_draw(Camera& camera) override;
     void notify_tileset_changed() override;

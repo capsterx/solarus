@@ -1146,6 +1146,8 @@ class LuaContext {
       destructible_api_get_modified_ground,
       dynamic_tile_api_get_pattern_id,
       dynamic_tile_api_get_modified_ground,
+      dynamic_tile_api_get_tileset,
+      dynamic_tile_api_set_tileset,
       carried_object_api_get_carrier,
       carried_object_api_get_destruction_sound,
       carried_object_api_set_destruction_sound,
