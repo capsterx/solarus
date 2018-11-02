@@ -6,7 +6,7 @@ function map:on_started()
   local fonts = sol.main.get_resource_ids("font")
   assert_equal(#fonts, 2)
   assert_equal(fonts[1], "8_bit")
-  assert_equal(fonts[2], "minecraftia")
+  assert_equal(fonts[2], "pixolde")
 
   assert(sol.main.resource_exists("font", "8_bit"))
   assert(not sol.main.resource_exists("font", "comic_sans"))  -- Thank god.

@@ -341,13 +341,13 @@ enemy{ id = "test_flying_enemy", description = "Flying enemy" }
 language{ id = "en", description = "English" }
 
 font{ id = "8_bit", description = "8 bit" }
-font{ id = "minecraftia", description = "Minecraftia" }
+font{ id = "pixolde", description = "Pixolde" }
 
 shader{ id = "scale2x", description = "Scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
 file{ path = "fonts/8_bit.png", author = "usr_share, Christopho", license = "Public domain" }
-file{ path = "fonts/minecraftia.ttf", author = "Andrew Tyler", license = "Free for non-commercial use" }
+file{ path = "fonts/pixolde.ttf", author = "Jeti", license = "CC BY 4.0" }
 file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }
