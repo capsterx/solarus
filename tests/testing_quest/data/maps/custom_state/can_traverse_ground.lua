@@ -16,7 +16,7 @@ local defaults = {
 
 function map:on_opening_transition_finished()
   local state = sol.state.create()
-  state:set_touching_ground(false)
+  state:set_gravity_enabled(false)
   state:set_affected_by_ground("hole", false)
   state:set_affected_by_ground("lava", false)
   state:set_affected_by_ground("prickles", false)

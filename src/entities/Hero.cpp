@@ -1231,7 +1231,7 @@ void Hero::check_position() {
       && ground != Ground::LAVA
       && ground != Ground::PRICKLE
       && ground != Ground::EMPTY
-      && get_state()->can_come_from_bad_ground()
+      && get_state()->get_can_come_from_bad_ground()
       && (get_xy() != last_solid_ground_coords)) {
 
     last_solid_ground_coords = get_xy();

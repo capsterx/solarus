@@ -63,10 +63,12 @@ void LuaContext::register_state_module() {
     { "set_can_traverse", state_api_set_can_traverse },
     { "get_can_traverse_ground", state_api_get_can_traverse_ground },
     { "set_can_traverse_ground", state_api_set_can_traverse_ground },
-    { "is_touching_ground", state_api_is_touching_ground },
-    { "set_touching_ground", state_api_set_touching_ground },
+    { "is_gravity_enabled", state_api_is_gravity_enabled },
+    { "set_gravity_enabled", state_api_set_gravity_enabled },
     { "is_affected_by_ground", state_api_is_affected_by_ground },
     { "set_affected_by_ground", state_api_set_affected_by_ground },
+    { "get_can_come_from_bad_ground", state_api_get_can_come_from_bad_ground },
+    { "set_can_come_from_bad_ground", state_api_set_can_come_from_bad_ground },
     { "get_can_be_hurt", state_api_get_can_be_hurt },
     { "set_can_be_hurt", state_api_set_can_be_hurt },
     { "get_can_use_sword", state_api_get_can_use_sword },
@@ -541,11 +543,11 @@ int LuaContext::state_api_set_can_traverse_ground(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:is_touching_ground().
+ * \brief Implementation of state:is_gravity_enabled().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_is_touching_ground(lua_State* l) {
+int LuaContext::state_api_is_gravity_enabled(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
@@ -556,17 +558,17 @@ int LuaContext::state_api_is_touching_ground(lua_State* l) {
 }
 
 /**
- * \brief Implementation of state:set_touching_ground().
+ * \brief Implementation of state:set_gravity_enabled().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::state_api_set_touching_ground(lua_State* l) {
+int LuaContext::state_api_set_gravity_enabled(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool touching_ground = LuaTools::check_boolean(l, 2);
+    bool gravity_enabled = LuaTools::check_boolean(l, 2);
 
-    state.set_touching_ground(touching_ground);
+    state.set_touching_ground(gravity_enabled);
 
     return 0;
   });
@@ -601,6 +603,38 @@ int LuaContext::state_api_set_affected_by_ground(lua_State* l) {
     bool affected = LuaTools::opt_boolean(l, 3, true);
 
     state.set_affected_by_ground(ground, affected);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_come_from_bad_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_come_from_bad_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_come_from_bad_ground());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_come_from_bad_ground().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_come_from_bad_ground(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_come_from_bad_ground = LuaTools::check_boolean(l, 2);
+
+    state.set_can_come_from_bad_ground(can_come_from_bad_ground);
 
     return 0;
   });

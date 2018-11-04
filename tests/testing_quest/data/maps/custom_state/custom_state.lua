@@ -43,10 +43,12 @@ local function test_state_methods_presence()
     "get_can_traverse_ground",
     "set_can_traverse_ground",
     "set_can_traverse",
-    "is_touching_ground",
-    "set_touching_ground",
+    "is_gravity_enabled",
+    "set_gravity_enabled",
     "is_affected_by_ground",
     "set_affected_by_ground",
+    "get_can_come_from_bad_ground",
+    "set_can_come_from_bad_ground",
     "get_can_be_hurt",
     "set_can_be_hurt",
     "get_can_use_sword",
@@ -201,10 +203,11 @@ local function test_state_methods(cont)
       test_setget("draw_override", function() end)
 
       test_setget("can_control_movement", true, false)
-      test_setis("touching_ground", true, false)
+      test_setis("gravity_enabled", true, false)
       for _, ground in ipairs({"deep_water", "lava", "hole", "ice", "prickles"}) do
         test_setis({"affected_by_ground", ground}, true, false)
       end
+      test_setget("can_come_from_bad_ground", true, false)
       test_setget("can_be_hurt", true, false)
       test_setget("can_use_sword", true, false)
       test_setget("can_use_shield", true, false)
@@ -284,7 +287,7 @@ local function test_start_state()
   hero:start_state(first_state)
 
   early_test_state = sol.state.create("early")
-  early_test_state:set_touching_ground(false)  -- To avoid free state being started by default.
+  early_test_state:set_gravity_enabled(false)  -- To avoid free state being started by default.
   local first_test_event = make_test_event_utility(first_state)
 
   first_test_event("on_finished is called when a new state is launched",
@@ -438,7 +441,7 @@ end
 
 local function test_map_change()
   local map_state = sol.state.create("map")
-  map_state:set_touching_ground(false)
+  map_state:set_gravity_enabled(false)
   hero:start_state(map_state)
   local test_event = make_test_event_utility(map_state)
   test_event("on_map_finished is called when map is leaved",

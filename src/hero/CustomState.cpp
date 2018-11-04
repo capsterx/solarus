@@ -58,6 +58,7 @@ CustomState::CustomState(
   player_movement(),
   touching_ground(true),
   ignored_grounds(),
+  can_come_from_bad_ground(true),
   can_be_hurt(true),
   can_start_sword(true),
   can_use_shield(true),
@@ -1006,6 +1007,23 @@ void CustomState::set_affected_by_ground(Ground ground, bool affected) {
   else {
     ignored_grounds.insert(ground);
   }
+}
+
+/**
+ * \copydoc Entity::State::get_can_come_from_bad_ground
+ */
+bool CustomState::get_can_come_from_bad_ground() const {
+  return can_come_from_bad_ground;
+}
+
+/**
+ * \brief Sets whether the current position can be considered
+ * as a place where to come back after a bad ground.
+ * \param can_come_from_bad_ground \c true to allow to save the solid
+ * ground position.
+ */
+void CustomState::set_can_come_from_bad_ground(bool can_come_from_bad_ground) {
+  this->can_come_from_bad_ground = can_come_from_bad_ground;
 }
 
 /**

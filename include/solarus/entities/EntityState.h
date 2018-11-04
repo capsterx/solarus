@@ -107,7 +107,7 @@ class Entity::State : public ExportableToLua {
     virtual bool is_affected_by_grass() const;
     virtual bool is_affected_by_ladder() const;
     virtual bool is_touching_ground() const;
-    virtual bool can_come_from_bad_ground() const;
+    virtual bool get_can_come_from_bad_ground() const;
     virtual void notify_ground_below_changed();
 
     // obstacles and collisions

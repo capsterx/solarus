@@ -717,7 +717,7 @@ bool Entity::State::is_touching_ground() const {
  *
  * \return true if the entity can come back here
  */
-bool Entity::State::can_come_from_bad_ground() const {
+bool Entity::State::get_can_come_from_bad_ground() const {
   return is_touching_ground();
 }
 
