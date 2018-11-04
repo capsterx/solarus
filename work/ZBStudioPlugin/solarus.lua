@@ -1,37 +1,19 @@
-local api = {
-  sol = {
-    type = "lib",
-    description = "Solarus library",
-    childs = {
-      main = {
-        type = "lib",
-        description = "Main Solarus library, ...",
-        childs = {
-          get_elapsed_time = {
-            description = "get the elapsed time since the engine started to run",
-            args = "()",
-            returns = "(time_ms : number)",
-            type = "function"
-          }
-        }
-      }
-    }
-  }  
-}--TODO : a lot more!
+local json = require('json')
 
-
+-- load api from an external file
+local api = dofile(ide:GetPackagePath('solarus_lua_api.lua'))
 
 local interpreter = {
   name = "Solarus",
   description = "An ARPG Game Engine",
   api = {"baselib", "solarus"},
-  frun = function(self,wfilename,rundebug)
+  frun = function(self,wfilename, rundebug)
     local projdir = self:fworkdir(wfilename)
     
     local debuggerPath = ide:GetRootPath("lualibs/mobdebug/?.lua")
     local packagePath = ide:GetPackagePath("?.lua")
     
-    local engine_cmd = "solarus-run" --TODO take windows (and mac) into account
+    local engine_cmd = ide.solarus_path or "solarus-run" --TODO take windows (and mac) into account
     local cmd = string.format("%s %s",engine_cmd,projdir)
     if rundebug then
       ide:GetDebugger():SetOptions({runstart = true})
