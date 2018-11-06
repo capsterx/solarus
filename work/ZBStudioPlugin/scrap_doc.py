@@ -95,7 +95,7 @@ def parse_args(h2_el, arg_list):
                     return_types.append(type_)
                 else:
                     types.append((name, type_))
-    return set(types), ",".join(return_types)
+    return types, ",".join(return_types)
 
 
 def make_descr_and_args(h2_el, name, args, type_):
@@ -103,11 +103,12 @@ def make_descr_and_args(h2_el, name, args, type_):
     arg_list = opt_less_args.split(',')
     types, ret_type = parse_args(h2_el, arg_list)
     for n, t in types:  #add types to
+        t = t.replace(', optional', '')
         args = args.replace(n, f"{n}: {t}")
     descr = "".join(str(el) for el in next_siblings_until(h2_el, 'h2'))
     descr = html2text(descr)
     global parsed_funcs
-    parsed_funcs += 1  #count how much methods where parsed
+    parsed_funcs += 1  # count how much methods where parsed
     return name, {
         "type": type_,
         "description": descr,
