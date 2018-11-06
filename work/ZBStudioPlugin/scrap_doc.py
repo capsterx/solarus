@@ -83,6 +83,10 @@ def to_lua(v,ind=0):
 test = to_lua({'b':"test"})
 
 def parse_args(h2_el, arg_list):
+    """
+    parse arguments types and return types from the doc bellow
+    the given h2 header
+    """
     types = []
     return_types = []
     for ul in next_siblings_with_name_until(h2_el, 'ul', 'h2'):
@@ -99,6 +103,10 @@ def parse_args(h2_el, arg_list):
 
 
 def make_descr_and_args(h2_el, name, args, type_):
+    """
+      from a function header, function name and args and type,
+      create a description and tags args with type
+    """
     opt_less_args = re.sub(r"[\[\]\ ]", '', args)
     arg_list = opt_less_args.split(',')
     types, ret_type = parse_args(h2_el, arg_list)
@@ -119,12 +127,18 @@ def make_descr_and_args(h2_el, name, args, type_):
 
 
 def scrap_function(h2_el):
+    """
+    Gives the name and description of the function with given header
+    """
     name, args = re.search(match_func_name_and_args, h2_el.get_text()).groups()
     return make_descr_and_args(h2_el, name, args, "function")
     # return {'type':'function'}
 
 
 def scrap_method(h2_el):
+    """
+    Gives the name and description of the method with given header
+    """
     name, args = re.search(match_meth_name_and_args, h2_el.get_text()).groups()
     return make_descr_and_args(h2_el, name, args, "method")
 
@@ -166,6 +180,9 @@ def scrap_functions_or_methods(t_block, to_scrap, *header_names):
 
 
 def scrap_sub_classes_of(module_name, t_block):
+    """
+    Jump to sub classes of a super_type
+    """
     print("Scrapping sub classes of", module_name)
     simple = ['entity', 'movement']
     if module_name in simple:
@@ -187,6 +204,9 @@ classes = {}
 modules = {}
 
 def scrap_api_page(api_page_addr, super_class=None):
+    """
+    scraps a whole module page with given address
+    """
     global modules_parsed
     modules_parsed += 1
 
@@ -231,8 +251,7 @@ def scrap_api_page(api_page_addr, super_class=None):
         classes[module_name] = class_
 
     if functions:
-        #It's a lib with an attached class
-        # print(f"module {module_name} with {len(functions)} functions and {len(methods)} methods")
+        # It's a lib with an attached class
         modules[module_name] = {
             'type': 'lib',
             'description': module_descr,
