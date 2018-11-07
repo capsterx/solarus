@@ -1009,14 +1009,14 @@ int LuaContext::entity_api_set_size(lua_State* l) {
     int width = LuaTools::check_int(l, 2);
     int height = LuaTools::check_int(l, 3);
 
-    if (width < 0 || width % 8 != 0) {
+    if (width <= 0) {
       std::ostringstream oss;
-      oss << "Invalid width: " << width << ": should be a positive multiple of 8";
+      oss << "Invalid width: " << width << ": should be positive";
       LuaTools::arg_error(l, 2, oss.str());
     }
-    if (height < 0 || height % 8 != 0) {
+    if (height <= 0) {
       std::ostringstream oss;
-      oss << "Invalid height: " << height << ": should be a positive multiple of 8";
+      oss << "Invalid height: " << height << ": should be positive";
       LuaTools::arg_error(l, 3, oss.str());
     }
 
