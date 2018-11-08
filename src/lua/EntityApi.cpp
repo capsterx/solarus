@@ -480,6 +480,7 @@ void LuaContext::register_entity_module() {
   };
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     carried_object_methods.insert(carried_object_methods.end(), {
+        { "get_carrier", carried_object_api_get_carrier },
         { "get_destruction_sound", carried_object_api_get_destruction_sound },
         { "set_destruction_sound", carried_object_api_set_destruction_sound },
         { "get_damage_on_enemies", carried_object_api_get_damage_on_enemies },
@@ -499,6 +500,8 @@ void LuaContext::register_entity_module() {
   std::vector<luaL_Reg> dynamic_tile_methods = {
       { "get_pattern_id", dynamic_tile_api_get_pattern_id },
       { "get_modified_ground", dynamic_tile_api_get_modified_ground },
+      { "get_tileset", dynamic_tile_api_get_tileset },
+      { "set_tileset", dynamic_tile_api_set_tileset },
   };
 
   dynamic_tile_methods.insert(dynamic_tile_methods.end(), common_methods.begin(), common_methods.end());
@@ -1006,14 +1009,14 @@ int LuaContext::entity_api_set_size(lua_State* l) {
     int width = LuaTools::check_int(l, 2);
     int height = LuaTools::check_int(l, 3);
 
-    if (width < 0 || width % 8 != 0) {
+    if (width <= 0) {
       std::ostringstream oss;
-      oss << "Invalid width: " << width << ": should be a positive multiple of 8";
+      oss << "Invalid width: " << width << ": should be positive";
       LuaTools::arg_error(l, 2, oss.str());
     }
-    if (height < 0 || height % 8 != 0) {
+    if (height <= 0) {
       std::ostringstream oss;
-      oss << "Invalid height: " << height << ": should be a positive multiple of 8";
+      oss << "Invalid height: " << height << ": should be positive";
       LuaTools::arg_error(l, 3, oss.str());
     }
 
@@ -4879,6 +4882,27 @@ void LuaContext::push_carried_object(lua_State* l, CarriedObject& carried_object
 }
 
 /**
+ * \brief Implementation of carried_object:get_carrier().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::carried_object_api_get_carrier(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CarriedObject& carried_object = *check_carried_object(l, 1);
+
+    const EntityPtr& carrier = carried_object.get_carrier();
+    if (carrier == nullptr) {
+      lua_pushnil(l);
+    }
+    else {
+      push_entity(l, *carrier);
+    }
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of carried_object:get_destruction_sound().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -5016,6 +5040,53 @@ int LuaContext::dynamic_tile_api_get_modified_ground(lua_State* l) {
 
     push_string(l, enum_to_name(modified_ground));
     return 1;
+  });
+}
+
+/**
+ * \brief Implementation of dynamic_tile:get_tileset().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::dynamic_tile_api_get_tileset(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const DynamicTile& dynamic_tile = *check_dynamic_tile(l, 1);
+
+    const Tileset* tileset = dynamic_tile.get_tileset();
+    if (tileset) {
+        push_string(l, tileset->get_id());
+    }
+    else {
+        lua_pushnil(l);
+    }
+
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of dynamic_tile:set_tileset().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::dynamic_tile_api_set_tileset(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    DynamicTile& dynamic_tile = *check_dynamic_tile(l, 1);
+
+    if (lua_isstring(l, 2)) {
+      const std::string& tileset_id = LuaTools::check_string(l, 2);
+      dynamic_tile.set_tileset(tileset_id);
+    }
+    else if (lua_isnil(l, 2)) {
+      dynamic_tile.set_tileset(nullptr);
+    }
+    else {
+      LuaTools::type_error(l, 2, "string or nil");
+    }
+
+    return 0;
   });
 }
 
@@ -6899,6 +6970,65 @@ void LuaContext::npc_on_collision_fire(Npc& npc) {
   run_on_main([this,&npc](lua_State* l){
     push_npc(l, npc);
     on_collision_fire();
+    lua_pop(l, 1);
+  });
+}
+
+/**
+ * \brief Calls the on_lifted() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_lifted(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_lifted")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_lifted();
+    lua_pop(l, 1);
+  });
+}
+
+
+/**
+ * \brief Calls the on_thrown() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_thrown(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_thrown")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_thrown();
+    lua_pop(l, 1);
+  });
+}
+
+
+/**
+ * \brief Calls the on_breaking() method of a Lua carried object.
+ *
+ * Does nothing if the method is not defined.
+ *
+ * \param carried_object A carried object.
+ */
+void LuaContext::carried_object_on_breaking(CarriedObject& carried_object) {
+
+  if (!userdata_has_field(carried_object, "on_breaking")) {
+    return;
+  }
+  run_on_main([this, &carried_object](lua_State* l){
+    push_carried_object(l, carried_object);
+    on_breaking();
     lua_pop(l, 1);
   });
 }

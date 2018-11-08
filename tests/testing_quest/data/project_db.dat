@@ -25,6 +25,7 @@ map{ id = "bugs/1159_entity_overlaps_sprites", description = "#1159: Add sprites
 map{ id = "bugs/1162_custom_entity_collision_wrong_order", description = "#1162: Wrong sprite order in custom entity collision callback" }
 map{ id = "bugs/1163_circular_movement_get_direction4", description = "#1163: circular_movement:get_direction4() not working" }
 map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix item:on_ability_used() not called with sword knowledge" }
+map{ id = "bugs/1175_dynamic_tile_set_get_tileset", description = "#1175: dynamic_tile:set/get_tileset()" }
 map{ id = "bugs/1179_enemy_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
 map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
@@ -37,6 +38,7 @@ map{ id = "bugs/1221_custom_entity_follow_stream", description = "#1221: Allow c
 map{ id = "bugs/1228_crash_map_get_hero/1", description = "#1128: Crash in map:get_hero() after the map is closed" }
 map{ id = "bugs/1228_crash_map_get_hero/2", description = "Map 2" }
 map{ id = "bugs/1230_entity_on_lifting", description = "#1230: entity:on_lifting" }
+map{ id = "bugs/1233_carried_object_events", description = "#1233: Carried object events" }
 map{ id = "bugs/1236_entity_timer_not_suspended", description = "#1236: Entity timer continues when the map is suspended" }
 map{ id = "bugs/1247_hero_state_changing", description = "#1247: hero:on_state_changing()" }
 map{ id = "bugs/1260_entity_draw_override", description = "#1260: entity:get/set_draw_override()" }
@@ -48,6 +50,7 @@ map{ id = "bugs/1266_teletransporter_on_activated_disable", description = "#1266
 map{ id = "bugs/1268_movement_ignore_suspend_in_timer", description = "#1268: movement:set_ignore_suspend not working from timer" }
 map{ id = "bugs/1269_coroutines", description = "#1269: Coroutines make engine crash" }
 map{ id = "bugs/1275_map_set_tileset", description = "#1275: map:set_tileset()" }
+map{ id = "bugs/1286_crash_state_set_can_traverse", description = "#1286: Crash in state:set_can_traverse()" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -150,6 +153,7 @@ map{ id = "teletransportation_tests/start_scrolling_sword_charged", description 
 map{ id = "traversable", description = "Traversable test area" }
 
 tileset{ id = "castle", description = "Castle" }
+tileset{ id = "castle_grayscale", description = "Castle (grayscale)" }
 tileset{ id = "castle_no_sprites_file", description = "Castle (no sprites file)" }
 tileset{ id = "overworld", description = "Overworld" }
 
@@ -337,13 +341,13 @@ enemy{ id = "test_flying_enemy", description = "Flying enemy" }
 language{ id = "en", description = "English" }
 
 font{ id = "8_bit", description = "8 bit" }
-font{ id = "minecraftia", description = "Minecraftia" }
+font{ id = "pixolde", description = "Pixolde" }
 
 shader{ id = "scale2x", description = "Scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
 file{ path = "fonts/8_bit.png", author = "usr_share, Christopho", license = "Public domain" }
-file{ path = "fonts/minecraftia.ttf", author = "Andrew Tyler", license = "Free for non-commercial use" }
+file{ path = "fonts/pixolde.ttf", author = "Jeti", license = "CC BY 4.0" }
 file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }

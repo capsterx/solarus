@@ -421,13 +421,14 @@ int LuaContext::l_create_tile(lua_State* l) {
     const std::string& tile_pattern_id = data.get_string("pattern");
     std::string tileset_id = data.get_string("tileset");
 
-    if (tileset_id.empty()) {
+    bool use_map_tileset = tileset_id.empty();
+    if (use_map_tileset) {
       tileset_id = map.get_tileset_id();
     }
     ResourceProvider& resource_provider = map.get_game().get_resource_provider();
     const Tileset& tileset = resource_provider.get_tileset(tileset_id);
-    const TilePattern& pattern = tileset.get_tile_pattern(tile_pattern_id);
-    const Size& pattern_size = pattern.get_size();
+    std::shared_ptr<TilePattern> pattern = tileset.get_tile_pattern(tile_pattern_id);
+    const Size& pattern_size = pattern->get_size();
     Entities& entities = map.get_entities();
 
     // If the tile is big, divide it in several smaller tiles so that
@@ -440,11 +441,14 @@ int LuaContext::l_create_tile(lua_State* l) {
     tile_info.layer = layer;
     tile_info.box = { Point(), pattern_size };
     tile_info.pattern_id = tile_pattern_id;
-    tile_info.pattern = &pattern;
-    tile_info.tileset = &tileset;
+    tile_info.pattern = pattern;
 
-    for (int current_y = y; current_y < y + size.height; current_y += pattern.get_height()) {
-      for (int current_x = x; current_x < x + size.width; current_x += pattern.get_width()) {
+    if (!use_map_tileset) {
+      tile_info.tileset = &tileset;
+    }
+
+    for (int current_y = y; current_y < y + size.height; current_y += pattern->get_height()) {
+      for (int current_x = x; current_x < x + size.width; current_x += pattern->get_width()) {
         tile_info.box.set_xy(current_x, current_y);
         // The tile will actually be created only if it cannot be optimized away.
         entities.add_tile_info(
@@ -856,20 +860,27 @@ int LuaContext::l_create_dynamic_tile(lua_State* l) {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
-    std::string tileset_id = data.get_string("tileset");
-    if (tileset_id.empty()) {
-      tileset_id = map.get_tileset_id();
+    const std::string& pattern_id = data.get_string("pattern");
+    const std::string& tileset_id = data.get_string("tileset");
+    const Tileset* tileset = nullptr;
+    std::shared_ptr<TilePattern> pattern = nullptr;
+    if (!tileset_id.empty()) {
+      ResourceProvider& resource_provider = map.get_game().get_resource_provider();
+      tileset = &resource_provider.get_tileset(tileset_id);
+      pattern = tileset->get_tile_pattern(pattern_id);
+    } else {
+      // Use the tileset of the map.
+      pattern = map.get_tileset().get_tile_pattern(pattern_id);
     }
-    ResourceProvider& resource_provider = map.get_game().get_resource_provider();
-    const Tileset& tileset = resource_provider.get_tileset(tileset_id);
 
     EntityPtr entity = std::make_shared<DynamicTile>(
         data.get_name(),
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy(),
         entity_creation_check_size(l, 1, data),
-        tileset,
-        data.get_string("pattern")
+        pattern_id,
+        pattern,
+        tileset
     );
     entity->set_user_properties(data.get_user_properties());
     entity->set_enabled(data.is_enabled_at_start());

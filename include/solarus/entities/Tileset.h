@@ -53,7 +53,7 @@ class Tileset {
     const Color& get_background_color() const;
     const SurfacePtr& get_tiles_image() const;
     const SurfacePtr& get_entities_image() const;
-    const TilePattern& get_tile_pattern(const std::string& id) const;
+    std::shared_ptr<TilePattern> get_tile_pattern(const std::string& id) const;
     void set_images(const std::string& other_id);
     void update();
 

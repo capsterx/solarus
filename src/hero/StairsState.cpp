@@ -290,11 +290,9 @@ bool Hero::StairsState::is_touching_ground() const {
 }
 
 /**
- * \brief Returns whether the hero's current position can be considered
- * as a place to come back after a bad ground (hole, deep water, etc).
- * \return true if the hero can come back here
+ * \copydoc Entity::State::get_can_come_from_bad_ground
  */
-bool Hero::StairsState::can_come_from_bad_ground() const {
+bool Hero::StairsState::get_can_come_from_bad_ground() const {
   return false;
 }
 

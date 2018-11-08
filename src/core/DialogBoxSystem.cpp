@@ -47,6 +47,7 @@ DialogBoxSystem::DialogBoxSystem(Game& game):
         TextSurface::HorizontalAlignment::LEFT,
         TextSurface::VerticalAlignment::BOTTOM
     );
+    line_surfaces[i]->set_font_size(16);
   }
 }
 

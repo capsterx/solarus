@@ -10,7 +10,7 @@ local defaults = {
 function map:on_opening_transition_finished()
   local state = sol.state.create()
   hero:start_state(state)
-  
+
   for entity_type, traversable in pairs(defaults) do
 
     local entity = map:get_entity(entity_type)  -- Named from the type.

@@ -229,8 +229,7 @@ bool Hero::BackToSolidGroundState::can_avoid_prickle() const {
 }
 
 /**
- * \brief Returns whether the hero is touching the ground in the current state.
- * \return true if the hero is touching the ground in the current state
+ * \copydoc Entity::State::is_touching_ground
  */
 bool Hero::BackToSolidGroundState::is_touching_ground() const {
   return false;

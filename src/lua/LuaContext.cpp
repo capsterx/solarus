@@ -2970,6 +2970,36 @@ void LuaContext::on_collision_enemy(Enemy& other_enemy, Sprite& other_sprite, Sp
 }
 
 /**
+ * \brief Calls the on_lifted() method of the object on top of the stack.
+ */
+void LuaContext::on_lifted() {
+  check_callback_thread();
+  if (find_method("on_lifted")) {
+    call_function(1, 0, "on_lifted");
+  }
+}
+
+/**
+ * \brief Calls the on_thrown() method of the object on top of the stack.
+ */
+void LuaContext::on_thrown() {
+  check_callback_thread();
+  if (find_method("on_thrown")) {
+    call_function(1, 0, "on_thrown");
+  }
+}
+
+/**
+ * \brief Calls the on_breaking() method of the object on top of the stack.
+ */
+void LuaContext::on_breaking() {
+  check_callback_thread();
+  if (find_method("on_breaking")) {
+    call_function(1, 0, "on_breaking");
+  }
+}
+
+/**
  * \brief Calls the on_looked() method of the object on top of the stack.
  */
 void LuaContext::on_looked() {

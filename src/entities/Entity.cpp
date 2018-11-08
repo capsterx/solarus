@@ -93,8 +93,8 @@ Entity::Entity(
   optimization_distance(default_optimization_distance),
   optimization_distance2(default_optimization_distance * default_optimization_distance) {
 
-  Debug::check_assertion(size.width % 8 == 0 && size.height % 8 == 0,
-      "Invalid entity size: width and height must be multiple of 8");
+  Debug::check_assertion(size.width >= 0 && size.height >= 0,
+      "Invalid entity size: width and height must be positive");
 }
 
 /**
@@ -854,8 +854,8 @@ Size Entity::get_size() const {
  */
 void Entity::set_size(int width, int height) {
 
-  Debug::check_assertion(width % 8 == 0 && height % 8 == 0,
-      "Invalid entity size: width and height must be multiple of 8");
+  Debug::check_assertion(width >= 0 && height >= 0,
+      "Invalid entity size: width and height must be positive");
   bounding_box.set_size(width, height);
 
   notify_size_changed();

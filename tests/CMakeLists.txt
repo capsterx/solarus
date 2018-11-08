@@ -103,6 +103,7 @@ set(lua_test_maps
   "bugs/1162_custom_entity_collision_wrong_order"
   "bugs/1163_circular_movement_get_direction4"
   "bugs/1171_sword_knowledge_on_ability_used"
+  "bugs/1175_dynamic_tile_set_get_tileset"
   "bugs/1179_enemy_on_restarted_called_twice"
   "bugs/1181_hurt_enemy_after_custom_attack"
   "bugs/1193_entity_drawn_after_removed/map_1"
@@ -111,6 +112,7 @@ set(lua_test_maps
   "bugs/1221_custom_entity_follow_stream"
   "bugs/1228_crash_map_get_hero/1"
   "bugs/1230_entity_on_lifting"
+  "bugs/1233_carried_object_events"
   "bugs/1236_entity_timer_not_suspended"
   "bugs/1247_hero_state_changing"
   "bugs/1260_entity_draw_override"
@@ -121,7 +123,8 @@ set(lua_test_maps
   "bugs/1266_teletransporter_on_activated_disable"
   "bugs/1269_coroutines"
   "bugs/1268_movement_ignore_suspend_in_timer"
-#  "bugs/1275_map_set_tileset"
+  "bugs/1275_map_set_tileset"
+  "bugs/1286_crash_state_set_can_traverse"
 )
 
 # Test that should not fail when there are errors.

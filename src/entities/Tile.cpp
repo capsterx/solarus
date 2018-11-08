@@ -33,8 +33,8 @@ Tile::Tile(
 ):
   Entity("", 0, tile_info.layer, tile_info.box.get_xy(), tile_info.box.get_size()),
   tile_pattern_id(tile_info.pattern_id),
-  tile_pattern(*tile_info.pattern),
-  tileset(*tile_info.tileset) {
+  tile_pattern(tile_info.pattern),
+  tileset(tile_info.tileset) {
 
   set_tiled(true);
 }
@@ -51,7 +51,7 @@ EntityType Tile::get_type() const {
  * \copydoc Entity::is_drawn_at_its_position()
  */
 bool Tile::is_drawn_at_its_position() const {
-  return tile_pattern.is_drawn_at_its_position();
+  return tile_pattern->is_drawn_at_its_position();
 }
 
 /**
@@ -80,10 +80,11 @@ void Tile::draw_on_surface(const SurfacePtr& dst_surface, const Point& viewport)
       get_height()
   );
 
-  tile_pattern.fill_surface(
+  const Tileset* tileset = this->tileset != nullptr ? this->tileset : &get_map().get_tileset();
+  tile_pattern->fill_surface(
       dst_surface,
       dst_position,
-      tileset,
+      *tileset,
       viewport
   );
 }
@@ -93,7 +94,7 @@ void Tile::draw_on_surface(const SurfacePtr& dst_surface, const Point& viewport)
  * \return The tile pattern.
  */
 const TilePattern& Tile::get_tile_pattern() const {
-  return tile_pattern;
+  return *tile_pattern;
 }
 
 /**
@@ -111,10 +112,22 @@ const std::string& Tile::get_tile_pattern_id() const {
  * that are drawn only once.
  * This function should return false if the tile pattern is always drawn the same way.
  *
- * \return true if the pattern of this tile is animated
+ * \return \c true if the pattern of this tile is animated.
  */
 bool Tile::is_animated() const {
-  return tile_pattern.is_animated();
+  return tile_pattern->is_animated();
+}
+
+/**
+ * \copydoc Entity::notify_tileset_changed
+ */
+void Tile::notify_tileset_changed() {
+
+  // The tileset of the map has changed.
+  // Update the pattern if we use that tileset.
+  if (tileset == nullptr) {
+    tile_pattern = get_map().get_tileset().get_tile_pattern(tile_pattern_id);
+  }
 }
 
 }

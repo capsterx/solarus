@@ -37,8 +37,10 @@ class CustomState: public HeroState {
 
   public:
 
-    explicit CustomState(const std::string& description);
+    CustomState(LuaContext& lua_context, const std::string& description);
     const std::string& get_lua_type_name() const override;
+
+    LuaContext& get_lua_context();
 
     void start(const State* previous_state) override;
     void stop(const State* next_state) override;
@@ -116,6 +118,8 @@ class CustomState: public HeroState {
     void set_touching_ground(bool touching_ground);
     bool is_affected_by_ground(Ground ground) const;
     void set_affected_by_ground(Ground ground, bool affected);
+    bool get_can_come_from_bad_ground() const override;
+    void set_can_come_from_bad_ground(bool can_come_from_bad_ground);
     bool can_avoid_deep_water() const override;
     bool can_avoid_hole() const override;
     bool can_avoid_ice() const override;
@@ -175,6 +179,7 @@ class CustomState: public HeroState {
     void update_jumper();
     void cancel_jumper();
 
+    LuaContext& lua_context;               /**< The Lua context. */
     std::string description;               /**< Description of this state or an empty string. */
     bool visible;                          /**< Whether the entity is visible during this state. */
     ScopedLuaRef draw_override;            /**< Optional Lua function that draws the entity during this state. */
@@ -184,6 +189,8 @@ class CustomState: public HeroState {
         player_movement;                   /**< The movement, if controlled by the player. */
     bool touching_ground;                  /**< Whether the entity is in contact with the ground. */
     std::set<Ground> ignored_grounds;      /**< Grounds whose effect does not affect this state. */
+    bool can_come_from_bad_ground;         /**< Whether solid ground position is considered as
+                                            * a place where to come back from bad grounds. */
     bool can_be_hurt;                      /**< Whether the entity be hurt in this state. */
     bool can_start_sword;                  /**< Whether the sword can be used in this state. */
     bool can_use_shield;                   /**< Whether the shield can be used in this state. */
