@@ -56,6 +56,8 @@ def to_lua(v,ind=0):
     elif type_of(v, dict):
         kvs = []
         for k, v in v.items():
+            if v is None:
+                continue
             ks = "{}".format(to_lua(k))
             if ks.startswith("["):
                 ks = "[ {} ]".format(ks)
@@ -242,8 +244,8 @@ def scrap_api_page(api_page_addr, super_class=None):
         'childs': class_childs,
         'inherits': super_class
     }
-    if super_class is None:
-        del class_['inherits']
+    # if super_class is None:
+    #     del class_['inherits']
 
     # hoist all classes in a top level dict
     if methods or super_methods or events or super_events:

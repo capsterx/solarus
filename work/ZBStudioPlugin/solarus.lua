@@ -73,7 +73,7 @@ local interpreter = {
       ide:GetDebugger():SetOptions({runstart = true})
       --adapt command to run debug connection
       local code = string.format(
-[[local path=package.path;package.path='%s;%s;'..path;local mdb=require('mobdebug');require('solarus_pretty_printer');package.path=path;mdb.coro();mdb.start()]],
+[=[local path=package.path;package.path=[[%s;%s;]]..path;local mdb=require('mobdebug');require('solarus_pretty_printer');package.path=path;mdb.coro();mdb.start()]=],
         debuggerPath,
         packagePath)
       cmd = string.format('%s -s="%s" %s',engine_cmd,code,projdir)
