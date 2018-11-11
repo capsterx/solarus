@@ -92,7 +92,7 @@ void Hero::SwordTappingState::update() {
 
       if (get_sprites().get_current_frame() >= 5) {
         // when the animation is ok, stop tapping the wall, go back to loading the sword
-        hero.set_state(std::make_shared<SwordLoadingState>(hero));
+        hero.set_state(std::make_shared<SwordLoadingState>(hero, 1000));
       }
     }
     else {

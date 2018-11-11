@@ -1060,6 +1060,7 @@ class LuaContext {
       hero_api_unfreeze,
       hero_api_walk,
       hero_api_start_attack,
+      hero_api_start_attack_loading,
       hero_api_start_item,
       hero_api_start_jumping,
       hero_api_start_treasure,

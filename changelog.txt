@@ -98,6 +98,7 @@ New features:
 * Add events entity:on_enabled/disabled() to all entities (#898).
 * Add event entity:on_suspended() to all entities (#1261).
 * Add a method hero:get_carried_object().
+* Add a method hero:start_attack_loading() (#1291).
 * Add an event hero:on_state_changing() (#1247).
 * Add an event camera:on_state_changing().
 * Add a method camera:get_surface() (#1265).
