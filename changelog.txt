@@ -30,6 +30,7 @@ Engine changes
 * Fix straight_movement:set_max_distance() incorrect on tables (#1075).
 * Fix straight_movement:set_speed() not handling errors correctly.
 * Fix possible crash when reloading very old savegame files (#1064).
+* Fix crash when loading a map with tiles whose pattern does not exist (#1299).
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
 * Fix crash when opening a chest with a missing treasure dialog (#1089).

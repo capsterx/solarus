@@ -66,7 +66,7 @@ class DynamicTile: public Entity {
 
     const std::string tile_pattern_id; /**< Id of the tile pattern. */
     std::shared_ptr<TilePattern>
-        tile_pattern;                  /**< Pattern of the tile. */
+        tile_pattern;                  /**< Pattern of the tile, or nullptr if it does not exist. */
     const Tileset* tileset;            /**< Tileset of the pattern (nullptr means the one of the map). */
 
 };

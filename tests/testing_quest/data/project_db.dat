@@ -52,6 +52,7 @@ map{ id = "bugs/1269_coroutines", description = "#1269: Coroutines make engine c
 map{ id = "bugs/1275_map_set_tileset", description = "#1275: map:set_tileset()" }
 map{ id = "bugs/1286_crash_state_set_can_traverse", description = "#1286: Crash in state:set_can_traverse()" }
 map{ id = "bugs/1291_hero_start_attack_loading", description = "#1291: hero:start_attack_loading" }
+map{ id = "bugs/1299_crash_invalid_tile_pattern", description = "#1299: Crash when loading a map with an invalid tile pattern" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }

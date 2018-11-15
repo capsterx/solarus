@@ -428,6 +428,9 @@ int LuaContext::l_create_tile(lua_State* l) {
     ResourceProvider& resource_provider = map.get_game().get_resource_provider();
     const Tileset& tileset = resource_provider.get_tileset(tileset_id);
     std::shared_ptr<TilePattern> pattern = tileset.get_tile_pattern(tile_pattern_id);
+    if (pattern == nullptr) {
+      LuaTools::error(l, "No such pattern in tileset '" + tileset_id + "': '" + tile_pattern_id + "'");
+    }
     const Size& pattern_size = pattern->get_size();
     Entities& entities = map.get_entities();
 
@@ -868,9 +871,15 @@ int LuaContext::l_create_dynamic_tile(lua_State* l) {
       ResourceProvider& resource_provider = map.get_game().get_resource_provider();
       tileset = &resource_provider.get_tileset(tileset_id);
       pattern = tileset->get_tile_pattern(pattern_id);
+      if (pattern == nullptr) {
+        LuaTools::error(l, "No such pattern in tileset '" + tileset_id + "': '" + pattern_id + "'");
+      }
     } else {
       // Use the tileset of the map.
       pattern = map.get_tileset().get_tile_pattern(pattern_id);
+      if (pattern == nullptr) {
+        LuaTools::error(l, "No such pattern in tileset '" + map.get_tileset_id() + "': '" + pattern_id + "'");
+      }
     }
 
     EntityPtr entity = std::make_shared<DynamicTile>(
