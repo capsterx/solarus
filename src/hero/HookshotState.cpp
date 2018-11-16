@@ -168,7 +168,7 @@ bool Hero::HookshotState::can_avoid_switch() const {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::HookshotState::get_can_be_hurt(Entity* /* attacker */) const {
+bool Hero::HookshotState::get_can_be_hurt(Entity* /* attacker */) {
   return false;
 }
 

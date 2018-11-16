@@ -51,7 +51,7 @@ class Hero::PullingState: public HeroState {
     bool is_stream_obstacle(Stream& stream) override;
     bool is_separator_obstacle(Separator& separator) override;
 
-    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
 
   private:

@@ -126,6 +126,7 @@ set(lua_test_maps
   "bugs/1275_map_set_tileset"
   "bugs/1286_crash_state_set_can_traverse"
   "bugs/1291_hero_start_attack_loading"
+  "bugs/1301_state_set_can_be_hurt_function"
 )
 
 # Test that should not fail when there are errors.

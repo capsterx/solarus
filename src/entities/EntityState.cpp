@@ -1214,7 +1214,7 @@ int Entity::State::get_sword_damage_factor() const {
  * (or nullptr if the source of the attack is not an entity)
  * \return true if the entity can be hurt in this state
  */
-bool Entity::State::get_can_be_hurt(Entity* /* attacker */) const {
+bool Entity::State::get_can_be_hurt(Entity* /* attacker */) {
   return false;
 }
 

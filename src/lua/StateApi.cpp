@@ -152,6 +152,29 @@ void LuaContext::do_state_draw_override_function(
 }
 
 /**
+ * \brief Calls the can-be-hurt function of a custom state.
+ * \param can_be_hurt The function to call.
+ * \param state The state to test.
+ * \param attacker Source of the attack or nullptr.
+ */
+bool LuaContext::do_state_can_be_hurt_function(
+    const ScopedLuaRef& can_be_hurt,
+    CustomState& state,
+    Entity* attacker) {
+  push_ref(current_l, can_be_hurt);
+  push_state(current_l, state);
+  if (attacker == nullptr) {
+    lua_pushnil(current_l);
+  } else {
+    push_entity(current_l, *attacker);
+  }
+  if (!call_function(2, 1, "state can_be_hurt callback")) {
+    return true;
+  }
+  return LuaTools::opt_boolean(current_l, -1, "true");
+}
+
+/**
  * \brief Implementation of sol.state.create().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -648,9 +671,9 @@ int LuaContext::state_api_set_can_come_from_bad_ground(lua_State* l) {
 int LuaContext::state_api_get_can_be_hurt(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
-    const CustomState& state = *check_state(l, 1);
+    CustomState& state = *check_state(l, 1);
 
-    lua_pushboolean(l, state.get_can_be_hurt());
+    lua_pushboolean(l, state.get_can_be_hurt(nullptr));
     return 1;
   });
 }
@@ -664,9 +687,19 @@ int LuaContext::state_api_set_can_be_hurt(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_be_hurt = LuaTools::check_boolean(l, 2);
 
-    state.set_can_be_hurt(can_be_hurt);
+    if (lua_isboolean(l, 2)) {
+      bool can_be_hurt = LuaTools::check_boolean(l, 2);
+      state.set_can_be_hurt(can_be_hurt);
+    }
+    else if (lua_isfunction(l, 2)) {
+      // Custom boolean function.
+      const ScopedLuaRef& can_be_hurt_callback = LuaTools::check_function(l, 2);
+      state.set_can_be_hurt(can_be_hurt_callback);
+    }
+    else {
+      LuaTools::arg_error(l, 2, "boolean or function");
+    }
 
     return 0;
   });

@@ -60,6 +60,7 @@ CustomState::CustomState(
   ignored_grounds(),
   can_come_from_bad_ground(true),
   can_be_hurt(true),
+  can_be_hurt_callback(),
   can_start_sword(true),
   can_use_shield(true),
   can_start_item(true),
@@ -1083,18 +1084,15 @@ bool CustomState::is_affected_by_ladder() const {
 }
 
 /**
- * \brief Returns whether the entity can be hurt during this state.
- * \return \c true if the entity can be hurt.
- */
-bool CustomState::get_can_be_hurt() const {
-  return can_be_hurt;
-}
-
-/**
  * \copydoc Entity::State::get_can_be_hurt
  */
-bool CustomState::get_can_be_hurt(Entity* /* attacker */) const {
-  return get_can_be_hurt();
+bool CustomState::get_can_be_hurt(Entity* attacker) {
+
+  if (!can_be_hurt_callback.is_empty()) {
+    return get_lua_context().do_state_can_be_hurt_function(
+        can_be_hurt_callback, *this, attacker);
+  }
+  return can_be_hurt;
 }
 
 /**
@@ -1103,6 +1101,16 @@ bool CustomState::get_can_be_hurt(Entity* /* attacker */) const {
  */
 void CustomState::set_can_be_hurt(bool can_be_hurt) {
   this->can_be_hurt = can_be_hurt;
+  this->can_be_hurt_callback.clear();
+}
+
+/**
+ * \brief Sets whether the entity can be hurt during this state.
+ * \param can_be_hurt \c true to allow to hurt the entity.
+ */
+void CustomState::set_can_be_hurt(const ScopedLuaRef& can_be_hurt) {
+  this->can_be_hurt = true;
+  this->can_be_hurt_callback = can_be_hurt;
 }
 
 /**

@@ -334,6 +334,11 @@ class LuaContext {
         CustomState& state,
         Camera& camera
     );
+    bool do_state_can_be_hurt_function(
+        const ScopedLuaRef& can_be_hurt,
+        CustomState& state,
+        Entity* attacker
+    );
 
     // Main loop events (sol.main).
     void main_on_started();

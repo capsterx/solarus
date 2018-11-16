@@ -154,7 +154,7 @@ class Entity::State : public ExportableToLua {
         const EnemyReaction::Reaction& result,
         bool killed);
     virtual int get_sword_damage_factor() const;
-    virtual bool get_can_be_hurt(Entity* attacker) const;
+    virtual bool get_can_be_hurt(Entity* attacker);
 
     // state specific
     virtual bool is_free() const;

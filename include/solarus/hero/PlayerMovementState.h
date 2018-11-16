@@ -56,7 +56,7 @@ class Hero::PlayerMovementState: public HeroState {
     void notify_movement_changed() override;
     void notify_position_changed() override;
     void notify_layer_changed() override;
-    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool get_can_take_jumper() const override;
     void notify_jumper_activated(Jumper& jumper) override;

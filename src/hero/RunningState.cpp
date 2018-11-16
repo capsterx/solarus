@@ -240,7 +240,7 @@ void Hero::RunningState::notify_jumper_activated(Jumper& jumper) {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::RunningState::get_can_be_hurt(Entity* attacker) const {
+bool Hero::RunningState::get_can_be_hurt(Entity* attacker) {
 
   if (phase == 0) {
     // Preparing to run.
