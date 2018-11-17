@@ -297,6 +297,7 @@ class Hero: public Entity {
     bool can_use_shield() const;
     bool can_start_sword() const;
     void start_sword();
+    void start_sword_loading(int spin_attack_delay);
     bool can_start_item(EquipmentItem& item);
     void start_item(EquipmentItem& item);
     void start_boomerang(int max_distance, int speed,

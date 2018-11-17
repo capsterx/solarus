@@ -51,6 +51,10 @@ EntityType Tile::get_type() const {
  * \copydoc Entity::is_drawn_at_its_position()
  */
 bool Tile::is_drawn_at_its_position() const {
+
+  if (tile_pattern == nullptr) {
+    return true;
+  }
   return tile_pattern->is_drawn_at_its_position();
 }
 
@@ -58,6 +62,10 @@ bool Tile::is_drawn_at_its_position() const {
  * \copydoc Entity::built_in_draw
  */
 void Tile::built_in_draw(Camera& camera) {
+
+  if (tile_pattern == nullptr) {
+    return;
+  }
 
   // Note that the tiles are also optimized for drawing.
   // This function is called at each frame only if the tile is in an
@@ -72,6 +80,10 @@ void Tile::built_in_draw(Camera& camera) {
  * relative to the map
  */
 void Tile::draw_on_surface(const SurfacePtr& dst_surface, const Point& viewport) {
+
+  if (tile_pattern == nullptr) {
+    return;
+  }
 
   Rectangle dst_position(
       get_top_left_x() - viewport.x,
@@ -115,6 +127,11 @@ const std::string& Tile::get_tile_pattern_id() const {
  * \return \c true if the pattern of this tile is animated.
  */
 bool Tile::is_animated() const {
+
+  if (tile_pattern == nullptr) {
+    return false;
+  }
+
   return tile_pattern->is_animated();
 }
 

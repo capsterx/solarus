@@ -129,9 +129,9 @@ class CustomState: public HeroState {
     bool is_affected_by_grass() const override;
     bool is_affected_by_ladder() const override;
 
-    bool get_can_be_hurt() const;
-    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) override;
     void set_can_be_hurt(bool can_be_hurt);
+    void set_can_be_hurt(const ScopedLuaRef& can_be_hurt_callback);
     bool get_can_start_sword() const override;
     void set_can_start_sword(bool can_start_sword);
     bool get_can_use_shield() const override;
@@ -192,6 +192,7 @@ class CustomState: public HeroState {
     bool can_come_from_bad_ground;         /**< Whether solid ground position is considered as
                                             * a place where to come back from bad grounds. */
     bool can_be_hurt;                      /**< Whether the entity be hurt in this state. */
+    ScopedLuaRef can_be_hurt_callback;     /**< Boolean function deciding if the entity can be hurt. */
     bool can_start_sword;                  /**< Whether the sword can be used in this state. */
     bool can_use_shield;                   /**< Whether the shield can be used in this state. */
     bool can_start_item;                   /**< Whether items can be used in this state. */

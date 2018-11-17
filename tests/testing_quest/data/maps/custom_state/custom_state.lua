@@ -280,7 +280,7 @@ local function make_test_event_utility(state)
   return test_event
 end
 
---test a state launched just at map start
+-- test a state launched just at map start
 local function test_start_state()
   local first_state = sol.state.create("first")
 

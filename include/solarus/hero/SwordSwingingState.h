@@ -34,7 +34,7 @@ class Hero::SwordSwingingState: public HeroState {
     void stop(const State* next_state) override;
     void update() override;
     bool get_can_start_sword() const override;
-    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     bool get_can_use_shield() const override;
     bool can_sword_hit_crystal() const override;

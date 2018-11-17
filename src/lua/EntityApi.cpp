@@ -199,6 +199,7 @@ void LuaContext::register_entity_module() {
       { "unfreeze", hero_api_unfreeze },
       { "walk", hero_api_walk },  // TODO use the more general movement:start
       { "start_attack", hero_api_start_attack },
+      { "start_attack_loading", hero_api_start_attack_loading },
       { "start_item", hero_api_start_item },
       { "start_jumping", hero_api_start_jumping },
       { "start_treasure", hero_api_start_treasure },
@@ -2639,6 +2640,25 @@ int LuaContext::hero_api_start_attack(lua_State* l) {
 
     if (hero.can_start_sword()) {
       hero.start_sword();
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:start_attack_loading().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_start_attack_loading(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    Hero& hero = *check_hero(l, 1);
+    int spin_attack_delay = LuaTools::opt_int(l, 2, 1000);
+
+    if (hero.can_start_sword()) {
+      hero.start_sword_loading(spin_attack_delay);
     }
 
     return 0;

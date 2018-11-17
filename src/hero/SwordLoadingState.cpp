@@ -35,12 +35,13 @@ namespace Solarus {
 /**
  * \brief Constructor.
  * \param hero The hero controlled by this state.
+ * \param spin_attack_delay Delay before allowing the spin attack (-1 means never).
  */
-Hero::SwordLoadingState::SwordLoadingState(Hero& hero):
+Hero::SwordLoadingState::SwordLoadingState(Hero& hero, int spin_attack_delay):
   PlayerMovementState(hero, "sword loading"),
+  spin_attack_delay(spin_attack_delay),
   sword_loaded_date(0),
   sword_loaded(false) {
-
 }
 
 /**
@@ -52,7 +53,19 @@ void Hero::SwordLoadingState::start(const State* previous_state) {
   PlayerMovementState::start(previous_state);
 
   sword_loaded = false;
-  sword_loaded_date = System::now() + 1000;
+  if (spin_attack_delay == -1) {
+    // No spin attack.
+    sword_loaded_date = 0;
+  }
+  else if (spin_attack_delay == 0) {
+    // Already allowed: don't play a sound.
+    sword_loaded_date = 0;
+    sword_loaded = true;
+  }
+  else {
+    // Allowed after a delay.
+    sword_loaded_date = System::now() + spin_attack_delay;
+  }
 }
 
 /**
@@ -66,15 +79,19 @@ void Hero::SwordLoadingState::update() {
     return;
   }
 
+  bool attack_pressed = get_commands().is_command_pressed(GameCommand::ATTACK);
   uint32_t now = System::now();
 
   // detect when the sword is loaded (i.e. ready for a spin attack)
-  if (!sword_loaded && now >= sword_loaded_date) {
+  if (attack_pressed &&
+      !sword_loaded &&
+      sword_loaded_date != 0 &&
+      now >= sword_loaded_date) {
     play_load_sound();
     sword_loaded = true;
   }
 
-  if (!get_commands().is_command_pressed(GameCommand::ATTACK)) {
+  if (!attack_pressed) {
     // the player has just released the sword key
 
     // stop loading the sword, go to the normal state or make a spin attack

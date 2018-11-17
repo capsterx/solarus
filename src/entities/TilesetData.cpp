@@ -287,35 +287,33 @@ bool TilesetData::pattern_exists(const std::string& pattern_id) const {
 
 /**
  * \brief Returns the pattern with the specified id.
- * \param pattern_id A tile pattern id. It must exist.
- * \return The pattern with this id.
+ * \param pattern_id A tile pattern id.
+ * \return The pattern with this id, or nullptr if it does not exist.
  * The object remains valid until tile patterns are added or removed.
  */
-const TilePatternData& TilesetData::get_pattern(const std::string& pattern_id) const {
+const TilePatternData* TilesetData::get_pattern(const std::string& pattern_id) const {
 
   const auto& it = patterns.find(pattern_id);
-  Debug::check_assertion(it != patterns.end(),
-    std::string("No such tile pattern: '") + pattern_id + "'");
+  if (it == patterns.end()) {
+    return nullptr;
+  }
 
-  return it->second;
+  return &it->second;
 }
 
 /**
- * \brief Returns the pattern with the specified id.
+ * \overload
  *
  * Non-const version.
- *
- * \param pattern_id A tile pattern id. It must exist.
- * \return The pattern with this id.
- * The object remains valid until tile patterns are added or removed.
  */
-TilePatternData& TilesetData::get_pattern(const std::string& pattern_id) {
+TilePatternData* TilesetData::get_pattern(const std::string& pattern_id) {
 
   const auto& it = patterns.find(pattern_id);
-  Debug::check_assertion(it != patterns.end(),
-    std::string("No such tile pattern: '") + pattern_id + "'");
+  if (it == patterns.end()) {
+    return nullptr;
+  }
 
-  return it->second;
+  return &it->second;
 }
 
 /**
@@ -366,7 +364,7 @@ bool TilesetData::set_pattern_id(
     return false;
   }
 
-  TilePatternData pattern = get_pattern(old_pattern_id);
+  TilePatternData pattern = *get_pattern(old_pattern_id);
   remove_pattern(old_pattern_id);
   add_pattern(new_pattern_id, pattern);
 

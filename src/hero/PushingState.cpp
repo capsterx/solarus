@@ -271,7 +271,7 @@ void Hero::PushingState::stop_moving_pushed_entity() {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::PushingState::get_can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PushingState::get_can_be_hurt(Entity* /* attacker */) {
   return !is_moving_grabbed_entity();
 }
 

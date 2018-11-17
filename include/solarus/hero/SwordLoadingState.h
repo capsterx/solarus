@@ -30,7 +30,7 @@ class Hero::SwordLoadingState: public Hero::PlayerMovementState {
 
   public:
 
-    explicit SwordLoadingState(Hero& hero);
+    SwordLoadingState(Hero& hero, int spin_attack_delay);
 
     void start(const State* previous_state) override;
     void update() override;
@@ -55,6 +55,7 @@ class Hero::SwordLoadingState: public Hero::PlayerMovementState {
 
     void play_load_sound();
 
+    int spin_attack_delay;                 /**< Delay before allowing the spin attack (-1 means never). */
     uint32_t sword_loaded_date;            /**< date when the sword is loaded */
     bool sword_loaded;                     /**< becomes true when the spin attack is possible */
 

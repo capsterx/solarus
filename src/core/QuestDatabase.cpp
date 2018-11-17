@@ -302,6 +302,14 @@ void QuestDatabase::clear_file_info(const std::string& path) {
 }
 
 /**
+ * \brief Returns the file information of all files.
+ * \return The file information of all files.
+ */
+std::map<std::string, QuestDatabase::FileInfo> QuestDatabase::get_all_file_info() const {
+  return files;
+}
+
+/**
  * \copydoc LuaData::import_from_lua
  */
 bool QuestDatabase::import_from_lua(lua_State* l) {

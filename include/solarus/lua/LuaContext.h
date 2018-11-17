@@ -334,6 +334,11 @@ class LuaContext {
         CustomState& state,
         Camera& camera
     );
+    bool do_state_can_be_hurt_function(
+        const ScopedLuaRef& can_be_hurt,
+        CustomState& state,
+        Entity* attacker
+    );
 
     // Main loop events (sol.main).
     void main_on_started();
@@ -666,20 +671,20 @@ class LuaContext {
       drawable_api_draw_region,
       drawable_api_get_blend_mode,
       drawable_api_set_blend_mode,
-      drawable_api_set_shader,
       drawable_api_get_shader,
-      drawable_api_set_opacity,
+      drawable_api_set_shader,
       drawable_api_get_opacity,
+      drawable_api_set_opacity,
       drawable_api_fade_in,
       drawable_api_fade_out,
       drawable_api_get_xy,
       drawable_api_set_xy,
-      drawable_api_set_rotation,
       drawable_api_get_rotation,
-      drawable_api_set_scale,
+      drawable_api_set_rotation,
       drawable_api_get_scale,
-      drawable_api_set_transformation_origin,
+      drawable_api_set_scale,
       drawable_api_get_transformation_origin,
+      drawable_api_set_transformation_origin,
       drawable_api_get_movement,
       drawable_api_stop_movement,
       drawable_meta_gc,
@@ -1060,6 +1065,7 @@ class LuaContext {
       hero_api_unfreeze,
       hero_api_walk,
       hero_api_start_attack,
+      hero_api_start_attack_loading,
       hero_api_start_item,
       hero_api_start_jumping,
       hero_api_start_treasure,

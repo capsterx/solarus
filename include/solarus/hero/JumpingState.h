@@ -61,7 +61,7 @@ class Hero::JumpingState: public HeroState {
     bool can_avoid_stream(const Stream& stream) const override;
     bool can_avoid_sensor() const override;
     bool can_avoid_switch() const override;
-    bool get_can_be_hurt(Entity* attacker) const override;
+    bool get_can_be_hurt(Entity* attacker) override;
     std::shared_ptr<CarriedObject> get_carried_object() const override;
     CarriedObject::Behavior get_previous_carried_object_behavior() const override;
 

@@ -61,6 +61,7 @@
 #include "solarus/hero/PushingState.h"
 #include "solarus/hero/RunningState.h"
 #include "solarus/hero/StairsState.h"
+#include "solarus/hero/SwordLoadingState.h"
 #include "solarus/hero/SwordSwingingState.h"
 #include "solarus/hero/SwimmingState.h"
 #include "solarus/hero/TreasureState.h"
@@ -2765,9 +2766,15 @@ bool Hero::can_start_sword() const {
  * \brief Starts using the sword.
  */
 void Hero::start_sword() {
-
-  Debug::check_assertion(can_start_sword(), "The hero cannot start using the sword now");
   set_state(std::make_shared<SwordSwingingState>(*this));
+}
+
+/**
+ * \brief Starts loading the sword.
+ * \param spin_attack_delay Delay before allowing the spin attack (-1 means never).
+ */
+void Hero::start_sword_loading(int spin_attack_delay) {
+  set_state(std::make_shared<SwordLoadingState>(*this, spin_attack_delay));
 }
 
 /**

@@ -249,15 +249,13 @@ const SurfacePtr& Tileset::get_entities_image() const {
 /**
  * \brief Returns a tile pattern from this tileset.
  * \param id Id of the tile pattern to get.
- * \return The tile pattern with this id.
+ * \return The tile pattern with this id, or nullptr if it does not exist.
  */
 std::shared_ptr<TilePattern> Tileset::get_tile_pattern(const std::string& id) const {
 
   const auto& it = tile_patterns.find(id);
   if (it == tile_patterns.end()) {
-    std::ostringstream oss;
-    oss << "No such tile pattern in tileset '" << get_id() << "': " << id;
-    Debug::die(oss.str());
+    return nullptr;
   }
   return it->second;
 }

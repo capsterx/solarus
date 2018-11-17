@@ -35,7 +35,7 @@ struct TileInfo {
   int layer;
   Rectangle box;
   std::string pattern_id;
-  std::shared_ptr<TilePattern> pattern;
+  std::shared_ptr<TilePattern> pattern;  /**< nullptr if it does not exist in the tileset. */
   const Tileset* tileset = nullptr;      /**< nullptr means the tileset of the map. */
 };
 

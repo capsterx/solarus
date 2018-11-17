@@ -125,11 +125,14 @@ set(lua_test_maps
   "bugs/1268_movement_ignore_suspend_in_timer"
   "bugs/1275_map_set_tileset"
   "bugs/1286_crash_state_set_can_traverse"
+  "bugs/1291_hero_start_attack_loading"
+  "bugs/1301_state_set_can_be_hurt_function"
 )
 
 # Test that should not fail when there are errors.
 set(lua_test_maps_non_fatal_errors
   "bugs/1015_crash_scrolling_to_invalid_layer/map_1"
+  "bugs/1299_crash_invalid_tile_pattern"
 )
 
 # Tests that require showing the window.

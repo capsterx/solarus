@@ -33,6 +33,7 @@ namespace Solarus {
  * \param xy Coordinates of the tile on the map.
  * \param size Size of the tile (the pattern can be repeated).
  * \param tile_pattern_id Id of the tile pattern in the tileset.
+ * \param tile_pattern The tile pattern, or nullptr if it does not exist in the tileset.
  * \param tileset The tileset to use (nullptr means the one of the map).
  */
 DynamicTile::DynamicTile(
@@ -74,6 +75,10 @@ const std::string& DynamicTile::get_tile_pattern_id() const {
  * \return The ground defined by this entity.
  */
 Ground DynamicTile::get_modified_ground() const {
+
+  if (tile_pattern == nullptr) {
+    return Ground::EMPTY;
+  }
   return tile_pattern->get_ground();
 }
 
@@ -105,6 +110,10 @@ void DynamicTile::set_tileset(const std::string& tileset_id) {
  * \copydoc Entity::is_drawn_at_its_position()
  */
 bool DynamicTile::is_drawn_at_its_position() const {
+
+  if (tile_pattern == nullptr) {
+    return true;
+  }
   return tile_pattern->is_drawn_at_its_position();
 }
 
@@ -113,19 +122,21 @@ bool DynamicTile::is_drawn_at_its_position() const {
  */
 void DynamicTile::built_in_draw(Camera& camera) {
 
-  const Rectangle& camera_position = camera.get_bounding_box();
+  if (tile_pattern != nullptr) {
+    const Rectangle& camera_position = camera.get_bounding_box();
 
-  Rectangle dst_position(get_top_left_x() - camera_position.get_x(),
-      get_top_left_y() - camera_position.get_y(),
-      get_width(), get_height());
+    Rectangle dst_position(get_top_left_x() - camera_position.get_x(),
+        get_top_left_y() - camera_position.get_y(),
+        get_width(), get_height());
 
-  const Tileset* tileset = this->tileset != nullptr ? this->tileset : &get_map().get_tileset();
-  tile_pattern->fill_surface(
-      camera.get_surface(),
-      dst_position,
-      *tileset,
-      camera_position.get_xy()
-  );
+    const Tileset* tileset = this->tileset != nullptr ? this->tileset : &get_map().get_tileset();
+    tile_pattern->fill_surface(
+        camera.get_surface(),
+        dst_position,
+        *tileset,
+        camera_position.get_xy()
+    );
+  }
 
   Entity::built_in_draw(camera);
 }

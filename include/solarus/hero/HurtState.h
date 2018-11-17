@@ -44,7 +44,7 @@ class Hero::HurtState: public HeroState {
     virtual bool is_stream_obstacle(Stream& stream) override;
     virtual bool is_sensor_obstacle(Sensor& sensor) override;
     virtual bool is_separator_obstacle(Separator& separator) override;
-    virtual bool get_can_be_hurt(Entity* attacker) const override;
+    virtual bool get_can_be_hurt(Entity* attacker) override;
     virtual bool can_avoid_switch() const override;
     virtual bool can_avoid_ice() const override;
 
