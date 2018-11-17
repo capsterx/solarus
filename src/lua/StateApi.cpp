@@ -845,8 +845,16 @@ int LuaContext::state_api_get_can_use_item(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
+    std::string item_id;
 
-    lua_pushboolean(l, state.get_can_start_item());
+    if (!lua_isnone(l, 2)) {
+      item_id = LuaTools::check_string(l, 2);
+      if (!CurrentQuest::resource_exists(ResourceType::ITEM, item_id)) {
+        LuaTools::arg_error(l, 2, "No such item: '" + item_id + "'");
+      }
+    }
+
+    lua_pushboolean(l, state.get_can_start_item(item_id));
     return 1;
   });
 }
@@ -860,9 +868,21 @@ int LuaContext::state_api_set_can_use_item(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_use_item = LuaTools::check_boolean(l, 2);
+    std::string item_id;
+    int index = 2;
+    if (lua_isstring(l, 2)) {
+      ++index;
+      item_id = LuaTools::check_string(l, 2);
+      if (!CurrentQuest::resource_exists(ResourceType::ITEM, item_id)) {
+        LuaTools::arg_error(l, 2, "No such item: '" + item_id + "'");
+      }
+    }
+    else if (!lua_isboolean(l, 2)) {
+      LuaTools::type_error(l, 2, "string or boolean");
+    }
+    bool can_use_item = LuaTools::check_boolean(l, index);
 
-    state.set_can_start_item(can_use_item);
+    state.set_can_start_item(item_id, can_use_item);
 
     return 0;
   });
