@@ -339,6 +339,11 @@ class LuaContext {
         CustomState& state,
         Entity* attacker
     );
+    bool do_state_can_cut_function(
+        const ScopedLuaRef& can_cut,
+        CustomState& state,
+        Entity* entity
+    );
 
     // Main loop events (sol.main).
     void main_on_started();
@@ -1246,6 +1251,8 @@ class LuaContext {
       state_api_set_can_be_hurt,
       state_api_get_can_use_sword,
       state_api_set_can_use_sword,
+      state_api_get_can_cut,
+      state_api_set_can_cut,
       state_api_get_can_use_shield,
       state_api_set_can_use_shield,
       state_api_get_can_use_item,

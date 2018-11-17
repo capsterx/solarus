@@ -62,6 +62,8 @@ CustomState::CustomState(
   can_be_hurt(true),
   can_be_hurt_callback(),
   can_start_sword(true),
+  can_cut(true),
+  can_cut_callback(),
   can_use_shield(true),
   can_start_item(true),
   can_push(true),
@@ -1106,11 +1108,18 @@ void CustomState::set_can_be_hurt(bool can_be_hurt) {
 
 /**
  * \brief Sets whether the entity can be hurt during this state.
- * \param can_be_hurt \c true to allow to hurt the entity.
+ * \param can_be_hurt Boolean function deciding if the entity can be hurt.
  */
 void CustomState::set_can_be_hurt(const ScopedLuaRef& can_be_hurt) {
   this->can_be_hurt = true;
   this->can_be_hurt_callback = can_be_hurt;
+}
+
+/**
+ * \copydoc Entity::State::is_cutting_with_sword
+ */
+bool CustomState::is_cutting_with_sword(Entity& entity) {
+  return get_can_cut(&entity);
 }
 
 /**
@@ -1126,6 +1135,37 @@ bool CustomState::get_can_start_sword() const {
  */
 void CustomState::set_can_start_sword(bool can_start_sword) {
   this->can_start_sword = can_start_sword;
+}
+
+/**
+ * \brief Returns whether an entity can be cut with the sword.
+ * \param entity The entity to test or nullptr.
+ */
+bool CustomState::get_can_cut(Entity* entity) {
+
+  if (!can_cut_callback.is_empty()) {
+    return get_lua_context().do_state_can_cut_function(
+        can_cut_callback, *this, entity);
+  }
+  return can_cut;
+}
+
+/**
+ * \brief Sets whether entities can be cut with the sword.
+ * \param can_cut \c true to allow to cut entities.
+ */
+void CustomState::set_can_cut(bool can_cut) {
+  this->can_cut = can_cut;
+  this->can_cut_callback.clear();
+}
+
+/**
+ * \brief Sets whether entities can be cut with the sword.
+ * \param can_cut Boolean function deciding if entities can be cut.
+ */
+void CustomState::set_can_cut(const ScopedLuaRef& can_cut) {
+  this->can_cut = true;
+  this->can_cut_callback = can_cut;
 }
 
 /**
