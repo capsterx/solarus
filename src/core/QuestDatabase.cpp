@@ -59,7 +59,8 @@ int l_resource_element(lua_State* l) {
     ResourceType resource_type =
         LuaTools::check_enum<ResourceType>(l, 1);
     const std::string& id = LuaTools::check_string_field(l, 2, "id");
-    const std::string& description = LuaTools::check_string_field(l, 2, "description");
+    const std::string& description =
+        LuaTools::opt_string_field(l, 2, "description", "");
 
     database.add(resource_type, id, description);
 
@@ -351,12 +352,19 @@ bool QuestDatabase::export_to_lua(std::ostream& out) const {
       const std::string& id = element.first;
       const std::string& description = element.second;
 
-      out << kvp.second
-          << "{ id = \""
-          << escape_string(id)
-          << "\", description = \""
-          << escape_string(description)
-          << "\" }\n";
+      if (description.empty()) {
+        out << kvp.second
+            << "{ id = \""
+            << escape_string(id)
+            << "\" }\n";
+      } else {
+        out << kvp.second
+            << "{ id = \""
+            << escape_string(id)
+            << "\", description = \""
+            << escape_string(description)
+            << "\" }\n";
+      }
     }
     out << "\n";
   }
