@@ -53,6 +53,8 @@ local function test_state_methods_presence()
     "set_can_be_hurt",
     "get_can_use_sword",
     "set_can_use_sword",
+    "get_can_cut",
+    "set_can_cut",
     "get_can_use_shield",
     "set_can_use_shield",
     "get_can_use_item",
@@ -210,8 +212,10 @@ local function test_state_methods(cont)
       test_setget("can_come_from_bad_ground", true, false)
       test_setget("can_be_hurt", true, false)
       test_setget("can_use_sword", true, false)
+      test_setget("can_cut", true, false)
       test_setget("can_use_shield", true, false)
       test_setget("can_use_item", true, false)
+      test_setget({"can_use_item", "bomb"}, true, false)
       test_setget("can_push", true, false)
       test_setget("pushing_delay", 0, 1000, 800)
       test_setget("can_pick_treasure", true, false)

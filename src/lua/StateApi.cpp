@@ -73,6 +73,8 @@ void LuaContext::register_state_module() {
     { "set_can_be_hurt", state_api_set_can_be_hurt },
     { "get_can_use_sword", state_api_get_can_use_sword },
     { "set_can_use_sword", state_api_set_can_use_sword },
+    { "get_can_cut", state_api_get_can_cut },
+    { "set_can_cut", state_api_set_can_cut },
     { "get_can_use_shield", state_api_get_can_use_shield },
     { "set_can_use_shield", state_api_set_can_use_shield },
     { "get_can_use_item", state_api_get_can_use_item },
@@ -169,6 +171,29 @@ bool LuaContext::do_state_can_be_hurt_function(
     push_entity(current_l, *attacker);
   }
   if (!call_function(2, 1, "state can_be_hurt callback")) {
+    return true;
+  }
+  return LuaTools::opt_boolean(current_l, -1, "true");
+}
+
+/**
+ * \brief Calls the can-cut function of a custom state.
+ * \param can_cut The function to call.
+ * \param state The state to test.
+ * \param entity The entity to test or nullptr.
+ */
+bool LuaContext::do_state_can_cut_function(
+    const ScopedLuaRef& can_cut,
+    CustomState& state,
+    Entity* entity) {
+  push_ref(current_l, can_cut);
+  push_state(current_l, state);
+  if (entity == nullptr) {
+    lua_pushnil(current_l);
+  } else {
+    push_entity(current_l, *entity);
+  }
+  if (!call_function(2, 1, "state can_cut callback")) {
     return true;
   }
   return LuaTools::opt_boolean(current_l, -1, "true");
@@ -738,6 +763,48 @@ int LuaContext::state_api_set_can_use_sword(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of state:get_can_cut().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_cut(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_cut(nullptr));
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_cut().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_cut(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+
+    if (lua_isboolean(l, 2)) {
+      bool can_cut = LuaTools::check_boolean(l, 2);
+      state.set_can_cut(can_cut);
+    }
+    else if (lua_isfunction(l, 2)) {
+      // Custom boolean function.
+      const ScopedLuaRef& can_cut_callback = LuaTools::check_function(l, 2);
+      state.set_can_cut(can_cut_callback);
+    }
+    else {
+      LuaTools::arg_error(l, 2, "boolean or function");
+    }
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of state:get_can_use_shield().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
@@ -778,8 +845,16 @@ int LuaContext::state_api_get_can_use_item(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     const CustomState& state = *check_state(l, 1);
+    std::string item_id;
 
-    lua_pushboolean(l, state.get_can_start_item());
+    if (!lua_isnone(l, 2)) {
+      item_id = LuaTools::check_string(l, 2);
+      if (!CurrentQuest::resource_exists(ResourceType::ITEM, item_id)) {
+        LuaTools::arg_error(l, 2, "No such item: '" + item_id + "'");
+      }
+    }
+
+    lua_pushboolean(l, state.get_can_start_item(item_id));
     return 1;
   });
 }
@@ -793,9 +868,21 @@ int LuaContext::state_api_set_can_use_item(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     CustomState& state = *check_state(l, 1);
-    bool can_use_item = LuaTools::check_boolean(l, 2);
+    std::string item_id;
+    int index = 2;
+    if (lua_isstring(l, 2)) {
+      ++index;
+      item_id = LuaTools::check_string(l, 2);
+      if (!CurrentQuest::resource_exists(ResourceType::ITEM, item_id)) {
+        LuaTools::arg_error(l, 2, "No such item: '" + item_id + "'");
+      }
+    }
+    else if (!lua_isboolean(l, 2)) {
+      LuaTools::type_error(l, 2, "string or boolean");
+    }
+    bool can_use_item = LuaTools::check_boolean(l, index);
 
-    state.set_can_start_item(can_use_item);
+    state.set_can_start_item(item_id, can_use_item);
 
     return 0;
   });

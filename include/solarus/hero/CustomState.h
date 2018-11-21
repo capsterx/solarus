@@ -134,11 +134,15 @@ class CustomState: public HeroState {
     void set_can_be_hurt(const ScopedLuaRef& can_be_hurt_callback);
     bool get_can_start_sword() const override;
     void set_can_start_sword(bool can_start_sword);
+    bool is_cutting_with_sword(Entity& entity) override;
+    bool get_can_cut(Entity* entity);
+    void set_can_cut(bool can_cut);
+    void set_can_cut(const ScopedLuaRef& can_cut_callback);
     bool get_can_use_shield() const override;
     void set_can_use_shield(bool can_use_shield);
-    bool get_can_start_item() const;
     bool get_can_start_item(EquipmentItem& item) const override;
-    void set_can_start_item(bool can_start_item);
+    bool get_can_start_item(const std::string& item_id) const;
+    void set_can_start_item(const std::string& item_id, bool can_start_item);
     bool get_can_push() const;
     void set_can_push(bool can_push);
     uint32_t get_pushing_delay() const;
@@ -194,8 +198,12 @@ class CustomState: public HeroState {
     bool can_be_hurt;                      /**< Whether the entity be hurt in this state. */
     ScopedLuaRef can_be_hurt_callback;     /**< Boolean function deciding if the entity can be hurt. */
     bool can_start_sword;                  /**< Whether the sword can be used in this state. */
+    bool can_cut;                          /**< Whether the sword can cut destructibles in this state. */
+    ScopedLuaRef can_cut_callback;         /**< Boolean function deciding if destructibles can be cut. */
     bool can_use_shield;                   /**< Whether the shield can be used in this state. */
-    bool can_start_item;                   /**< Whether items can be used in this state. */
+    bool can_start_item;                   /**< Whether items in general can be used in this state. */
+    std::map<std::string, bool>
+        can_start_items;                   /**< Whether specific items can be used in this state. */
     bool can_push;                         /**< Whether pushing is allowed in this state. */
     uint32_t pushing_delay;                /**< Delay before pushing. */
     int pushing_direction4;                /**< Direction where trying to
