@@ -6,6 +6,7 @@ set(lua_test_maps
   "jumper_tests"
   "surface_tests"
   "oriented_collisions"
+  "text_predict"
   "custom_state/can_traverse"
   "custom_state/can_traverse_ground"
   "custom_state/carried_object"

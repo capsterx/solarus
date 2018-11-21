@@ -27,9 +27,11 @@ local function make_map_api(lua_file_path)
   }
   local env = setmetatable({},env_mt)
   local dat_func = loadfile(dat_path)
-  setfenv(dat_func,env)
-  -- generate entities
-  dat_func()
+  if dat_func then
+    setfenv(dat_func,env)
+    -- generate entities
+    dat_func()
+  end
   return entities
 end
 

@@ -708,6 +708,7 @@ class LuaContext {
 
       // Text surface API.
       text_surface_api_create,
+      text_surface_api_get_predicted_size,
       text_surface_api_get_horizontal_alignment,
       text_surface_api_set_horizontal_alignment,
       text_surface_api_get_vertical_alignment,
