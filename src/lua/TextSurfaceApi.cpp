@@ -18,6 +18,7 @@
 #include "solarus/core/FontResource.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/graphics/TextSurface.h"
+#include "solarus/graphics/Surface.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
 
@@ -59,7 +60,7 @@ const std::map<VerticalAlignment, std::string> vertical_alignment_names = {
 void LuaContext::register_text_surface_module() {
 
   // Functions of sol.surface.
-  const std::vector<luaL_Reg> functions = {
+  std::vector<luaL_Reg> functions = {
       { "create", text_surface_api_create }
   };
 
@@ -105,6 +106,10 @@ void LuaContext::register_text_surface_module() {
       { "get_scale", drawable_api_get_scale },
       { "set_transformation_origin", drawable_api_set_transformation_origin },
       { "get_transformation_origin", drawable_api_get_transformation_origin },
+    });
+
+    functions.insert(functions.end(),{
+       { "get_predicted_size", text_surface_api_get_predicted_size}
     });
   }
 
@@ -208,6 +213,41 @@ int LuaContext::text_surface_api_create(lua_State* l) {
 
     push_text_surface(l, *text_surface);
     return 1;
+  });
+}
+
+/**
+ * @brief Implementation of text_surface.get_predicted_size()
+ * @param l the lua state
+ * @return number of values to return to lua
+ */
+int LuaContext::text_surface_api_get_predicted_size(lua_State* l) {
+  return state_boundary_handle(l,[&]{
+    std::string font_id = LuaTools::check_string(l,1);
+    int font_size = LuaTools::check_int(l,2);
+    std::string text = LuaTools::check_string(l,3);
+
+    if (!FontResource::exists(font_id)) {
+      LuaTools::error(l, std::string("No such font: '") + font_id + "'");
+    }
+    int w=0,h=0;
+    if(FontResource::is_bitmap_font(font_id)) {
+      int utf8len = 0;
+      for(char c : text) {
+        utf8len += (c & 0xc0) != 0x80;
+      }
+      const SurfacePtr& bitmap = FontResource::get_bitmap_font(font_id);
+      const Size& bitmap_size = bitmap->get_size();
+      int char_width = bitmap_size.width / 128;
+      h = bitmap_size.height / 16;
+      w = (char_width-1)*utf8len+1;
+    } else {
+      TTF_Font& font = FontResource::get_outline_font(font_id, font_size);
+      TTF_SizeUTF8(&font,text.c_str(),&w,&h);
+    }
+    lua_pushinteger(l,w);
+    lua_pushinteger(l,h);
+    return 2;
   });
 }
 
