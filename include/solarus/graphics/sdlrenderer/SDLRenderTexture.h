@@ -1,11 +1,11 @@
 #pragma once
 
-#include "solarus/graphics/SurfaceImpl.h"
+#include "solarus/graphics/sdlrenderer/SDLSurfaceImpl.h"
 #include "solarus/graphics/Color.h"
 #include "solarus/graphics/SDLPtrs.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/core/Debug.h"
-#include "DrawProxies.h"
+#include "solarus/graphics/DrawProxies.h"
 
 
 namespace Solarus {
@@ -22,14 +22,14 @@ namespace Solarus {
 /**
  * @brief SurfaceImpl representing mutable surface data
  *
- * RenderTextures are created when instantiating empty surface
+ * SDLRenderTextures are created when instantiating empty surface
  * that are likely to be filled or drawn to.
  */
-class RenderTexture : public SurfaceImpl
+class SDLRenderTexture : public SDLSurfaceImpl
 {
 public:
-    RenderTexture(int width, int height);
-    RenderTexture(SDL_Texture* texture, int width, int height);
+    SDLRenderTexture(int width, int height);
+    SDLRenderTexture(SDL_Texture* texture, int width, int height);
     SDL_Texture* get_texture() const override;
     SDL_Surface* get_surface() const override;
 
@@ -51,13 +51,13 @@ public:
     void draw_other(const SurfaceImpl& texture, const DrawInfos& infos);
     //void draw_region_other(const Rectangle &src_rect, const SurfaceImpl &texture, const Point& dst_position);
 
-    RenderTexture* to_render_texture() override;
+    SDLRenderTexture* to_render_texture() override;
 
     void fill_with_color(const Color& color, const Rectangle& where, SDL_BlendMode mode = SDL_BLENDMODE_BLEND);
 
     void clear();
     void clear(const Rectangle& where);
-    ~RenderTexture(){
+    ~SDLRenderTexture() override {
       Video::invalidate_target(target.get());
     }
 private:

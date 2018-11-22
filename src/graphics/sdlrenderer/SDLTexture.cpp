@@ -1,5 +1,5 @@
-#include "solarus/graphics/Texture.h"
-#include "solarus/graphics/RenderTexture.h"
+#include "solarus/graphics/sdlrenderer/SDLTexture.h"
+#include "solarus/graphics/sdlrenderer/SDLRenderTexture.h"
 #include "solarus/core/Debug.h"
 #include "solarus/graphics/Surface.h"
 
@@ -9,7 +9,7 @@ namespace Solarus {
  * @brief Texture::Texture
  * @param surface valid sdl surface
  */
-Texture::Texture(SDL_Surface_UniquePtr surface)
+SDLTexture::SDLTexture(SDL_Surface_UniquePtr surface)
     : surface(std::move(surface))
 {
   SDL_Texture* tex = SDL_CreateTextureFromSurface(Video::get_renderer(), this->surface.get());
@@ -21,36 +21,36 @@ Texture::Texture(SDL_Surface_UniquePtr surface)
 /**
  * \copydoc SurfaceImpl::get_texture
  */
-SDL_Texture* Texture::get_texture() const {
+SDL_Texture* SDLTexture::get_texture() const {
     return texture.get();
 }
 
 /**
  * \copydoc SurfaceImpl::get_surface
  */
-SDL_Surface* Texture::get_surface() const {
+SDL_Surface* SDLTexture::get_surface() const {
     return surface.get();
 }
 
 /**
  * \copydoc SurfaceImpl::get_width
  */
-int Texture::get_width() const {
+int SDLTexture::get_width() const {
     return surface->w;
 }
 
 /**
  * \copydoc SurfaceImpl::get_height
  */
-int Texture::get_height() const {
+int SDLTexture::get_height() const {
     return surface->h;
 }
 
 /**
  * \copydoc SurfaceImpl::to_render_texture
  */
-RenderTexture* Texture::to_render_texture() {
-    RenderTexture* rt = new RenderTexture(get_width(),get_height());
+SDLRenderTexture* SDLTexture::to_render_texture() {
+    SDLRenderTexture* rt = new SDLRenderTexture(get_width(),get_height());
     rt->draw_other(*this,DrawInfos(Rectangle(Point(),Size(get_width(),get_height())),
                                    Point(),
                                    Point(),

@@ -2,6 +2,7 @@
 
 #include "solarus/core/Rectangle.h"
 #include "solarus/core/Point.h"
+#include "solarus/graphics/SoftwarePixelFilter.h"
 
 #include <SDL_render.h>
 #include <memory>
@@ -18,13 +19,7 @@ class Surface;
 class SurfaceImpl
 {
 public:
-    /**
-     * @brief get the underlying SDL_Texture
-     * @return a valid SDL_Texture
-     */
-    virtual SDL_Texture* get_texture() const = 0;
-
-    /**
+  /**
      * @brief get the synchronised SDL_Surface
      *
      * The SDL_Texture alone is not convenient to access, for pixel
@@ -33,43 +28,48 @@ public:
      *
      * @return a valid SDL_Surface
      */
-    virtual SDL_Surface* get_surface() const = 0;
+  //virtual SDL_Surface* get_surface() const = 0;
 
-    /**
+  /**
      * @brief get texture width
      * @return width
      */
-    virtual int get_width() const = 0;
+  virtual int get_width() const = 0;
 
-    /**
+  /**
      * @brief get texture height
      * @return height
      */
-    virtual int get_height() const = 0;
+  virtual int get_height() const = 0;
 
-    /**
-     * @brief upload potentially modified surface
-     *
-     * When modifying pixels of the Surface, we have
-     * to upload it to the texture for changes to be reflected
-     */
-    void upload_surface();
 
-    /**
+  virtual std::string get_pixels() const = 0;
+  virtual void set_pixels(const std::string& buffer) = 0;
+
+  virtual void apply_pixel_filter(const SoftwarePixelFilter& pixel_filter, SurfaceImpl& dst_surface) const = 0;
+  virtual bool is_pixel_transparent(int index) const = 0;
+
+  /**
      * @brief ~SurfaceImpl
      */
-    virtual ~SurfaceImpl();
+  virtual ~SurfaceImpl();
 
-    /**
-     * @brief return a, potentialy new, RenderTexture implementation
-     * @return valid render texture
-     */
-    virtual RenderTexture* to_render_texture() = 0;
+  bool is_premultiplied() const;
+  void set_premultiplied(bool a_premultiplied);
 
-    bool is_premultiplied() const;
-    void set_premultiplied(bool a_premultiplied);
+  template<class T> T& as() {
+    auto p = dynamic_cast<T*>(this);
+    assert(p);
+    return *p;
+  }
+
+  template<class T> const T& as() const {
+    auto p = dynamic_cast<const T*>(this);
+    assert(p);
+    return *p;
+  }
 private:
-    bool premultiplied = false;
+  bool premultiplied = false;
 };
 
 using SurfaceImplPtr = std::shared_ptr<SurfaceImpl>;

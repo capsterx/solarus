@@ -20,6 +20,7 @@
 #include "solarus/lua/LuaContext.h"
 #include "solarus/movements/Movement.h"
 #include "solarus/graphics/Surface.h"
+#include "solarus/graphics/Video.h"
 #include <lua.hpp>
 #include <utility>
 
@@ -416,9 +417,9 @@ Point Drawable::get_full_origin() const {
  */
 const DrawProxy& Drawable::terminal() const {
   if(shader)
-    return (const DrawProxy&)(*shader);
+    return reinterpret_cast<const DrawProxy&>(*shader);
   else
-    return Surface::draw_proxy;
+    return Video::get_renderer().default_terminal();
 }
 
 }

@@ -99,6 +99,7 @@ struct DrawProxy {
    * It's either a surface draw or a shader draw.
    */
   virtual void draw(Surface& dst_surface, const Surface& src_surface,const DrawInfos& params) const = 0;
+  virtual inline ~DrawProxy(){}
 };
 
 

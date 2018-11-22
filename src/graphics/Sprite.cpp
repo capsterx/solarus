@@ -21,7 +21,6 @@
 #include "solarus/core/Size.h"
 #include "solarus/core/System.h"
 #include "solarus/graphics/Color.h"
-#include "solarus/graphics/RenderTexture.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/SpriteAnimation.h"
 #include "solarus/graphics/SpriteAnimationDirection.h"

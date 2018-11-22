@@ -86,6 +86,7 @@ private:
 class SOLARUS_API VertexArray
 {
   friend class Shader;
+  friend class SDLShader;
   friend class VerticeView;
 public:
     VertexArray(PrimitiveType type = TRIANGLES);

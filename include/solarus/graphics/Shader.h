@@ -31,12 +31,6 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef SOLARUS_HAVE_OPENGL
-#  include <SDL_opengl.h>
-#else
-#  include <SDL_opengles2.h>
-#endif
-
 namespace Solarus {
 
 /**
@@ -59,7 +53,6 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     Shader(const std::string& vertex_source,
            const std::string& fragment_source,
            double scaling_factor);
-    ~Shader();
 
     bool is_valid() const;
     std::string get_error() const;
@@ -73,71 +66,33 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     double get_scaling_factor() const;
     void set_scaling_factor(double scaling_factor);
 
-    static bool initialize();
-    static void quit();
+    virtual void set_uniform_1b(
+        const std::string& uniform_name, bool value) = 0;
+    virtual void set_uniform_1i(
+        const std::string& uniform_name, int value) = 0;
+    virtual void set_uniform_1f(
+        const std::string& uniform_name, float value) = 0;
+    virtual void set_uniform_2f(
+        const std::string& uniform_name, float value_1, float value_2) = 0;
+    virtual void set_uniform_3f(
+        const std::string& uniform_name, float value_1, float value_2, float value_3) = 0;
+    virtual void set_uniform_4f(
+        const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) = 0;
+    virtual bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value) = 0;
 
-    void set_uniform_1b(
-        const std::string& uniform_name, bool value);
-    void set_uniform_1i(
-        const std::string& uniform_name, int value);
-     void set_uniform_1f(
-        const std::string& uniform_name, float value);
-     void set_uniform_2f(
-        const std::string& uniform_name, float value_1, float value_2);
-     void set_uniform_3f(
-        const std::string& uniform_name, float value_1, float value_2, float value_3);
-     void set_uniform_4f(
-        const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4);
-     bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value);
-
-    void render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point& dst_position = Point(), bool flip_y = false);
-    void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
-
-    /**
-     * \brief render the given vertex array with this shader, passing the texture and matrices as uniforms
-     * \param array a vertex array
-     * \param texture a valid surface
-     * \param mvp_matrix model view projection matrix
-     * \param uv_matrix uv_matrix
-     */
-     void render(const VertexArray& array,
-                        const Surface &texture,
-                        const glm::mat4& mvp_matrix = glm::mat4(),
-                        const glm::mat3& uv_matrix = glm::mat3());
+    template<class T> const T& as() const {
+      auto p = dynamic_cast<const T*>(this);
+      assert(p);
+      return *p;
+    }
 
     const std::string& get_lua_type_name() const override;
 
-  private:
+  protected:
     void set_valid(bool valid);
     void set_error(const std::string& error);
     void set_data(const ShaderData& data);
-    void compile();
-
-    static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
-
-    void check_gl_error();
-    void enable_attribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
-    void restore_attribute_states();
-
-    struct TextureUniform{
-      SurfacePtr surface;
-      GLuint unit;
-    };
-
-    GLuint create_shader(unsigned int type, const char* source);
-    static void set_rendering_settings();
-    GLint get_uniform_location(const std::string& uniform_name) const;
-
-    static inline void compute_matrices(
-        const Size& surface_size,
-        const Rectangle& region,
-        const Size& dst_size,
-        const Point& dst_position,
-        bool flip_y,
-        glm::mat4& viewport,
-        glm::mat4& dst,
-        glm::mat4& scale,
-        glm::mat3& uvm);
+  private:
 
     const std::string shader_id;  /**< The id of the shader (filename without extension). */
     ShaderData data;              /**< The loaded shader data file. */
@@ -145,19 +100,6 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     std::string fragment_source;  /**< Fragment shader code. */
     bool valid;                   /**< \c true if the compilation succedeed. */
     std::string error;            /**< Error message of the last operation if any. */
-
-    GLuint program;                         /**< The program which bind the vertex and fragment shader. */
-    GLuint vertex_shader;                   /**< The vertex shader. */
-    GLuint fragment_shader;                 /**< The fragment shader. */
-    GLint position_location;                     /**< The location of the position attrib. */
-    GLint tex_coord_location;                    /**< The location of the tex_coord attrib. */
-    GLint color_location;                        /**< The location of the color attrib. */
-    mutable std::map<std::string, GLint>
-        uniform_locations;                       /**< Cache of uniform locations. */
-    mutable std::map<std::string, TextureUniform>
-        uniform_textures;                        /**< Uniform texture value of surfaces. */
-    std::unordered_map<GLuint, GLint> attribute_states;    /**< Previous attrib states. */
-    GLuint current_texture_unit = 0;
 };
 
 }

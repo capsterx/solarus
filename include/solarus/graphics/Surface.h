@@ -49,14 +49,6 @@ class Surface: public Drawable {
     friend class VertexArray; // TODO find cleaner way
 
   public:
-
-    /**
-     * @brief terminal DrawProxy for simple surface draw
-     */
-    struct SurfaceDraw : public DrawProxy {
-      virtual void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& params) const override;
-    };
-
     /**
      * \brief The base directory to use when opening image files.
      */
@@ -92,16 +84,13 @@ class Surface: public Drawable {
     void fill_with_color(const Color& color);
     void fill_with_color(const Color& color, const Rectangle& where);
 
-    SurfaceImpl& get_internal_surface();
-    const SurfaceImpl& get_internal_surface() const;
-    RenderTexture& request_render();
+    SurfaceImpl& get_impl();
+    const SurfaceImpl& get_impl() const;
 
     bool is_pixel_transparent(int index) const;
 
     std::string get_pixels() const;
     void set_pixels(const std::string& buffer);
-
-    void render(SDL_Renderer*& renderer);
 
     // Implementation from Drawable.
     virtual void raw_draw(
@@ -125,14 +114,7 @@ class Surface: public Drawable {
     void bind_as_target();
 
     const std::string& get_lua_type_name() const override;
-
-    static SurfaceDraw draw_proxy;
-
   private:
-
-    uint32_t get_pixel(int index) const;
-    uint32_t get_color_value(const Color& color) const;
-
     static SurfaceImplPtr get_surface_from_file(
         const std::string& file_name,
         ImageDirectory base_directory);

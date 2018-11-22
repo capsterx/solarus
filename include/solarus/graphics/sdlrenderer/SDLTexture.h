@@ -1,6 +1,6 @@
 #pragma once
 
-#include "solarus/graphics/SurfaceImpl.h"
+#include "solarus/graphics/sdlrenderer/SDLSurfaceImpl.h"
 #include "solarus/graphics/SDLPtrs.h"
 
 namespace Solarus {
@@ -10,17 +10,17 @@ namespace Solarus {
  *
  * Textures are mainly created from image files
  */
-class Texture : public SurfaceImpl
+class SDLTexture : public SDLSurfaceImpl
 {
 public:
-    explicit Texture(SDL_Surface_UniquePtr surface);
+    explicit SDLTexture(SDL_Surface_UniquePtr surface);
     SDL_Texture* get_texture() const override;
     SDL_Surface* get_surface() const override;
 
     int get_width() const override;
     int get_height() const override;
 
-    RenderTexture* to_render_texture() override;
+    SDLRenderTexture* to_render_texture() override;
 private:
     mutable SDL_Surface_UniquePtr surface; /**< cpu side pixels data */
     mutable SDL_Texture_UniquePtr texture; /**< gpu side pixels data */

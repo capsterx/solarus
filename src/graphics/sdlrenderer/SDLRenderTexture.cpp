@@ -1,10 +1,10 @@
-#include "solarus/graphics/RenderTexture.h"
+#include "solarus/graphics/sdlrenderer/SDLRenderTexture.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Shader.h"
 
 namespace Solarus {
 
-RenderTexture::RenderTexture(SDL_Texture* texture, int width, int height) {
+SDLRenderTexture::SDLRenderTexture(SDL_Texture* texture, int width, int height) {
   target.reset(texture);
   SDL_PixelFormat* format = Video::get_rgba_format();
 
@@ -23,11 +23,11 @@ RenderTexture::RenderTexture(SDL_Texture* texture, int width, int height) {
 }
 
 /**
- * @brief RenderTexture::RenderTexture
+ * @brief SDLRenderTexture::SDLRenderTexture
  * @param width width of the render texture
  * @param height height of the render texture
  */
-RenderTexture::RenderTexture(int width, int height)
+SDLRenderTexture::SDLRenderTexture(int width, int height)
 {
   SDL_Renderer* renderer = Video::get_renderer();
   SDL_PixelFormat* format = Video::get_rgba_format();
@@ -64,21 +64,21 @@ RenderTexture::RenderTexture(int width, int height)
 /**
  * \copydoc SurfaceImpl::get_width
  */
-int RenderTexture::get_width() const {
+int SDLRenderTexture::get_width() const {
   return surface->w;
 }
 
 /**
  * \copydoc SurfaceImpl::get_height
  */
-int RenderTexture::get_height() const {
+int SDLRenderTexture::get_height() const {
   return surface->h;
 }
 
 /**
  * \copydoc SurfaceImpl::get_texture
  */
-SDL_Texture* RenderTexture::get_texture() const {
+SDL_Texture* SDLRenderTexture::get_texture() const {
   return target.get();
 }
 
@@ -87,7 +87,7 @@ SDL_Texture* RenderTexture::get_texture() const {
  * @param texture the surface to draw here
  * @param infos draw info bundle
  */
-void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& infos) {
+void SDLRenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& infos) {
   with_target([&](SDL_Renderer* renderer){
     Rectangle dst_rect = infos.dst_rectangle();
     if(!texture.get_texture()) {
@@ -109,7 +109,7 @@ void RenderTexture::draw_other(const SurfaceImpl& texture, const DrawInfos& info
 /**
  * \copydoc SurfaceImpl::get_surface
  */
-SDL_Surface *RenderTexture::get_surface() const {
+SDL_Surface *SDLRenderTexture::get_surface() const {
   if (surface_dirty) {
     with_target([&](SDL_Renderer* renderer){
       SOLARUS_CHECK_SDL(SDL_RenderReadPixels(renderer,
@@ -127,7 +127,7 @@ SDL_Surface *RenderTexture::get_surface() const {
 /**
  * \copydoc SurfaceImpl::to_render_texture
  */
-RenderTexture* RenderTexture::to_render_texture() {
+RenderTexture* SDLRenderTexture::to_render_texture() {
   return this;
 }
 
@@ -137,7 +137,7 @@ RenderTexture* RenderTexture::to_render_texture() {
  * @param where region to fill
  * @param mode blend mode
  */
-void RenderTexture::fill_with_color(const Color& color, const Rectangle& where, SDL_BlendMode mode) {
+void SDLRenderTexture::fill_with_color(const Color& color, const Rectangle& where, SDL_BlendMode mode) {
   const SDL_Rect* rect = where;
   with_target([&](SDL_Renderer* renderer){
     Uint8 r,g,b,a;
@@ -151,7 +151,7 @@ void RenderTexture::fill_with_color(const Color& color, const Rectangle& where, 
 /**
  * @brief RenderTexture::clear
  */
-void RenderTexture::clear() {
+void SDLRenderTexture::clear() {
   with_target([&](SDL_Renderer* renderer){
     SOLARUS_CHECK_SDL(SDL_SetRenderDrawColor(renderer,0,0,0,0));
     SOLARUS_CHECK_SDL(SDL_SetTextureBlendMode(target.get(),SDL_BLENDMODE_BLEND));
@@ -163,7 +163,7 @@ void RenderTexture::clear() {
  * @brief RenderTexture::clear
  * @param where region to clear
  */
-void RenderTexture::clear(const Rectangle& where) {
+void SDLRenderTexture::clear(const Rectangle& where) {
   fill_with_color(Color::transparent,where,SDL_BLENDMODE_NONE);
 }
 
