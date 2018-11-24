@@ -64,14 +64,17 @@ RendererPtr SDLRenderer::create(SDL_Window* window) {
       //return nullptr; //TODO Set some flags
     }
 
-    //auto qs = Video::get_quest_size();
+    auto size = Video::get_quest_size();
+    SDL_RenderSetLogicalSize(renderer,size.width,size.height);
 
     return RendererPtr(new SDLRenderer(renderer));
   }
 }
 
 SurfaceImplPtr SDLRenderer::create_texture(int width, int height) {
-  return SurfaceImplPtr(new SDLSurfaceImpl(renderer,width,height));
+  auto simpl = new SDLSurfaceImpl(renderer,width,height);
+  clear(*simpl);
+  return SurfaceImplPtr(simpl);
 }
 
 SurfaceImplPtr SDLRenderer::create_texture(SDL_Surface_UniquePtr&& surface) {
@@ -170,9 +173,7 @@ void SDLRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface
   //SDL_RenderSetClipRect(renderer, nullptr);
   SDL_RenderClear(renderer);
 
-
-  auto size = quest_surface->get_size();
-  SDL_RenderSetLogicalSize(renderer,size.width,size.height);
+  //auto size = quest_surface->get_size();
 
   //See if there is a shader to apply
   const SDLSurfaceImpl& qs = quest_surface->get_impl().as<SDLSurfaceImpl>();
@@ -185,7 +186,7 @@ void SDLRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface
     s.render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
   } else {
     SDL_SetTextureBlendMode(qs.get_texture(),SDL_BLENDMODE_NONE);
-    SDL_RenderCopy(renderer, qs.get_texture(), Rectangle(size), nullptr);
+    SDL_RenderCopy(renderer, qs.get_texture(), nullptr, nullptr);
   }
 }
 
