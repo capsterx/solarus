@@ -31,6 +31,7 @@ SDLRenderer::SDLRenderer(SDL_Renderer* a_renderer) : renderer(a_renderer) {
         rgba_format->Amask
     ));
     renderer = SDL_CreateSoftwareRenderer(software_screen.get());
+
   }
   Debug::check_assertion(!instance,"Creating two SDL renderer");
   instance = this; //Set this renderer as the unique instance
@@ -60,7 +61,7 @@ RendererPtr SDLRenderer::create(SDL_Window* window) {
   } else {
     //Init shaders :
     if(!SDLShader::initialize()) {
-      return nullptr;
+      //return nullptr; //TODO Set some flags
     }
 
     //auto qs = Video::get_quest_size();
@@ -166,7 +167,7 @@ void SDLRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface
 
   set_render_target(nullptr);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderSetClipRect(renderer, nullptr);
+  //SDL_RenderSetClipRect(renderer, nullptr);
   SDL_RenderClear(renderer);
 
 

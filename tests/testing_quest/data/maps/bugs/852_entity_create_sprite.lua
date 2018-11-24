@@ -50,6 +50,8 @@ function map:on_draw(dst_surface)
   end
 
   local pixels = dst_surface:get_pixels()
+  print(pixels:byte(1,3))
+  print(unpack(expected_color))
   assert_equal_color({ pixels:byte(1, 3) }, expected_color)
 
   local sprite = hero:get_sprite("additional_sprite")

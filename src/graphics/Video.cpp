@@ -375,11 +375,14 @@ void render(const SurfacePtr& quest_surface) {
                       Scale(scale_factor),
                       context.renderer->default_terminal() /*dont care about this anyway*/));
       surface_to_render = context.scaled_surface;
+    } else {
+      context.renderer->render(context.main_window,surface_to_render,context.current_shader);
+      surface_to_render = nullptr;
     }
   }
 
   if(surface_to_render)
-    context.renderer->render(context.main_window,surface_to_render,context.current_shader);
+    context.renderer->render(context.main_window,surface_to_render,nullptr);
 }
 
 /**
@@ -861,7 +864,7 @@ Rectangle get_letter_box(const Size& basesize) {
 void on_window_resized(const Size& size) {
   Rectangle letter = get_letter_box(size);
   context.renderer->on_window_size_changed(letter);
-  SurfaceImplPtr surface_impl = context.renderer->create_window_surface(context.main_window,letter.get_width(),letter.get_width());
+  SurfaceImplPtr surface_impl = context.renderer->create_window_surface(context.main_window,letter.get_width(),letter.get_height());
   context.screen_surface = Surface::create(surface_impl);
   context.geometry.logical_size = letter.get_size();
 }

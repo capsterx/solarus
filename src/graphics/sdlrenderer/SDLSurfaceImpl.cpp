@@ -24,7 +24,7 @@ SDL_Texture* create_texture_from_renderer(SDL_Renderer* renderer, int width, int
 }
 
 SDLSurfaceImpl::SDLSurfaceImpl(SDL_Renderer *renderer, int width, int height, bool screen_tex) : target(true) {
-  texture.reset(screen_tex ? nullptr : create_texture_from_renderer(renderer,width,width));
+  texture.reset(screen_tex ? nullptr : create_texture_from_renderer(renderer,width,height));
 
   SDL_PixelFormat* format = Video::get_pixel_format();
   SDL_Surface* surf_ptr = SDL_CreateRGBSurface(
@@ -106,7 +106,7 @@ SDLSurfaceImpl& SDLSurfaceImpl::targetable()  {
 }
 
 std::string SDLSurfaceImpl::get_pixels() const {
-  const int num_pixels = get_width() * get_height();
+  const size_t num_pixels = static_cast<size_t>(get_width() * get_height());
   SDL_Surface* surface = get_surface();
 
   if (surface->format->format == SDL_PIXELFORMAT_ABGR8888) {
@@ -151,11 +151,6 @@ void SDLSurfaceImpl::apply_pixel_filter(const SoftwarePixelFilter& pixel_filter,
 
   SDL_Surface* src_internal_surface = get_surface();
   SDL_Surface* dst_internal_surface = dst_surface.get_surface();
-
-  if (src_internal_surface == nullptr) {
-    // This is possible if nothing was drawn on the surface yet.
-    return;
-  }
 
   Debug::check_assertion(dst_internal_surface != nullptr,
       "Missing software destination surface for pixel filter");
