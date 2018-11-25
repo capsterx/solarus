@@ -58,15 +58,11 @@ public:
   void set_premultiplied(bool a_premultiplied);
 
   template<class T> T& as() {
-    auto p = dynamic_cast<T*>(this);
-    assert(p);
-    return *p;
+    return *static_cast<T*>(this);
   }
 
   template<class T> const T& as() const {
-    auto p = dynamic_cast<const T*>(this);
-    assert(p);
-    return *p;
+    return *static_cast<const T*>(this);
   }
 private:
   bool premultiplied = false;

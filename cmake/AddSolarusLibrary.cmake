@@ -147,6 +147,9 @@ file(
   include/solarus/graphics/sdlrenderer/SDLRenderer.h
   include/solarus/graphics/sdlrenderer/SDLSurfaceImpl.h
   include/solarus/graphics/sdlrenderer/SDLShader.h
+  include/solarus/graphics/glrenderer/GlRenderer.h
+  include/solarus/graphics/glrenderer/GlShader.h
+  include/solarus/graphics/glrenderer/GlSurfaceImpl.h
   include/solarus/graphics/ShaderContext.h
   include/solarus/graphics/ShaderData.h
   include/solarus/graphics/ShaderPtr.h
@@ -350,6 +353,9 @@ file(
   src/graphics/sdlrenderer/SDLRenderer.cpp
   src/graphics/sdlrenderer/SDLSurfaceImpl.cpp
   src/graphics/sdlrenderer/SDLShader.cpp
+  src/graphics/glrenderer/GlRenderer.cpp
+  src/graphics/glrenderer/GlShader.cpp
+  src/graphics/glrenderer/GlSurfaceImpl.cpp
   src/graphics/Scale2xFilter.cpp
   src/graphics/ShaderContext.cpp
   src/graphics/ShaderData.cpp
