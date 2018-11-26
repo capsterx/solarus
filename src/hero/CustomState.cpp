@@ -356,27 +356,29 @@ void CustomState::notify_command_pressed(GameCommand command) {
     return;
   }
 
-  Hero& hero = get_entity();
-  Entity* facing_entity = hero.get_facing_entity();
-  bool facing_entity_interaction = false;
-  if (facing_entity != nullptr &&
-      get_can_interact()) {
-    if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE ||
-        get_commands_effects().is_action_key_acting_on_facing_entity()
-    ) {
-      // Action on the facing entity.
-      facing_entity_interaction = facing_entity->notify_action_command_pressed();
+  if (command == GameCommand::ACTION) {
+    Hero& hero = get_entity();
+    Entity* facing_entity = hero.get_facing_entity();
+    bool facing_entity_interaction = false;
+    if (facing_entity != nullptr &&
+        get_can_interact()) {
+      if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE ||
+          get_commands_effects().is_action_key_acting_on_facing_entity()
+      ) {
+        // Action on the facing entity.
+        facing_entity_interaction = facing_entity->notify_action_command_pressed();
+      }
     }
-  }
 
-  if (!facing_entity_interaction) {
-    // The event was not handled by the facing entity.
-    if (hero.is_facing_point_on_obstacle() &&
-        get_can_grab() &&
-        hero.can_grab()
-    ) {
-      // Grab an obstacle.
-      hero.start_grabbing();
+    if (!facing_entity_interaction) {
+      // The event was not handled by the facing entity.
+      if (hero.is_facing_point_on_obstacle() &&
+          get_can_grab() &&
+          hero.can_grab()
+      ) {
+        // Grab an obstacle.
+        hero.start_grabbing();
+      }
     }
   }
 
