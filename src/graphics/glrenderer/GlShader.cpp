@@ -20,7 +20,7 @@
 #include "solarus/core/Transform.h"
 #include "solarus/graphics/glrenderer/GlShader.h"
 #include "solarus/graphics/glrenderer/GlRenderer.h"
-#include "solarus/graphics/glrenderer/GlSurfaceImpl.h"
+#include "solarus/graphics/glrenderer/GlTexture.h"
 #include "solarus/graphics/Video.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/lua/LuaContext.h"
@@ -34,16 +34,8 @@
 
 namespace Solarus {
 
-VertexArray GlShader::screen_quad(TRIANGLES);
-
-struct GlContext {
-#define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
-#include "../gles2funcs.h"
-#undef SDL_PROC
-};
-
 namespace {
-GlContext ctx;
+GlRenderer::GlFunctions* ctx;
 }
 
 /**
@@ -51,23 +43,7 @@ GlContext ctx;
  * \return \c true if GL 2D shaders are supported.
  */
 bool GlShader::initialize() {
-#if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
-#define SDL_PROC(ret,func,params) ctx.func=func;
-#else
-#define SDL_PROC(ret,func,params) \
-  do { \
-  ctx.func = reinterpret_cast<APIENTRY ret(*)params>(SDL_GL_GetProcAddress(#func)); \
-  if ( ! ctx.func ) { \
-  Debug::warning(std::string("Couldn't load GLES2 function" #func)+  SDL_GetError()); \
-  return false; \
-} \
-} while ( 0 );
-#endif
-#include "../gles2funcs.h"
-#undef SDL_PROC
-
-  //Init screen quad
-  screen_quad.add_quad(Rectangle(0,0,1,1),Rectangle(0,1,1,-1),Color::white);
+  ctx = &GlRenderer::ctx;
 
   Logger::info("Using modern GL Shaders");
 

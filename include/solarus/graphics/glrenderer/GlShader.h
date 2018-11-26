@@ -95,8 +95,6 @@ class SOLARUS_API GlShader : public Shader {
   private:
     void compile();
 
-    static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
-
     void check_gl_error();
     void enable_attribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
     void restore_attribute_states();

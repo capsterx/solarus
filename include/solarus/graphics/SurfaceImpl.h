@@ -28,7 +28,12 @@ public:
      *
      * @return a valid SDL_Surface
      */
-  //virtual SDL_Surface* get_surface() const = 0;
+  virtual SDL_Surface* get_surface() const = 0;
+
+  /**
+   * @brief upload_surface back to the accelerated storage
+   */
+  virtual void upload_surface() = 0;
 
   /**
      * @brief get texture width
@@ -43,11 +48,11 @@ public:
   virtual int get_height() const = 0;
 
 
-  virtual std::string get_pixels() const = 0;
-  virtual void set_pixels(const std::string& buffer) = 0;
+  std::string get_pixels() const;
+  void set_pixels(const std::string& buffer);
 
-  virtual void apply_pixel_filter(const SoftwarePixelFilter& pixel_filter, SurfaceImpl& dst_surface) const = 0;
-  virtual bool is_pixel_transparent(int index) const = 0;
+  void apply_pixel_filter(const SoftwarePixelFilter& pixel_filter, SurfaceImpl& dst_surface) const;
+  bool is_pixel_transparent(int index) const;
 
   /**
      * @brief ~SurfaceImpl

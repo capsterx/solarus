@@ -36,14 +36,14 @@ namespace Solarus {
 
 VertexArray SDLShader::screen_quad(TRIANGLES);
 
-struct GlContext {
+struct GlFunctions {
 #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
 #include "../gles2funcs.h"
 #undef SDL_PROC
 };
 
 namespace {
-GlContext ctx;
+GlFunctions ctx;
 }
 
 /**

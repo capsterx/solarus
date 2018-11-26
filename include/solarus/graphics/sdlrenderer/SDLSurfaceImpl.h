@@ -22,19 +22,12 @@ public:
   SDLSurfaceImpl(SDL_Renderer* renderer, SDL_Surface_UniquePtr surface);
 
   SDL_Texture* get_texture() const;
-  SDL_Surface* get_surface() const;
+  SDL_Surface* get_surface() const override;
 
   SDLSurfaceImpl& targetable();
 
   int get_width() const override;
   int get_height() const override;
-
-  std::string get_pixels() const override;
-
-  void set_pixels(const std::string& buffer) override;
-
-  void apply_pixel_filter(const SoftwarePixelFilter& pixel_filter, SurfaceImpl& dst_surface) const override;
-  bool is_pixel_transparent(int index) const override;
 
   /**
    * @brief upload potentially modified surface
@@ -42,7 +35,7 @@ public:
    * When modifying pixels of the Surface, we have
    * to upload it to the texture for changes to be reflected
    */
-  void upload_surface();
+  void upload_surface() override;
 private:
   bool target = false;
   mutable bool surface_dirty = true;
