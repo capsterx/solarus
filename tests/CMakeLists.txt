@@ -12,6 +12,7 @@ set(lua_test_maps
   "custom_state/carried_object"
   "custom_state/custom_state"
   "custom_state/draw_override"
+  "custom_state/grabbing"
   "custom_state/jumper"
   "custom_state/pushing"
   "custom_state/reuse_state"

@@ -79,6 +79,10 @@ void LuaContext::register_state_module() {
     { "set_can_use_shield", state_api_set_can_use_shield },
     { "get_can_use_item", state_api_get_can_use_item },
     { "set_can_use_item", state_api_set_can_use_item },
+    { "get_can_interact", state_api_get_can_interact },
+    { "set_can_interact", state_api_set_can_interact },
+    { "get_can_grab", state_api_get_can_grab },
+    { "set_can_grab", state_api_set_can_grab },
     { "get_can_push", state_api_get_can_push },
     { "set_can_push", state_api_set_can_push },
     { "get_pushing_delay", state_api_get_pushing_delay },
@@ -883,6 +887,70 @@ int LuaContext::state_api_set_can_use_item(lua_State* l) {
     bool can_use_item = LuaTools::check_boolean(l, index);
 
     state.set_can_start_item(item_id, can_use_item);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_interact().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_interact(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_interact());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_interact().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_interact(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_interact = LuaTools::check_boolean(l, 2);
+
+    state.set_can_interact(can_interact);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_grab().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_grab(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_grab());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_grab().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_grab(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_grab = LuaTools::check_boolean(l, 2);
+
+    state.set_can_grab(can_grab);
 
     return 0;
   });

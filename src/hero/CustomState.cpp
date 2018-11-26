@@ -68,6 +68,8 @@ CustomState::CustomState(
   can_use_shield(true),
   can_start_item(true),
   can_start_items(),
+  can_interact(true),
+  can_grab(true),
   can_push(true),
   pushing_delay(1000),
   pushing_direction4(-1),
@@ -352,6 +354,30 @@ void CustomState::notify_command_pressed(GameCommand command) {
   // See if the state script handles the command.
   if (get_lua_context().state_on_command_pressed(*this, command)) {
     return;
+  }
+
+  Hero& hero = get_entity();
+  Entity* facing_entity = hero.get_facing_entity();
+  bool facing_entity_interaction = false;
+  if (facing_entity != nullptr &&
+      get_can_interact()) {
+    if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE ||
+        get_commands_effects().is_action_key_acting_on_facing_entity()
+    ) {
+      // Action on the facing entity.
+      facing_entity_interaction = facing_entity->notify_action_command_pressed();
+    }
+  }
+
+  if (!facing_entity_interaction) {
+    // The event was not handled by the facing entity.
+    if (hero.is_facing_point_on_obstacle() &&
+        get_can_grab() &&
+        hero.can_grab()
+    ) {
+      // Grab an obstacle.
+      hero.start_grabbing();
+    }
   }
 
   Entity::State::notify_command_pressed(command);
@@ -1223,6 +1249,38 @@ void CustomState::set_can_start_item(const std::string& item_id, bool can_start_
   }
 
   can_start_items[item_id] = can_start_item;
+}
+
+/**
+ * \brief Returns whether interacting is allowed from this state.
+ * \return \c true if interacting with the facing entity is allowed.
+ */
+bool CustomState::get_can_interact() const {
+  return can_interact;
+}
+
+/**
+ * \brief Sets whether pushing is allowed from this state.
+ * \param can_push \c true to allow to interacting with the facing entity.
+ */
+void CustomState::set_can_interact(bool can_interact) {
+  this->can_interact = can_interact;
+}
+
+/**
+ * \brief Returns whether grabbing is allowed from this state.
+ * \return \c true if grabbing is allowed.
+ */
+bool CustomState::get_can_grab() const {
+  return can_grab;
+}
+
+/**
+ * \brief Sets whether pushing is allowed from this state.
+ * \param can_push \c true to allow to grab.
+ */
+void CustomState::set_can_grab(bool can_grab) {
+  this->can_grab = can_grab;
 }
 
 /**

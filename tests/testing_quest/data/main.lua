@@ -12,6 +12,11 @@ function format_value(value)
   if type(value) == "string" then
     return "'" .. value .. "'"
   end
+
+  if type(value) == "userdata" then
+    return tostring(value):gsub("userdata", sol.main.get_type(value))
+  end
+
   return tostring(value)
 end
 

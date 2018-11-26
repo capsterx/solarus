@@ -201,6 +201,7 @@ void LuaContext::register_entity_module() {
       { "start_attack", hero_api_start_attack },
       { "start_attack_loading", hero_api_start_attack_loading },
       { "start_item", hero_api_start_item },
+      { "start_grabbing", hero_api_start_grabbing },
       { "start_jumping", hero_api_start_jumping },
       { "start_treasure", hero_api_start_treasure },
       { "start_victory", hero_api_start_victory},
@@ -2682,6 +2683,24 @@ int LuaContext::hero_api_start_item(lua_State* l) {
     }
     if (hero.can_start_item(item)) {
       hero.start_item(item);
+    }
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of hero:start_grabbing().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::hero_api_start_grabbing(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    Hero& hero = *check_hero(l, 1);
+
+    if (hero.get_equipment().has_ability(Ability::GRAB)) {
+      hero.start_grabbing();
     }
 
     return 0;

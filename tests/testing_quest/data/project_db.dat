@@ -131,6 +131,7 @@ map{ id = "custom_state/carried_object", description = "State with carried objec
 map{ id = "custom_state/custom_state", description = "Custom state general tests" }
 map{ id = "custom_state/draw_override", description = "get/set_draw_override()" }
 map{ id = "custom_state/end_map", description = "End of custom states tests" }
+map{ id = "custom_state/grabbing", description = "get/set_can_grab" }
 map{ id = "custom_state/jumper", description = "get/set_can_take_jumper(), get_set_jumper_delay()" }
 map{ id = "custom_state/pushing", description = "get/set_can_push(), get/set_pushing_delay()" }
 map{ id = "custom_state/reuse_state", description = "Using the same state object a second time" }
