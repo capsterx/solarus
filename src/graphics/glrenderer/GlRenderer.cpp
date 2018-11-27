@@ -8,6 +8,8 @@
 
 #include <glm/gtx/matrix_transform_2d.hpp>
 
+#include <array>
+
 namespace Solarus {
 
 GlRenderer* GlRenderer::instance = nullptr;
@@ -148,8 +150,30 @@ GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
 
-void GlRenderer::create_vbo(int num_sprites) {
+void GlRenderer::create_vbo(size_t num_sprites) {
+  vbos.resize(3); //TODO check the value here
+  ctx.glGenBuffers(vbos.size(),vbos.data());
+  ctx.glGenBuffers(1,&ibo);
 
+  size_t indice_count = num_sprites*6;
+  size_t vertex_count = num_sprites*4;
+
+  ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
+  std::vector<GLuint> indices(indice_count);
+  static constexpr std::array<GLuint,6> quad{{0,1,2,2,3,0}};
+  for(size_t i = 0; i < num_sprites; i++) {
+    size_t vbase = i*4;
+    size_t ibase = i*6;
+    for(size_t j = 0; j < quad.size(); j++) {
+      indices[ibase+j] = vbase + quad[j];
+    }
+  }
+  ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW);
+
+  for(auto vbo : vbos) {
+    ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    ctx.glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+  }
 }
 
 void GlRenderer::render_and_swap() {

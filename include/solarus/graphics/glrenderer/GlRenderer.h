@@ -59,7 +59,7 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
-  void create_vbo(int num_sprites);
+  void create_vbo(size_t num_sprites);
   void render_and_swap();
   void add_sprite(const DrawInfos& infos);
   Fbo* get_fbo(int width, int height, bool screen = false);
@@ -72,8 +72,7 @@ private:
   GlTexture* current_target;
   ShaderPtr main_shader;
 
-  GLuint front_vbo;
-  GLuint back_vbo;
+  std::vector<GLuint> vbos;
   GLuint current_vbo;
   GLuint ibo;
 
