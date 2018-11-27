@@ -38,6 +38,10 @@ inline Scale& Scale::operator*=(float factor) {
   return *this;
 }
 
+inline Scale::operator glm::vec2() const {
+  return {x,y};
+}
+
 /**
  * @brief multiply a Size by a scale
  * @param size a size

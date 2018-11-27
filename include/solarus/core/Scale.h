@@ -19,6 +19,7 @@ public:
   constexpr Scale(float x,float y);
   Scale& operator*=(const Scale& other);
   Scale& operator*=(float factor);
+  operator glm::vec2() const;
   float x = 1,y = 1;
 };
 

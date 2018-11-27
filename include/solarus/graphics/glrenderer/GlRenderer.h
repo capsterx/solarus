@@ -2,6 +2,7 @@
 
 #include <solarus/graphics/Renderer.h>
 #include <solarus/graphics/glrenderer/GlShader.h>
+#include <solarus/graphics/VertexArray.h>
 
 namespace Solarus {
 
@@ -58,15 +59,26 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
-  Fbo* get_fbo(int width, int height, bool screen);
+  void create_vbo(int num_sprites);
+  void render_and_swap();
+  void add_sprite(const DrawInfos& infos);
+  Fbo* get_fbo(int width, int height, bool screen = false);
 
   static GlRenderer* instance;
   static GlFunctions ctx;
   SDL_GLContext sdl_gl_context;
   GlShader* current_shader;
   GlTexture* current_texture;
-  ShaderPtr main_shader_storage;
-  GlShader* main_shader;
+  GlTexture* current_target;
+  ShaderPtr main_shader;
+
+  GLuint front_vbo;
+  GLuint back_vbo;
+  GLuint current_vbo;
+  GLuint ibo;
+
+  Vertex* mapped_buffer_end;
+  Vertex* current_vertex;
 
   Fbo screen_fbo;
   std::unordered_map<size_t,Fbo> fbos;

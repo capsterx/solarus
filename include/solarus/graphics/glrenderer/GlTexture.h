@@ -41,9 +41,9 @@ private:
   bool target = false;
   glm::mat3 uv_transform;
   mutable bool surface_dirty = true;
-  GLuint tex_id;
-  GlRenderer::Fbo* fbo;
-  mutable SDL_Surface_UniquePtr surface;
+  GLuint tex_id = 0;
+  GlRenderer::Fbo* fbo = nullptr;
+  mutable SDL_Surface_UniquePtr surface = nullptr;
 };
 
 }

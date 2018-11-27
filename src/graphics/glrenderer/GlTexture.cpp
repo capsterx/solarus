@@ -60,7 +60,12 @@ void GlTexture::upload_surface() {
   SDL_Surface* surface = get_surface();
   const auto& ctx = GlRenderer::ctx;
   ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
-  ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,get_width(),get_height(),0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels);
+  ctx.glTexSubImage2D(GL_TEXTURE_2D,
+                      0,
+                      0,0,
+                      get_width(),get_height(),
+                      GL_RGBA,GL_UNSIGNED_BYTE,
+                      surface->pixels);
 }
 
 /**
@@ -77,7 +82,7 @@ SDL_Surface* GlTexture::get_surface() const {
   if (target and surface_dirty) {
     const auto& ctx = GlRenderer::ctx;
     GlRenderer::get().set_render_target(const_cast<GlTexture*>(this));
-    ctx.glReadPixels(0,0,
+    ctx.glReadPixels(0,0, //TODO check read y order
                      get_width(),get_height(),
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
@@ -88,6 +93,8 @@ SDL_Surface* GlTexture::get_surface() const {
 
 GlTexture& GlTexture::targetable()  {
   surface_dirty = true; //Just tag the surface as outdated
+  if(!fbo)
+    fbo = GlRenderer::get().get_fbo(get_width(),get_height());
   return *this;
 }
 

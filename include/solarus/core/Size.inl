@@ -80,6 +80,11 @@ inline Size& Size::operator/=(int divisor) {
   return *this;
 }
 
+inline Size::operator glm::vec2() const {
+  return glm::vec2(x,y);
+}
+
+
 /**
  * \brief Returns whether this size is flat.
  * \return \c true if the width or the height are zero.
