@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #ifdef SOLARUS_HAVE_OPENGL
 #  include <SDL_opengl.h>
@@ -80,6 +81,9 @@ class SOLARUS_API GlShader : public Shader {
     void render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point& dst_position = Point(), bool flip_y = false);
     void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
+    void bind();
+
+
     /**
      * \brief render the given vertex array with this shader, passing the texture and matrices as uniforms
      * \param array a vertex array
@@ -102,6 +106,25 @@ class SOLARUS_API GlShader : public Shader {
     struct TextureUniform{
       SurfacePtr surface;
       GLuint unit;
+    };
+
+    struct Uniform {
+      enum class Type {
+        U1B,
+        U1I,
+        U1F,
+        U2F,
+        U3F,
+        U4F
+      };
+      union{
+        bool b;
+        int i;
+        float f;
+        glm::vec2 ff;
+        glm::vec3 fff;
+        glm::vec4 ffff;
+      };
     };
 
     GLuint create_shader(unsigned int type, const char* source);
@@ -130,6 +153,7 @@ class SOLARUS_API GlShader : public Shader {
     mutable std::map<std::string, TextureUniform>
         uniform_textures;                        /**< Uniform texture value of surfaces. */
     std::unordered_map<GLuint, GLint> attribute_states;    /**< Previous attrib states. */
+    std::vector<Uniform> pending_uniforms;
     GLuint current_texture_unit = 0;
 };
 

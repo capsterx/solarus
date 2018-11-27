@@ -81,7 +81,7 @@ inline Size& Size::operator/=(int divisor) {
 }
 
 inline Size::operator glm::vec2() const {
-  return glm::vec2(x,y);
+  return glm::vec2(width,height);
 }
 
 

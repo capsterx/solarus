@@ -8,6 +8,8 @@
 
 #include <glm/gtx/matrix_transform_2d.hpp>
 
+#include <array>
+
 namespace Solarus {
 
 GlRenderer* GlRenderer::instance = nullptr;
@@ -119,6 +121,7 @@ void GlRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface,
 }
 
 void GlRenderer::present(SDL_Window* window) {
+  restart_batch(); //Draw last batch that could be 'stuck'
   SDL_GL_SwapWindow(window);
 }
 
@@ -158,12 +161,97 @@ GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
 
-void GlRenderer::create_vbo(int num_sprites) {
-
+bool GlRenderer::use_bmap() const {
+#ifdef ANDROID
+  return false;
+#else
+  return true;
+#endif
 }
 
-void GlRenderer::render_and_swap() {
+size_t GlRenderer::buffered_indices() const {
+  return buffered_sprites*6;
+}
 
+size_t GlRenderer::buffered_vertices() const {
+  return buffered_sprites*4;
+}
+
+void GlRenderer::restart_batch() {
+  if(current_vertex && buffered_sprites > 0) {
+    //Stuff to render!
+    if(use_bmap()) {
+      ctx.glUnmapBuffer(GL_ARRAY_BUFFER); //Unmap buffer before drawing
+    } else {
+      ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
+    }
+    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
+  }
+  //Done rendering, start actual batch
+  if(use_bmap()) {
+    //Do buffer orphaning
+    ctx.glBufferData(GL_ARRAY_BUFFER,buffer_size*6,nullptr,GL_STREAM_DRAW);
+    //Map buffer into system memory
+    current_vertex = static_cast<Vertex*>(ctx.glMapBuffer(GL_ARRAY_BUFFER,GL_WRITE_ONLY));
+  } else {
+    current_vertex = vertex_buffer.data();
+  }
+  buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
+}
+
+void GlRenderer::set_shader(GlShader* shader) {
+  if(shader != current_shader) {
+    shader->bind();
+    current_shader = shader;
+  }
+}
+
+void GlRenderer::set_texture(GlTexture* texture) {
+  if(texture != current_texture) {
+    //Change texture binding state
+    ctx.glActiveTexture(GL_TEXTURE0);
+    ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture());
+    current_texture = texture;
+  }
+}
+
+void GlRenderer::set_state(GlTexture* src, GlShader* shad, GlTexture* dst) {
+  if(src != current_texture || shad != current_shader || dst != current_target) { //Need to restart the batch!
+    restart_batch(); //Draw current buffer if needed
+    set_shader(shad);
+    set_render_target(dst);
+    set_texture(src);
+  }
+}
+
+void GlRenderer::create_vbo(size_t num_sprites) {
+  buffer_size = num_sprites;
+
+  ctx.glGenBuffers(1,&vbo);
+  ctx.glGenBuffers(1,&ibo);
+
+  size_t indice_count = num_sprites*6;
+  size_t vertex_count = num_sprites*4;
+
+  ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
+  std::vector<GLuint> indices(indice_count);
+  static constexpr std::array<GLuint,6> quad{{0,1,2,2,3,0}};
+  for(size_t i = 0; i < num_sprites; i++) {
+    size_t vbase = i*4;
+    size_t ibase = i*6;
+    for(size_t j = 0; j < quad.size(); j++) {
+      indices[ibase+j] = vbase + quad[j];
+    }
+  }
+  ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW);
+
+  ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo);
+  if(use_bmap()) {
+     //ctx.glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+  } else {
+    vertex_buffer.resize(vertex_count);
+    ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+  }
 }
 
 void GlRenderer::add_sprite(const DrawInfos& infos) {
@@ -174,7 +262,7 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   vec2 ototl = -trans;
   vec2 otobr = size-trans;
   vec2 tl = (ototl)*scale;
-  vec2 bl = (vec2(ototl,otobr.y)-trans) * scale;
+  vec2 bl = (vec2(ototl.x,otobr.y)-trans) * scale;
   vec2 br = (otobr) * scale;
   vec2 tr = (vec2(otobr.x,ototl.y) - trans) * scale;
   if(infos.should_use_ex()) {
@@ -200,6 +288,7 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   }
 
   current_vertex += 4; //Shift current quad index
+  buffered_sprites++;
 }
 
 }

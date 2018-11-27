@@ -59,10 +59,16 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
-  void create_vbo(int num_sprites);
+  bool use_bmap() const;
+
+  void restart_batch();
+  void set_shader(GlShader* shader);
+  void set_texture(GlTexture* texture);
   void set_state(GlTexture* src, GlShader* shad, GlTexture* dst);
-  void render_and_swap();
+  void create_vbo(size_t num_sprites);
   void add_sprite(const DrawInfos& infos);
+  size_t buffered_indices() const;
+  size_t buffered_vertices() const;
   Fbo* get_fbo(int width, int height, bool screen = false);
 
   static GlRenderer* instance;
@@ -73,13 +79,13 @@ private:
   GlTexture* current_target;
   ShaderPtr main_shader;
 
-  GLuint front_vbo;
-  GLuint back_vbo;
-  GLuint current_vbo;
+  GLuint vbo;
   GLuint ibo;
 
-  Vertex* mapped_buffer_end;
-  Vertex* current_vertex;
+  Vertex* current_vertex = nullptr;
+  size_t buffered_sprites = 0;
+  size_t buffer_size = 0;
+  std::vector<Vertex> vertex_buffer;
 
   Fbo screen_fbo;
   std::unordered_map<size_t,Fbo> fbos;
