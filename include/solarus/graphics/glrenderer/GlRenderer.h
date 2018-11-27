@@ -60,6 +60,7 @@ public:
   ~GlRenderer() override;
 private:
   void create_vbo(int num_sprites);
+  void set_state(GlTexture* src, GlShader* shad, GlTexture* dst);
   void render_and_swap();
   void add_sprite(const DrawInfos& infos);
   Fbo* get_fbo(int width, int height, bool screen = false);
@@ -82,5 +83,6 @@ private:
 
   Fbo screen_fbo;
   std::unordered_map<size_t,Fbo> fbos;
+  Rectangle window_viewport;
 };
 }

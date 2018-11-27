@@ -79,8 +79,18 @@ void GlRenderer::set_render_target(SurfaceImpl& texture) {
 void GlRenderer::set_render_target(GlTexture* target) {
   auto* fbo = target->targetable().fbo;
   ctx.glBindFramebuffer(GL_FRAMEBUFFER,fbo->id);
-  ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
-  Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
+  if(fbo->id) {
+    ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
+    ctx.glViewport(0,0,
+                   target->get_width(),
+                   target->get_height());
+    Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
+  } else {
+    ctx.glViewport(window_viewport.get_left(),
+                   window_viewport.get_top(),
+                   window_viewport.get_width(),
+                   window_viewport.get_height());
+  }
 }
 
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) {
@@ -114,7 +124,7 @@ void GlRenderer::present(SDL_Window* window) {
 
 void GlRenderer::on_window_size_changed(const Rectangle& viewport) {
   //TODO
-  ctx.glViewport(viewport.get_left(),viewport.get_top(),viewport.get_width(),viewport.get_height());
+  window_viewport = viewport;
   screen_fbo.view = glm::ortho(0,viewport.get_width(),0,viewport.get_height());
 }
 
