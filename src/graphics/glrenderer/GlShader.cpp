@@ -235,13 +235,31 @@ void GlShader::check_gl_error() {
   }
 }
 
-/**
- * \copydoc Shader::render
- */
-void GlShader::render(const VertexArray& array, const Surface& texture, const glm::mat4 &mvp_matrix, const glm::mat3 &uv_matrix) {
+void GlShader::bind() {
+  ctx->glUseProgram(program); //TODO check if this can be done only once
+  bound = true;
+
+  //Upload uniform that were postponed
+  for(const auto& u : pending_uniforms){
+    upload_uniform(u);
+  }
+  pending_uniforms.clear();
+
+  ctx->glEnableVertexAttribArray(position_location);
+  ctx->glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
+                             reinterpret_cast<void*>(offsetof(Vertex,position)));
+  ctx->glEnableVertexAttribArray(tex_coord_location);
+  ctx->glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
+                             reinterpret_cast<void*>(offsetof(Vertex,texcoords)));
+  ctx->glEnableVertexAttribArray(color_location);
+  ctx->glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
+                             reinterpret_cast<void*>(offsetof(Vertex,color)));
+
 }
 
-
+void GlShader::unbind() {
+  bound = false; //Pretend we are unbound
+}
 
 /**
  * \brief Returns the location of a uniform value in the shader program.
@@ -259,72 +277,69 @@ GLint GlShader::get_uniform_location(const std::string& uniform_name) const {
   return location;
 }
 
+void GlShader::set_uniform(const Uniform& uniform) {
+  if(!bound){
+    pending_uniforms.push_back(uniform);
+  } else {
+    upload_uniform(uniform);
+  }
+}
+
+void GlShader::draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const {
+  GlRenderer::get().draw(dst_surface.get_impl(),src_surface.get_impl(),infos,const_cast<GlShader&>(*this));
+}
+
+void GlShader::upload_uniform(const Uniform& u) {
+  Debug::check_assertion(bound,"Trying to set uniform on an unbound shader");
+  GLint loc = get_uniform_location(u.name);
+  if(loc == -1) {
+    return; //Not an error, no uniform to set
+  }
+  using T = Uniform::Type;
+  switch(u.t) {
+    case T::U1B:
+      return ctx->glUniform1i(loc,u.b);
+    case T::U1I:
+      return ctx->glUniform1i(loc,u.i);
+    case T::U1F:
+      return ctx->glUniform1f(loc,u.f);
+    case T::U2F:
+      return ctx->glUniform2f(loc,u.ff.x,u.ff.y);
+    case T::U3F:
+      return ctx->glUniform3f(loc,u.fff.x,u.fff.y,u.fff.z);
+    case T::U4F:
+      return ctx->glUniform4f(loc,u.ffff.x,u.ffff.y,u.ffff.z,u.ffff.w);
+  }
+}
+
+using UT = GlShader::Uniform::Type;
 /**
  * \copydoc Shader::set_uniform1f
  */
 void GlShader::set_uniform_1b(const std::string& uniform_name, bool value) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform1i(location, (value ? 1 : 0));
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U1B,.b=value});
 }
+
 
 /**
  * \copydoc Shader::set_uniform_1i
  */
 void GlShader::set_uniform_1i(const std::string& uniform_name, int value) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform1i(location, value);
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U1I,.i=value});
 }
 
 /**
  * \copydoc Shader::set_uniform_1f
  */
 void GlShader::set_uniform_1f(const std::string& uniform_name, float value) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform1f(location, value);
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U1F,.f=value});
 }
 
 /**
  * \copydoc Shader::set_uniform_2f
  */
 void GlShader::set_uniform_2f(const std::string& uniform_name, float value_1, float value_2) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform2f(location, value_1, value_2);
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U2F,.ff={value_1,value_2}});
 }
 
 /**
@@ -332,17 +347,7 @@ void GlShader::set_uniform_2f(const std::string& uniform_name, float value_1, fl
  */
 void GlShader::set_uniform_3f(
     const std::string& uniform_name, float value_1, float value_2, float value_3) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform3f(location, value_1, value_2, value_3);
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U3F,.fff={value_1,value_2,value_3}});
 }
 
 /**
@@ -350,17 +355,7 @@ void GlShader::set_uniform_3f(
  */
 void GlShader::set_uniform_4f(
     const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) {
-
-  const GLint location = get_uniform_location(uniform_name);
-  if (location == -1) {
-    return;
-  }
-
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
-  ctx->glUniform4f(location, value_1, value_2, value_3, value_4);
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name,UT::U4F,.ffff={value_1,value_2,value_3,value_4}});
 }
 
 /**
@@ -379,93 +374,12 @@ bool GlShader::set_uniform_texture(const std::string& uniform_name, const Surfac
     it->second.surface = value;
     return true; //Nothing else to do
   }
-  //else find a new texture unit
 
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-  ctx->glUseProgram(program);
+  GLuint texture_unit = ++current_texture_unit;
+  uniform_textures[uniform_name] = TextureUniform{value,texture_unit};
 
-  int texture_unit = ++current_texture_unit;
-  uniform_textures[uniform_name] = TextureUniform{value,(GLuint)texture_unit};
-
-  ctx->glUniform1i(location, texture_unit);
-
-  ctx->glUseProgram(previous_program);
+  set_uniform(Uniform{uniform_name, UT::U1I, .i=(int)texture_unit});
   return true;
-}
-
-/**
- * \brief Enable the attribute and keep trace of the old state.
- * \param index The index of the vertex attribute.
- * \param size The number of components per vertex attribute.
- * \param type The data type of each component in the array.
- * \param normalized Specifies whether fixed-point data values should be normalized.
- * \param stride The byte offset between consecutive generic vertex attributes.
- * \param pointer Specifies a offset of the first component of the first generic
- * vertex attribute in the array in the data store of the buffer currently bound
- * to the GL_ARRAY_BUFFER target.
- */
-void GlShader::enable_attribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer) {
-
-  GLint previous_state;
-  // TODO Check if the get step can be done once at the initialization time.
-  ctx->glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &previous_state);
-  ctx->glEnableVertexAttribArray(index);
-  ctx->glVertexAttribPointer(index, size, type, normalized, stride, pointer);
-  attribute_states.insert(std::make_pair(index, previous_state));
-}
-
-/**
- * \brief Restore previous attrib states.
- */
-void GlShader::restore_attribute_states() {
-
-  for (const auto& attrib : attribute_states) {
-    if(!attrib.second)
-      ctx->glDisableVertexAttribArray(attrib.first);
-  }
-  attribute_states.clear();
-}
-
-void GlShader::compute_matrices(const Size& surface_size, const Rectangle& region, const Size& dst_size, const Point& dst_position, bool flip_y,
-                                     glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3 &uvm) {
-
-  viewport = glm::ortho<float>(0,dst_size.width,0,dst_size.height); //Specify float as type to avoid integral division
-  dst = glm::translate(glm::mat4(),glm::vec3(dst_position.x,dst_position.y,0));
-  scale = glm::scale(glm::mat4(),glm::vec3(region.get_width(),region.get_height(),1));
-
-  float uxf = 1.f/surface_size.width;
-  float uyf = 1.f/surface_size.height;
-
-  glm::mat3 uv_scale = glm::scale(
-        glm::mat3(1),
-        glm::vec2(
-          region.get_width()*uxf,
-          region.get_height()*uyf
-          )
-        );
-  glm::mat3 uv_trans = glm::translate(glm::mat3(),glm::vec2(region.get_left()*uxf,region.get_top()*uyf));
-  uvm = uv_trans*uv_scale;
-  if(!flip_y){
-    uvm = glm::scale(uvm,glm::vec2(1,-1));
-    uvm = glm::translate(uvm,glm::vec2(0,-1));
-  }
-}
-
-/**
- * @brief Render given surface on currently bound rendertarget
- * @param surface surface to draw
- * @param region region of the src surface to draw
- * @param dst_size size of the destination surface
- * @param dst_position position where to draw surface on destination
- * @param flip_y flip the drawing upside-down
- */
-void GlShader::render(const Surface &surface, const Rectangle& region, const Size& dst_size, const Point & dst_position, bool flip_y) {
-  //TODO
-}
-
-void GlShader::draw(Surface& dst_surface, const Surface &src_surface, const DrawInfos &infos) const {
-  //TODO
 }
 
 }

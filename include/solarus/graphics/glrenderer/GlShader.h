@@ -43,18 +43,8 @@ namespace Solarus {
  * \brief Represents a shader for a driver and sampler-independant uses.
  */
 class SOLARUS_API GlShader : public Shader {
+  friend class GlRenderer;
   public:
-    constexpr static const char* POSITION_NAME = "sol_vertex";
-    constexpr static const char* TEXCOORD_NAME = "sol_tex_coord";
-    constexpr static const char* COLOR_NAME = "sol_color";
-    constexpr static const char* MVP_MATRIX_NAME = "sol_mvp_matrix";
-    constexpr static const char* UV_MATRIX_NAME = "sol_uv_matrix";
-    constexpr static const char* TEXTURE_NAME = "sol_texture";
-    constexpr static const char* INPUT_SIZE_NAME = "sol_input_size";
-    constexpr static const char* OUTPUT_SIZE_NAME = "sol_output_size";
-    constexpr static const char* TIME_NAME = "sol_time";
-    constexpr static const char* OPACITY_NAME = "sol_opacity";
-
     explicit GlShader(const std::string& shader_id);
     GlShader(const std::string& vertex_source,
            const std::string& fragment_source,
@@ -78,35 +68,10 @@ class SOLARUS_API GlShader : public Shader {
         const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) override;
      bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value) override;
 
-    void render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point& dst_position = Point(), bool flip_y = false);
     void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
     void bind();
-
-
-    /**
-     * \brief render the given vertex array with this shader, passing the texture and matrices as uniforms
-     * \param array a vertex array
-     * \param texture a valid surface
-     * \param mvp_matrix model view projection matrix
-     * \param uv_matrix uv_matrix
-     */
-     void render(const VertexArray& array,
-                        const Surface &texture,
-                        const glm::mat4& mvp_matrix = glm::mat4(),
-                        const glm::mat3& uv_matrix = glm::mat3());
-
-  private:
-    void compile();
-
-    void check_gl_error();
-    void enable_attribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
-    void restore_attribute_states();
-
-    struct TextureUniform{
-      SurfacePtr surface;
-      GLuint unit;
-    };
+    void unbind();
 
     struct Uniform {
       enum class Type {
@@ -117,7 +82,9 @@ class SOLARUS_API GlShader : public Shader {
         U3F,
         U4F
       };
-      union{
+      std::string name;
+      Type t;
+      union{ //TODO C++17 variant instead, see you in 2023!
         bool b;
         int i;
         float f;
@@ -126,6 +93,21 @@ class SOLARUS_API GlShader : public Shader {
         glm::vec4 ffff;
       };
     };
+
+  private:
+    void compile();
+    void check_gl_error();
+
+
+    void set_uniform(const Uniform& uniform);
+    void upload_uniform(const Uniform& uniform);
+
+    struct TextureUniform{
+      SurfacePtr surface;
+      GLuint unit;
+    };
+
+
 
     GLuint create_shader(unsigned int type, const char* source);
     static void set_rendering_settings();
@@ -142,12 +124,13 @@ class SOLARUS_API GlShader : public Shader {
         glm::mat4& scale,
         glm::mat3& uvm);
 
+    bool bound;
     GLuint program;                         /**< The program which bind the vertex and fragment shader. */
     GLuint vertex_shader;                   /**< The vertex shader. */
     GLuint fragment_shader;                 /**< The fragment shader. */
-    GLint position_location;                     /**< The location of the position attrib. */
-    GLint tex_coord_location;                    /**< The location of the tex_coord attrib. */
-    GLint color_location;                        /**< The location of the color attrib. */
+    GLuint position_location;                     /**< The location of the position attrib. */
+    GLuint tex_coord_location;                    /**< The location of the tex_coord attrib. */
+    GLuint color_location;                        /**< The location of the color attrib. */
     mutable std::map<std::string, GLint>
         uniform_locations;                       /**< Cache of uniform locations. */
     mutable std::map<std::string, TextureUniform>

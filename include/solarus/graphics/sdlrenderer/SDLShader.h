@@ -43,17 +43,6 @@ namespace Solarus {
  */
 class SOLARUS_API SDLShader : public Shader {
   public:
-    constexpr static const char* POSITION_NAME = "sol_vertex";
-    constexpr static const char* TEXCOORD_NAME = "sol_tex_coord";
-    constexpr static const char* COLOR_NAME = "sol_color";
-    constexpr static const char* MVP_MATRIX_NAME = "sol_mvp_matrix";
-    constexpr static const char* UV_MATRIX_NAME = "sol_uv_matrix";
-    constexpr static const char* TEXTURE_NAME = "sol_texture";
-    constexpr static const char* INPUT_SIZE_NAME = "sol_input_size";
-    constexpr static const char* OUTPUT_SIZE_NAME = "sol_output_size";
-    constexpr static const char* TIME_NAME = "sol_time";
-    constexpr static const char* OPACITY_NAME = "sol_opacity";
-
     explicit SDLShader(const std::string& shader_id);
     SDLShader(const std::string& vertex_source,
            const std::string& fragment_source,

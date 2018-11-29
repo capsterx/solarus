@@ -3,6 +3,7 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/graphics/BlendMode.h"
+#include "solarus/graphics/Color.h"
 #include "solarus/core/Scale.h"
 
 #include <SDL_render.h>
@@ -22,12 +23,19 @@ struct DrawProxy;
  */
 struct DrawInfos {
   inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
+            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale, const Color& color,
+            const DrawProxy& proxy):
+    region(region),dst_position(dst_position), transformation_origin(transformation_origin),
+    scale(scale),proxy(proxy),
+    color(color),
+    rotation(rotation),blend_mode(blend_mode) ,opacity(opacity)
+     {}
+  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
             BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
             const DrawProxy& proxy):
     region(region),dst_position(dst_position), transformation_origin(transformation_origin),
     scale(scale),proxy(proxy),
-    blend_mode(blend_mode), opacity(opacity),
-    rotation(rotation)
+    rotation(rotation),blend_mode(blend_mode), opacity(opacity)
      {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
     DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
@@ -75,9 +83,10 @@ struct DrawInfos {
   const Point transformation_origin; /** < The origin of the rotation and scale */
   const Scale& scale; /** < The object scale */
   const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
+  const Color& color = Color::white;
+  double rotation; /**< The object rotation */
   BlendMode blend_mode; /**< blend mode that will be used */
   uint8_t   opacity; /**< opacity modulator */
-  double rotation; /**< The object rotation */
 };
 
 /**

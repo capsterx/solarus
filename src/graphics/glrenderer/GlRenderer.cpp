@@ -48,6 +48,11 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   #undef SDL_PROC
 
   ctx.glClearColor(0.f,0.f,0.f,0.f);
+  ctx.glEnable(GL_BLEND);
+  ctx.glDisable(GL_CULL_FACE);
+
+  Debug::check_assertion(GlShader::initialize(),"shader failed to initialize after gl");
+
   //Context populated create Renderer
   return RendererPtr(new GlRenderer(sdl_ctx));
 }
@@ -96,7 +101,12 @@ void GlRenderer::set_render_target(GlTexture* target) {
 }
 
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) {
+  draw(dst,src,infos,main_shader.get()->as<GlShader>());
+}
 
+void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader) {
+  set_state(&src.as<GlTexture>(),&shader,&dst.as<GlTexture>(),infos.blend_mode);
+  add_sprite(infos);
 }
 
 void GlRenderer::clear(SurfaceImpl& dst) {
@@ -105,7 +115,9 @@ void GlRenderer::clear(SurfaceImpl& dst) {
 }
 
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
-
+  GlShader& ms = main_shader->as<GlShader>();
+  set_state(nullptr,&ms,&dst.as<GlTexture>(),mode);
+  ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true); //Set color only as uniform
 }
 
 void GlRenderer::invalidate(const SurfaceImpl& surf) {
@@ -202,25 +214,39 @@ void GlRenderer::restart_batch() {
 void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
     shader->bind();
+    if(current_shader){
+      current_shader->unbind();
+    }
     current_shader = shader;
   }
 }
 
-void GlRenderer::set_texture(GlTexture* texture) {
+void GlRenderer::set_texture(const GlTexture *texture) {
   if(texture != current_texture) {
     //Change texture binding state
-    ctx.glActiveTexture(GL_TEXTURE0);
-    ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture());
+    if(texture) { //Texture might be null if we want no texture for filling
+      ctx.glActiveTexture(GL_TEXTURE0);
+      ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture());
+    }
     current_texture = texture;
   }
 }
 
-void GlRenderer::set_state(GlTexture* src, GlShader* shad, GlTexture* dst) {
-  if(src != current_texture || shad != current_shader || dst != current_target) { //Need to restart the batch!
+void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, BlendMode mode) {
+  if(src != current_texture || shad != current_shader || dst != current_target || mode != current_blend_mode) { //Need to restart the batch!
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
     set_render_target(dst);
     set_texture(src);
+    set_blend_mode(mode);
+  }
+}
+
+void GlRenderer::set_blend_mode(BlendMode mode) {
+  if(mode != current_blend_mode) {
+    current_blend_mode = mode;
+
+    //TODO change glBlendMode here;
   }
 }
 

@@ -59,12 +59,16 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
+  static constexpr const char* VCOLOR_ONLY_NAME = "sol_vcolor_only";
+  void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader);
+
   bool use_bmap() const;
 
   void restart_batch();
   void set_shader(GlShader* shader);
-  void set_texture(GlTexture* texture);
-  void set_state(GlTexture* src, GlShader* shad, GlTexture* dst);
+  void set_texture(const GlTexture* texture);
+  void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, BlendMode mode);
+  void set_blend_mode(BlendMode mode);
   void create_vbo(size_t num_sprites);
   void add_sprite(const DrawInfos& infos);
   size_t buffered_indices() const;
@@ -75,8 +79,9 @@ private:
   static GlFunctions ctx;
   SDL_GLContext sdl_gl_context;
   GlShader* current_shader;
-  GlTexture* current_texture;
+  const GlTexture* current_texture;
   GlTexture* current_target;
+  BlendMode current_blend_mode;
   ShaderPtr main_shader;
 
   GLuint vbo;

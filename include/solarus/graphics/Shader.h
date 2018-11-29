@@ -81,9 +81,11 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     virtual bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value) = 0;
 
     template<class T> const T& as() const {
-      auto p = dynamic_cast<const T*>(this);
-      assert(p);
-      return *p;
+      return *reinterpret_cast<const T*>(this);
+    }
+
+    template<class T> T& as() {
+      return *reinterpret_cast<T*>(this); //TODO check if reinterpret is safe => it should
     }
 
     const std::string& get_lua_type_name() const override;
