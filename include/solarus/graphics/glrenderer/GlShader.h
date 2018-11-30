@@ -96,7 +96,6 @@ class SOLARUS_API GlShader : public Shader {
 
   private:
     void compile();
-    void check_gl_error();
 
 
     void set_uniform(const Uniform& uniform);
@@ -128,9 +127,9 @@ class SOLARUS_API GlShader : public Shader {
     GLuint program;                         /**< The program which bind the vertex and fragment shader. */
     GLuint vertex_shader;                   /**< The vertex shader. */
     GLuint fragment_shader;                 /**< The fragment shader. */
-    GLuint position_location;                     /**< The location of the position attrib. */
-    GLuint tex_coord_location;                    /**< The location of the tex_coord attrib. */
-    GLuint color_location;                        /**< The location of the color attrib. */
+    GLint position_location;                     /**< The location of the position attrib. */
+    GLint tex_coord_location;                    /**< The location of the tex_coord attrib. */
+    GLint color_location;                        /**< The location of the color attrib. */
     mutable std::map<std::string, GLint>
         uniform_locations;                       /**< Cache of uniform locations. */
     mutable std::map<std::string, TextureUniform>

@@ -39,6 +39,7 @@ public:
   ~GlTexture() override;
 private:
   bool target = false;
+  void set_texture_params();
   glm::mat3 uv_transform;
   mutable bool surface_dirty = true;
   GLuint tex_id = 0;

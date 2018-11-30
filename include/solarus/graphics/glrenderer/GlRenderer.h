@@ -17,7 +17,8 @@ namespace Solarus {
 class GlShader;
 class GlTexture;
 
-
+#define SOLARUS_GL_CHECK(cmd) ((cmd), GlRenderer::check_gl_error())
+#define GL_CHECK(cmd) SOLARUS_GL_CHECK(cmd)
 
 class GlRenderer : public Renderer {
   friend class GlTexture;
@@ -58,16 +59,22 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
+  static void check_gl_error();
+
   static constexpr const char* VCOLOR_ONLY_NAME = "sol_vcolor_only";
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader);
 
   bool use_bmap() const;
 
+  using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
+
   void restart_batch();
   void set_shader(GlShader* shader);
   void set_texture(const GlTexture* texture);
   void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, BlendMode mode);
-  void set_blend_mode(BlendMode mode);
+  void set_blend_mode(GLBlendMode mode);
+  GLBlendMode make_gl_blend_modes(const GlTexture &dst, const GlTexture *src, BlendMode mode);
+  GLBlendMode make_gl_blend_modes(BlendMode mode);
   void create_vbo(size_t num_sprites);
   void add_sprite(const DrawInfos& infos);
   size_t buffered_indices() const;
@@ -79,12 +86,14 @@ private:
   static GlRenderer* instance;
   static GlFunctions ctx;
   SDL_GLContext sdl_gl_context;
-  GlShader* current_shader;
-  const GlTexture* current_texture;
-  GlTexture* current_target;
-  BlendMode current_blend_mode;
+  GlShader* current_shader = nullptr;
+  const GlTexture* current_texture = nullptr;
+  GlTexture* current_target = nullptr;
+  GLBlendMode current_blend_mode =
+    {GL_ONE,GL_ONE,GL_ONE,GL_ONE};
   ShaderPtr main_shader;
 
+  GLuint vao;
   GLuint vbo;
   GLuint ibo;
 

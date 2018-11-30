@@ -170,7 +170,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
 
   // Create the shader object.
   GLuint shader = ctx->glCreateShader(type);
-  check_gl_error();
+  GlRenderer::check_gl_error();
 
   if (shader == 0) {
     Debug::error("Could not create OpenGL shader");
@@ -203,40 +203,8 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
   return shader;
 }
 
-/**
- * \brief Check for a possible error returned by glGetError().
- */
-void GlShader::check_gl_error() {
-  GLenum gl_error(glGetError());
-
-  while (gl_error != GL_NO_ERROR) {
-    std::string error;
-
-    switch(gl_error) {
-    case GL_INVALID_OPERATION:
-      error="INVALID_OPERATION";
-      break;
-    case GL_INVALID_ENUM:
-      error="INVALID_ENUM";
-      break;
-    case GL_INVALID_VALUE:
-      error="INVALID_VALUE";
-      break;
-    case GL_OUT_OF_MEMORY:
-      error="OUT_OF_MEMORY";
-      break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-      error="INVALID_FRAMEBUFFER_OPERATION";
-      break;
-    }
-
-    Debug::error(std::string("GL_") + error.c_str() + std::string(" - "));
-    gl_error = ctx->glGetError();
-  }
-}
-
 void GlShader::bind() {
-  ctx->glUseProgram(program); //TODO check if this can be done only once
+  GL_CHECK(ctx->glUseProgram(program)); //TODO check if this can be done only once
   bound = true;
 
   //Upload uniforms that were postponed
@@ -246,21 +214,27 @@ void GlShader::bind() {
   pending_uniforms.clear();
 
   //Enable and paramatrize vertex attributes
-  ctx->glEnableVertexAttribArray(position_location);
-  ctx->glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
-                             reinterpret_cast<void*>(offsetof(Vertex,position)));
-  ctx->glEnableVertexAttribArray(tex_coord_location);
-  ctx->glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
-                             reinterpret_cast<void*>(offsetof(Vertex,texcoords)));
-  ctx->glEnableVertexAttribArray(color_location);
-  ctx->glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
-                             reinterpret_cast<void*>(offsetof(Vertex,color)));
+  if(position_location != -1) {
+    GL_CHECK(ctx->glEnableVertexAttribArray(position_location));
+    GL_CHECK(ctx->glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
+                               reinterpret_cast<void*>(offsetof(Vertex,position))));
+  }
+  if(tex_coord_location != -1) {
+    GL_CHECK(ctx->glEnableVertexAttribArray(tex_coord_location));
+    GL_CHECK(ctx->glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
+                               reinterpret_cast<void*>(offsetof(Vertex,texcoords))));
+  }
+  if(color_location != -1) {
+    GL_CHECK(ctx->glEnableVertexAttribArray(color_location));
+    GL_CHECK(ctx->glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
+                               reinterpret_cast<void*>(offsetof(Vertex,color))));
+  }
 
   //Bind correct uniform textures
   for(const auto& kvp : uniform_textures) {
     const GLuint texture_unit = kvp.second.unit;
-    ctx->glActiveTexture(GL_TEXTURE0 + texture_unit);
-    ctx->glBindTexture(GL_TEXTURE_2D,kvp.second.surface->get_impl().as<GlTexture>().get_texture());
+    GL_CHECK(ctx->glActiveTexture(GL_TEXTURE0 + texture_unit));
+    GL_CHECK(ctx->glBindTexture(GL_TEXTURE_2D,kvp.second.surface->get_impl().as<GlTexture>().get_texture()));
   }
 }
 

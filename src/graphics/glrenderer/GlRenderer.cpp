@@ -4,14 +4,18 @@
 #include <solarus/graphics/Video.h>
 #include <solarus/graphics/Surface.h>
 #include <solarus/core/Debug.h>
+#include <solarus/core/Logger.h>
 #include <solarus/graphics/Shader.h>
 #include <solarus/graphics/DefaultShaders.h>
 
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <array>
 
 namespace Solarus {
+
+using namespace glm;
 
 GlRenderer* GlRenderer::instance = nullptr;
 GlRenderer::GlFunctions GlRenderer::ctx;
@@ -24,42 +28,88 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
   Debug::check_assertion(!instance,"Creating two GL renderer");
   instance = this; //Set this renderer as the unique instance
 
+
+  create_vbo(256); //TODO check sprite buffer size
+
   //Create main shader
   main_shader = create_shader(DefaultShaders::get_default_vertex_source(),
                               DefaultShaders::get_default_fragment_source(),
                               0.0);
 
   Debug::check_assertion(static_cast<bool>(main_shader),"Failed to compile glRenderer main shader");
+}
 
-  create_vbo(256); //TODO check sprite buffer size
+/**
+ * \brief Check for a possible error returned by glGetError().
+ */
+void GlRenderer::check_gl_error() {
+  GLenum gl_error(glGetError());
+
+  while (gl_error != GL_NO_ERROR) {
+    std::string error;
+
+    switch(gl_error) {
+    case GL_INVALID_OPERATION:
+      error="INVALID_OPERATION";
+      break;
+    case GL_INVALID_ENUM:
+      error="INVALID_ENUM";
+      break;
+    case GL_INVALID_VALUE:
+      error="INVALID_VALUE";
+      break;
+    case GL_OUT_OF_MEMORY:
+      error="OUT_OF_MEMORY";
+      break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      error="INVALID_FRAMEBUFFER_OPERATION";
+      break;
+    }
+
+    Debug::error(std::string("GL_") + error.c_str() + std::string(" - "));
+    gl_error = ctx.glGetError();
+  }
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
   //Try to create context (core or es context)
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE | SDL_GL_CONTEXT_PROFILE_ES);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
     return nullptr;
   }
-  //Contex created, populate ctx
-  #if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
-  #define SDL_PROC(ret,func,params) ctx.func=func;
-  #else
-  #define SDL_PROC(ret,func,params) \
-    do { \
-    ctx.func = reinterpret_cast<APIENTRY ret(*)params>(SDL_GL_GetProcAddress(#func)); \
-    if ( ! ctx.func ) { \
-    Debug::warning(std::string("Couldn't load GLES2 function" #func)+  SDL_GetError()); \
-    return nullptr; \
-  } \
-  } while ( 0 );
-  #endif
-  #include "solarus/graphics/glrenderer/gles2funcs.h"
-  #undef SDL_PROC
 
-  ctx.glClearColor(0.f,0.f,0.f,0.f);
-  ctx.glEnable(GL_BLEND);
-  ctx.glDisable(GL_CULL_FACE);
+  //Contex created, populate ctx
+#if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
+#define SDL_PROC(ret,func,params) ctx.func=func;
+#else
+#define SDL_PROC(ret,func,params) \
+  do { \
+  ctx.func = reinterpret_cast<APIENTRY ret(*)params>(SDL_GL_GetProcAddress(#func)); \
+  if ( ! ctx.func ) { \
+  Debug::warning(std::string("Couldn't load GLES2 function" #func)+  SDL_GetError()); \
+  return nullptr; \
+} \
+} while ( 0 );
+#endif
+#include "solarus/graphics/glrenderer/gles2funcs.h"
+#undef SDL_PROC
+
+  GLint flags;
+  ctx.glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+  if(flags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) {
+    Logger::info("OpenGL core profile");
+  }
+
+  GL_CHECK(ctx.glClearColor(0.f,0.f,0.f,0.f));
+  GL_CHECK(ctx.glEnable(GL_BLEND));
+  GL_CHECK(ctx.glDisable(GL_CULL_FACE));
+  //Set blending to BLEND
+  GL_CHECK(ctx.glBlendEquationSeparate(GL_FUNC_ADD,GL_FUNC_ADD));
+  //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+  //GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
 
   Debug::check_assertion(GlShader::initialize(),"shader failed to initialize after gl");
 
@@ -94,19 +144,22 @@ void GlRenderer::set_render_target(SurfaceImpl& texture) {
 }
 
 void GlRenderer::set_render_target(GlTexture* target) {
-  auto* fbo = target->targetable().fbo;
-  ctx.glBindFramebuffer(GL_FRAMEBUFFER,fbo->id);
-  if(fbo->id) {
-    ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
-    ctx.glViewport(0,0,
-                   target->get_width(),
-                   target->get_height());
-    Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
-  } else {
-    ctx.glViewport(window_viewport.get_left(),
-                   window_viewport.get_top(),
-                   window_viewport.get_width(),
-                   window_viewport.get_height());
+  if(target != current_target) {
+    auto* fbo = target->targetable().fbo;
+    GL_CHECK(ctx.glBindFramebuffer(GL_FRAMEBUFFER,fbo->id));
+    if(fbo->id) { //Render to Texture
+      GL_CHECK(ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0));
+      GL_CHECK(ctx.glViewport(0,0,
+                     target->get_width(),
+                     target->get_height()));
+      Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
+    } else { //Render to screen
+      GL_CHECK(ctx.glViewport(window_viewport.get_left(),
+                     window_viewport.get_top(),
+                     window_viewport.get_width(),
+                     window_viewport.get_height()));
+    }
+    current_target = target;
   }
 }
 
@@ -116,28 +169,29 @@ void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos&
 
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader) {
   set_state(&src.as<GlTexture>(),&shader,&dst.as<GlTexture>(),infos.blend_mode);
+  GL_CHECK(ctx.glUniform1i(shader.get_uniform_location(VCOLOR_ONLY_NAME),false));
   add_sprite(infos);
 }
 
 void GlRenderer::clear(SurfaceImpl& dst) {
   set_render_target(dst);
-  glClear(GL_COLOR_BUFFER_BIT);
+  ctx.glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
   GlShader& ms = main_shader->as<GlShader>();
   set_state(nullptr,&ms,&dst.as<GlTexture>(),mode);
-  ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true); //Set color only as uniform
+  GL_CHECK(ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true)); //Set color only as uniform
   add_sprite(DrawInfos(
                where,
                where.get_top_left(),
                Point(),
                mode,
                255,
-               0,
+               0.0,
                Scale(),
                color,
-               default_terminal()
+               null_proxy
                ));
 }
 
@@ -156,8 +210,12 @@ void GlRenderer::present(SDL_Window* window) {
 
 void GlRenderer::on_window_size_changed(const Rectangle& viewport) {
   //TODO
-  window_viewport = viewport;
-  screen_fbo.view = glm::ortho(0,viewport.get_width(),0,viewport.get_height());
+  if(!viewport.is_flat()) {
+    window_viewport = viewport;
+    screen_fbo.view = glm::ortho<float>(0,viewport.get_width(),viewport.get_height(),0);
+  } else {
+    Debug::warning("Ignoring zero area window size");
+  }
 }
 
 /**
@@ -174,18 +232,23 @@ const DrawProxy& GlRenderer::default_terminal() const {
 }
 
 GlRenderer::~GlRenderer() {
+  ctx.glDeleteVertexArrays(1,&vao); //TODO delete rest
   SDL_GL_DeleteContext(sdl_gl_context);
 }
 
 GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   if(screen) return &screen_fbo;
-  size_t key =  (static_cast<size_t>(width) << 32) & static_cast<size_t>(height);
+  size_t key =  (static_cast<size_t>(width) << 32) | static_cast<size_t>(height);
+  int rw = key >> 32;
+  int rh = key & 0xFFFFFFFF;
+  Debug::check_assertion(rw == width,"recovered width does not match");
+  Debug::check_assertion(rh == height,"recovered height does not match");
   auto it = fbos.find(key);
   if(it != fbos.end()) {
     return &it->second;
   }
   GLuint fbo;
-  ctx.glGenFramebuffers(1,&fbo);
+  GL_CHECK(ctx.glGenFramebuffers(1,&fbo));
   glm::mat4 view = glm::ortho<float>(0,width,0,height);
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
@@ -207,24 +270,13 @@ size_t GlRenderer::buffered_vertices() const {
 }
 
 void GlRenderer::restart_batch() {
-  if(current_vertex && buffered_sprites > 0) {
+  if(buffered_sprites > 0) {
     //Stuff to render!
-    if(use_bmap()) {
-      ctx.glUnmapBuffer(GL_ARRAY_BUFFER); //Unmap buffer before drawing
-    } else {
-      ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
-    }
-    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
+    GL_CHECK(ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data()));
+    GL_CHECK(ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr));
   }
   //Done rendering, start actual batch
-  if(use_bmap()) {
-    //Do buffer orphaning
-    ctx.glBufferData(GL_ARRAY_BUFFER,buffer_size*6,nullptr,GL_STREAM_DRAW);
-    //Map buffer into system memory
-    current_vertex = static_cast<Vertex*>(ctx.glMapBuffer(GL_ARRAY_BUFFER,GL_WRITE_ONLY));
-  } else {
-    current_vertex = vertex_buffer.data();
-  }
+  current_vertex = vertex_buffer.data();
   buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
 }
 
@@ -232,6 +284,7 @@ void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
     shader->bind();
     if(current_shader){
+      Logger::info("SHADER SWAP!");
       current_shader->unbind();
     }
     current_shader = shader;
@@ -242,8 +295,8 @@ void GlRenderer::set_texture(const GlTexture *texture) {
   if(texture != current_texture) {
     //Change texture binding state
     if(texture) { //Texture might be null if we want no texture for filling
-      ctx.glActiveTexture(GL_TEXTURE0);
-      ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture());
+      GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
+      GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture()));
     }
     current_texture = texture;
   }
@@ -251,34 +304,79 @@ void GlRenderer::set_texture(const GlTexture *texture) {
 
 void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, BlendMode mode) {
   bool dst_src_shad = src != current_texture || shad != current_shader || dst != current_target;
-  if(dst_src_shad || mode != current_blend_mode) { //Need to restart the batch!
-    bool should_recompute_mvp = dst_src_shad;
+  GLBlendMode wanted_mode = make_gl_blend_modes(*dst,src,mode);
+  if(dst_src_shad || wanted_mode != current_blend_mode) { //Need to restart the batch!
+    //bool should_recompute_mvp = dst_src_shad;
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
     set_render_target(dst);
     set_texture(src);
-    set_blend_mode(mode);
+    set_blend_mode(wanted_mode);
+
+    //Resend mvp and uvm
+    GL_CHECK(ctx.glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
+                           1,
+                           GL_FALSE,
+                           glm::value_ptr(dst->fbo->view)));
+    if(current_texture) {
+      GL_CHECK(ctx.glUniformMatrix3fv(current_shader->get_uniform_location(Shader::UV_MATRIX_NAME),
+                             1,
+                             GL_FALSE,
+                             glm::value_ptr(current_texture->uv_transform)));
+    }
   }
 }
 
-void GlRenderer::set_blend_mode(BlendMode mode) {
+void GlRenderer::set_blend_mode(GLBlendMode mode) {
   if(mode != current_blend_mode) {
     current_blend_mode = mode;
-
-    //TODO change glBlendMode here;
+    GLenum srcRGB,dstRGB,srcA,dstA;
+    std::tie(srcRGB,dstRGB,srcA,dstA) = mode;
+    GL_CHECK(ctx.glBlendFuncSeparate(srcRGB,dstRGB,
+                            srcA,dstA));
   }
+}
+
+GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(const GlTexture& dst, const GlTexture* src, BlendMode mode) {
+  if(dst.is_premultiplied() && mode == BlendMode::BLEND) { //TODO refactor this a bit
+    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+  } else if(src && src->is_premultiplied() && mode == BlendMode::BLEND) {
+    return {GL_ONE,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+  } else {
+    return make_gl_blend_modes(mode);
+  }
+}
+
+GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
+  auto sym = [](GLenum src,GLenum dst) -> GLBlendMode {
+    return {src,dst,src,dst};
+  };
+  switch(mode) {
+  case BlendMode::BLEND:
+    return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  case BlendMode::MULTIPLY:
+    return {GL_ZERO,GL_SRC_COLOR,GL_ZERO,GL_SRC_ALPHA};
+  case BlendMode::ADD:
+    return sym(GL_ONE,GL_ONE);
+  case BlendMode::NONE:
+    return sym(GL_ONE,GL_ZERO);
+  }
+  return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
-  ctx.glGenBuffers(1,&vbo);
-  ctx.glGenBuffers(1,&ibo);
+  GL_CHECK(ctx.glGenVertexArrays(1,&vao)); //TODO for android ifndef this
+  GL_CHECK(ctx.glGenBuffers(1,&vbo));
+  GL_CHECK(ctx.glGenBuffers(1,&ibo));
 
   size_t indice_count = num_sprites*6;
   size_t vertex_count = num_sprites*4;
 
-  ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
+  GL_CHECK(ctx.glBindVertexArray(vao));
+
+  GL_CHECK(ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo));
   std::vector<GLuint> indices(indice_count);
   static constexpr std::array<GLuint,6> quad{{0,1,2,2,3,0}};
   for(size_t i = 0; i < num_sprites; i++) {
@@ -288,15 +386,12 @@ void GlRenderer::create_vbo(size_t num_sprites) {
       indices[ibase+j] = vbase + quad[j];
     }
   }
-  ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW);
+  GL_CHECK(ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW));
 
-  ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo);
-  if(use_bmap()) {
-     //ctx.glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
-  } else {
-    vertex_buffer.resize(vertex_count);
-    ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
-  }
+  GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo));
+
+  vertex_buffer.resize(vertex_count);
+  GL_CHECK(ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW));
 }
 
 void GlRenderer::shader_about_to_change(GlShader* shader) {
@@ -306,6 +401,10 @@ void GlRenderer::shader_about_to_change(GlShader* shader) {
 }
 
 void GlRenderer::add_sprite(const DrawInfos& infos) {
+  if(buffered_sprites >= buffer_size) {
+    restart_batch();
+  }
+
   vec2 trans = infos.transformation_origin;
   vec2 pos = infos.dst_position + infos.transformation_origin;
   vec2 scale = infos.scale;
@@ -313,9 +412,9 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   vec2 ototl = -trans;
   vec2 otobr = size-trans;
   vec2 tl = (ototl)*scale;
-  vec2 bl = (vec2(ototl.x,otobr.y)-trans) * scale;
+  vec2 bl = vec2(ototl.x,otobr.y) * scale;
   vec2 br = (otobr) * scale;
-  vec2 tr = (vec2(otobr.x,ototl.y) - trans) * scale;
+  vec2 tr = vec2(otobr.x,ototl.y) * scale;
   if(infos.should_use_ex()) {
     float alpha = infos.rotation;
     mat2 rot = mat2(cos(alpha),-sin(alpha),sin(alpha),cos(alpha));
@@ -337,7 +436,7 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
 
   for(size_t i = 0; i < 4; ++i) {
     current_vertex[i].color = infos.color;
-    current_vertex[i].color.a = (infos.color.a * infos.opacity) / 256; //modulate vcolor opacity with desired opacity
+    current_vertex[i].color.a = (infos.color.a * infos.opacity) / 255; //modulate vcolor opacity with desired opacity
   }
 
   current_vertex += 4; //Shift current quad index
