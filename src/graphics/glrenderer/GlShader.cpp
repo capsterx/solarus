@@ -239,12 +239,13 @@ void GlShader::bind() {
   ctx->glUseProgram(program); //TODO check if this can be done only once
   bound = true;
 
-  //Upload uniform that were postponed
+  //Upload uniforms that were postponed
   for(const auto& u : pending_uniforms){
     upload_uniform(u);
   }
   pending_uniforms.clear();
 
+  //Enable and paramatrize vertex attributes
   ctx->glEnableVertexAttribArray(position_location);
   ctx->glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
                              reinterpret_cast<void*>(offsetof(Vertex,position)));
@@ -255,6 +256,12 @@ void GlShader::bind() {
   ctx->glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
                              reinterpret_cast<void*>(offsetof(Vertex,color)));
 
+  //Bind correct uniform textures
+  for(const auto& kvp : uniform_textures) {
+    const GLuint texture_unit = kvp.second.unit;
+    ctx->glActiveTexture(GL_TEXTURE0 + texture_unit);
+    ctx->glBindTexture(GL_TEXTURE_2D,kvp.second.surface->get_impl().as<GlTexture>().get_texture());
+  }
 }
 
 void GlShader::unbind() {
@@ -291,6 +298,7 @@ void GlShader::draw(Surface& dst_surface, const Surface& src_surface, const Draw
 
 void GlShader::upload_uniform(const Uniform& u) {
   Debug::check_assertion(bound,"Trying to set uniform on an unbound shader");
+  GlRenderer::get().shader_about_to_change(this); //Notify renderer that batch must be interupted
   GLint loc = get_uniform_location(u.name);
   if(loc == -1) {
     return; //Not an error, no uniform to set

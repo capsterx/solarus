@@ -568,9 +568,7 @@ void SDLShader::draw(Surface& dst_surface, const Surface &src_surface, const Dra
     //TODO compute mvp and uv_matrix here
 
     const auto& region = infos.region;
-    auto dst_position = flip_y ?
-          Point(infos.dst_position.x,dst_surface.get_height()-infos.dst_position.y-region.get_height()) :
-          infos.dst_position;
+    auto dst_position = infos.dst_position;
 
     Size dst_size = dst_surface.get_size();
     glm::mat4 viewport,dst,scale;

@@ -32,6 +32,7 @@
 #include "solarus/graphics/Video.h"
 #include "solarus/graphics/Renderer.h"
 #include "solarus/graphics/sdlrenderer/SDLRenderer.h"
+#include "solarus/graphics/glrenderer/GlRenderer.h"
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -55,7 +56,7 @@ namespace {
 struct VideoContext {
   Video::Geometry geometry;                  // Sizes.
   std::vector<SoftwareVideoMode>
-      all_video_modes;                      /**< Display information for each supported software video mode. */
+  all_video_modes;                      /**< Display information for each supported software video mode. */
   SDL_Window* main_window = nullptr;        /**< The window. */
   RendererPtr renderer = nullptr;           /**< The screen renderer. */
   SDL_PixelFormat* rgba_format = nullptr;   /**< The pixel color format to use. */
@@ -63,9 +64,9 @@ struct VideoContext {
   // Legacy software video modes.
 
   const SoftwareVideoMode*
-      video_mode = nullptr;                 /**< Current software video mode. */
+  video_mode = nullptr;                 /**< Current software video mode. */
   const SoftwareVideoMode*
-      default_video_mode = nullptr;         /**< Default software video mode. */
+  default_video_mode = nullptr;         /**< Default software video mode. */
   SurfacePtr scaled_surface = nullptr;      /**< The screen surface used with software-scaled modes. */
   SurfacePtr screen_surface = nullptr;      /**< Strange surface representing the window */
   ShaderPtr  current_shader = nullptr;      /**< Current fullscreen effect */
@@ -114,21 +115,21 @@ void create_window() {
 
   std::string title = std::string("Solarus ") + SOLARUS_VERSION;
   context.main_window = SDL_CreateWindow(
-      title.c_str(),
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
-      context.geometry.wanted_quest_size.width,
-      context.geometry.wanted_quest_size.height,
-      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
-  );
+        title.c_str(),
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        context.geometry.wanted_quest_size.width,
+        context.geometry.wanted_quest_size.height,
+        SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+        );
 
   Debug::check_assertion(context.main_window != nullptr,
-      std::string("Cannot create the window: ") + SDL_GetError());
+                         std::string("Cannot create the window: ") + SDL_GetError());
 
-  context.renderer = create_chain<SDLRenderer>(context.main_window);
+  context.renderer = create_chain<GlRenderer,SDLRenderer>(context.main_window);
 
   Debug::check_assertion(static_cast<bool>(context.renderer),
-      std::string("Cannot create the renderer: ") + SDL_GetError());
+                         std::string("Cannot create the renderer: ") + SDL_GetError());
 
   Logger::info("Renderer: " + context.renderer->get_name());
 
@@ -152,30 +153,30 @@ void create_window() {
 void initialize_software_video_modes() {
 
   context.all_video_modes.emplace_back(
-      "normal",
-      context.geometry.quest_size * 2,
-      nullptr
-  );
+        "normal",
+        context.geometry.quest_size * 2,
+        nullptr
+        );
   context.all_video_modes.emplace_back(
-      "scale2x",
-      context.geometry.quest_size * 2,
-      std::unique_ptr<SoftwarePixelFilter>(new Scale2xFilter())
-  );
+        "scale2x",
+        context.geometry.quest_size * 2,
+        std::unique_ptr<SoftwarePixelFilter>(new Scale2xFilter())
+        );
   context.all_video_modes.emplace_back(
-      "hq2x",
-      context.geometry.quest_size * 2,
-      std::unique_ptr<SoftwarePixelFilter>(new Hq2xFilter())
-  );
+        "hq2x",
+        context.geometry.quest_size * 2,
+        std::unique_ptr<SoftwarePixelFilter>(new Hq2xFilter())
+        );
   context.all_video_modes.emplace_back(
-      "hq3x",
-      context.geometry.quest_size * 3,
-      std::unique_ptr<SoftwarePixelFilter>(new Hq3xFilter())
-  );
+        "hq3x",
+        context.geometry.quest_size * 3,
+        std::unique_ptr<SoftwarePixelFilter>(new Hq3xFilter())
+        );
   context.all_video_modes.emplace_back(
-      "hq4x",
-      context.geometry.quest_size * 4,
-      std::unique_ptr<SoftwarePixelFilter>(new Hq4xFilter())
-  );
+        "hq4x",
+        context.geometry.quest_size * 4,
+        std::unique_ptr<SoftwarePixelFilter>(new Hq4xFilter())
+        );
 
   context.default_video_mode = &context.all_video_modes[0];
 
@@ -215,8 +216,8 @@ void initialize(const Arguments& args) {
   context.disable_window = args.has_argument("-no-video");
 
   context.geometry.wanted_quest_size = {
-      SOLARUS_DEFAULT_QUEST_WIDTH,
-      SOLARUS_DEFAULT_QUEST_HEIGHT
+    SOLARUS_DEFAULT_QUEST_WIDTH,
+    SOLARUS_DEFAULT_QUEST_HEIGHT
   };
 
   if (!quest_size_string.empty()) {
@@ -348,17 +349,19 @@ void render(const SurfacePtr& quest_surface) {
   }
 
   Debug::check_assertion(context.video_mode != nullptr,
-      "Missing video mode");
+                         "Missing video mode");
 
   // See if there is a filter to apply.
   SurfacePtr surface_to_render = quest_surface;
   const SoftwarePixelFilter* software_filter = context.video_mode->get_software_filter();
   if (software_filter != nullptr) {
     Debug::check_assertion(context.scaled_surface != nullptr,
-        "Missing destination surface for scaling");
+                           "Missing destination surface for scaling");
     quest_surface->apply_pixel_filter(*software_filter, *context.scaled_surface);
     surface_to_render = context.scaled_surface;
   }
+
+  bool final_draw_with_shader = false;
 
   if (context.current_shader != nullptr) {
     float scale_factor = context.current_shader->get_data().get_scaling_factor();
@@ -373,16 +376,29 @@ void render(const SurfacePtr& quest_surface) {
                       BlendMode::BLEND,
                       255,0,
                       Scale(scale_factor),
-                      context.renderer->default_terminal() /*dont care about this anyway*/));
+                      null_proxy /*dont care about this anyway*/));
       surface_to_render = context.scaled_surface;
-    } else {
-      context.renderer->render(context.main_window,surface_to_render,context.current_shader);
-      surface_to_render = nullptr;
+    } else { //Shader can be draw directly
+      final_draw_with_shader = true;
     }
   }
 
-  if(surface_to_render)
-    context.renderer->render(context.main_window,surface_to_render,nullptr);
+  const DrawProxy& proxy = final_draw_with_shader ?
+        static_cast<const DrawProxy&>(*context.current_shader) :
+        context.renderer->default_terminal();
+
+  context.screen_surface->clear();
+  proxy.draw(
+        *context.screen_surface,
+        *surface_to_render,
+        DrawInfos(
+          Rectangle(surface_to_render->get_size()),
+          Point(),
+          Point(),
+          BlendMode::BLEND,
+          255,0,
+          get_output_size_no_bars()/surface_to_render->get_size(),
+          null_proxy));
 }
 
 /**
@@ -469,11 +485,11 @@ void set_quest_size_range(
     const Size& max_size) {
 
   Debug::check_assertion(
-      normal_size.width >= min_size.width
-      && normal_size.height >= min_size.height
-      && normal_size.width <= max_size.width
-      && normal_size.height <= max_size.height,
-      "Invalid quest size range");
+        normal_size.width >= min_size.width
+        && normal_size.height >= min_size.height
+        && normal_size.width <= max_size.width
+        && normal_size.height <= max_size.height,
+        "Invalid quest size range");
 
   context.geometry.normal_quest_size = normal_size;
   context.geometry.min_quest_size = min_size;
@@ -630,7 +646,7 @@ bool is_mode_supported(const SoftwareVideoMode& mode) {
 void set_default_video_mode() {
 
   Debug::check_assertion(context.default_video_mode != nullptr,
-      "Default video mode was not initialized");
+                         "Default video mode was not initialized");
 
   set_fullscreen(false);
   set_video_mode(*context.default_video_mode);
@@ -719,7 +735,7 @@ bool set_video_mode(const SoftwareVideoMode& mode) {
 const SoftwareVideoMode& get_video_mode() {
 
   Debug::check_assertion(context.video_mode != nullptr,
-      "Video mode not initialized");
+                         "Video mode not initialized");
   return *context.video_mode;
 }
 
@@ -796,9 +812,9 @@ void set_window_size(const Size& size) {
 
   Debug::check_assertion(context.main_window != nullptr, "No window");
   Debug::check_assertion(
-      size.width > 0 && size.height > 0,
-      "Wrong window size"
-  );
+        size.width > 0 && size.height > 0,
+        "Wrong window size"
+        );
 
   if (is_fullscreen()) {
     // Store the size to remember it during fullscreen.
@@ -810,16 +826,16 @@ void set_window_size(const Size& size) {
     SDL_GetWindowSize(context.main_window, &width, &height);
     if (width != size.width || height != size.height) {
       SDL_SetWindowSize(
-          context.main_window,
-          size.width,
-          size.height
-      );
+            context.main_window,
+            size.width,
+            size.height
+            );
       on_window_resized(size);
       SDL_SetWindowPosition(
-          context.main_window,
-          SDL_WINDOWPOS_CENTERED,
-          SDL_WINDOWPOS_CENTERED
-      );
+            context.main_window,
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED
+            );
     }
   }
 }
@@ -945,7 +961,7 @@ Point window_to_quest_coordinates(const Point& window_xy) {
  */
 Point renderer_to_quest_coordinates(
     const Point& renderer_xy
-) {
+    ) {
   return renderer_xy; //TODO check if this is true now
 }
 

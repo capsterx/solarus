@@ -2,6 +2,7 @@
 
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/core/Rectangle.h"
+#include "solarus/core/Debug.h"
 #include "solarus/graphics/BlendMode.h"
 #include "solarus/graphics/Color.h"
 #include "solarus/core/Scale.h"
@@ -111,7 +112,16 @@ struct DrawProxy {
   virtual inline ~DrawProxy(){}
 };
 
+namespace {
+  struct NullProxy : DrawProxy {
+    inline void draw(Surface&, const Surface&, const DrawInfos&) const override {
+      //Does strictly nothing
+      Debug::error("Draw with null proxy!");
+    }
+  };
 
+  NullProxy null_proxy;
+}
 
 template<std::size_t N>
 /**

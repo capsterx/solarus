@@ -165,31 +165,6 @@ std::string SDLRenderer::get_name() const {
   return std::string("SDLRenderer : ") + renderer_info.name;
 }
 
-void SDLRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface, const ShaderPtr &shader) {
-  //Declare local clear screen routine
-
-  set_render_target(nullptr);
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  //SDL_RenderSetClipRect(renderer, nullptr);
-  SDL_RenderClear(renderer);
-
-  //auto size = quest_surface->get_size();
-
-  //See if there is a shader to apply
-  const SDLSurfaceImpl& qs = quest_surface->get_impl().as<SDLSurfaceImpl>();
-  //Render the final surface with sdl if necessary
-    // SDL rendering.
-
-    //Set blending mode to none to simply replace any on_screen material
-  if(shader){
-    SDLShader& s = const_cast<SDLShader&>(shader->as<SDLShader>());
-    s.render(*quest_surface,Rectangle(quest_surface->get_size()),quest_surface->get_size(),Point(),true);
-  } else {
-    SDL_SetTextureBlendMode(qs.get_texture(),SDL_BLENDMODE_NONE);
-    SDL_RenderCopy(renderer, qs.get_texture(), nullptr, nullptr);
-  }
-}
-
 void SDLRenderer::present(SDL_Window* /*window*/) {
   SDL_RenderPresent(renderer);
 }

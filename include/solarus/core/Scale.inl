@@ -70,4 +70,9 @@ inline constexpr Scale operator*(const Scale& a, float b) {
   return Scale(a.x*b,a.y*b);
 }
 
+inline constexpr Scale operator/(const Size& size, const Size& other) {
+  return Scale(static_cast<float>(size.width)/static_cast<float>(other.width),
+               static_cast<float>(size.height)/static_cast<float>(other.height));
+}
+
 }

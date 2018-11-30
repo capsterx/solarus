@@ -5,6 +5,7 @@
 #include <solarus/graphics/Surface.h>
 #include <solarus/core/Debug.h>
 #include <solarus/graphics/Shader.h>
+#include <solarus/graphics/DefaultShaders.h>
 
 #include <glm/gtx/matrix_transform_2d.hpp>
 
@@ -22,6 +23,15 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 
   Debug::check_assertion(!instance,"Creating two GL renderer");
   instance = this; //Set this renderer as the unique instance
+
+  //Create main shader
+  main_shader = create_shader(DefaultShaders::get_default_vertex_source(),
+                              DefaultShaders::get_default_fragment_source(),
+                              0.0);
+
+  Debug::check_assertion(static_cast<bool>(main_shader),"Failed to compile glRenderer main shader");
+
+  create_vbo(256); //TODO check sprite buffer size
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
@@ -118,18 +128,25 @@ void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& whe
   GlShader& ms = main_shader->as<GlShader>();
   set_state(nullptr,&ms,&dst.as<GlTexture>(),mode);
   ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true); //Set color only as uniform
+  add_sprite(DrawInfos(
+               where,
+               where.get_top_left(),
+               Point(),
+               mode,
+               255,
+               0,
+               Scale(),
+               color,
+               default_terminal()
+               ));
 }
 
-void GlRenderer::invalidate(const SurfaceImpl& surf) {
-
+void GlRenderer::invalidate(const SurfaceImpl& /*surf*/) {
+  //TODO
 }
 
 std::string GlRenderer::get_name() const {
   return std::string("GlRenderer"); //TODO
-}
-
-void GlRenderer::render(SDL_Window* /*window*/, const SurfacePtr &quest_surface, const ShaderPtr &shader) {
-
 }
 
 void GlRenderer::present(SDL_Window* window) {
@@ -153,7 +170,7 @@ void GlRenderer::on_window_size_changed(const Rectangle& viewport) {
 //SDL_BlendMode GlRenderer::make_sdl_blend_mode(const SurfaceImpl& dst_surface, const SurfaceImpl& src_surface, BlendMode blend_mode) {
 
 const DrawProxy& GlRenderer::default_terminal() const {
-  return *static_cast<const DrawProxy*>(main_shader.get());
+  return static_cast<const DrawProxy&>(*main_shader.get());
 }
 
 GlRenderer::~GlRenderer() {
@@ -177,7 +194,7 @@ bool GlRenderer::use_bmap() const {
 #ifdef ANDROID
   return false;
 #else
-  return true;
+  return false; //TODO check this
 #endif
 }
 
@@ -233,7 +250,9 @@ void GlRenderer::set_texture(const GlTexture *texture) {
 }
 
 void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, BlendMode mode) {
-  if(src != current_texture || shad != current_shader || dst != current_target || mode != current_blend_mode) { //Need to restart the batch!
+  bool dst_src_shad = src != current_texture || shad != current_shader || dst != current_target;
+  if(dst_src_shad || mode != current_blend_mode) { //Need to restart the batch!
+    bool should_recompute_mvp = dst_src_shad;
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
     set_render_target(dst);
@@ -280,6 +299,12 @@ void GlRenderer::create_vbo(size_t num_sprites) {
   }
 }
 
+void GlRenderer::shader_about_to_change(GlShader* shader) {
+  if(shader == current_shader) {
+    restart_batch(); //Draw the sprites before shader state changes
+  }
+}
+
 void GlRenderer::add_sprite(const DrawInfos& infos) {
   vec2 trans = infos.transformation_origin;
   vec2 pos = infos.dst_position + infos.transformation_origin;
@@ -309,8 +334,10 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   current_vertex[2].texcoords = infos.region.get_bottom_right();
   current_vertex[3].texcoords = infos.region.get_top_right();
 
+
   for(size_t i = 0; i < 4; ++i) {
-    current_vertex[i].color.set_alpha(infos.opacity);
+    current_vertex[i].color = infos.color;
+    current_vertex[i].color.a = (infos.color.a * infos.opacity) / 256; //modulate vcolor opacity with desired opacity
   }
 
   current_vertex += 4; //Shift current quad index

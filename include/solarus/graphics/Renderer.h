@@ -23,14 +23,9 @@ public:
   virtual void fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode = BlendMode::BLEND) = 0;
   virtual std::string get_name() const = 0;
   virtual const DrawProxy& default_terminal() const = 0;
-  virtual void render(SDL_Window* window, const SurfacePtr& quest_surface, const ShaderPtr& ptr = nullptr) = 0;
   virtual void present(SDL_Window* window) = 0;
   virtual void on_window_size_changed(const Rectangle& viewport) = 0;
-  /*template<class T> T& as() {
-    auto p = dynamic_cast<T*>(this); //TODO check if reinterpret cast is safe
-    assert(p);
-    return *p;
-  }*/
+
   virtual void invalidate(const SurfaceImpl& surf) = 0;
   virtual ~Renderer();
 };

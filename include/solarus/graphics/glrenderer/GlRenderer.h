@@ -49,7 +49,6 @@ public:
   void fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode = BlendMode::BLEND) override;
   void invalidate(const SurfaceImpl& surf) override;
   std::string get_name() const override;
-  void render(SDL_Window* window, const SurfacePtr& quest_surface, const ShaderPtr &shader = nullptr) override;
   void present(SDL_Window* window) override;
   void on_window_size_changed(const Rectangle& viewport) override;
   static GlRenderer& get(){
@@ -74,6 +73,8 @@ private:
   size_t buffered_indices() const;
   size_t buffered_vertices() const;
   Fbo* get_fbo(int width, int height, bool screen = false);
+
+  void shader_about_to_change(GlShader* shader);
 
   static GlRenderer* instance;
   static GlFunctions ctx;
