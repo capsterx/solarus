@@ -5,7 +5,7 @@
 namespace Solarus {
 
 SurfaceImpl::~SurfaceImpl() {
-
+  Video::get_renderer().invalidate(*this);
 }
 
 /**

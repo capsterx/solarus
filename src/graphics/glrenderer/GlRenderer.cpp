@@ -7,11 +7,13 @@
 #include <solarus/core/Logger.h>
 #include <solarus/graphics/Shader.h>
 #include <solarus/graphics/DefaultShaders.h>
+#include <solarus/core/System.h>
 
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <array>
+#include <sstream>
 
 namespace Solarus {
 
@@ -174,6 +176,7 @@ void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos&
 }
 
 void GlRenderer::clear(SurfaceImpl& dst) {
+  restart_batch();
   set_render_target(dst);
   ctx.glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -195,8 +198,16 @@ void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& whe
                ));
 }
 
-void GlRenderer::invalidate(const SurfaceImpl& /*surf*/) {
+void GlRenderer::invalidate(const SurfaceImpl& surf) {
+  const GlTexture* tex = &surf.as<GlTexture>();
   //TODO
+  if(tex == current_target) {
+    current_target = nullptr;
+  }
+
+  if(tex == current_texture) {
+    current_texture = nullptr;
+  }
 }
 
 std::string GlRenderer::get_name() const {
@@ -270,11 +281,21 @@ size_t GlRenderer::buffered_vertices() const {
 }
 
 void GlRenderer::restart_batch() {
-  if(buffered_sprites > 0) {
+  if(current_target && buffered_sprites > 0) {
     //Stuff to render!
+    if(test_texture != current_target) {
+      Debug::warning("InCONSISTENT state");
+    }
+
     GL_CHECK(ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data()));
     GL_CHECK(ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr));
+    /*if(buffered_sprites > 2) {
+      std::ostringstream oss;
+      oss << "rendererd " << buffered_sprites;
+      Logger::info(oss.str());
+    }*/
   }
+  test_texture = nullptr;
   //Done rendering, start actual batch
   current_vertex = vertex_buffer.data();
   buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
@@ -284,7 +305,6 @@ void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
     shader->bind();
     if(current_shader){
-      Logger::info("SHADER SWAP!");
       current_shader->unbind();
     }
     current_shader = shader;
@@ -294,18 +314,25 @@ void GlRenderer::set_shader(GlShader* shader) {
 void GlRenderer::set_texture(const GlTexture *texture) {
   if(texture != current_texture) {
     //Change texture binding state
-    if(texture) { //Texture might be null if we want no texture for filling
-      GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
-      GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,texture->get_texture()));
-    }
     current_texture = texture;
+    rebind_texture();
+  }
+}
+
+void GlRenderer::rebind_texture() {
+  if(current_texture) { //Texture might be null if we want no texture for filling
+    GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
+    GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,current_texture->get_texture()));
   }
 }
 
 void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, BlendMode mode) {
-  bool dst_src_shad = src != current_texture || shad != current_shader || dst != current_target;
+
   GLBlendMode wanted_mode = make_gl_blend_modes(*dst,src,mode);
-  if(dst_src_shad || wanted_mode != current_blend_mode) { //Need to restart the batch!
+  if(src != current_texture ||
+     shad != current_shader ||
+     dst != current_target ||
+     wanted_mode != current_blend_mode) { //Need to restart the batch!
     //bool should_recompute_mvp = dst_src_shad;
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
@@ -323,7 +350,23 @@ void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst,
                              1,
                              GL_FALSE,
                              glm::value_ptr(current_texture->uv_transform)));
+      int sw = current_texture->get_width();
+      int sh = current_texture->get_height();
+      ctx.glUniform2f(
+            current_shader->get_uniform_location(Shader::INPUT_SIZE_NAME),
+            sw,sh);
     }
+
+    if(current_target) {
+      int dw = current_target->get_width();
+      int dh = current_target->get_height();
+      ctx.glUniform2f(
+            current_shader->get_uniform_location(Shader::OUTPUT_SIZE_NAME),
+            dw,dh);
+    }
+    ctx.glUniform1i(
+          current_shader->get_uniform_location(Shader::TIME_NAME),
+          System::now());
   }
 }
 
@@ -404,6 +447,9 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   if(buffered_sprites >= buffer_size) {
     restart_batch();
   }
+
+  if(!test_texture)
+    test_texture = current_target;
 
   vec2 trans = infos.transformation_origin;
   vec2 pos = infos.dst_position + infos.transformation_origin;

@@ -72,6 +72,7 @@ private:
   void set_shader(GlShader* shader);
   void set_texture(const GlTexture* texture);
   void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, BlendMode mode);
+  void rebind_texture();
   void set_blend_mode(GLBlendMode mode);
   GLBlendMode make_gl_blend_modes(const GlTexture &dst, const GlTexture *src, BlendMode mode);
   GLBlendMode make_gl_blend_modes(BlendMode mode);
@@ -96,6 +97,8 @@ private:
   GLuint vao;
   GLuint vbo;
   GLuint ibo;
+
+  const GlTexture* test_texture = nullptr;
 
   Vertex* current_vertex = nullptr;
   size_t buffered_sprites = 0;

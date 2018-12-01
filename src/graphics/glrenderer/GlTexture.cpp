@@ -8,11 +8,12 @@
 
 namespace Solarus {
 
-inline glm::mat3 uv_view(int width, int height,bool flip = true) {
+inline glm::mat3 uv_view(int width, int height,bool flip = false) {
   using namespace glm;
-  if(!flip)
-    return scale(translate(mat3(),vec2(1,1)),vec2(-1.f/width,-1.f/height));
-  else
+  (void)flip;
+  /*if(!flip)
+    return scale(translate(mat3(),vec2(0,1)),vec2(1.f/width,-1.f/height));
+  else*/
     return scale(mat3(),vec2(1.f/width,1.f/height));
 }
 
@@ -39,6 +40,7 @@ GlTexture::GlTexture(int width, int height, bool screen_tex)
   Debug::check_assertion(surf_ptr != nullptr,
                          std::string("Failed to create backup surface ") + SDL_GetError());
   surface.reset(surf_ptr);
+  GlRenderer::get().rebind_texture();
 }
 
 GlTexture::GlTexture(SDL_Surface_UniquePtr a_surface)
@@ -52,6 +54,7 @@ GlTexture::GlTexture(SDL_Surface_UniquePtr a_surface)
   GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,tex_id));
   GL_CHECK(ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels));
   set_texture_params();
+  GlRenderer::get().rebind_texture();
   //TODO check that pixels are in the right order
 }
 
@@ -80,6 +83,7 @@ void GlTexture::upload_surface() {
                       get_width(),get_height(),
                       GL_RGBA,GL_UNSIGNED_BYTE,
                       surface->pixels);
+  GlRenderer::get().rebind_texture();
 }
 
 /**
