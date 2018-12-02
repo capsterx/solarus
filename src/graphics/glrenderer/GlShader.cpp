@@ -97,10 +97,8 @@ GlShader::~GlShader() {
  */
 void GlShader::compile() {
 
-  GLint previous_program;
-  ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-
-  ctx->glGetError();
+  //GLint previous_program;
+  //ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
 
   GLint linked;
 
@@ -155,7 +153,8 @@ void GlShader::compile() {
   tex_coord_location = ctx->glGetAttribLocation(program, TEXCOORD_NAME);
   color_location = ctx->glGetAttribLocation(program, COLOR_NAME);
 
-  ctx->glUseProgram(previous_program);
+  //ctx->glUseProgram(previous_program);
+  GlRenderer::get().rebind_shader();
 }
 
 /**

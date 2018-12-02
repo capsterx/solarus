@@ -123,7 +123,7 @@ class SOLARUS_API GlShader : public Shader {
         glm::mat4& scale,
         glm::mat3& uvm);
 
-    bool bound;
+    bool bound = false;
     GLuint program;                         /**< The program which bind the vertex and fragment shader. */
     GLuint vertex_shader;                   /**< The vertex shader. */
     GLuint fragment_shader;                 /**< The fragment shader. */

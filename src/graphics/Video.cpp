@@ -261,7 +261,7 @@ void quit() {
     context.main_window = nullptr;
   }
 
-  context = VideoContext();
+  //context = VideoContext();
 }
 
 /**

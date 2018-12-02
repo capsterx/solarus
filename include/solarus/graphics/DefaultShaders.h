@@ -88,7 +88,6 @@ void main() {
     if(!sol_vcolor_only) {
       vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
       FragColor = tex_color * sol_vcolor;
-      //FragColor.rgba = vec4(mix(vec3(sol_vtex_coord,0),tex_color.rgb,0.6),tex_color.a*0.5+0.5);
     } else {
       FragColor = sol_vcolor;
     }

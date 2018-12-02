@@ -74,8 +74,9 @@ private:
   void restart_batch();
   void set_shader(GlShader* shader);
   void set_texture(const GlTexture* texture);
-  void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, BlendMode mode);
+  void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode);
   void rebind_texture();
+  void rebind_shader();
   void set_blend_mode(GLBlendMode mode);
   GLBlendMode make_gl_blend_modes(const GlTexture &dst, const GlTexture *src, BlendMode mode);
   GLBlendMode make_gl_blend_modes(BlendMode mode);
@@ -97,9 +98,9 @@ private:
     {GL_ONE,GL_ONE,GL_ONE,GL_ONE};
   ShaderPtr main_shader;
 
-  GLuint vao;
-  GLuint vbo;
-  GLuint ibo;
+  GLuint vao = 0;
+  GLuint vbo = 0;
+  GLuint ibo = 0;
 
   const GlTexture* test_texture = nullptr;
 
@@ -108,7 +109,7 @@ private:
   size_t buffer_size = 0;
   std::vector<Vertex> vertex_buffer;
 
-  Fbo screen_fbo;
+  Fbo screen_fbo = {0,glm::mat4()};
   std::unordered_map<size_t,Fbo> fbos;
   Rectangle window_viewport;
 };

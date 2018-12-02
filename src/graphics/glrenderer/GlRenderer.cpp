@@ -35,45 +35,48 @@ MessageCallback( GLenum /*source*/,
 {
   using namespace std;
   cerr << "---------------------opengl-callback-start------------" << endl;
-    cerr << "message: "<< message << endl;
-    cerr << "type: ";
-    switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-        cerr << "ERROR";
-        break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        cerr << "DEPRECATED_BEHAVIOR";
-        break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        cerr << "UNDEFINED_BEHAVIOR";
-        break;
-    case GL_DEBUG_TYPE_PORTABILITY:
-        cerr << "PORTABILITY";
-        break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-        cerr << "PERFORMANCE";
-        break;
-    case GL_DEBUG_TYPE_OTHER:
-        cerr << "OTHER";
-        break;
-    }
-    cerr << endl;
+  cerr << "message: "<< message << endl;
+  cerr << "type: ";
+  switch (type) {
+  case GL_DEBUG_TYPE_ERROR:
+    cerr << "ERROR";
+    break;
+  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    cerr << "DEPRECATED_BEHAVIOR";
+    break;
+  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    cerr << "UNDEFINED_BEHAVIOR";
+    break;
+  case GL_DEBUG_TYPE_PORTABILITY:
+    cerr << "PORTABILITY";
+    break;
+  case GL_DEBUG_TYPE_PERFORMANCE:
+    cerr << "PERFORMANCE";
+    break;
+  case GL_DEBUG_TYPE_OTHER:
+    cerr << "OTHER";
+    break;
+  }
+  cerr << endl;
 
-    cerr << "id: " << id << endl;
-    cerr << "severity: ";
-    switch (severity){
-    case GL_DEBUG_SEVERITY_LOW:
-        cerr << "LOW";
-        break;
-    case GL_DEBUG_SEVERITY_MEDIUM:
-        cerr << "MEDIUM";
-        break;
-    case GL_DEBUG_SEVERITY_HIGH:
-        cerr << "HIGH";
-        break;
-    }
-    cerr << endl;
-    cerr << "---------------------opengl-callback-end--------------" << endl;
+  cerr << "id: " << id << endl;
+  cerr << "severity: ";
+  switch (severity){
+  case GL_DEBUG_SEVERITY_LOW:
+    cerr << "LOW";
+    break;
+  case GL_DEBUG_SEVERITY_MEDIUM:
+    cerr << "MEDIUM";
+    break;
+  case GL_DEBUG_SEVERITY_HIGH:
+    cerr << "HIGH";
+    break;
+  case GL_DEBUG_SEVERITY_NOTIFICATION:
+    cerr << "NOTIFICATION";
+    break;
+  }
+  cerr << endl;
+  cerr << "---------------------opengl-callback-end--------------" << endl;
 }
 
 
@@ -86,7 +89,7 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
   instance = this; //Set this renderer as the unique instance
 
 
-  create_vbo(256); //TODO check sprite buffer size
+  create_vbo(512); //TODO check sprite buffer size
 
   //Create main shader
   main_shader = create_shader(DefaultShaders::get_default_vertex_source(),
@@ -99,13 +102,16 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 RendererPtr GlRenderer::create(SDL_Window* window) {
   //Try to create context (core or es context)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+//  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
     return nullptr;
   }
 
+  //SDL_GL_SetSwapInterval(0);
   //Contex created, populate ctx
 #if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
 #define SDL_PROC(ret,func,params) ctx.func=func;
@@ -122,27 +128,22 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
 #include "solarus/graphics/glrenderer/gles2funcs.h"
 #undef SDL_PROC
 
-  GLint flags;
-  ctx.glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-  if(flags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) {
-    Logger::info("OpenGL core profile");
-  }
-
-  ctx.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#ifdef DEBUG
+  ctx.glEnable(GL_DEBUG_OUTPUT);
   GLuint unusedIds = 0;
   ctx.glDebugMessageCallback(MessageCallback,nullptr);
   ctx.glDebugMessageControl(GL_DONT_CARE,
-              GL_DONT_CARE,
-              GL_DONT_CARE,
-              0,
-              &unusedIds,
-              true);
+                            GL_DONT_CARE,
+                            GL_DONT_CARE,
+                            0,
+                            &unusedIds,
+                            true);
+
+#endif
 
   ctx.glClearColor(0.f,0.f,0.f,0.f);
   ctx.glEnable(GL_BLEND);
   ctx.glDisable(GL_CULL_FACE);
-
-
 
   //Set blending to BLEND
   ctx.glBlendEquationSeparate(GL_FUNC_ADD,GL_FUNC_ADD);
@@ -152,6 +153,7 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   Debug::check_assertion(GlShader::initialize(),"shader failed to initialize after gl");
 
   //Context populated create Renderer
+  std::cerr << SDL_GetError();
   return RendererPtr(new GlRenderer(sdl_ctx));
 }
 
@@ -206,7 +208,9 @@ void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos&
 }
 
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader) {
-  set_state(&src.as<GlTexture>(),&shader,&dst.as<GlTexture>(),infos.blend_mode);
+  const GlTexture& glsrc = src.as<GlTexture>();
+  GlTexture& gldst = dst.as<GlTexture>();
+  set_state(&glsrc,&shader,&gldst,make_gl_blend_modes(gldst,&glsrc,infos.blend_mode));
   ctx.glUniform1i(shader.get_uniform_location(VCOLOR_ONLY_NAME),false);
   add_sprite(infos);
 }
@@ -218,19 +222,15 @@ void GlRenderer::clear(SurfaceImpl& dst) {
     ctx.glClear(GL_COLOR_BUFFER_BIT);
     restart_batch();
   } else {
-    //Quickly clear without un batching
-    //TODO chec if this really improves performance
-    GlTexture* prev = current_target;
-    set_render_target(t);
+    //Switch to target
+    set_state(current_texture,current_shader,t,current_blend_mode);
     ctx.glClear(GL_COLOR_BUFFER_BIT);
-    if(prev)
-      set_render_target(prev);
   }
 }
 
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
   GlShader& ms = main_shader->as<GlShader>();
-  set_state(nullptr,&ms,&dst.as<GlTexture>(),mode);
+  set_state(nullptr,&ms,&dst.as<GlTexture>(),make_gl_blend_modes(mode));
   ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true); //Set color only as uniform
   add_sprite(DrawInfos(
                where,
@@ -311,14 +311,6 @@ GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
 
-bool GlRenderer::use_bmap() const {
-#ifdef ANDROID
-  return false;
-#else
-  return false; //TODO check this
-#endif
-}
-
 size_t GlRenderer::buffered_indices() const {
   return buffered_sprites*6;
 }
@@ -333,9 +325,14 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
-
+    //ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
+    //ctx.glBindVertexArray(vao);
     ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
     ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
+    if(buffered_sprites == buffer_size) {
+      //Orphan buffer to refill faster
+      ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+    }
     /*if(buffered_sprites > 2) {
       std::ostringstream oss;
       oss << "rendererd " << buffered_sprites;
@@ -358,6 +355,12 @@ void GlRenderer::set_shader(GlShader* shader) {
   }
 }
 
+void GlRenderer::rebind_shader() {
+  if(current_shader) {
+    current_shader->bind();
+  }
+}
+
 void GlRenderer::set_texture(const GlTexture *texture) {
   if(texture != current_texture) {
     //Change texture binding state
@@ -373,20 +376,19 @@ void GlRenderer::rebind_texture() {
   }
 }
 
-void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, BlendMode mode) {
-
-  GLBlendMode wanted_mode = make_gl_blend_modes(*dst,src,mode);
+void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode) {
   if(src != current_texture ||
      shad != current_shader ||
      dst != current_target ||
-     wanted_mode != current_blend_mode) { //Need to restart the batch!
+     mode != current_blend_mode) { //Need to restart the batch!
     //bool should_recompute_mvp = dst_src_shad;
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
     set_render_target(dst);
     set_texture(src);
-    set_blend_mode(wanted_mode);
+    set_blend_mode(mode);
 
+    if(!current_shader) return; //Dont upload uniform if there is no shader
     //Resend mvp and uvm
     ctx.glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
                            1,
@@ -443,9 +445,9 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
   };
   switch(mode) {
   case BlendMode::BLEND:
-    return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};//return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   case BlendMode::MULTIPLY:
-    return {GL_ZERO,GL_SRC_COLOR,GL_ZERO,GL_SRC_ALPHA};
+    return {GL_DST_COLOR,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
   case BlendMode::ADD:
     return sym(GL_ONE,GL_ONE);
   case BlendMode::NONE:
@@ -482,6 +484,8 @@ void GlRenderer::create_vbo(size_t num_sprites) {
 
   vertex_buffer.resize(vertex_count);
   ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+  ctx.glBindVertexArray(0);
+  ctx.glBindVertexArray(vao);
 }
 
 void GlRenderer::shader_about_to_change(GlShader* shader) {
