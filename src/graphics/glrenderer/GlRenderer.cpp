@@ -22,6 +22,61 @@ using namespace glm;
 GlRenderer* GlRenderer::instance = nullptr;
 GlRenderer::GlFunctions GlRenderer::ctx;
 
+
+
+void GLAPIENTRY
+MessageCallback( GLenum /*source*/,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei /*length*/,
+                 const GLchar* message,
+                 const void* /*userParam*/ )
+{
+  using namespace std;
+  cerr << "---------------------opengl-callback-start------------" << endl;
+    cerr << "message: "<< message << endl;
+    cerr << "type: ";
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR:
+        cerr << "ERROR";
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        cerr << "DEPRECATED_BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        cerr << "UNDEFINED_BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        cerr << "PORTABILITY";
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        cerr << "PERFORMANCE";
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        cerr << "OTHER";
+        break;
+    }
+    cerr << endl;
+
+    cerr << "id: " << id << endl;
+    cerr << "severity: ";
+    switch (severity){
+    case GL_DEBUG_SEVERITY_LOW:
+        cerr << "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        cerr << "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_HIGH:
+        cerr << "HIGH";
+        break;
+    }
+    cerr << endl;
+    cerr << "---------------------opengl-callback-end--------------" << endl;
+}
+
+
 GlRenderer::GlRenderer(SDL_GLContext ctx) :
   sdl_gl_context(ctx),
   screen_fbo{0,glm::mat4()}
@@ -39,38 +94,6 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
                               0.0);
 
   Debug::check_assertion(static_cast<bool>(main_shader),"Failed to compile glRenderer main shader");
-}
-
-/**
- * \brief Check for a possible error returned by glGetError().
- */
-void GlRenderer::check_gl_error() {
-  GLenum gl_error(glGetError());
-
-  while (gl_error != GL_NO_ERROR) {
-    std::string error;
-
-    switch(gl_error) {
-    case GL_INVALID_OPERATION:
-      error="INVALID_OPERATION";
-      break;
-    case GL_INVALID_ENUM:
-      error="INVALID_ENUM";
-      break;
-    case GL_INVALID_VALUE:
-      error="INVALID_VALUE";
-      break;
-    case GL_OUT_OF_MEMORY:
-      error="OUT_OF_MEMORY";
-      break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-      error="INVALID_FRAMEBUFFER_OPERATION";
-      break;
-    }
-
-    Debug::error(std::string("GL_") + error.c_str() + std::string(" - "));
-    gl_error = ctx.glGetError();
-  }
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
@@ -105,13 +128,26 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
     Logger::info("OpenGL core profile");
   }
 
-  GL_CHECK(ctx.glClearColor(0.f,0.f,0.f,0.f));
-  GL_CHECK(ctx.glEnable(GL_BLEND));
-  GL_CHECK(ctx.glDisable(GL_CULL_FACE));
+  ctx.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+  GLuint unusedIds = 0;
+  ctx.glDebugMessageCallback(MessageCallback,nullptr);
+  ctx.glDebugMessageControl(GL_DONT_CARE,
+              GL_DONT_CARE,
+              GL_DONT_CARE,
+              0,
+              &unusedIds,
+              true);
+
+  ctx.glClearColor(0.f,0.f,0.f,0.f);
+  ctx.glEnable(GL_BLEND);
+  ctx.glDisable(GL_CULL_FACE);
+
+
+
   //Set blending to BLEND
-  GL_CHECK(ctx.glBlendEquationSeparate(GL_FUNC_ADD,GL_FUNC_ADD));
+  ctx.glBlendEquationSeparate(GL_FUNC_ADD,GL_FUNC_ADD);
   //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-  //GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
+  //ctx.glActiveTexture(GL_TEXTURE0));
 
   Debug::check_assertion(GlShader::initialize(),"shader failed to initialize after gl");
 
@@ -148,18 +184,18 @@ void GlRenderer::set_render_target(SurfaceImpl& texture) {
 void GlRenderer::set_render_target(GlTexture* target) {
   if(target != current_target) {
     auto* fbo = target->targetable().fbo;
-    GL_CHECK(ctx.glBindFramebuffer(GL_FRAMEBUFFER,fbo->id));
+    ctx.glBindFramebuffer(GL_FRAMEBUFFER,fbo->id);
     if(fbo->id) { //Render to Texture
-      GL_CHECK(ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0));
-      GL_CHECK(ctx.glViewport(0,0,
+      ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
+      ctx.glViewport(0,0,
                      target->get_width(),
-                     target->get_height()));
+                     target->get_height());
       Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
     } else { //Render to screen
-      GL_CHECK(ctx.glViewport(window_viewport.get_left(),
+      ctx.glViewport(window_viewport.get_left(),
                      window_viewport.get_top(),
                      window_viewport.get_width(),
-                     window_viewport.get_height()));
+                     window_viewport.get_height());
     }
     current_target = target;
   }
@@ -171,20 +207,31 @@ void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos&
 
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader) {
   set_state(&src.as<GlTexture>(),&shader,&dst.as<GlTexture>(),infos.blend_mode);
-  GL_CHECK(ctx.glUniform1i(shader.get_uniform_location(VCOLOR_ONLY_NAME),false));
+  ctx.glUniform1i(shader.get_uniform_location(VCOLOR_ONLY_NAME),false);
   add_sprite(infos);
 }
 
 void GlRenderer::clear(SurfaceImpl& dst) {
-  restart_batch();
-  set_render_target(dst);
-  ctx.glClear(GL_COLOR_BUFFER_BIT);
+  GlTexture* t = &dst.as<GlTexture>();
+  if(t == current_target) {
+    buffered_sprites = 0; //Trash pending batch, after all we'll clear
+    ctx.glClear(GL_COLOR_BUFFER_BIT);
+    restart_batch();
+  } else {
+    //Quickly clear without un batching
+    //TODO chec if this really improves performance
+    GlTexture* prev = current_target;
+    set_render_target(t);
+    ctx.glClear(GL_COLOR_BUFFER_BIT);
+    if(prev)
+      set_render_target(prev);
+  }
 }
 
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
   GlShader& ms = main_shader->as<GlShader>();
   set_state(nullptr,&ms,&dst.as<GlTexture>(),mode);
-  GL_CHECK(ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true)); //Set color only as uniform
+  ctx.glUniform1i(ms.get_uniform_location(VCOLOR_ONLY_NAME),true); //Set color only as uniform
   add_sprite(DrawInfos(
                where,
                where.get_top_left(),
@@ -259,7 +306,7 @@ GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
     return &it->second;
   }
   GLuint fbo;
-  GL_CHECK(ctx.glGenFramebuffers(1,&fbo));
+  ctx.glGenFramebuffers(1,&fbo);
   glm::mat4 view = glm::ortho<float>(0,width,0,height);
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
@@ -287,8 +334,8 @@ void GlRenderer::restart_batch() {
       Debug::warning("InCONSISTENT state");
     }
 
-    GL_CHECK(ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data()));
-    GL_CHECK(ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr));
+    ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
+    ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
     /*if(buffered_sprites > 2) {
       std::ostringstream oss;
       oss << "rendererd " << buffered_sprites;
@@ -321,8 +368,8 @@ void GlRenderer::set_texture(const GlTexture *texture) {
 
 void GlRenderer::rebind_texture() {
   if(current_texture) { //Texture might be null if we want no texture for filling
-    GL_CHECK(ctx.glActiveTexture(GL_TEXTURE0));
-    GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,current_texture->get_texture()));
+    ctx.glActiveTexture(GL_TEXTURE0);
+    ctx.glBindTexture(GL_TEXTURE_2D,current_texture->get_texture());
   }
 }
 
@@ -341,15 +388,15 @@ void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst,
     set_blend_mode(wanted_mode);
 
     //Resend mvp and uvm
-    GL_CHECK(ctx.glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
+    ctx.glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
                            1,
                            GL_FALSE,
-                           glm::value_ptr(dst->fbo->view)));
+                           glm::value_ptr(dst->fbo->view));
     if(current_texture) {
-      GL_CHECK(ctx.glUniformMatrix3fv(current_shader->get_uniform_location(Shader::UV_MATRIX_NAME),
+      ctx.glUniformMatrix3fv(current_shader->get_uniform_location(Shader::UV_MATRIX_NAME),
                              1,
                              GL_FALSE,
-                             glm::value_ptr(current_texture->uv_transform)));
+                             glm::value_ptr(current_texture->uv_transform));
       int sw = current_texture->get_width();
       int sh = current_texture->get_height();
       ctx.glUniform2f(
@@ -375,8 +422,8 @@ void GlRenderer::set_blend_mode(GLBlendMode mode) {
     current_blend_mode = mode;
     GLenum srcRGB,dstRGB,srcA,dstA;
     std::tie(srcRGB,dstRGB,srcA,dstA) = mode;
-    GL_CHECK(ctx.glBlendFuncSeparate(srcRGB,dstRGB,
-                            srcA,dstA));
+    ctx.glBlendFuncSeparate(srcRGB,dstRGB,
+                            srcA,dstA);
   }
 }
 
@@ -410,16 +457,16 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
-  GL_CHECK(ctx.glGenVertexArrays(1,&vao)); //TODO for android ifndef this
-  GL_CHECK(ctx.glGenBuffers(1,&vbo));
-  GL_CHECK(ctx.glGenBuffers(1,&ibo));
+  ctx.glGenVertexArrays(1,&vao); //TODO for android ifndef this
+  ctx.glGenBuffers(1,&vbo);
+  ctx.glGenBuffers(1,&ibo);
 
   size_t indice_count = num_sprites*6;
   size_t vertex_count = num_sprites*4;
 
-  GL_CHECK(ctx.glBindVertexArray(vao));
+  ctx.glBindVertexArray(vao);
 
-  GL_CHECK(ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo));
+  ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
   std::vector<GLuint> indices(indice_count);
   static constexpr std::array<GLuint,6> quad{{0,1,2,2,3,0}};
   for(size_t i = 0; i < num_sprites; i++) {
@@ -429,12 +476,12 @@ void GlRenderer::create_vbo(size_t num_sprites) {
       indices[ibase+j] = vbase + quad[j];
     }
   }
-  GL_CHECK(ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW));
+  ctx.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW);
 
-  GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo));
+  ctx.glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
   vertex_buffer.resize(vertex_count);
-  GL_CHECK(ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW));
+  ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
 }
 
 void GlRenderer::shader_about_to_change(GlShader* shader) {

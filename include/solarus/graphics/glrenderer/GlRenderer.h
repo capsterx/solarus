@@ -17,14 +17,19 @@ namespace Solarus {
 class GlShader;
 class GlTexture;
 
-#define SOLARUS_GL_CHECK(cmd) ((cmd), GlRenderer::check_gl_error())
-#define GL_CHECK(cmd) SOLARUS_GL_CHECK(cmd)
-
 class GlRenderer : public Renderer {
   friend class GlTexture;
   friend class GlShader;
 
 public:
+  typedef void (APIENTRY *DEBUGPROC)(GLenum source,
+              GLenum type,
+              GLuint id,
+              GLenum severity,
+              GLsizei length,
+              const GLchar *message,
+              const void *userParam);
+
   struct GlFunctions {
     #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
     #include "gles2funcs.h"
@@ -59,8 +64,6 @@ public:
   const DrawProxy& default_terminal() const override;
   ~GlRenderer() override;
 private:
-  static void check_gl_error();
-
   static constexpr const char* VCOLOR_ONLY_NAME = "sol_vcolor_only";
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader);
 

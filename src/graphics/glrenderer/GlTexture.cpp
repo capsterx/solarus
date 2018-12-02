@@ -22,9 +22,9 @@ GlTexture::GlTexture(int width, int height, bool screen_tex)
     uv_transform(uv_view(width,height)),
     fbo(GlRenderer::get().get_fbo(width,height,screen_tex)) {
   const auto& ctx = GlRenderer::ctx;
-  GL_CHECK(ctx.glGenTextures(1,&tex_id));
-  GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,tex_id));
-  GL_CHECK(ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,nullptr));
+  ctx.glGenTextures(1,&tex_id);
+  ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
+  ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,nullptr);
 
   set_texture_params();
   SDL_PixelFormat* format = Video::get_pixel_format();
@@ -50,9 +50,9 @@ GlTexture::GlTexture(SDL_Surface_UniquePtr a_surface)
   const auto& ctx = GlRenderer::ctx;
   int width = surface->w;
   int height = surface->h;
-  GL_CHECK(ctx.glGenTextures(1,&tex_id));
-  GL_CHECK(ctx.glBindTexture(GL_TEXTURE_2D,tex_id));
-  GL_CHECK(ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels));
+  ctx.glGenTextures(1,&tex_id);
+  ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
+  ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels);
   set_texture_params();
   GlRenderer::get().rebind_texture();
   //TODO check that pixels are in the right order
