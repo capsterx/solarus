@@ -261,7 +261,7 @@ void quit() {
     context.main_window = nullptr;
   }
 
-  //context = VideoContext();
+  context = VideoContext();
 }
 
 /**
@@ -406,6 +406,12 @@ void render(const SurfacePtr& quest_surface) {
  */
 void finish() {
   context.renderer->present(context.main_window);
+}
+
+void invalidate(const SurfaceImpl& texture) {
+  if(context.renderer) {
+    context.renderer->invalidate(texture);
+  }
 }
 
 SurfacePtr& get_screen_surface() {

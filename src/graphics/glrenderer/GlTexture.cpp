@@ -8,12 +8,8 @@
 
 namespace Solarus {
 
-inline glm::mat3 uv_view(int width, int height,bool flip = false) {
+inline glm::mat3 uv_view(int width, int height) {
   using namespace glm;
-  (void)flip;
-  /*if(!flip)
-    return scale(translate(mat3(),vec2(0,1)),vec2(1.f/width,-1.f/height));
-  else*/
     return scale(mat3(),vec2(1.f/width,1.f/height));
 }
 
@@ -40,17 +36,19 @@ GlTexture::GlTexture(int width, int height, bool screen_tex)
   Debug::check_assertion(surf_ptr != nullptr,
                          std::string("Failed to create backup surface ") + SDL_GetError());
   surface.reset(surf_ptr);
+  set_premultiplied(true);
   GlRenderer::get().rebind_texture();
 }
 
 GlTexture::GlTexture(SDL_Surface_UniquePtr a_surface)
   : target(false),
-    uv_transform(uv_view(a_surface->w,a_surface->h,true)),
+    uv_transform(uv_view(a_surface->w,a_surface->h)),
     surface(std::move(a_surface)) {
   const auto& ctx = GlRenderer::ctx;
   int width = surface->w;
   int height = surface->h;
   ctx.glGenTextures(1,&tex_id);
+  //upload_surface();
   ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
   ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels);
   set_texture_params();
@@ -73,7 +71,6 @@ void GlTexture::set_texture_params() {
  * to upload it to the texture for changes to be reflected
  */
 void GlTexture::upload_surface() {
-  Rectangle rect(0,0,get_width(),get_height());
   SDL_Surface* surface = get_surface();
   const auto& ctx = GlRenderer::ctx;
   ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
@@ -98,13 +95,8 @@ GLuint GlTexture::get_texture() const {
  */
 SDL_Surface* GlTexture::get_surface() const {
   if (target and surface_dirty) {
-    const auto& ctx = GlRenderer::ctx;
-    GlRenderer::get().set_render_target(const_cast<GlTexture*>(this));
-    ctx.glReadPixels(0,0, //TODO check read y order
-                     get_width(),get_height(),
-                     GL_RGBA,
-                     GL_UNSIGNED_BYTE,
-                     surface->pixels);
+    GlRenderer::get().read_pixels(const_cast<GlTexture*>(this),surface->pixels);
+    surface_dirty = false;
   }
   return surface.get();
 }

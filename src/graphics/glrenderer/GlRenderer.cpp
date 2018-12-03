@@ -100,18 +100,14 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
-  //Try to create context (core or es context)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
-  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
-//  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
     return nullptr;
   }
 
-  //SDL_GL_SetSwapInterval(0);
+  SDL_GL_SetSwapInterval(1);
   //Contex created, populate ctx
 #if SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_PANDORA
 #define SDL_PROC(ret,func,params) ctx.func=func;
@@ -228,6 +224,15 @@ void GlRenderer::clear(SurfaceImpl& dst) {
   }
 }
 
+void GlRenderer::read_pixels(GlTexture* from, void* to) {
+  set_state(current_texture,current_shader,from,current_blend_mode);
+  ctx.glReadPixels(0,0, //TODO check read y order
+                   from->get_width(),from->get_height(),
+                   GL_RGBA,
+                   GL_UNSIGNED_BYTE,
+                   to);
+}
+
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
   GlShader& ms = main_shader->as<GlShader>();
   set_state(nullptr,&ms,&dst.as<GlTexture>(),make_gl_blend_modes(mode));
@@ -325,19 +330,12 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
-    //ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
-    //ctx.glBindVertexArray(vao);
     ctx.glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
     ctx.glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
     if(buffered_sprites == buffer_size) {
       //Orphan buffer to refill faster
       ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
     }
-    /*if(buffered_sprites > 2) {
-      std::ostringstream oss;
-      oss << "rendererd " << buffered_sprites;
-      Logger::info(oss.str());
-    }*/
   }
   test_texture = nullptr;
   //Done rendering, start actual batch

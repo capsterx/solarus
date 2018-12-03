@@ -121,8 +121,7 @@ namespace Video {
     void render(const SurfacePtr& quest_surface);
     void finish();
 
-    void set_render_target(SDL_Texture* target);
-    void invalidate_target(SDL_Texture* target);
+    void invalidate(const SurfaceImpl &texture);
     SurfacePtr& get_screen_surface();
 
 }  // namespace Video

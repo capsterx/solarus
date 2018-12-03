@@ -71,6 +71,8 @@ private:
 
   using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
 
+  void read_pixels(GlTexture* from, void* to);
+
   void restart_batch();
   void set_shader(GlShader* shader);
   void set_texture(const GlTexture* texture);
