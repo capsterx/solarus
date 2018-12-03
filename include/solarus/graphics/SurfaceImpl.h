@@ -48,10 +48,30 @@ public:
   virtual int get_height() const = 0;
 
 
+  /**
+   * @brief get the pixel buffer for this surface
+   * @return
+   */
   std::string get_pixels() const;
+
+  /**
+   * @brief set the pixels of this surface from a buffer
+   * @param buffer
+   */
   void set_pixels(const std::string& buffer);
 
+  /**
+   * @brief Apply a pixel filter to this surface
+   * @param pixel_filter the pixel filter
+   * @param dst_surface surface to draw this pixel filter onto
+   */
   void apply_pixel_filter(const SoftwarePixelFilter& pixel_filter, SurfaceImpl& dst_surface) const;
+
+  /**
+   * @brief Test wheter a pixel is transparent
+   * @param index the pixel index (row major)
+   * @return true if pixel is transparent
+   */
   bool is_pixel_transparent(int index) const;
 
   /**
@@ -59,13 +79,28 @@ public:
      */
   virtual ~SurfaceImpl();
 
+  /**
+   * @brief is this surface premultiplied
+   * @return
+   */
   bool is_premultiplied() const;
+
+  /**
+   * @brief Set if this surface is premultiplied
+   * @param
+   */
   void set_premultiplied(bool a_premultiplied);
 
+  /**
+   * Cast this surface to another (child type, no verification)
+   */
   template<class T> T& as() {
     return *static_cast<T*>(this);
   }
 
+  /**
+   * Const version of the conversion
+   */
   template<class T> const T& as() const {
     return *static_cast<const T*>(this);
   }

@@ -48,12 +48,11 @@ GlTexture::GlTexture(SDL_Surface_UniquePtr a_surface)
   int width = surface->w;
   int height = surface->h;
   ctx.glGenTextures(1,&tex_id);
-  //upload_surface();
+
   ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
   ctx.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,surface->pixels);
   set_texture_params();
   GlRenderer::get().rebind_texture();
-  //TODO check that pixels are in the right order
 }
 
 void GlTexture::set_texture_params() {

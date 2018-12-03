@@ -14,6 +14,9 @@ namespace Solarus {
 
 #define SOLARUS_CHECK_SDL(expr) SOLARUS_CHECK_SDL_HIGHER(expr,0)
 
+/**
+ * @brief Legacy SDL renderer, used for window-less tests
+ */
 class SDLRenderer : public Renderer {
   friend class SDLSurfaceImpl;
   friend class SDLShader;
@@ -31,7 +34,6 @@ public:
   SurfaceImplPtr create_window_surface(SDL_Window* w, int width, int height) override;
   ShaderPtr create_shader(const std::string& shader_id) override;
   ShaderPtr create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) override;
-  void set_render_target(SurfaceImpl& texture) override;
   void set_render_target(SDL_Texture* target);
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) override;
   void clear(SurfaceImpl& dst) override;

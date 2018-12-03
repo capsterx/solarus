@@ -88,10 +88,10 @@ void main() {
     if(!sol_vcolor_only) {
       vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
       FragColor = tex_color * sol_vcolor;
+      //FragColor.rgb *= FragColor.a; //Premultiply
     } else {
       FragColor = sol_vcolor;
     }
-
 }
 )";
   return source;

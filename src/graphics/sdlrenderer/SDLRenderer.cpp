@@ -93,9 +93,9 @@ ShaderPtr SDLRenderer::create_shader(const std::string& vertex_source, const std
   return std::make_shared<SDLShader>(vertex_source, fragment_source, scaling_factor);
 }
 
-void SDLRenderer::set_render_target(SurfaceImpl& texture) {
+/*void SDLRenderer::set_render_target(SurfaceImpl& texture) {
   set_render_target(texture.as<SDLSurfaceImpl>().targetable().get_texture());
-}
+}*/
 
 void SDLRenderer::set_render_target(SDL_Texture* target) {
   if(target != render_target || !valid_target) {

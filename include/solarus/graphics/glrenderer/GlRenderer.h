@@ -6,17 +6,16 @@
 
 namespace Solarus {
 
-#ifdef DEBUG
-#define SOLARUS_CHECK_SDL_HIGHER(expr,bound) if((expr) < bound) Debug::error(std::string(SDL_GetError()) + "! " + __FILE__ + ":" + std::to_string(__LINE__));
-#else
-#define SOLARUS_CHECK_SDL_HIGHER(expr,bound) expr
-#endif
-
-#define SOLARUS_CHECK_SDL(expr) SOLARUS_CHECK_SDL_HIGHER(expr,0)
-
 class GlShader;
 class GlTexture;
 
+/**
+ * @brief Opengl Renderer
+ *
+ * This renderer implements batch rendering. This minimize the state changes in
+ * the opengl driver. Sprites are accumulated in a buffer before being rendered
+ * all at once.
+ */
 class GlRenderer : public Renderer {
   friend class GlTexture;
   friend class GlShader;
@@ -30,12 +29,18 @@ public:
               const GLchar *message,
               const void *userParam);
 
+  /**
+   * @brief Structure containing all usefull GlFunctions
+   */
   struct GlFunctions {
     #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
     #include "gles2funcs.h"
     #undef SDL_PROC
   };
 
+  /**
+   * @brief Draw destination
+   */
   struct Fbo{
     GLuint id;
     glm::mat4 view;
@@ -48,7 +53,7 @@ public:
   SurfaceImplPtr create_window_surface(SDL_Window* w, int width, int height) override;
   ShaderPtr create_shader(const std::string& shader_id) override;
   ShaderPtr create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) override;
-  void set_render_target(SurfaceImpl& texture) override;
+  //void set_render_target(SurfaceImpl& texture) override;
   void set_render_target(GlTexture* target);
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) override;
   void clear(SurfaceImpl& dst) override;
@@ -67,9 +72,11 @@ private:
   static constexpr const char* VCOLOR_ONLY_NAME = "sol_vcolor_only";
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader);
 
-  bool use_bmap() const;
-
+  /**
+   * Blend mode aggregate
+   */
   using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
+
 
   void read_pixels(GlTexture* from, void* to);
 

@@ -8,16 +8,57 @@
 
 namespace Solarus {
 
+/**
+ * @brief Abstraction of the rendering device
+ *
+ * All renderers will implement this interface
+ */
 class Renderer
 {
 public:
   explicit Renderer();
+
+  /**
+   * @brief Creates a surface implementation as rendertarget
+   * @param width texture width
+   * @param height texture height
+   * @return the surface impl
+   */
   virtual SurfaceImplPtr create_texture(int width, int height) = 0;
+
+  /**
+   * @brief Create a surface implementation as static texture
+   * @param surface a SDL surface containing the pixels data, ownership is taken
+   * @return the surface impl
+   */
   virtual SurfaceImplPtr create_texture(SDL_Surface_UniquePtr&& surface) = 0;
+
+  /**
+   * @brief Create a special surface impl that represent the screen
+   * @param window the window
+   * @param width width of the render region
+   * @param height height of the render region
+   * @return the surface impl
+   */
   virtual SurfaceImplPtr create_window_surface(SDL_Window* window, int width, int height) = 0;
+
+  /**
+   * @brief Create a shader from the shader id, loading it from disk
+   * @param shader_id the shader id
+   * @return the shader
+   */
   virtual ShaderPtr create_shader(const std::string& shader_id) = 0;
+
+  /**
+   * @brief Create a shader from source
+   * @param vertex_source vertex source
+   * @param fragment_source fragment source
+   * @param scaling_factor the scaling factor for this shader
+   * @return the shader
+   */
   virtual ShaderPtr create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) = 0;
-  virtual void set_render_target(SurfaceImpl& texture) = 0;
+
+
   virtual void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) = 0;
   virtual void clear(SurfaceImpl& dst) = 0;
   virtual void fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode = BlendMode::BLEND) = 0;

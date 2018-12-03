@@ -23,7 +23,13 @@ GlRenderer* GlRenderer::instance = nullptr;
 GlRenderer::GlFunctions GlRenderer::ctx;
 
 
-
+/**
+ * @brief Function that serve as a callback for opengl debugging
+ * @param type
+ * @param id
+ * @param severity
+ * @param message
+ */
 void GLAPIENTRY
 MessageCallback( GLenum /*source*/,
                  GLenum type,
@@ -143,8 +149,6 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
 
   //Set blending to BLEND
   ctx.glBlendEquationSeparate(GL_FUNC_ADD,GL_FUNC_ADD);
-  //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-  //ctx.glActiveTexture(GL_TEXTURE0));
 
   Debug::check_assertion(GlShader::initialize(),"shader failed to initialize after gl");
 
@@ -173,10 +177,6 @@ ShaderPtr GlRenderer::create_shader(const std::string& shader_id) {
 
 ShaderPtr GlRenderer::create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) {
   return std::make_shared<GlShader>(vertex_source, fragment_source, scaling_factor);
-}
-
-void GlRenderer::set_render_target(SurfaceImpl& texture) {
-  set_render_target(&texture.as<GlTexture>());
 }
 
 void GlRenderer::set_render_target(GlTexture* target) {
@@ -224,6 +224,11 @@ void GlRenderer::clear(SurfaceImpl& dst) {
   }
 }
 
+/**
+ * @brief read pixel of the given texture to a buffer
+ * @param from the texture
+ * @param to the buffer
+ */
 void GlRenderer::read_pixels(GlTexture* from, void* to) {
   set_state(current_texture,current_shader,from,current_blend_mode);
   ctx.glReadPixels(0,0, //TODO check read y order
@@ -281,15 +286,6 @@ void GlRenderer::on_window_size_changed(const Rectangle& viewport) {
   }
 }
 
-/**
- * @brief compute sdl blendmode to use when writing a surface onto another
- * @param dst_surface written to surface
- * @param src_surface read from surface
- * @param blend_mode  solarus blend mode
- * @return a sdl blendmode taking premultiply into account
- */
-//SDL_BlendMode GlRenderer::make_sdl_blend_mode(const SurfaceImpl& dst_surface, const SurfaceImpl& src_surface, BlendMode blend_mode) {
-
 const DrawProxy& GlRenderer::default_terminal() const {
   return static_cast<const DrawProxy&>(*main_shader.get());
 }
@@ -299,6 +295,13 @@ GlRenderer::~GlRenderer() {
   SDL_GL_DeleteContext(sdl_gl_context);
 }
 
+/**
+ * @brief get a framebuffer from the framebuffer cache, given its size
+ * @param width width of the framebuffer
+ * @param height height of the framebuffer
+ * @param screen desired buffer is the screen buffer?
+ * @return a struct with the view matrix integrated
+ */
 GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   if(screen) return &screen_fbo;
   size_t key =  (static_cast<size_t>(width) << 32) | static_cast<size_t>(height);
@@ -316,14 +319,25 @@ GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   return &fbos.insert({key,{fbo,view}}).first->second;
 }
 
+/**
+ * @brief number of indices in the buffer
+ * @return
+ */
 size_t GlRenderer::buffered_indices() const {
   return buffered_sprites*6;
 }
 
+/**
+ * @brief number of vertices in the buffer
+ * @return
+ */
 size_t GlRenderer::buffered_vertices() const {
   return buffered_sprites*4;
 }
 
+/**
+ * @brief restart the current batch, following a change of state or a full batch
+ */
 void GlRenderer::restart_batch() {
   if(current_target && buffered_sprites > 0) {
     //Stuff to render!
@@ -343,6 +357,10 @@ void GlRenderer::restart_batch() {
   buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
 }
 
+/**
+ * @brief Set the current shader
+ * @param shader the shader
+ */
 void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
     shader->bind();
@@ -353,12 +371,19 @@ void GlRenderer::set_shader(GlShader* shader) {
   }
 }
 
+/**
+ * @brief rebind current shader
+ */
 void GlRenderer::rebind_shader() {
   if(current_shader) {
     current_shader->bind();
   }
 }
 
+/**
+ * @brief Set the current texture
+ * @param texture
+ */
 void GlRenderer::set_texture(const GlTexture *texture) {
   if(texture != current_texture) {
     //Change texture binding state
@@ -367,6 +392,9 @@ void GlRenderer::set_texture(const GlTexture *texture) {
   }
 }
 
+/**
+ * @brief Bind current texture again, to restore state
+ */
 void GlRenderer::rebind_texture() {
   if(current_texture) { //Texture might be null if we want no texture for filling
     ctx.glActiveTexture(GL_TEXTURE0);
@@ -374,12 +402,19 @@ void GlRenderer::rebind_texture() {
   }
 }
 
+/**
+ * @brief Set current state
+ * @param src the texture to draw
+ * @param shad the shader to use to draw
+ * @param dst the texture to draw to
+ * @param mode the blend mode to use
+ */
 void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode) {
   if(src != current_texture ||
      shad != current_shader ||
      dst != current_target ||
      mode != current_blend_mode) { //Need to restart the batch!
-    //bool should_recompute_mvp = dst_src_shad;
+
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
     set_render_target(dst);
@@ -417,6 +452,10 @@ void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst,
   }
 }
 
+/**
+ * @brief Set the current blend mode
+ * @param mode the mode
+ */
 void GlRenderer::set_blend_mode(GLBlendMode mode) {
   if(mode != current_blend_mode) {
     current_blend_mode = mode;
@@ -427,6 +466,13 @@ void GlRenderer::set_blend_mode(GLBlendMode mode) {
   }
 }
 
+/**
+ * @brief deduce a GLBlendMode for a src and dst pair and desired mode
+ * @param dst destination texture
+ * @param src source texture
+ * @param mode desired blend mode
+ * @return the GLBlendMode aggregate
+ */
 GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(const GlTexture& dst, const GlTexture* src, BlendMode mode) {
   if(dst.is_premultiplied() && mode == BlendMode::BLEND) { //TODO refactor this a bit
     return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
@@ -437,13 +483,18 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(const GlTexture& dst, co
   }
 }
 
+/**
+ * @brief make a GLBlendMode from a Solarus::BlendMode
+ * @param mode the desired mode
+ * @return the GLBlendMode aggregate
+ */
 GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
   auto sym = [](GLenum src,GLenum dst) -> GLBlendMode {
     return {src,dst,src,dst};
   };
   switch(mode) {
   case BlendMode::BLEND:
-    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};//return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
   case BlendMode::MULTIPLY:
     return {GL_DST_COLOR,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
   case BlendMode::ADD:
@@ -454,6 +505,10 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
   return sym(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 }
 
+/**
+ * @brief Create the Gl buffers for this renderer
+ * @param num_sprites maximum number of sprites to batch
+ */
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
@@ -486,12 +541,22 @@ void GlRenderer::create_vbo(size_t num_sprites) {
   ctx.glBindVertexArray(vao);
 }
 
+/**
+ * @brief notify the renderer that a shader state (uniform or smth else) is about to change
+ * @param shader the soon to be modified shader
+ *
+ * This is used to end a batch if the shader is modified while bound
+ */
 void GlRenderer::shader_about_to_change(GlShader* shader) {
   if(shader == current_shader) {
     restart_batch(); //Draw the sprites before shader state changes
   }
 }
 
+/**
+ * @brief add a sprite with given draw info to the batch
+ * @param infos the draw infos
+ */
 void GlRenderer::add_sprite(const DrawInfos& infos) {
   if(buffered_sprites >= buffer_size) {
     restart_batch();
