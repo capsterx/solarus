@@ -100,6 +100,7 @@ New features:
 * Add events entity:on_enabled/disabled() to all entities (#898).
 * Add event entity:on_suspended() to all entities (#1261).
 * Add a method hero:get_carried_object().
+* Add a method hero:start_grabbing() (#1303).
 * Add a method hero:start_attack_loading() (#1291).
 * Add an event hero:on_state_changing() (#1247).
 * Add an event camera:on_state_changing().
@@ -145,6 +146,7 @@ New features:
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
 * Add methods get/set_color_modulation() by stdgregwar.
+* Add function sol.text_surface.get_predicted_size() by stdgregwar.
 
 Deprecated functions:
 

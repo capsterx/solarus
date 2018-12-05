@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/Equipment.h"
+#include "solarus/core/EquipmentItem.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
 #include "solarus/entities/Block.h"
@@ -62,8 +63,13 @@ CustomState::CustomState(
   can_be_hurt(true),
   can_be_hurt_callback(),
   can_start_sword(true),
+  can_cut(true),
+  can_cut_callback(),
   can_use_shield(true),
   can_start_item(true),
+  can_start_items(),
+  can_interact(true),
+  can_grab(true),
   can_push(true),
   pushing_delay(1000),
   pushing_direction4(-1),
@@ -348,6 +354,32 @@ void CustomState::notify_command_pressed(GameCommand command) {
   // See if the state script handles the command.
   if (get_lua_context().state_on_command_pressed(*this, command)) {
     return;
+  }
+
+  if (command == GameCommand::ACTION) {
+    Hero& hero = get_entity();
+    Entity* facing_entity = hero.get_facing_entity();
+    bool facing_entity_interaction = false;
+    if (facing_entity != nullptr &&
+        get_can_interact()) {
+      if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_NONE ||
+          get_commands_effects().is_action_key_acting_on_facing_entity()
+      ) {
+        // Action on the facing entity.
+        facing_entity_interaction = facing_entity->notify_action_command_pressed();
+      }
+    }
+
+    if (!facing_entity_interaction) {
+      // The event was not handled by the facing entity.
+      if (hero.is_facing_point_on_obstacle() &&
+          get_can_grab() &&
+          hero.can_grab()
+      ) {
+        // Grab an obstacle.
+        hero.start_grabbing();
+      }
+    }
   }
 
   Entity::State::notify_command_pressed(command);
@@ -1106,11 +1138,18 @@ void CustomState::set_can_be_hurt(bool can_be_hurt) {
 
 /**
  * \brief Sets whether the entity can be hurt during this state.
- * \param can_be_hurt \c true to allow to hurt the entity.
+ * \param can_be_hurt Boolean function deciding if the entity can be hurt.
  */
 void CustomState::set_can_be_hurt(const ScopedLuaRef& can_be_hurt) {
   this->can_be_hurt = true;
   this->can_be_hurt_callback = can_be_hurt;
+}
+
+/**
+ * \copydoc Entity::State::is_cutting_with_sword
+ */
+bool CustomState::is_cutting_with_sword(Entity& entity) {
+  return get_can_cut(&entity);
 }
 
 /**
@@ -1129,6 +1168,37 @@ void CustomState::set_can_start_sword(bool can_start_sword) {
 }
 
 /**
+ * \brief Returns whether an entity can be cut with the sword.
+ * \param entity The entity to test or nullptr.
+ */
+bool CustomState::get_can_cut(Entity* entity) {
+
+  if (!can_cut_callback.is_empty()) {
+    return get_lua_context().do_state_can_cut_function(
+        can_cut_callback, *this, entity);
+  }
+  return can_cut;
+}
+
+/**
+ * \brief Sets whether entities can be cut with the sword.
+ * \param can_cut \c true to allow to cut entities.
+ */
+void CustomState::set_can_cut(bool can_cut) {
+  this->can_cut = can_cut;
+  this->can_cut_callback.clear();
+}
+
+/**
+ * \brief Sets whether entities can be cut with the sword.
+ * \param can_cut Boolean function deciding if entities can be cut.
+ */
+void CustomState::set_can_cut(const ScopedLuaRef& can_cut) {
+  this->can_cut = true;
+  this->can_cut_callback = can_cut;
+}
+
+/**
  * \copydoc Entity::State::can_use_shield
  */
 bool CustomState::get_can_use_shield() const {
@@ -1144,26 +1214,75 @@ void CustomState::set_can_use_shield(bool can_use_shield) {
 }
 
 /**
- * \brief Returns whether equipment items can be used during this state.
- * \return \c true if items are allowed.
+ * \copydoc Entity::State::can_start_item
  */
-bool CustomState::get_can_start_item() const {
+bool CustomState::get_can_start_item(EquipmentItem& item) const {
+  return get_can_start_item(item.get_name());
+}
+
+/**
+ * \brief Returns whether an equipment item can be used during this state.
+ * \param item_id Id of the item to test, or an empty string to mean
+ * items in general.
+ * \return \c true if an equipment item is allowed.
+ */
+bool CustomState::get_can_start_item(const std::string& item_id) const {
+
+  if (!item_id.empty()) {
+    auto it = can_start_items.find(item_id);
+    if (it != can_start_items.end()) {
+      return it->second;
+    }
+  }
   return can_start_item;
 }
 
 /**
- * \copydoc Entity::State::can_start_item
+ * \brief Sets whether an equipment item can be used during this state.
+ * \param item_id Id of the item to configure, or an empty string to mean
+ * items in general.
+ * \param can_start_item \c true to allow to use an equipment item.
  */
-bool CustomState::get_can_start_item(EquipmentItem& /* item */) const {
-  return get_can_start_item();
+void CustomState::set_can_start_item(const std::string& item_id, bool can_start_item) {
+
+  if (item_id.empty()) {
+    this->can_start_item = can_start_item;
+    return;
+  }
+
+  can_start_items[item_id] = can_start_item;
 }
 
 /**
- * \brief Sets whether equipment items can be used during this state.
- * \param can_start_item \c true to allow items.
+ * \brief Returns whether interacting is allowed from this state.
+ * \return \c true if interacting with the facing entity is allowed.
  */
-void CustomState::set_can_start_item(bool can_start_item) {
-  this->can_start_item = can_start_item;
+bool CustomState::get_can_interact() const {
+  return can_interact;
+}
+
+/**
+ * \brief Sets whether pushing is allowed from this state.
+ * \param can_push \c true to allow to interacting with the facing entity.
+ */
+void CustomState::set_can_interact(bool can_interact) {
+  this->can_interact = can_interact;
+}
+
+/**
+ * \brief Returns whether grabbing is allowed from this state.
+ * \return \c true if grabbing is allowed.
+ */
+bool CustomState::get_can_grab() const {
+  return can_grab;
+}
+
+/**
+ * \brief Sets whether pushing is allowed from this state.
+ * \param can_push \c true to allow to grab.
+ */
+void CustomState::set_can_grab(bool can_grab) {
+  this->can_grab = can_grab;
 }
 
 /**
