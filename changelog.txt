@@ -57,6 +57,7 @@ Engine changes
 * Add support of .otf fonts.
 * Improve Lua error messages.
 * CLI can accept an archive's path as argument.
+* Replaced SDL renderer by a custom GL backend, by stdgregwar.
 
 Solarus launcher GUI changes
 ----------------------------
@@ -143,6 +144,7 @@ New features:
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
+* Add methods get/set_color_modulation() by stdgregwar.
 
 Deprecated functions:
 
