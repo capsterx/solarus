@@ -35,6 +35,8 @@ public:
   ShaderPtr create_shader(const std::string& shader_id) override;
   ShaderPtr create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) override;
   void set_render_target(SDL_Texture* target);
+  void bind_as_gl_target(SurfaceImpl& surf) override;
+  void bind_as_gl_texture(const SurfaceImpl& surf) override;
   void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) override;
   void clear(SurfaceImpl& dst) override;
   void fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode = BlendMode::BLEND) override;

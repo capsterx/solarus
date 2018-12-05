@@ -44,16 +44,6 @@ std::map<std::string, SurfaceImplPtr> image_files_cache;
 }
 
 /**
- * @brief Draw a surface on another using the given infos
- * @param dst_surface surface on which to draw
- * @param src_surface surface to read from
- * @param params draw info bundle
- */
-/*void Surface::SurfaceDraw::draw(Surface& dst_surface, const Surface &src_surface, const DrawInfos &params) const {
-  dst_surface.request_render().draw_other(src_surface.get_internal_surface(),params);
-}*/
-
-/**
  * \brief Creates a surface with the specified size.
  * \param width The width in pixels.
  * \param height The height in pixels.
@@ -393,15 +383,6 @@ void Surface::apply_pixel_filter(
 
 
 /**
- * \brief Returns the surface where transitions on this drawable object
- * are applied.
- * \return The surface for transitions.
- */
-/*Surface& Surface::get_transition_surface() {
-  return *this;
-}*/
-
-/**
  * \brief Returns whether a pixel is transparent.
  *
  * A pixel is transparent if it corresponds to the colorkey
@@ -413,65 +394,6 @@ void Surface::apply_pixel_filter(
 bool Surface::is_pixel_transparent(int index) const {
   return internal_surface->is_pixel_transparent(index);
 }
-
-
-/**
- * @brief compute sdl blendmode to use when writing a surface onto another
- * @param dst_surface written to surface
- * @param src_surface read from surface
- * @param blend_mode  solarus blend mode
- * @return a sdl blendmode taking premultiply into account
- */
-SDL_BlendMode Surface::make_sdl_blend_mode(const SurfaceImpl& dst_surface, const SurfaceImpl& src_surface, BlendMode blend_mode) {
-  if(dst_surface.is_premultiplied()) { //TODO refactor this a bit
-    switch(blend_mode) {
-      case BlendMode::NONE:
-        return SDL_BLENDMODE_NONE;
-      case BlendMode::MULTIPLY:
-        return SDL_BLENDMODE_MOD;
-      case BlendMode::ADD:
-        return SDL_BLENDMODE_ADD;
-      case BlendMode::BLEND:
-      default:
-        return SDL_ComposeCustomBlendMode(
-              SDL_BLENDFACTOR_SRC_ALPHA,
-              SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-              SDL_BLENDOPERATION_ADD,
-              SDL_BLENDFACTOR_ONE,
-              SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-              SDL_BLENDOPERATION_ADD);
-    }
-  } else {
-    //Straight destination
-    if(src_surface.is_premultiplied() && blend_mode == BlendMode::BLEND)
-      return SDL_ComposeCustomBlendMode(
-            SDL_BLENDFACTOR_ONE,
-            SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-            SDL_BLENDOPERATION_ADD,
-            SDL_BLENDFACTOR_ONE,
-            SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-            SDL_BLENDOPERATION_ADD);
-    switch(blend_mode) { //TODO check other modes
-      case BlendMode::NONE:
-        return SDL_BLENDMODE_NONE;
-      case BlendMode::MULTIPLY:
-        return SDL_BLENDMODE_MOD;
-      case BlendMode::ADD:
-        return SDL_BLENDMODE_ADD;
-      case BlendMode::BLEND:
-      default:
-        return SDL_BLENDMODE_BLEND;
-    }
-  }
-}
-
-/**
- * \brief Renders this surface onto a hardware texture.
- */
-/*void Surface::render(SDL_Renderer*& renderer) {
-  //SDL_RenderCopy(renderer,internal_surface->get_texture(),nullptr,nullptr);
-
-}*/
 
 /**
  * \brief Binds this texture to the current context for next OpenGL calls.

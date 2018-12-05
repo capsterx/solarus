@@ -199,10 +199,25 @@ void GlRenderer::set_render_target(GlTexture* target) {
   }
 }
 
+void GlRenderer::bind_as_gl_target(SurfaceImpl& surf) {
+  set_state(current_texture,current_shader,&surf.as<GlTexture>(),current_blend_mode);
+}
+
+void GlRenderer::bind_as_gl_texture(const SurfaceImpl& surf) {
+  set_state(&surf.as<GlTexture>(),current_shader,current_target,current_blend_mode);
+}
+
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) {
   draw(dst,src,infos,main_shader.get()->as<GlShader>());
 }
 
+/**
+ * @brief private draw with shader specified
+ * @param dst destination surfaec
+ * @param src source surface
+ * @param infos draw parameters
+ * @param shader shader to use
+ */
 void GlRenderer::draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos, GlShader& shader) {
   const GlTexture& glsrc = src.as<GlTexture>();
   GlTexture& gldst = dst.as<GlTexture>();
@@ -277,7 +292,6 @@ void GlRenderer::present(SDL_Window* window) {
 }
 
 void GlRenderer::on_window_size_changed(const Rectangle& viewport) {
-  //TODO
   if(!viewport.is_flat()) {
     window_viewport = viewport;
     screen_fbo.view = glm::ortho<float>(0,viewport.get_width(),viewport.get_height(),0);

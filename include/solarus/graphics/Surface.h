@@ -108,8 +108,6 @@ class Surface: public Drawable {
     void apply_pixel_filter(
         const SoftwarePixelFilter& pixel_filter, Surface& dst_surface) const;
 
-    static SDL_BlendMode make_sdl_blend_mode(const SurfaceImpl &dst_surface, const SurfaceImpl &src_surface, BlendMode blend_mode);
-
     void bind_as_texture() const;
     void bind_as_target();
 

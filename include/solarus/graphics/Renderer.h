@@ -59,15 +59,70 @@ public:
   virtual ShaderPtr create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) = 0;
 
 
+  /**
+   * @brief draw a surface on another
+   * @param dst the destination surface
+   * @param src the source surface
+   * @param infos the draw parameters
+   */
   virtual void draw(SurfaceImpl& dst, const SurfaceImpl& src, const DrawInfos& infos) = 0;
+
+  /**
+   * @brief clear a surface
+   * @param dst surface to clear
+   */
   virtual void clear(SurfaceImpl& dst) = 0;
+
+  /**
+   * @brief fill a surface with a solid color
+   * @param dst surface to fill
+   * @param color color to use
+   * @param where region to fill
+   * @param mode mode to use when blitting color
+   */
   virtual void fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode = BlendMode::BLEND) = 0;
+
+  /**
+   * @brief get this renderer name
+   * @return the name
+   */
   virtual std::string get_name() const = 0;
+
+  /**
+   * @brief get the default terminal of this renderer, meaning default DrawProxy, plain draw
+   * @return  the terminal
+   */
   virtual const DrawProxy& default_terminal() const = 0;
+
+  /**
+   * @brief present the render result to the window
+   * @param window the window
+   */
   virtual void present(SDL_Window* window) = 0;
+
+  /**
+   * @brief event called when the window is resized
+   * @param viewport the region of the window that should be the renderer output
+   */
   virtual void on_window_size_changed(const Rectangle& viewport) = 0;
 
+  /**
+   * @brief tells the renderer that a surface has been freed
+   * @param surf the freed surface
+   */
   virtual void invalidate(const SurfaceImpl& surf) = 0;
+
+  /**
+   * @brief bind a surface as opengl target
+   * @param surf the surface to bind
+   */
+  virtual void bind_as_gl_target(SurfaceImpl& surf) = 0;
+
+  /**
+   * @brief bind a surface as opengl texture
+   * @param surf the surface to bind
+   */
+  virtual void bind_as_gl_texture(const SurfaceImpl& surf) = 0;
   virtual ~Renderer();
 };
 

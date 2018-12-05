@@ -93,10 +93,6 @@ ShaderPtr SDLRenderer::create_shader(const std::string& vertex_source, const std
   return std::make_shared<SDLShader>(vertex_source, fragment_source, scaling_factor);
 }
 
-/*void SDLRenderer::set_render_target(SurfaceImpl& texture) {
-  set_render_target(texture.as<SDLSurfaceImpl>().targetable().get_texture());
-}*/
-
 void SDLRenderer::set_render_target(SDL_Texture* target) {
   if(target != render_target || !valid_target) {
     SDL_SetRenderTarget(renderer,target);
@@ -157,6 +153,14 @@ void SDLRenderer::invalidate(const SurfaceImpl& surf) {
   if(render_target == ssurf.get_texture()) {
     valid_target = false;
   }
+}
+
+void SDLRenderer::bind_as_gl_target(SurfaceImpl &surf) {
+  SDL_GL_BindTexture(surf.as<SDLSurfaceImpl>().get_texture(),nullptr,nullptr);
+}
+
+void SDLRenderer::bind_as_gl_texture(const SurfaceImpl& surf) {
+  set_render_target(surf.as<SDLSurfaceImpl>().get_texture());
 }
 
 std::string SDLRenderer::get_name() const {

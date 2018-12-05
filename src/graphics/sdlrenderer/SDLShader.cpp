@@ -550,9 +550,9 @@ void SDLShader::render(const Surface &surface, const Rectangle& region, const Si
 void SDLShader::draw(Surface& dst_surface, const Surface &src_surface, const DrawInfos &infos) const {
     SDLRenderer::get().set_render_target(dst_surface.get_impl().as<SDLSurfaceImpl>().get_texture());
     auto r = SDLRenderer::get().renderer;
-    SDL_BlendMode target = Surface::make_sdl_blend_mode(dst_surface.get_impl(),
-                                                        src_surface.get_impl(),
-                                                        infos.blend_mode); //TODO fix alpha premult here
+    SDL_BlendMode target = SDLRenderer::get().make_sdl_blend_mode(dst_surface.get_impl(),
+                                              src_surface.get_impl(),
+                                              infos.blend_mode); //TODO fix alpha premult here
     SDL_BlendMode current;
     SDL_GetRenderDrawBlendMode(r,&current);
     if(target != current) { //Blend mode need change
