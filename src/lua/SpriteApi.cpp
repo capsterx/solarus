@@ -76,6 +76,8 @@ void LuaContext::register_sprite_module() {
       { "is_animation_started", sprite_api_is_animation_started },
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },
+      { "set_color_modulation", drawable_api_set_color_modulation },
+      { "get_color_modulation", drawable_api_get_color_modulation },
       { "get_opacity", drawable_api_get_opacity },
       { "set_opacity", drawable_api_set_opacity },
       { "get_frame_src_xy", sprite_api_get_frame_src_xy },

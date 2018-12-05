@@ -126,7 +126,7 @@ void GlShader::compile() {
   if (info_len > 1) {
     std::string log;
     log.resize(info_len, '\0');
-    ctx->glGetProgramInfoLog(program, info_len, NULL, &log[0]);
+    ctx->glGetProgramInfoLog(program, info_len, nullptr, &log[0]);
     Logger::info(std::string("Linking result of shader '") + get_id() + std::string("':\n") + log);
   }
 
@@ -189,7 +189,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
   if (info_len > 1) {
     std::string log;
     log.resize(info_len, '\0');
-    ctx->glGetShaderInfoLog(shader, info_len, NULL, &log[0]);
+    ctx->glGetShaderInfoLog(shader, info_len, nullptr, &log[0]);
     Logger::info("Compilation result of " + shader_type_string + " shader '" + get_id() + "':\n" + log);
   }
 

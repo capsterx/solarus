@@ -34,19 +34,17 @@ struct DrawInfos {
   inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
             BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
             const DrawProxy& proxy):
-    region(region),dst_position(dst_position), transformation_origin(transformation_origin),
-    scale(scale),proxy(proxy),
-    rotation(rotation),blend_mode(blend_mode), opacity(opacity)
+    DrawInfos(region,dst_position,transformation_origin,blend_mode,opacity,rotation,scale,Color::white,proxy)
      {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
-    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Rectangle& region,
             const Point& dst_position) :
-    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Point& dst_position) :
-    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
-    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.color,other.proxy) {}
 
   /**
    * @brief compute scaled destination rectangle

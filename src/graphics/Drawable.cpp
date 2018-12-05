@@ -251,7 +251,16 @@ void Drawable::draw(const SurfacePtr& dst_surface,
  */
 void Drawable::draw(const SurfacePtr &dst_surface, const Point &dst_position, const DrawProxy& proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw(*dst_surface, DrawInfos(get_region(),off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
+  raw_draw(*dst_surface,
+           DrawInfos(get_region(),
+                     off_dst,
+                     get_full_origin(),
+                     get_blend_mode(),
+                     get_opacity(),
+                     get_rotation(),
+                     get_scale(),
+                     color_mod,
+                     proxy));
 }
 
 /**
@@ -293,7 +302,16 @@ void Drawable::draw_region(const Rectangle& region,
     const SurfacePtr& dst_surface,
     const Point& dst_position, const DrawProxy &proxy) const {
   Point off_dst = dst_position + xy;
-  raw_draw_region(*dst_surface, DrawInfos(region,off_dst,get_full_origin(),get_blend_mode(),get_opacity(),get_rotation(),get_scale(),proxy));
+  raw_draw_region(*dst_surface,
+                  DrawInfos(region,
+                            off_dst,
+                            get_full_origin(),
+                            get_blend_mode(),
+                            get_opacity(),
+                            get_rotation(),
+                            get_scale(),
+                            color_mod,
+                            proxy));
 }
 
 /**
@@ -337,6 +355,14 @@ BlendMode Drawable::get_blend_mode() const {
  */
 void Drawable::set_blend_mode(BlendMode blend_mode) {
   this->blend_mode = blend_mode;
+}
+
+const Color& Drawable::get_color_modulation() const {
+  return color_mod;
+}
+
+void Drawable::set_color_modulation(const Color& color) {
+  color_mod = color;
 }
 
 /**

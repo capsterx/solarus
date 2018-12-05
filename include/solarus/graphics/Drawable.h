@@ -120,6 +120,9 @@ class Drawable: public ExportableToLua {
     BlendMode get_blend_mode() const;
     void set_blend_mode(BlendMode blend_mode);
 
+    const Color& get_color_modulation() const;
+    void set_color_modulation(const Color& color);
+
     uint8_t get_opacity() const;
     void set_opacity(uint8_t opacity);
 
@@ -156,6 +159,7 @@ class Drawable: public ExportableToLua {
     double rotation = 0;          /**< Rotation of the object around transform_origin*/
     Scale scale;                  /**< Scale of the object around transform_origin*/
     Point transformation_origin;       /**< pivot for the transformations (rot,scale) of the object*/
+    Color color_mod = Color::white;
 };
 
 }
