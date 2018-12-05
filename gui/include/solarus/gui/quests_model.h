@@ -29,6 +29,7 @@ namespace SolarusGui {
  * @brief List of quests added to Solarus.
  */
 class SOLARUS_GUI_API QuestsModel : public QAbstractTableModel {
+  Q_OBJECT
 
 public:
 
