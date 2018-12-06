@@ -63,6 +63,8 @@ void LuaContext::register_surface_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
+      { "set_color_modulation", drawable_api_set_color_modulation },
+      { "get_color_modulation", drawable_api_get_color_modulation },
       { "set_pixels", surface_api_set_pixels },
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },

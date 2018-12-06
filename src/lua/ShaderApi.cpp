@@ -110,7 +110,7 @@ int LuaContext::shader_api_create(lua_State* l) {
     if (lua_isstring(l, 1)) {
       const std::string& shader_id = LuaTools::check_string(l, 1);
 
-      shader = std::make_shared<Shader>(shader_id);
+      shader = Video::get_renderer().create_shader(shader_id);
       Debug::check_assertion(shader != nullptr, "Failed to create shader '" + shader_id + "'");
       if (!shader->is_valid()) {
         LuaTools::error(l, "Failed to create shader: '" + shader_id + "': " + shader->get_error());
@@ -120,7 +120,7 @@ int LuaContext::shader_api_create(lua_State* l) {
       const std::string& vertex_source = LuaTools::opt_string_field(l, 1, "vertex_source", "");
       const std::string& fragment_source = LuaTools::opt_string_field(l, 1, "fragment_source", "");
       double scaling_factor = LuaTools::opt_number_field(l, 1, "scaling_factor", 0.0);
-      shader = std::make_shared<Shader>(vertex_source, fragment_source, scaling_factor);
+      shader = Video::get_renderer().create_shader(vertex_source, fragment_source, scaling_factor);
       if (!shader->is_valid()) {
         LuaTools::error(l, "Failed to create shader: " + shader->get_error());
       }

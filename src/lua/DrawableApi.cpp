@@ -244,6 +244,40 @@ int LuaContext::drawable_api_get_shader(lua_State* l) {
   });
 }
 
+
+/**
+ * \brief Implementation of drawable:get_color_modulation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_get_color_modulation(lua_State* l) {
+  return state_boundary_handle(l, [&] {
+    const Drawable& drawable = *check_drawable(l, 1);
+
+    const Color& color = drawable.get_color_modulation();
+
+    push_color(l,color);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of drawable:set_color_modulation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::drawable_api_set_color_modulation(lua_State* l) {
+  return state_boundary_handle(l, [&] {
+    Drawable& drawable = *check_drawable(l, 1);
+    Color color = LuaTools::check_color(l,2);
+
+    drawable.set_color_modulation(color);
+
+    return 0;
+  });
+}
+
+
 /**
  * \brief Implementation of drawable:get_opacity().
  * \param l The Lua context that is calling this function.

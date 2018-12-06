@@ -98,6 +98,8 @@ void LuaContext::register_text_surface_module() {
     methods.insert(methods.end(), {
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },
+      { "set_color_modulation", drawable_api_set_color_modulation },
+      { "get_color_modulation", drawable_api_get_color_modulation },
       { "get_opacity", drawable_api_get_opacity },
       { "set_opacity", drawable_api_set_opacity },
       { "set_rotation", drawable_api_set_rotation },

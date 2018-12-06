@@ -2,7 +2,9 @@
 
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/core/Rectangle.h"
+#include "solarus/core/Debug.h"
 #include "solarus/graphics/BlendMode.h"
+#include "solarus/graphics/Color.h"
 #include "solarus/core/Scale.h"
 
 #include <SDL_render.h>
@@ -22,22 +24,27 @@ struct DrawProxy;
  */
 struct DrawInfos {
   inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
-            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
+            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale, const Color& color,
             const DrawProxy& proxy):
     region(region),dst_position(dst_position), transformation_origin(transformation_origin),
     scale(scale),proxy(proxy),
-    blend_mode(blend_mode), opacity(opacity),
-    rotation(rotation)
+    color(color),
+    rotation(rotation),blend_mode(blend_mode) ,opacity(opacity)
+     {}
+  inline constexpr DrawInfos(const Rectangle& region,const Point& dst_position, const Point& transformation_origin,
+            BlendMode blend_mode, uint8_t opacity, double rotation, const Scale& scale,
+            const DrawProxy& proxy):
+    DrawInfos(region,dst_position,transformation_origin,blend_mode,opacity,rotation,scale,Color::white,proxy)
      {}
   inline constexpr DrawInfos(const DrawInfos& other, const DrawProxy& proxy) :
-    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Rectangle& region,
             const Point& dst_position) :
-    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos &other, const Point& dst_position) :
-    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,dst_position,other.transformation_origin,other.blend_mode,other.opacity,other.rotation,other.scale,other.color,other.proxy) {}
   inline constexpr DrawInfos(const DrawInfos& other,uint8_t opacity):
-    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.proxy) {}
+    DrawInfos(other.region,other.dst_position,other.transformation_origin,other.blend_mode,opacity,other.rotation,other.scale,other.color,other.proxy) {}
 
   /**
    * @brief compute scaled destination rectangle
@@ -75,9 +82,10 @@ struct DrawInfos {
   const Point transformation_origin; /** < The origin of the rotation and scale */
   const Scale& scale; /** < The object scale */
   const DrawProxy& proxy; /**< proxy that drawer should use when drawing */
+  const Color& color = Color::white;
+  double rotation; /**< The object rotation */
   BlendMode blend_mode; /**< blend mode that will be used */
   uint8_t   opacity; /**< opacity modulator */
-  double rotation; /**< The object rotation */
 };
 
 /**
@@ -99,9 +107,19 @@ struct DrawProxy {
    * It's either a surface draw or a shader draw.
    */
   virtual void draw(Surface& dst_surface, const Surface& src_surface,const DrawInfos& params) const = 0;
+  virtual inline ~DrawProxy(){}
 };
 
+namespace {
+  struct NullProxy : DrawProxy {
+    inline void draw(Surface&, const Surface&, const DrawInfos&) const override {
+      //Does strictly nothing
+      Debug::error("Draw with null proxy!");
+    }
+  };
 
+  NullProxy null_proxy;
+}
 
 template<std::size_t N>
 /**

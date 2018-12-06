@@ -206,9 +206,9 @@ MainLoop::MainLoop(const Arguments& args):
   // Do this after the creation of the window, but before showing the window,
   // because Lua might change the video mode initially.
   lua_context = std::unique_ptr<LuaContext>(new LuaContext(*this));
-  Video::show_window();
+  //Video::show_window();
   lua_context->initialize(args);
-  Video::hide_window();
+  //Video::hide_window();
 
   // Set up the Lua console.
   const std::string& lua_console_arg = args.get_argument_value("-lua-console");
@@ -479,7 +479,7 @@ void MainLoop::check_input() {
   }
 
   // Check Lua requests.
-  if (!lua_commands.empty()) {
+  /*if (!lua_commands.empty()) {
     std::lock_guard<std::mutex> lock(lua_commands_mutex);
     for (const std::string& command : lua_commands) {
       std::cout << "\n";  // To make sure that the command delimiter starts on a new line.
@@ -496,7 +496,7 @@ void MainLoop::check_input() {
       ++num_lua_commands_done;
     }
     lua_commands.clear();
-  }
+  }*/
 }
 
 /**

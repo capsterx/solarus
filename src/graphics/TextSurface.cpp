@@ -522,7 +522,7 @@ void TextSurface::rebuild_ttf() {
         TTF_RenderUTF8_Blended(&internal_font, text.c_str(), internal_color));
     break;
   }
-  SDL_PixelFormat* format = Video::get_rgba_format();
+  SDL_PixelFormat* format = Video::get_pixel_format();
   SDL_Surface_UniquePtr full = SDL_Surface_UniquePtr(SDL_CreateRGBSurface(
        0,
        surface->w,

@@ -1,7 +1,6 @@
 #include "solarus/graphics/VertexArray.h"
 
 #include "solarus/graphics/Surface.h"
-#include "solarus/graphics/RenderTexture.h"
 #include "solarus/core/Debug.h"
 #include <cstddef> //offsetof
 
