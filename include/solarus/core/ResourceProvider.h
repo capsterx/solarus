@@ -42,6 +42,8 @@ class SOLARUS_API ResourceProvider {
     void clear();
 
     Tileset& get_tileset(const std::string& tileset_id);
+    const std::map<std::string, std::shared_ptr<Tileset>>& get_loaded_tilesets();
+
     // TODO other types of resources
     // TODO clear/update when the resource list changes dynamically
 

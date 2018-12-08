@@ -364,6 +364,7 @@ void Game::update() {
   }
 
   // Update the map.
+  update_tilesets();
   current_map->update();
 
   // Call game:on_update() in Lua.
@@ -372,6 +373,18 @@ void Game::update() {
   // Update the equipment and HUD.
   get_equipment().update();
   update_commands_effects();
+}
+
+/**
+ * \brief Updates all tilesets currently loaded.
+ */
+void Game::update_tilesets() {
+
+  // Need to update at least all tilesets used by the current map.
+  const std::map<std::string, std::shared_ptr<Tileset>>& tilesets = get_resource_provider().get_loaded_tilesets();
+  for (const auto& kvp : tilesets) {
+    kvp.second->update();
+  }
 }
 
 /**

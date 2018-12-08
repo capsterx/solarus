@@ -89,6 +89,14 @@ Tileset& ResourceProvider::get_tileset(const std::string& tileset_id) {
 }
 
 /**
+ * \brief Returns all tilesets currently in cache.
+ * \return The loaded tilesets.
+ */
+const std::map<std::string, std::shared_ptr<Tileset>>& ResourceProvider::get_loaded_tilesets() {
+  return tileset_cache;
+}
+
+/**
  * \brief Notifies the resource provider that cached data (if any) is no longer valid.
  *
  * This function must be called when a resource element has changed on disk.

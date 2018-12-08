@@ -506,7 +506,6 @@ void Map::update() {
   check_suspended();
 
   // Update the elements.
-  tileset->update();
   entities->update();
   get_lua_context().map_on_update(*this);
 }
