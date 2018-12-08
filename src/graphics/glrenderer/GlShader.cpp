@@ -298,7 +298,7 @@ using UT = GlShader::Uniform::Type;
  * \copydoc Shader::set_uniform1f
  */
 void GlShader::set_uniform_1b(const std::string& uniform_name, bool value) {
-  set_uniform(Uniform{uniform_name,UT::U1B,.b=value});
+  set_uniform(Uniform(uniform_name,value));
 }
 
 
@@ -306,21 +306,21 @@ void GlShader::set_uniform_1b(const std::string& uniform_name, bool value) {
  * \copydoc Shader::set_uniform_1i
  */
 void GlShader::set_uniform_1i(const std::string& uniform_name, int value) {
-  set_uniform(Uniform{uniform_name,UT::U1I,.i=value});
+  set_uniform(Uniform(uniform_name,value));
 }
 
 /**
  * \copydoc Shader::set_uniform_1f
  */
 void GlShader::set_uniform_1f(const std::string& uniform_name, float value) {
-  set_uniform(Uniform{uniform_name,UT::U1F,.f=value});
+  set_uniform(Uniform(uniform_name,value));
 }
 
 /**
  * \copydoc Shader::set_uniform_2f
  */
 void GlShader::set_uniform_2f(const std::string& uniform_name, float value_1, float value_2) {
-  set_uniform(Uniform{uniform_name,UT::U2F,.ff={value_1,value_2}});
+  set_uniform(Uniform(uniform_name,{value_1,value_2}));
 }
 
 /**
@@ -328,7 +328,7 @@ void GlShader::set_uniform_2f(const std::string& uniform_name, float value_1, fl
  */
 void GlShader::set_uniform_3f(
     const std::string& uniform_name, float value_1, float value_2, float value_3) {
-  set_uniform(Uniform{uniform_name,UT::U3F,.fff={value_1,value_2,value_3}});
+  set_uniform(Uniform(uniform_name,{value_1,value_2,value_3}));
 }
 
 /**
@@ -336,7 +336,7 @@ void GlShader::set_uniform_3f(
  */
 void GlShader::set_uniform_4f(
     const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) {
-  set_uniform(Uniform{uniform_name,UT::U4F,.ffff={value_1,value_2,value_3,value_4}});
+  set_uniform(Uniform(uniform_name,{value_1,value_2,value_3,value_4}));
 }
 
 /**
@@ -359,7 +359,7 @@ bool GlShader::set_uniform_texture(const std::string& uniform_name, const Surfac
   GLuint texture_unit = ++current_texture_unit;
   uniform_textures[uniform_name] = TextureUniform{value,texture_unit};
 
-  set_uniform(Uniform{uniform_name, UT::U1I, .i=(int)texture_unit});
+  set_uniform(Uniform(uniform_name,(int)texture_unit));
   return true;
 }
 

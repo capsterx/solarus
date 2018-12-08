@@ -84,6 +84,36 @@ class SOLARUS_API GlShader : public Shader {
       };
       std::string name;
       Type t;
+      Uniform(const std::string& name, const glm::vec2& v) :
+        name(name),
+        t(Type::U2F),
+        ff(v)
+      {}
+      Uniform(const std::string& name, const glm::vec3& v) :
+        name(name),
+        t(Type::U3F),
+        fff(v)
+      {}
+      Uniform(const std::string& name, const glm::vec4& v) :
+        name(name),
+        t(Type::U4F),
+        ffff(v)
+      {}
+      Uniform(const std::string& name, float f) :
+        name(name),
+        t(Type::U1F),
+        f(f)
+      {}
+      Uniform(const std::string& name, int i) :
+        name(name),
+        t(Type::U1I),
+        i(i)
+      {}
+      Uniform(const std::string& name, bool b) :
+        name(name),
+        t(Type::U1B),
+        b(b)
+      {}
       union{ //TODO C++17 variant instead, see you in 2023!
         bool b;
         int i;
