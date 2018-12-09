@@ -16,7 +16,7 @@ function map:on_started()
   -- You can initialize the movement and sprites of various
   -- map entities here.
   local font_ids = {
-    'pixolde',
+    'enter_command',
     '8_bit'
   }
   

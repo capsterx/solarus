@@ -9,7 +9,7 @@ function map:on_started()
   assert_equal(type(files), "table")
   assert_equal(#files, 2)
   assert_equal(files[1], "8_bit.png")
-  assert_equal(files[2], "pixolde.ttf")
+  assert_equal(files[2], "enter_command.ttf")
 
   -- Empty directory.
   assert(not sol.file.exists("971_empty"))
