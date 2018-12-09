@@ -80,6 +80,8 @@ private:
   using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
 
 
+  bool use_vao() const;
+
   void read_pixels(GlTexture* from, void* to);
 
   void restart_batch();
