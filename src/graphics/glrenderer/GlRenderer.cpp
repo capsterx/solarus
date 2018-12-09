@@ -106,7 +106,7 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE | SDL_GL_CONTEXT_PROFILE_ES);
 
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
@@ -323,7 +323,7 @@ GlRenderer::~GlRenderer() {
  */
 GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   if(screen) return &screen_fbo;
-  size_t key =  (static_cast<size_t>(width) << 32) | static_cast<size_t>(height);
+  uint_fast64_t key =  (static_cast<uint_fast64_t>(width) << 32) | static_cast<uint_fast64_t>(height);
   int rw = key >> 32;
   int rh = key & 0xFFFFFFFF;
   Debug::check_assertion(rw == width,"recovered width does not match");
