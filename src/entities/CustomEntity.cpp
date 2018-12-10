@@ -778,7 +778,6 @@ void CustomEntity::add_collision_test(
   Debug::check_assertion(!callback_ref.is_empty(), "Missing collision callback");
 
   collision_tests.emplace_back(
-      *get_lua_context(),
       collision_test,
       callback_ref
   );
@@ -802,7 +801,6 @@ void CustomEntity::add_collision_test(
   add_collision_mode(COLLISION_CUSTOM);
 
   collision_tests.emplace_back(
-      *get_lua_context(),
       collision_test_ref,
       callback_ref
   );
@@ -1275,7 +1273,6 @@ void CustomEntity::set_follow_streams(bool follow_streams) {
  * \brief Empty constructor.
  */
 CustomEntity::CollisionInfo::CollisionInfo():
-    lua_context(nullptr),
     built_in_test(COLLISION_NONE),
     custom_test_ref(),
     callback_ref() {
@@ -1284,17 +1281,14 @@ CustomEntity::CollisionInfo::CollisionInfo():
 
 /**
  * \brief Creates a collision test info.
- * \param lua_context The Lua context.
  * \param collision_test A built-in collision test.
  * \param callback_ref Lua ref to a function to call when this collision is
  * detected.
  */
 CustomEntity::CollisionInfo::CollisionInfo(
-    LuaContext& lua_context,
     CollisionMode built_in_test,
     const ScopedLuaRef& callback_ref
 ):
-    lua_context(&lua_context),
     built_in_test(built_in_test),
     custom_test_ref(),
     callback_ref(callback_ref) {
@@ -1304,17 +1298,14 @@ CustomEntity::CollisionInfo::CollisionInfo(
 
 /**
  * \brief Creates a collision test info.
- * \param lua_context The Lua context.
  * \param collision_test_ref Lua ref to a custom collision test.
  * \param callback_ref Lua ref to a function to call when this collision is
  * detected.
  */
 CustomEntity::CollisionInfo::CollisionInfo(
-    LuaContext& lua_context,
     const ScopedLuaRef& custom_test_ref,
     const ScopedLuaRef& callback_ref
 ):
-    lua_context(&lua_context),
     built_in_test(COLLISION_CUSTOM),
     custom_test_ref(custom_test_ref),
     callback_ref(callback_ref) {

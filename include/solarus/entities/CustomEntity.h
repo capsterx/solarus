@@ -181,12 +181,10 @@ class SOLARUS_API CustomEntity: public Entity {
 
         CollisionInfo();
         CollisionInfo(
-            LuaContext& lua_context,
             CollisionMode built_in_test,
             const ScopedLuaRef& callback_ref
         );
         CollisionInfo(
-            LuaContext& lua_context,
             const ScopedLuaRef& custom_test_ref,
             const ScopedLuaRef& callback_ref
         );
@@ -197,8 +195,6 @@ class SOLARUS_API CustomEntity: public Entity {
 
       private:
 
-        LuaContext* lua_context;         /**< The Lua world.
-                                          * nullptr means no info. */
         CollisionMode built_in_test;     /**< A built-in collision test
                                           * or COLLISION_CUSTOM. */
         ScopedLuaRef custom_test_ref;    /**< Ref to a custom collision test
