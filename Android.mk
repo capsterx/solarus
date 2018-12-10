@@ -19,6 +19,8 @@ LOCAL_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/src/core/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/entities/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/graphics/*.cpp) \
+	$(wildcard $(LOCAL_PATH)/src/graphics/sdlrenderer/*.cpp) \
+	$(wildcard $(LOCAL_PATH)/src/graphics/glrenderer/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/hero/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/lua/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/movements/*.cpp) \

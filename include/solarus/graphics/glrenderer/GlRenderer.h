@@ -108,7 +108,7 @@ private:
   const GlTexture* current_texture = nullptr;
   GlTexture* current_target = nullptr;
   GLBlendMode current_blend_mode =
-    {GL_ONE,GL_ONE,GL_ONE,GL_ONE};
+    GLBlendMode{GL_ONE,GL_ONE,GL_ONE,GL_ONE};
   ShaderPtr main_shader;
 
   GLuint vao = 0;
