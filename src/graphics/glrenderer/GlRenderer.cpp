@@ -106,7 +106,7 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE | SDL_GL_CONTEXT_PROFILE_ES);
 
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
@@ -122,9 +122,8 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   do { \
   ctx.func = reinterpret_cast<APIENTRY ret(*)params>(SDL_GL_GetProcAddress(#func)); \
   if ( ! ctx.func ) { \
-  Debug::warning(std::string("Couldn't load GLES2 function" #func)+  SDL_GetError()); \
-  return nullptr; \
-} \
+    Debug::warning(std::string("Couldn't load GLES2 function " #func " ") +  SDL_GetError()); \
+  } \
 } while ( 0 );
 #endif
 #include "solarus/graphics/glrenderer/gles2funcs.h"
@@ -155,6 +154,10 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   //Context populated create Renderer
   std::cerr << SDL_GetError();
   return RendererPtr(new GlRenderer(sdl_ctx));
+}
+
+bool GlRenderer::use_vao() const {
+  return ctx.glGenVertexArrays; //TODO verify for android
 }
 
 SurfaceImplPtr GlRenderer::create_texture(int width, int height) {
@@ -305,7 +308,9 @@ const DrawProxy& GlRenderer::default_terminal() const {
 }
 
 GlRenderer::~GlRenderer() {
-  ctx.glDeleteVertexArrays(1,&vao); //TODO delete rest
+  if(use_vao()) {
+    ctx.glDeleteVertexArrays(1,&vao); //TODO delete rest
+  }
   SDL_GL_DeleteContext(sdl_gl_context);
 }
 
@@ -318,7 +323,7 @@ GlRenderer::~GlRenderer() {
  */
 GlRenderer::Fbo* GlRenderer::get_fbo(int width, int height, bool screen) {
   if(screen) return &screen_fbo;
-  size_t key =  (static_cast<size_t>(width) << 32) | static_cast<size_t>(height);
+  uint_fast64_t key =  (static_cast<uint_fast64_t>(width) << 32) | static_cast<uint_fast64_t>(height);
   int rw = key >> 32;
   int rh = key & 0xFFFFFFFF;
   Debug::check_assertion(rw == width,"recovered width does not match");
@@ -526,14 +531,18 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
-  ctx.glGenVertexArrays(1,&vao); //TODO for android ifndef this
+  if(use_vao()) {
+    ctx.glGenVertexArrays(1,&vao); //TODO for android ifndef this
+    ctx.glBindVertexArray(vao);
+  }
+
   ctx.glGenBuffers(1,&vbo);
   ctx.glGenBuffers(1,&ibo);
 
   size_t indice_count = num_sprites*6;
   size_t vertex_count = num_sprites*4;
 
-  ctx.glBindVertexArray(vao);
+
 
   ctx.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
   std::vector<GLuint> indices(indice_count);
@@ -551,8 +560,6 @@ void GlRenderer::create_vbo(size_t num_sprites) {
 
   vertex_buffer.resize(vertex_count);
   ctx.glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
-  ctx.glBindVertexArray(0);
-  ctx.glBindVertexArray(vao);
 }
 
 /**

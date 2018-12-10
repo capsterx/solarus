@@ -80,6 +80,8 @@ private:
   using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
 
 
+  bool use_vao() const;
+
   void read_pixels(GlTexture* from, void* to);
 
   void restart_batch();
@@ -106,7 +108,7 @@ private:
   const GlTexture* current_texture = nullptr;
   GlTexture* current_target = nullptr;
   GLBlendMode current_blend_mode =
-    {GL_ONE,GL_ONE,GL_ONE,GL_ONE};
+    GLBlendMode{GL_ONE,GL_ONE,GL_ONE,GL_ONE};
   ShaderPtr main_shader;
 
   GLuint vao = 0;
@@ -121,7 +123,7 @@ private:
   std::vector<Vertex> vertex_buffer;
 
   Fbo screen_fbo = {0,glm::mat4()};
-  std::unordered_map<size_t,Fbo> fbos;
+  std::unordered_map<uint_fast64_t,Fbo> fbos;
   Rectangle window_viewport;
 };
 }

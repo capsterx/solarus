@@ -233,6 +233,9 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Show the window.
   Video::show_window();
+#ifdef ANDROID
+  Video::set_fullscreen(true);
+#endif
 }
 
 /**
