@@ -83,10 +83,10 @@ void Hero::SwordSwingingState::update() {
       // if the player is still pressing the sword key, start loading the sword
       if (get_commands().is_command_pressed(GameCommand::ATTACK)
           && !attacked) {
-        hero.set_state(new SwordLoadingState(hero));
+        hero.set_state(std::make_shared<SwordLoadingState>(hero, 1000));
       }
       else {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
     else {
@@ -99,7 +99,7 @@ void Hero::SwordSwingingState::update() {
   if (hero.get_movement() != nullptr && hero.get_movement()->is_finished()) {
     hero.clear_movement();
     if (sword_finished) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }
@@ -108,7 +108,7 @@ void Hero::SwordSwingingState::update() {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::SwordSwingingState::can_start_sword() const {
+bool Hero::SwordSwingingState::get_can_start_sword() const {
   return get_entity().get_movement() == nullptr;
 }
 
@@ -118,7 +118,7 @@ bool Hero::SwordSwingingState::can_start_sword() const {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::SwordSwingingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::SwordSwingingState::get_can_be_hurt(Entity* /* attacker */) {
   return true;
 }
 
@@ -127,14 +127,14 @@ bool Hero::SwordSwingingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwordSwingingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwordSwingingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::SwordSwingingState::can_use_shield() const {
+bool Hero::SwordSwingingState::get_can_use_shield() const {
   return false;
 }
 
@@ -189,7 +189,7 @@ bool Hero::SwordSwingingState::is_cutting_with_sword(
  * \return true if the teletransporter is an obstacle in this state
  */
 bool Hero::SwordSwingingState::is_teletransporter_obstacle(
-    const Teletransporter& /* teletransporter */) const {
+    Teletransporter& /* teletransporter */) {
 
   // if the hero was pushed by an enemy, don't go on a teletransporter
   return get_entity().get_movement() != nullptr;
@@ -206,7 +206,7 @@ void Hero::SwordSwingingState::notify_obstacle_reached() {
   hero.clear_movement();
 
   if (sword_finished) {
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 
@@ -216,8 +216,8 @@ void Hero::SwordSwingingState::notify_obstacle_reached() {
 void Hero::SwordSwingingState::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (attack == EnemyAttack::SWORD &&

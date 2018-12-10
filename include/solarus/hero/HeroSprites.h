@@ -53,7 +53,7 @@ class HeroSprites {
     void draw_on_map();
     void set_suspended(bool suspended);
     void rebuild_equipment();
-    void notify_map_started();
+    void notify_map_starting();
     void notify_tileset_changed();
 
     const std::string& get_tunic_sprite_id() const;
@@ -185,7 +185,7 @@ class HeroSprites {
                                              * An empty string means no shield sprite.
                                              * By default, "hero/shieldX" where X is the shield level. */
     bool has_default_shield_sprite;         /**< Whether shield_sprite_id has the defaut value. */
-    SpritePtr shield_sprite;                  /**< Current shield sprite. */
+    SpritePtr shield_sprite;                /**< Current shield sprite. */
 
     // Other sprites.
     SpritePtr shadow_sprite;                /**< shadow of the hero, only in specific states (most of the time

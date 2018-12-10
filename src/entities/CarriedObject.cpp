@@ -31,6 +31,7 @@
 #include "solarus/entities/Stairs.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/graphics/Sprite.h"
+#include "solarus/lua/LuaContext.h"
 #include "solarus/movements/PixelMovement.h"
 #include "solarus/movements/RelativeMovement.h"
 #include "solarus/movements/StraightMovement.h"
@@ -237,6 +238,8 @@ void CarriedObject::throw_item(int direction) {
   this->y_increment = -2;
   this->next_down_date = System::now() + 40;
   this->item_height = 18;
+
+  get_lua_context()->carried_object_on_thrown(*this);
 }
 
 /**
@@ -298,6 +301,7 @@ void CarriedObject::break_item() {
   }
   is_throwing = false;
   is_breaking = true;
+  get_lua_context()->carried_object_on_breaking(*this);
 }
 
 /**
@@ -413,6 +417,7 @@ void CarriedObject::update() {
         -18,
         true
     ));
+    get_lua_context()->carried_object_on_lifted(*this);
   }
 
   // when the item has finished flying, destroy it
@@ -475,20 +480,18 @@ void CarriedObject::notify_obstacle_reached() {
 }
 
 /**
- * \brief Draws the carried object on the map.
+ * \copydoc Entity::built_in_draw
  *
- * This is a redefinition of Entity::draw_on_map()
- * to draw the shadow independently of the item movement.
+ * This is a redefinition to draw the shadow independently of the movement.
  */
-void CarriedObject::draw_on_map() {
+void CarriedObject::built_in_draw(Camera& camera) {
 
   if (!is_throwing) {
-    // draw the sprite normally
-    Entity::draw_on_map();
+    // Draw the sprite normally.
+    Entity::built_in_draw(camera);
   }
   else {
-    // when the item is being thrown, draw the shadow and the item separately
-    // TODO: this could probably be simplified by using a JumpMovement
+    // When the item is being thrown, draw the shadow and the item separately.
     get_map().draw_visual(*shadow_sprite, get_xy());
     get_map().draw_visual(*main_sprite, get_x(), get_y() - item_height);
   }
@@ -515,8 +518,8 @@ void CarriedObject::notify_collision_with_enemy(
 void CarriedObject::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& result,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (result.type != EnemyReaction::ReactionType::IGNORED &&
@@ -708,6 +711,17 @@ void CarriedObject::notify_collision_with_stairs(Stairs& stairs, CollisionMode /
     break_one_layer_above = true; // show the destruction animation above the stairs
   }
 }
+
+const std::string EnumInfoTraits<CarriedObject::Behavior>::pretty_name = "carried object behavior";
+
+/**
+ * \brief Lua name of each value of the CarriedObject::Behavior enum.
+ */
+const EnumInfo<CarriedObject::Behavior>::names_type EnumInfoTraits<CarriedObject::Behavior>::names = {
+  { CarriedObject::Behavior::THROW, "throw" },
+  { CarriedObject::Behavior::REMOVE, "remove" },
+  { CarriedObject::Behavior::KEEP, "keep" }
+};
 
 }
 

@@ -34,10 +34,10 @@ class CircleMovement: public Movement {
 
   public:
 
-    // creation and destruction
-    explicit CircleMovement(bool ignore_obstacles);
+    // Creation and destruction.
+    CircleMovement();
 
-    // state
+    // State.
     void update() override;
     void set_suspended(bool suspended) override;
     void start();
@@ -45,7 +45,8 @@ class CircleMovement: public Movement {
     bool is_started() const override;
     bool is_finished() const override;
 
-    // properties
+    // Properties.
+    Point get_center() const;
     void set_center(const Point& center_point);
     void set_center(
         const EntityPtr& center_entity,
@@ -56,10 +57,11 @@ class CircleMovement: public Movement {
     void set_radius(int radius);
     int get_radius_speed() const;
     void set_radius_speed(int radius_speed);
-    int get_angle_speed() const;
-    void set_angle_speed(int angle_speed);
+    double get_angular_speed() const;
+    void set_angular_speed(double angular_speed);
+    double get_angle_from_center() const;
+    void set_angle_from_center(double angle_from_center);
     double get_initial_angle() const;
-    void set_initial_angle(int initial_angle);
     bool is_clockwise() const;
     void set_clockwise(bool clockwise);
     uint32_t get_duration() const;
@@ -76,37 +78,39 @@ class CircleMovement: public Movement {
 
     void recompute_position();
 
-    // center of the circle
-    EntityPtr center_entity;                        /**< the entity to make circles around (nullptr if only a point is used) */
-    Point center_point;                             /**< absolute coordinates of the center if only a point is used,
-                                                     * or coordinates relative to the center entity otherwise */
+    // Center of the circle.
+    EntityPtr center_entity;                        /**< The entity to make circles around (nullptr if only a point is used). */
+    Point center_point;                             /**< Absolute coordinates of the center if only a point is used,
+                                                     * or coordinates relative to the center entity otherwise. */
 
-    // angle
-    int current_angle;                              /**< current angle in the circle in degrees */
-    int initial_angle;                              /**< the first circle starts from this angle in degrees */
-    int angle_increment;                            /**< number of degrees to add when the angle changes (1 or -1) */
-    uint32_t next_angle_change_date;                /**< date when the angle changes */
-    uint32_t angle_change_delay;                    /**< if not zero, time interval between two angle changes in milliseconds */
+    // Angle.
+    double current_angle;                           /**< Current angle in the circle in radians. */
+    double initial_angle;                           /**< The first circle starts from this angle in radians. */
+    int angle_increment;                            /**< Number of degrees to add when the angle changes (1 or -1). */
+    double next_angle_change_date;                  /**< Date when the angle changes. */
+    double angle_change_delay;                      /**< If not zero, time interval of an angle change of 1 degree. */
+    double angular_speed;                           /**< Speed of the angle change in radians per second. */
 
-    // radius
-    int current_radius;                             /**< current radius of the circle in pixels */
-    int wanted_radius;                              /**< the current radius changes gradually towards this wanted value */
-    int previous_radius;                            /**< radius before the movement stops */
-    int radius_increment;                           /**< number of pixels to add when the radius is changing (1 or -1) */
-    uint32_t next_radius_change_date;               /**< date of the next radius change */
-    uint32_t radius_change_delay;                   /**< if not zero, time interval between two radius changes */
+    // Radius.
+    int current_radius;                             /**< Current radius of the circle in pixels. */
+    int wanted_radius;                              /**< The current radius changes gradually towards this wanted value. */
+    int previous_radius;                            /**< Radius before the movement stops. */
+    int radius_increment;                           /**< Number of pixels to add when the radius is changing (1 or -1). */
+    uint32_t next_radius_change_date;               /**< Date of the next radius change. */
+    uint32_t radius_change_delay;                   /**< If not zero, time interval between two radius changes. */
 
-    // stop after an amount of time
-    uint32_t duration;                              /**< if not zero, the movement will stop after this delay */
-    uint32_t end_movement_date;                     /**< date when the movement stops */
+    // Stop after an amount of time.
+    uint32_t duration;                              /**< If not zero, the movement will stop after this delay. */
+    uint32_t end_movement_date;                     /**< Date when the movement stops. */
 
-    // stop after a number of rotations
-    int max_rotations;                              /**< if not zero, the movement will stop after this number of rotations are done */
-    int nb_rotations;                               /**< number of complete circles already done */
+    // Stop after a number of rotations.
+    int max_rotations;                              /**< If not zero, the movement will stop after this number of rotations are done. */
+    int num_increments;                             /**< Number of 1-degree increments already done in the current circle. */
+    int num_rotations;                              /**< Number of complete circles already done. */
 
-    // restart when stopped
-    uint32_t loop_delay;                            /**< if not zero, when the movement finishes, it will start again after this delay */
-    uint32_t restart_date;                          /**< date when the movement restarts */
+    // Restart when stopped.
+    uint32_t loop_delay;                            /**< If not zero, when the movement finishes, it will start again after this delay. */
+    uint32_t restart_date;                          /**< Date when the movement restarts. */
 
 };
 

@@ -40,9 +40,9 @@ void LuaContext::register_sprite_module() {
 
   std::vector<luaL_Reg> methods = {
       { "get_animation_set", sprite_api_get_animation_set },
+      { "has_animation", sprite_api_has_animation },
       { "get_animation", sprite_api_get_animation },
       { "set_animation", sprite_api_set_animation },
-      { "has_animation", sprite_api_has_animation },
       { "get_direction", sprite_api_get_direction },
       { "set_direction", sprite_api_set_direction },
       { "get_num_directions", sprite_api_get_num_directions },
@@ -55,6 +55,7 @@ void LuaContext::register_sprite_module() {
       { "get_origin", sprite_api_get_origin },
       { "is_paused", sprite_api_is_paused },
       { "set_paused", sprite_api_set_paused },
+      { "get_ignore_suspend", sprite_api_get_ignore_suspend },
       { "set_ignore_suspend", sprite_api_set_ignore_suspend },
       { "synchronize", sprite_api_synchronize },
       { "draw", drawable_api_draw },
@@ -71,8 +72,12 @@ void LuaContext::register_sprite_module() {
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
+      { "stop_animation", sprite_api_stop_animation },
+      { "is_animation_started", sprite_api_is_animation_started },
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },
+      { "set_color_modulation", drawable_api_set_color_modulation },
+      { "get_color_modulation", drawable_api_get_color_modulation },
       { "get_opacity", drawable_api_get_opacity },
       { "set_opacity", drawable_api_set_opacity },
       { "get_frame_src_xy", sprite_api_get_frame_src_xy },
@@ -88,7 +93,7 @@ void LuaContext::register_sprite_module() {
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", drawable_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },
-      { "__index", userdata_meta_index_as_table }
+      { "__index", userdata_meta_index_as_table },
   };
   register_type(sprite_module_name, functions, methods, metamethods);
 }
@@ -133,12 +138,12 @@ void LuaContext::push_sprite(lua_State* l, Sprite& sprite) {
  */
 int LuaContext::sprite_api_create(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& animation_set_id = LuaTools::check_string(l, 1);
 
     // TODO if the file does not exist, make a Lua error instead of an assertion error.
     SpritePtr sprite = std::make_shared<Sprite>(animation_set_id);
-    get_lua_context(l).add_drawable(sprite);
+    get().add_drawable(sprite);
 
     push_sprite(l, *sprite);
     return 1;
@@ -152,12 +157,28 @@ int LuaContext::sprite_api_create(lua_State* l) {
  */
 int LuaContext::sprite_api_get_animation_set(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
 
     const std::string& animation_set_id = sprite.get_animation_set_id();
 
     push_string(l, animation_set_id);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of sprite:has_animation().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::sprite_api_has_animation(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const Sprite& sprite = *check_sprite(l, 1);
+    const std::string& animation_name = LuaTools::check_string(l, 2);
+
+    lua_pushboolean(l, sprite.has_animation(animation_name));
     return 1;
   });
 }
@@ -169,7 +190,7 @@ int LuaContext::sprite_api_get_animation_set(lua_State* l) {
  */
 int LuaContext::sprite_api_get_animation(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
 
     const std::string& animation_name = sprite.get_current_animation();
@@ -186,7 +207,7 @@ int LuaContext::sprite_api_get_animation(lua_State* l) {
  */
 int LuaContext::sprite_api_set_animation(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     const std::string& animation_name = LuaTools::check_string(l, 2);
     ScopedLuaRef callback_ref;
@@ -213,17 +234,32 @@ int LuaContext::sprite_api_set_animation(lua_State* l) {
 }
 
 /**
- * \brief Implementation of sprite:has_animation().
+ * \brief Implementation of sprite:stop_animation().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
-int LuaContext::sprite_api_has_animation(lua_State* l) {
+int LuaContext::sprite_api_stop_animation(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
+    Sprite& sprite = *check_sprite(l, 1);
+
+    sprite.stop_animation();
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of sprite:is_animation_started().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::sprite_api_is_animation_started(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
-    const std::string& animation_name = LuaTools::check_string(l, 2);
 
-    lua_pushboolean(l, sprite.has_animation(animation_name));
+    lua_pushboolean(l, sprite.is_animation_started());
     return 1;
   });
 }
@@ -235,7 +271,7 @@ int LuaContext::sprite_api_has_animation(lua_State* l) {
  */
 int LuaContext::sprite_api_get_direction(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
 
     lua_pushinteger(l, sprite.get_current_direction());
@@ -250,7 +286,7 @@ int LuaContext::sprite_api_get_direction(lua_State* l) {
  */
 int LuaContext::sprite_api_set_direction(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     int direction = LuaTools::check_int(l, 2);
 
@@ -274,7 +310,7 @@ int LuaContext::sprite_api_set_direction(lua_State* l) {
  */
 int LuaContext::sprite_api_get_num_directions(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     const std::string& animation_name = LuaTools::opt_string(l, 2, sprite.get_current_animation());
     if (!sprite.has_animation(animation_name)) {
@@ -298,7 +334,7 @@ int LuaContext::sprite_api_get_num_directions(lua_State* l) {
  */
 int LuaContext::sprite_api_get_frame(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
 
     lua_pushinteger(l, sprite.get_current_frame());
@@ -313,7 +349,7 @@ int LuaContext::sprite_api_get_frame(lua_State* l) {
  */
 int LuaContext::sprite_api_set_frame(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     int frame = LuaTools::check_int(l, 2);
 
@@ -338,7 +374,7 @@ int LuaContext::sprite_api_set_frame(lua_State* l) {
  */
 int LuaContext::sprite_api_get_num_frames(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     std::string animation_name = sprite.get_current_animation();
     int direction = sprite.get_current_direction();
@@ -376,7 +412,7 @@ int LuaContext::sprite_api_get_num_frames(lua_State* l) {
  */
 int LuaContext::sprite_api_get_frame_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     std::string animation_name = sprite.get_current_animation();
 
@@ -410,7 +446,7 @@ int LuaContext::sprite_api_get_frame_delay(lua_State* l) {
  */
 int LuaContext::sprite_api_set_frame_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     uint32_t delay = 0;
     if (!lua_isnil(l, 2)) {
@@ -430,7 +466,7 @@ int LuaContext::sprite_api_set_frame_delay(lua_State* l) {
  */
 int LuaContext::sprite_api_get_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     std::string animation_name = sprite.get_current_animation();
     int direction = sprite.get_current_direction();
@@ -471,7 +507,7 @@ int LuaContext::sprite_api_get_size(lua_State* l) {
  */
 int LuaContext::sprite_api_get_origin(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     std::string animation_name = sprite.get_current_animation();
     int direction = sprite.get_current_direction();
@@ -512,7 +548,7 @@ int LuaContext::sprite_api_get_origin(lua_State* l) {
  */
 int LuaContext::sprite_api_get_frame_src_xy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
     std::string animation_name = sprite.get_current_animation();
     int direction = sprite.get_current_direction();
@@ -560,7 +596,7 @@ int LuaContext::sprite_api_get_frame_src_xy(lua_State* l) {
  */
 int LuaContext::sprite_api_is_paused(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Sprite& sprite = *check_sprite(l, 1);
 
     lua_pushboolean(l, sprite.is_paused());
@@ -576,7 +612,7 @@ int LuaContext::sprite_api_is_paused(lua_State* l) {
  */
 int LuaContext::sprite_api_set_paused(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     bool paused = LuaTools::opt_boolean(l, 2, true);
 
@@ -587,13 +623,28 @@ int LuaContext::sprite_api_set_paused(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of sprite:get_ignore_suspend().
+ * \param l the Lua context that is calling this function
+ * \return number of values to return to Lua
+ */
+int LuaContext::sprite_api_get_ignore_suspend(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    std::shared_ptr<Sprite> sprite = check_sprite(l, 1);
+
+    lua_pushboolean(l, sprite->get_ignore_suspend());
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of sprite:set_ignore_suspend().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
 int LuaContext::sprite_api_set_ignore_suspend(lua_State *l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
     bool ignore_suspend = LuaTools::opt_boolean(l, 2, true);
 
@@ -610,7 +661,7 @@ int LuaContext::sprite_api_set_ignore_suspend(lua_State *l) {
  */
 int LuaContext::sprite_api_synchronize(lua_State *l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Sprite& sprite = *check_sprite(l, 1);
 
     if (!lua_isnil(l, 2)) {
@@ -639,10 +690,11 @@ void LuaContext::sprite_on_animation_finished(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_animation_finished")) {
     return;
   }
-
-  push_sprite(l, sprite);
-  on_animation_finished(animation);
-  lua_pop(l, 1);
+  run_on_main([this,&sprite,&animation](lua_State* l){
+    push_sprite(l, sprite);
+    on_animation_finished(animation);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -660,9 +712,11 @@ void LuaContext::sprite_on_animation_changed(
     return;
   }
 
-  push_sprite(l, sprite);
-  on_animation_changed(animation);
-  lua_pop(l, 1);
+  run_on_main([this,&sprite,&animation](lua_State* l){
+    push_sprite(l, sprite);
+    on_animation_changed(animation);
+    lua_pop(current_l, 1);
+  });
 }
 
 /**
@@ -680,10 +734,11 @@ void LuaContext::sprite_on_direction_changed(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_direction_changed")) {
     return;
   }
-
-  push_sprite(l, sprite);
-  on_direction_changed(animation, direction);
-  lua_pop(l, 1);
+  run_on_main([this,&sprite,&animation,direction](lua_State* l){
+    push_sprite(l, sprite);
+    on_direction_changed(animation, direction);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -701,10 +756,11 @@ void LuaContext::sprite_on_frame_changed(Sprite& sprite,
   if (!userdata_has_field(sprite, "on_frame_changed")) {
     return;
   }
-
-  push_sprite(l, sprite);
-  on_frame_changed(animation, frame);
-  lua_pop(l, 1);
+  run_on_main([this,&sprite,&animation,frame](lua_State* l){
+    push_sprite(l, sprite);
+    on_frame_changed(animation, frame);
+    lua_pop(l, 1);
+  });
 }
 
 }

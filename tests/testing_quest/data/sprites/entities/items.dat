@@ -6,6 +6,13 @@ animation{
   },
 }
 animation{
+  name = "coroutine_handle",
+  src_image = "entities/items.png",
+  directions = {
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
   name = "item_dialog_sprite",
   src_image = "todo.png",
   directions = {

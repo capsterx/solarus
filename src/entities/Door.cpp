@@ -541,12 +541,12 @@ void Door::update() {
 }
 
 /**
- * \brief Draws the entity on the map.
+ * \copydoc Entity::built_in_draw
  */
-void Door::draw_on_map() {
+void Door::built_in_draw(Camera& camera) {
 
   if (has_sprite() && !is_open()) {
-    Entity::draw_on_map();
+    Entity::built_in_draw(camera);
   }
 }
 

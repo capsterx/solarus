@@ -21,6 +21,7 @@
 #include "solarus/core/Point.h"
 #include "solarus/graphics/ShaderPtr.h"
 #include "solarus/graphics/SurfacePtr.h"
+#include "solarus/graphics/Renderer.h"
 #include <vector>
 #include <string>
 
@@ -43,19 +44,31 @@ class SoftwareVideoMode;
  */
 namespace Video {
 
+    struct Geometry {
+      Size normal_quest_size;                   /**< Default value of quest_size (depends on the quest). */
+      Size min_quest_size;                      /**< Minimum value of quest_size (depends on the quest). */
+      Size max_quest_size;                      /**< Maximum value of quest_size (depends on the quest). */
+      Size quest_size;                          /**< Size of the quest surface to render. */
+      Size wanted_quest_size;                   /**< Size wanted by the user. */
+
+      Size window_size;                         /**< Size of the window. The quest size is stretched and
+                                                 * letterboxed to fit. In fullscreen, remembers the size
+                                                 * to use when returning to windowed mode. */
+      Size logical_size;                        /**< Size of the window minus the letterboxing black bars */
+    };
+
     void initialize(const Arguments& args);
     void quit();
     bool is_initialized();
 
     SDL_Window* get_window();
-    SDL_Renderer* get_renderer();
+    Renderer& get_renderer();
 
     SDL_PixelFormat* get_pixel_format();
-    SDL_PixelFormat* get_rgba_format();
 
     const std::string& get_opengl_version();
     const std::string& get_shading_language_version();
-    const std::string& get_rendering_driver_name();
+    std::string get_rendering_driver_name();
 
     void show_window();
     void hide_window();
@@ -108,8 +121,7 @@ namespace Video {
     void render(const SurfacePtr& quest_surface);
     void finish();
 
-    void set_render_target(SDL_Texture* target);
-    void invalidate_target(SDL_Texture* target);
+    void invalidate(const SurfaceImpl &texture);
     SurfacePtr& get_screen_surface();
 
 }  // namespace Video

@@ -75,7 +75,7 @@ void Hero::PushingState::update() {
 
     // stop pushing if there is no more obstacle
     if (!hero.is_facing_obstacle()) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
 
     // stop pushing if the player changes his direction
@@ -87,7 +87,7 @@ void Hero::PushingState::update() {
         hero.start_grabbing();
       }
       else {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
 
@@ -129,7 +129,7 @@ bool Hero::PushingState::can_avoid_stream(const Stream& /* stream */) const {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::PushingState::can_start_sword() const {
+bool Hero::PushingState::get_can_start_sword() const {
   return !is_moving_grabbed_entity();
 }
 
@@ -260,7 +260,7 @@ void Hero::PushingState::stop_moving_pushed_entity() {
 
     // Stop the animation pushing if his direction changed.
     if (get_commands().get_wanted_direction8() != pushing_direction4 * 2) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }
@@ -271,7 +271,7 @@ void Hero::PushingState::stop_moving_pushed_entity() {
  * (or nullptr if the source of the attack is not an enemy)
  * \return true if the hero can be hurt in this state
  */
-bool Hero::PushingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PushingState::get_can_be_hurt(Entity* /* attacker */) {
   return !is_moving_grabbed_entity();
 }
 
@@ -280,7 +280,7 @@ bool Hero::PushingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::PushingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::PushingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 

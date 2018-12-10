@@ -159,13 +159,13 @@ void LuaContext::register_map_module() {
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", userdata_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },
-      { "__index", userdata_meta_index_as_table }
+      { "__index", userdata_meta_index_as_table },
   };
 
   register_type(map_module_name, {}, methods, metamethods);
 
   // Add map:create_* functions as closures because we pass the entity type as upvalue.
-  luaL_getmetatable(l, map_module_name.c_str());
+  luaL_getmetatable(current_l, map_module_name.c_str());
   for (const auto& kvp : EnumInfoTraits<EntityType>::names) {
     EntityType type = kvp.first;
     const std::string& type_name = kvp.second;
@@ -173,20 +173,20 @@ void LuaContext::register_map_module() {
       continue;
     }
     std::string function_name = "create_" + type_name;
-    push_string(l, type_name);
-    lua_pushcclosure(l, map_api_create_entity, 1);
-    lua_setfield(l, -2, function_name.c_str());
+    push_string(current_l, type_name);
+    lua_pushcclosure(current_l, map_api_create_entity, 1);
+    lua_setfield(current_l, -2, function_name.c_str());
   }
 
   // Add a Lua implementation of the deprecated map:move_camera() function.
-  int result = luaL_loadstring(l, move_camera_code);
+  int result = luaL_loadstring(current_l, move_camera_code);
   if (result != 0) {
-    Debug::error(std::string("Failed to initialize map:move_camera(): ") + lua_tostring(l, -1));
-    lua_pop(l, 1);
+    Debug::error(std::string("Failed to initialize map:move_camera(): ") + lua_tostring(current_l, -1));
+    lua_pop(current_l, 1);
   }
   else {
-    Debug::check_assertion(lua_isfunction(l, -1), "map:move_camera() is not a function");
-    lua_setfield(l, LUA_REGISTRYINDEX, "map.move_camera");
+    Debug::check_assertion(lua_isfunction(current_l, -1), "map:move_camera() is not a function");
+    lua_setfield(current_l, LUA_REGISTRYINDEX, "map.move_camera");
   }
 }
 
@@ -411,7 +411,7 @@ E entity_creation_check_enum(
  */
 int LuaContext::l_create_tile(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
     const int layer = entity_creation_check_layer(l, 1, data, map);
@@ -421,13 +421,17 @@ int LuaContext::l_create_tile(lua_State* l) {
     const std::string& tile_pattern_id = data.get_string("pattern");
     std::string tileset_id = data.get_string("tileset");
 
-    if (tileset_id.empty()) {
+    bool use_map_tileset = tileset_id.empty();
+    if (use_map_tileset) {
       tileset_id = map.get_tileset_id();
     }
     ResourceProvider& resource_provider = map.get_game().get_resource_provider();
     const Tileset& tileset = resource_provider.get_tileset(tileset_id);
-    const TilePattern& pattern = tileset.get_tile_pattern(tile_pattern_id);
-    const Size& pattern_size = pattern.get_size();
+    std::shared_ptr<TilePattern> pattern = tileset.get_tile_pattern(tile_pattern_id);
+    if (pattern == nullptr) {
+      LuaTools::error(l, "No such pattern in tileset '" + tileset_id + "': '" + tile_pattern_id + "'");
+    }
+    const Size& pattern_size = pattern->get_size();
     Entities& entities = map.get_entities();
 
     // If the tile is big, divide it in several smaller tiles so that
@@ -440,11 +444,14 @@ int LuaContext::l_create_tile(lua_State* l) {
     tile_info.layer = layer;
     tile_info.box = { Point(), pattern_size };
     tile_info.pattern_id = tile_pattern_id;
-    tile_info.pattern = &pattern;
-    tile_info.tileset = &tileset;
+    tile_info.pattern = pattern;
 
-    for (int current_y = y; current_y < y + size.height; current_y += pattern.get_height()) {
-      for (int current_x = x; current_x < x + size.width; current_x += pattern.get_width()) {
+    if (!use_map_tileset) {
+      tile_info.tileset = &tileset;
+    }
+
+    for (int current_y = y; current_y < y + size.height; current_y += pattern->get_height()) {
+      for (int current_x = x; current_x < x + size.width; current_x += pattern->get_width()) {
         tile_info.box.set_xy(current_x, current_y);
         // The tile will actually be created only if it cannot be optimized away.
         entities.add_tile_info(
@@ -464,7 +471,7 @@ int LuaContext::l_create_tile(lua_State* l) {
  */
 int LuaContext::l_create_destination(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -480,6 +487,7 @@ int LuaContext::l_create_destination(lua_State* l) {
         entity_creation_check_enum<StartingLocationMode>(l, 1, data, "starting_location_mode");
     entity->set_starting_location_mode(starting_location_mode);
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -497,7 +505,7 @@ int LuaContext::l_create_destination(lua_State* l) {
  */
 int LuaContext::l_create_teletransporter(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -513,6 +521,7 @@ int LuaContext::l_create_teletransporter(lua_State* l) {
         data.get_string("destination")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -530,7 +539,7 @@ int LuaContext::l_create_teletransporter(lua_State* l) {
  */
 int LuaContext::l_create_pickable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -564,6 +573,7 @@ int LuaContext::l_create_pickable(lua_State* l) {
     }
 
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
 
     if (map.is_started()) {
@@ -581,7 +591,7 @@ int LuaContext::l_create_pickable(lua_State* l) {
  */
 int LuaContext::l_create_destructible(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -605,6 +615,7 @@ int LuaContext::l_create_destructible(lua_State* l) {
     destructible->set_can_regenerate(data.get_boolean("can_regenerate"));
     destructible->set_damage_on_enemies(data.get_integer("damage_on_enemies"));
     destructible->set_user_properties(data.get_user_properties());
+    destructible->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(destructible);
     if (map.is_started()) {
       push_entity(l, *destructible);
@@ -621,7 +632,7 @@ int LuaContext::l_create_destructible(lua_State* l) {
  */
 int LuaContext::l_create_chest(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -670,6 +681,7 @@ int LuaContext::l_create_chest(lua_State* l) {
     chest->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     chest->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
     chest->set_user_properties(data.get_user_properties());
+    chest->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(chest);
     if (map.is_started()) {
       push_entity(l, *chest);
@@ -686,7 +698,7 @@ int LuaContext::l_create_chest(lua_State* l) {
  */
 int LuaContext::l_create_jumper(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -699,6 +711,7 @@ int LuaContext::l_create_jumper(lua_State* l) {
         data.get_integer("jump_length")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -715,7 +728,7 @@ int LuaContext::l_create_jumper(lua_State* l) {
  */
 int LuaContext::l_create_enemy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
     Game& game = map.get_game();
@@ -739,6 +752,7 @@ int LuaContext::l_create_enemy(lua_State* l) {
       return 1;
     }
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -755,7 +769,7 @@ int LuaContext::l_create_enemy(lua_State* l) {
  */
 int LuaContext::l_create_npc(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -771,6 +785,7 @@ int LuaContext::l_create_npc(lua_State* l) {
         data.get_string("behavior")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -787,16 +802,35 @@ int LuaContext::l_create_npc(lua_State* l) {
  */
 int LuaContext::l_create_block(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
-    int maximum_moves = data.get_integer("maximum_moves");
-    if (maximum_moves < 0 || maximum_moves > 2) {
+    int max_moves = data.get_integer("max_moves");
+    if (max_moves < -1) {  // -1 means unset here.
       std::ostringstream oss;
-      oss << "Invalid maximum_moves: " << maximum_moves;
+      oss << "Invalid max_moves (should be 0, positive or nil): " << max_moves;
       LuaTools::arg_error(l, 1, oss.str());
     }
+
+    // Deprecated version.
+    int maximum_moves = data.get_integer("maximum_moves");
+    if (maximum_moves != -1) {
+      if (maximum_moves < 0 || maximum_moves > 2) {
+        std::ostringstream oss;
+        oss << "Invalid maximum_moves (should be 0, 1 or 2): " << maximum_moves;
+        LuaTools::arg_error(l, 1, oss.str());
+      }
+      if (max_moves != -1) {
+        LuaTools::arg_error(l, 1, "Only one of max_moves and maximum_moves can be set");
+      }
+      if (maximum_moves == 2) {
+        // Replace the old special value 2 by the new proper value to mean unlimited.
+        maximum_moves = -1;
+      }
+      max_moves = maximum_moves;
+    }
+
     std::shared_ptr<Block> entity = std::make_shared<Block>(
         data.get_name(),
         entity_creation_check_layer(l, 1, data, map),
@@ -805,9 +839,10 @@ int LuaContext::l_create_block(lua_State* l) {
         data.get_string("sprite"),
         data.get_boolean("pushable"),
         data.get_boolean("pullable"),
-        maximum_moves
+        max_moves
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -824,27 +859,40 @@ int LuaContext::l_create_block(lua_State* l) {
  */
 int LuaContext::l_create_dynamic_tile(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
-    std::string tileset_id = data.get_string("tileset");
-    if (tileset_id.empty()) {
-      tileset_id = map.get_tileset_id();
+    const std::string& pattern_id = data.get_string("pattern");
+    const std::string& tileset_id = data.get_string("tileset");
+    const Tileset* tileset = nullptr;
+    std::shared_ptr<TilePattern> pattern = nullptr;
+    if (!tileset_id.empty()) {
+      ResourceProvider& resource_provider = map.get_game().get_resource_provider();
+      tileset = &resource_provider.get_tileset(tileset_id);
+      pattern = tileset->get_tile_pattern(pattern_id);
+      if (pattern == nullptr) {
+        LuaTools::error(l, "No such pattern in tileset '" + tileset_id + "': '" + pattern_id + "'");
+      }
+    } else {
+      // Use the tileset of the map.
+      pattern = map.get_tileset().get_tile_pattern(pattern_id);
+      if (pattern == nullptr) {
+        LuaTools::error(l, "No such pattern in tileset '" + map.get_tileset_id() + "': '" + pattern_id + "'");
+      }
     }
-    ResourceProvider& resource_provider = map.get_game().get_resource_provider();
-    const Tileset& tileset = resource_provider.get_tileset(tileset_id);
 
     EntityPtr entity = std::make_shared<DynamicTile>(
         data.get_name(),
         entity_creation_check_layer(l, 1, data, map),
         data.get_xy(),
         entity_creation_check_size(l, 1, data),
-        tileset,
-        data.get_string("pattern"),
-        data.get_boolean("enabled_at_start")
+        pattern_id,
+        pattern,
+        tileset
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -861,7 +909,7 @@ int LuaContext::l_create_dynamic_tile(lua_State* l) {
  */
 int LuaContext::l_create_switch(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -876,6 +924,7 @@ int LuaContext::l_create_switch(lua_State* l) {
         data.get_boolean("inactivate_when_leaving")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -892,7 +941,7 @@ int LuaContext::l_create_switch(lua_State* l) {
  */
 int LuaContext::l_create_wall(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -908,6 +957,7 @@ int LuaContext::l_create_wall(lua_State* l) {
         data.get_boolean("stops_projectiles")
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -924,7 +974,7 @@ int LuaContext::l_create_wall(lua_State* l) {
  */
 int LuaContext::l_create_sensor(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -935,6 +985,7 @@ int LuaContext::l_create_sensor(lua_State* l) {
         entity_creation_check_size(l, 1, data)
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -951,7 +1002,7 @@ int LuaContext::l_create_sensor(lua_State* l) {
  */
 int LuaContext::l_create_crystal(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -961,6 +1012,7 @@ int LuaContext::l_create_crystal(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -977,7 +1029,7 @@ int LuaContext::l_create_crystal(lua_State* l) {
  */
 int LuaContext::l_create_crystal_block(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -991,6 +1043,7 @@ int LuaContext::l_create_crystal_block(lua_State* l) {
         CrystalBlock::Subtype(data.get_integer("subtype"))
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1007,7 +1060,7 @@ int LuaContext::l_create_crystal_block(lua_State* l) {
  */
 int LuaContext::l_create_shop_treasure(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1033,6 +1086,7 @@ int LuaContext::l_create_shop_treasure(lua_State* l) {
     }
 
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1049,7 +1103,7 @@ int LuaContext::l_create_shop_treasure(lua_State* l) {
  */
 int LuaContext::l_create_stream(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1065,6 +1119,7 @@ int LuaContext::l_create_stream(lua_State* l) {
     stream->set_allow_attack(data.get_boolean("allow_attack"));
     stream->set_allow_item(data.get_boolean("allow_item"));
     stream->set_user_properties(data.get_user_properties());
+    stream->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(stream);
     if (map.is_started()) {
       push_stream(l, *stream);
@@ -1081,7 +1136,7 @@ int LuaContext::l_create_stream(lua_State* l) {
  */
 int LuaContext::l_create_door(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1126,6 +1181,7 @@ int LuaContext::l_create_door(lua_State* l) {
     door->set_opening_condition_consumed(data.get_boolean("opening_condition_consumed"));
     door->set_cannot_open_dialog_id(data.get_string("cannot_open_dialog"));
     door->set_user_properties(data.get_user_properties());
+    door->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(door);
     if (map.is_started()) {
       push_entity(l, *door);
@@ -1142,7 +1198,7 @@ int LuaContext::l_create_door(lua_State* l) {
  */
 int LuaContext::l_create_stairs(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1154,6 +1210,7 @@ int LuaContext::l_create_stairs(lua_State* l) {
         Stairs::Subtype(data.get_integer("subtype"))
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1170,7 +1227,7 @@ int LuaContext::l_create_stairs(lua_State* l) {
  */
 int LuaContext::l_create_separator(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1181,6 +1238,7 @@ int LuaContext::l_create_separator(lua_State* l) {
         entity_creation_check_size(l, 1, data)
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1197,7 +1255,7 @@ int LuaContext::l_create_separator(lua_State* l) {
  */
 int LuaContext::l_create_custom_entity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1213,7 +1271,9 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
         data.get_string("sprite"),
         data.get_string("model")
     );
+    entity->set_tiled(data.get_boolean("tiled"));
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1230,7 +1290,7 @@ int LuaContext::l_create_custom_entity(lua_State* l) {
  */
 int LuaContext::l_create_bomb(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1240,6 +1300,7 @@ int LuaContext::l_create_bomb(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1256,7 +1317,7 @@ int LuaContext::l_create_bomb(lua_State* l) {
  */
 int LuaContext::l_create_explosion(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1268,6 +1329,7 @@ int LuaContext::l_create_explosion(lua_State* l) {
         with_damage
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1284,7 +1346,7 @@ int LuaContext::l_create_explosion(lua_State* l) {
  */
 int LuaContext::l_create_fire(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityData& data = *(static_cast<EntityData*>(lua_touserdata(l, 2)));
 
@@ -1294,6 +1356,7 @@ int LuaContext::l_create_fire(lua_State* l) {
         data.get_xy()
     );
     entity->set_user_properties(data.get_user_properties());
+    entity->set_enabled(data.is_enabled_at_start());
     map.get_entities().add_entity(entity);
     if (map.is_started()) {
       push_entity(l, *entity);
@@ -1351,9 +1414,9 @@ bool LuaContext::create_map_entity_from_data(Map& map, const EntityData& entity_
   );
   lua_CFunction function = it->second;
 
-  lua_pushcfunction(l, function);
-  push_map(l, map);
-  lua_pushlightuserdata(l, const_cast<EntityData*>(&entity_data));
+  lua_pushcfunction(current_l, function);
+  push_map(current_l, map);
+  lua_pushlightuserdata(current_l, const_cast<EntityData*>(&entity_data));
   return call_function(2, 1, function_name.c_str());
 }
 
@@ -1371,7 +1434,7 @@ bool LuaContext::create_map_entity_from_data(Map& map, const EntityData& entity_
  */
 int LuaContext::l_get_map_entity_or_global(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     lua_pushvalue(l, lua_upvalueindex(1));  // Because check_map does not like pseudo-indexes.
     Map& map = *check_map(l, -1);
     const std::string& name = LuaTools::check_string(l, 2);
@@ -1401,11 +1464,11 @@ int LuaContext::l_get_map_entity_or_global(lua_State* l) {
  */
 int LuaContext::l_easy_index(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& name = LuaTools::check_string(l, 2);
 
-    LuaContext& lua_context = get_lua_context(l);
+    LuaContext& lua_context = get();
     Game* game = lua_context.get_main_loop().get_game();
 
     if (game != nullptr) {
@@ -1448,7 +1511,7 @@ int LuaContext::l_easy_index(lua_State* l) {
  */
 int LuaContext::l_hero_teleport(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     lua_pushvalue(l, lua_upvalueindex(1));
     Hero& hero = *check_hero(l, -1);
     lua_pop(l, 1);
@@ -1480,7 +1543,7 @@ int LuaContext::l_hero_teleport(lua_State* l) {
  */
 int LuaContext::l_entity_iterator_next(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     // Get upvalues.
     const int table_index = lua_upvalueindex(1);
@@ -1524,7 +1587,7 @@ void LuaContext::check_map_has_game(lua_State* l, const Map& map) {
  */
 int LuaContext::map_api_get_game(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
     push_game(l, *map.get_savegame());
@@ -1539,7 +1602,7 @@ int LuaContext::map_api_get_game(lua_State* l) {
  */
 int LuaContext::map_api_get_id(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     push_string(l, map.get_id());
@@ -1554,7 +1617,7 @@ int LuaContext::map_api_get_id(lua_State* l) {
  */
 int LuaContext::map_api_get_world(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     const std::string& world = map.get_world();
@@ -1576,7 +1639,7 @@ int LuaContext::map_api_get_world(lua_State* l) {
  */
 int LuaContext::map_api_set_world(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     std::string world;
     if (lua_type(l, 2) != LUA_TSTRING && lua_type(l, 2) != LUA_TNIL) {
@@ -1599,7 +1662,7 @@ int LuaContext::map_api_set_world(lua_State* l) {
  */
 int LuaContext::map_api_get_min_layer(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     lua_pushinteger(l, map.get_min_layer());
@@ -1614,7 +1677,7 @@ int LuaContext::map_api_get_min_layer(lua_State* l) {
  */
 int LuaContext::map_api_get_max_layer(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     lua_pushinteger(l, map.get_max_layer());
@@ -1629,7 +1692,7 @@ int LuaContext::map_api_get_max_layer(lua_State* l) {
  */
 int LuaContext::map_api_get_floor(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     if (!map.has_floor()) {
@@ -1649,7 +1712,7 @@ int LuaContext::map_api_get_floor(lua_State* l) {
  */
 int LuaContext::map_api_set_floor(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     int floor = MapData::NO_FLOOR;
     if (lua_type(l, 2) != LUA_TNUMBER && lua_type(l, 2) != LUA_TNIL) {
@@ -1672,7 +1735,7 @@ int LuaContext::map_api_set_floor(lua_State* l) {
  */
 int LuaContext::map_api_get_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     lua_pushinteger(l, map.get_width());
@@ -1689,7 +1752,7 @@ int LuaContext::map_api_get_size(lua_State* l) {
  */
 int LuaContext::map_api_get_location(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     lua_pushinteger(l, map.get_location().get_x());
@@ -1706,7 +1769,7 @@ int LuaContext::map_api_get_location(lua_State* l) {
  */
 int LuaContext::map_api_get_tileset(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     push_string(l, map.get_tileset_id());
@@ -1721,7 +1784,7 @@ int LuaContext::map_api_get_tileset(lua_State* l) {
  */
 int LuaContext::map_api_get_music(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
 
     const std::string& music_id = map.get_music_id();
@@ -1747,7 +1810,7 @@ int LuaContext::map_api_get_music(lua_State* l) {
  */
 int LuaContext::map_api_set_tileset(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& tileset_id = LuaTools::check_string(l, 2);
 
@@ -1764,7 +1827,7 @@ int LuaContext::map_api_set_tileset(lua_State* l) {
  */
 int LuaContext::map_api_get_camera(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
     const CameraPtr& camera = map.get_camera();
@@ -1785,9 +1848,9 @@ int LuaContext::map_api_get_camera(lua_State* l) {
  */
 int LuaContext::map_api_get_camera_position(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 5 },
         "map:get_camera_position()",
         "Use map:get_camera():get_bounding_box() instead.");
@@ -1817,9 +1880,9 @@ int LuaContext::map_api_get_camera_position(lua_State* l) {
  */
 int LuaContext::map_api_move_camera(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    LuaContext& lua_context = get_lua_context(l);
+    LuaContext& lua_context = get();
     lua_context.warning_deprecated(
         { 1, 5 },
         "map:move_camera()",
@@ -1856,7 +1919,7 @@ int LuaContext::map_api_move_camera(lua_State* l) {
  */
 int LuaContext::map_api_get_ground(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     int x = LuaTools::check_int(l, 2);
     int y = LuaTools::check_int(l, 3);
@@ -1876,7 +1939,7 @@ int LuaContext::map_api_get_ground(lua_State* l) {
  */
 int LuaContext::map_api_draw_visual(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     Map& map = *check_map(l, 1);
     Drawable& drawable = *check_drawable(l, 2);
@@ -1896,9 +1959,9 @@ int LuaContext::map_api_draw_visual(lua_State* l) {
  */
 int LuaContext::map_api_draw_sprite(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
-    get_lua_context(l).warning_deprecated(
+    get().warning_deprecated(
         { 1, 5 },
         "map:draw_sprite()",
         "Use map:draw_visual() instead.");
@@ -1921,7 +1984,7 @@ int LuaContext::map_api_draw_sprite(lua_State* l) {
  */
 int LuaContext::map_api_get_crystal_state(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
     lua_pushboolean(l, map.get_game().get_crystal_state());
@@ -1936,7 +1999,7 @@ int LuaContext::map_api_get_crystal_state(lua_State* l) {
  */
 int LuaContext::map_api_set_crystal_state(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     bool state = LuaTools::check_boolean(l, 2);
 
@@ -1956,7 +2019,7 @@ int LuaContext::map_api_set_crystal_state(lua_State* l) {
  */
 int LuaContext::map_api_change_crystal_state(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
     map.get_game().change_crystal_state();
@@ -1972,7 +2035,7 @@ int LuaContext::map_api_change_crystal_state(lua_State* l) {
  */
 int LuaContext::map_api_open_doors(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
 
@@ -2004,7 +2067,7 @@ int LuaContext::map_api_open_doors(lua_State* l) {
  */
 int LuaContext::map_api_close_doors(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
 
@@ -2036,7 +2099,7 @@ int LuaContext::map_api_close_doors(lua_State* l) {
  */
 int LuaContext::map_api_set_doors_open(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
     bool open = LuaTools::opt_boolean(l, 3, true);
@@ -2059,7 +2122,7 @@ int LuaContext::map_api_set_doors_open(lua_State* l) {
  */
 int LuaContext::map_api_get_entity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& name = LuaTools::check_string(l, 2);
 
@@ -2082,7 +2145,7 @@ int LuaContext::map_api_get_entity(lua_State* l) {
  */
 int LuaContext::map_api_has_entity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& name = LuaTools::check_string(l, 2);
 
@@ -2100,7 +2163,7 @@ int LuaContext::map_api_has_entity(lua_State* l) {
  */
 int LuaContext::map_api_get_entities(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::opt_string(l, 2, "");
 
@@ -2119,7 +2182,7 @@ int LuaContext::map_api_get_entities(lua_State* l) {
  */
 int LuaContext::map_api_get_entities_count(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
 
@@ -2138,7 +2201,7 @@ int LuaContext::map_api_get_entities_count(lua_State* l) {
  */
 int LuaContext::map_api_has_entities(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
 
@@ -2154,7 +2217,7 @@ int LuaContext::map_api_has_entities(lua_State* l) {
  */
 int LuaContext::map_api_get_entities_by_type(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     EntityType type = LuaTools::check_enum<EntityType>(l, 2);
 
@@ -2173,7 +2236,7 @@ int LuaContext::map_api_get_entities_by_type(lua_State* l) {
  */
 int LuaContext::map_api_get_entities_in_rectangle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const int x = LuaTools::check_int(l, 2);
     const int y = LuaTools::check_int(l, 3);
@@ -2197,7 +2260,7 @@ int LuaContext::map_api_get_entities_in_rectangle(lua_State* l) {
  */
 int LuaContext::map_api_get_entities_in_region(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     Point xy;
     EntityPtr entity;
@@ -2239,7 +2302,7 @@ int LuaContext::map_api_get_entities_in_region(lua_State* l) {
  */
 int LuaContext::map_api_get_hero(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
 
     check_map_has_game(l, map);
@@ -2257,7 +2320,7 @@ int LuaContext::map_api_get_hero(lua_State* l) {
  */
 int LuaContext::map_api_set_entities_enabled(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
     bool enabled = LuaTools::opt_boolean(l, 3, true);
@@ -2279,7 +2342,7 @@ int LuaContext::map_api_set_entities_enabled(lua_State* l) {
  */
 int LuaContext::map_api_remove_entities(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Map& map = *check_map(l, 1);
     const std::string& prefix = LuaTools::check_string(l, 2);
 
@@ -2295,7 +2358,7 @@ int LuaContext::map_api_remove_entities(lua_State* l) {
  */
 int LuaContext::map_api_create_entity(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     EntityType type = LuaTools::check_enum<EntityType>(
         l, lua_upvalueindex(1)
@@ -2303,7 +2366,7 @@ int LuaContext::map_api_create_entity(lua_State* l) {
     Map& map = *check_map(l, 1);
     const EntityData& data = EntityData::check_entity_data(l, 2, type);
 
-    get_lua_context(l).create_map_entity_from_data(map, data);
+    get().create_map_entity_from_data(map, data);
 
     return 1;
   });
@@ -2315,17 +2378,17 @@ int LuaContext::map_api_create_entity(lua_State* l) {
  * Does nothing if the method is not defined.
  *
  * \param map A map.
- * \param destination The destination point used (nullptr if it's a special one).
+ * \param destination The destination point used (nullptr if it is a special one).
  */
-void LuaContext::map_on_started(Map& map, Destination* destination) {
+void LuaContext::map_on_started(Map& map, const std::shared_ptr<Destination>& destination) {
 
   if (!userdata_has_field(map, "on_started")) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_started(destination);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2337,13 +2400,13 @@ void LuaContext::map_on_started(Map& map, Destination* destination) {
  */
 void LuaContext::map_on_finished(Map& map) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_finished")) {
     on_finished();
   }
   remove_timers(-1);  // Stop timers and menus associated to this map.
   remove_menus(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2355,7 +2418,7 @@ void LuaContext::map_on_finished(Map& map) {
  */
 void LuaContext::map_on_update(Map& map) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   // This particular method is tried so often that we want to save optimize
   // the std::string construction.
   static const std::string method_name = "on_update";
@@ -2363,7 +2426,7 @@ void LuaContext::map_on_update(Map& map) {
     on_update();
   }
   menus_on_update(-1);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2376,12 +2439,12 @@ void LuaContext::map_on_update(Map& map) {
  */
 void LuaContext::map_on_draw(Map& map, const SurfacePtr& dst_surface) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_draw")) {
     on_draw(dst_surface);
   }
   menus_on_draw(-1, dst_surface);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2397,12 +2460,12 @@ void LuaContext::map_on_draw(Map& map, const SurfacePtr& dst_surface) {
  */
 bool LuaContext::map_on_input(Map& map, const InputEvent& event) {
 
-  push_map(l, map);
+  push_map(current_l, map);
   bool handled = on_input(event);
   if (!handled) {
     handled = menus_on_input(-1, event);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2419,14 +2482,14 @@ bool LuaContext::map_on_input(Map& map, const InputEvent& event) {
 bool LuaContext::map_on_command_pressed(Map& map, GameCommand command) {
 
   bool handled = false;
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_command_pressed")) {
     handled = on_command_pressed(command);
   }
   if (!handled) {
     handled = menus_on_command_pressed(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2443,14 +2506,14 @@ bool LuaContext::map_on_command_pressed(Map& map, GameCommand command) {
 bool LuaContext::map_on_command_released(Map& map, GameCommand command) {
 
   bool handled = false;
-  push_map(l, map);
+  push_map(current_l, map);
   if (userdata_has_field(map, "on_command_released")) {
     handled = on_command_released(command);
   }
   if (!handled) {
     handled = menus_on_command_released(-1, command);
   }
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return handled;
 }
 
@@ -2468,9 +2531,9 @@ void LuaContext::map_on_suspended(Map& map, bool suspended) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_suspended(suspended);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2482,15 +2545,15 @@ void LuaContext::map_on_suspended(Map& map, bool suspended) {
  * \param destination The destination point used (nullptr if it is a special one).
  */
 void LuaContext::map_on_opening_transition_finished(Map& map,
-    Destination* destination) {
+    const std::shared_ptr<Destination>& destination) {
 
   if (!userdata_has_field(map, "on_opening_transition_finished")) {
     //return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_opening_transition_finished(destination);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2507,9 +2570,9 @@ void LuaContext::map_on_obtaining_treasure(Map& map, const Treasure& treasure) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_obtaining_treasure(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 /**
@@ -2526,9 +2589,9 @@ void LuaContext::map_on_obtained_treasure(Map& map, const Treasure& treasure) {
     return;
   }
 
-  push_map(l, map);
+  push_map(current_l, map);
   on_obtained_treasure(treasure);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
 }
 
 }

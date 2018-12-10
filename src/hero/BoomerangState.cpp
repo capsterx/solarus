@@ -62,7 +62,7 @@ void Hero::BoomerangState::start(const State* previous_state) {
   const bool boomerang_exists = !get_map().get_entities().get_entities_by_type<Boomerang>().empty();
   if (boomerang_exists) {
     Hero& hero = get_entity();
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
   else {
     get_sprites().set_animation_boomerang(tunic_preparing_animation);
@@ -101,7 +101,7 @@ void Hero::BoomerangState::update() {
         sprite_name
     ));
 
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 

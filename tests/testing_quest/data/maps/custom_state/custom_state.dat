@@ -1,0 +1,119 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 56,
+  y = 64,
+  width = 48,
+  height = 32,
+  pattern = "64",
+}
+
+tile{
+  layer = 0,
+  x = 120,
+  y = 32,
+  width = 160,
+  height = 32,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 248,
+  y = 64,
+  width = 32,
+  height = 96,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 248,
+  y = 152,
+  width = 32,
+  height = 24,
+  pattern = "47",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 160,
+  y = 117,
+  direction = 1,
+}
+
+sensor{
+  name = "table_marker",
+  layer = 0,
+  x = 80,
+  y = 80,
+  width = 16,
+  height = 16,
+}
+
+jumper{
+  name = "test_jumper",
+  layer = 0,
+  x = 248,
+  y = 64,
+  width = 32,
+  height = 8,
+  direction = 6,
+  jump_length = 40,
+}
+
+sensor{
+  name = "begin_move_sensor",
+  layer = 0,
+  x = 136,
+  y = 53,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "turn_down_sensor",
+  layer = 0,
+  x = 264,
+  y = 53,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "map_end_sensor",
+  layer = 0,
+  x = 264,
+  y = 149,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "before_end_sensor",
+  layer = 0,
+  x = 264,
+  y = 117,
+  width = 16,
+  height = 16,
+}
+

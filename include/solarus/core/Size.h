@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include <iosfwd>
+#include <glm/vec2.hpp>
 
 namespace Solarus {
 
@@ -45,6 +46,8 @@ class Size {
 
     Size& operator*=(int factor);
     Size& operator/=(int divisor);
+
+    operator glm::vec2() const;
 
     ////////////////////////////////////////////////////////////
     // Miscellaneous functions

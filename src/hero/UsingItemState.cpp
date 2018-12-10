@@ -68,7 +68,7 @@ void Hero::UsingItemState::update() {
   if (item_usage.is_finished() && is_current_state()) {
     // if the state was not modified by the item, return to the normal state
     Hero& hero = get_entity();
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 

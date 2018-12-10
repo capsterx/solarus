@@ -103,6 +103,7 @@ class SOLARUS_API QuestDatabase : public LuaData {
     void set_file_info(const std::string& path, const FileInfo& file_info);
     bool has_file_info(const std::string& path) const;
     void clear_file_info(const std::string& path);
+    std::map<std::string, FileInfo> get_all_file_info() const;
 
     virtual bool import_from_lua(lua_State* l) override;
     virtual bool export_to_lua(std::ostream& out) const override;

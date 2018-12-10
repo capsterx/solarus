@@ -53,8 +53,9 @@ class Tile: public Entity {
 
     EntityType get_type() const override;
     bool is_drawn_at_its_position() const override;
-    void draw_on_map() override;
-    void draw(const SurfacePtr& dst_surface, const Point& viewport);
+    void built_in_draw(Camera& camera) override;
+    void draw_on_surface(const SurfacePtr& dst_surface, const Point& viewport);
+    void notify_tileset_changed() override;
     const TilePattern& get_tile_pattern() const;
     const std::string& get_tile_pattern_id() const;
     bool is_animated() const;
@@ -62,8 +63,9 @@ class Tile: public Entity {
   private:
 
     const std::string tile_pattern_id;       /**< Id of the tile pattern. */
-    const TilePattern& tile_pattern;         /**< Pattern of the tile. */
-    const Tileset& tileset;                  /**< Tileet of the pattern. */
+    std::shared_ptr<TilePattern>
+        tile_pattern;                        /**< Pattern of the tile, or nullptr if it does not exist. */
+    const Tileset* tileset;                  /**< Tileset of the pattern (nullptr means the one of the map). */
 
 };
 

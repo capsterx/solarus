@@ -76,12 +76,12 @@ void Hero::LiftingState::stop(const State* next_state) {
     // the lifted item is still managed by this state
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       throw_item();
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
-    case CarriedObject::BEHAVIOR_KEEP:
+    case CarriedObject::Behavior::REMOVE:
+    case CarriedObject::Behavior::KEEP:
       lifted_item = nullptr;
       break;
     }
@@ -105,7 +105,7 @@ void Hero::LiftingState::update() {
 
     std::shared_ptr<CarriedObject> carried_object = lifted_item;
     lifted_item = nullptr; // we do not take care of the carried object from this state anymore
-    hero.set_state(new CarryingState(hero, carried_object));
+    hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
   }
 }
 
@@ -128,7 +128,7 @@ void Hero::LiftingState::set_suspended(bool suspended) {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::LiftingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::LiftingState::get_can_be_hurt(Entity* /* attacker */) {
   return true;
 }
 

@@ -52,6 +52,7 @@ void LuaContext::register_item_module() {
       { "set_obtainable", item_api_set_obtainable },
       { "is_assignable", item_api_is_assignable },
       { "set_assignable", item_api_set_assignable },
+      { "is_being_used", item_api_is_being_used },
       { "get_can_disappear", item_api_get_can_disappear },
       { "set_can_disappear", item_api_set_can_disappear },
       { "get_brandish_when_picked", item_api_get_brandish_when_picked },
@@ -78,7 +79,7 @@ void LuaContext::register_item_module() {
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", userdata_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },
-      { "__index", userdata_meta_index_as_table }
+      { "__index", userdata_meta_index_as_table },
   };
 
   register_type(item_module_name, {}, methods, metamethods);
@@ -124,7 +125,7 @@ void LuaContext::push_item(lua_State* l, EquipmentItem& item) {
  */
 int LuaContext::item_api_get_name(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     push_string(l, item.get_name());
@@ -139,7 +140,7 @@ int LuaContext::item_api_get_name(lua_State* l) {
  */
 int LuaContext::item_api_get_game(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     push_game(l, item.get_savegame());
@@ -154,7 +155,7 @@ int LuaContext::item_api_get_game(lua_State* l) {
  */
 int LuaContext::item_api_get_map(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     Game* game = item.get_game();
@@ -175,7 +176,7 @@ int LuaContext::item_api_get_map(lua_State* l) {
  */
 int LuaContext::item_api_get_savegame_variable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     const std::string& savegame_variable = item.get_savegame_variable();
@@ -196,7 +197,7 @@ int LuaContext::item_api_get_savegame_variable(lua_State* l) {
  */
 int LuaContext::item_api_set_savegame_variable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     std::string savegame_variable;
     if (!lua_isnil(l, 2)) {
@@ -223,7 +224,7 @@ int LuaContext::item_api_set_savegame_variable(lua_State* l) {
  */
 int LuaContext::item_api_get_amount_savegame_variable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     const std::string& amount_savegame_variable = item.get_amount_savegame_variable();
@@ -244,7 +245,7 @@ int LuaContext::item_api_get_amount_savegame_variable(lua_State* l) {
  */
 int LuaContext::item_api_set_amount_savegame_variable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     std::string amount_savegame_variable;
     if (lua_gettop(l) >= 2) {
@@ -271,7 +272,7 @@ int LuaContext::item_api_set_amount_savegame_variable(lua_State* l) {
  */
 int LuaContext::item_api_is_obtainable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     lua_pushboolean(l, item.is_obtainable());
@@ -286,7 +287,7 @@ int LuaContext::item_api_is_obtainable(lua_State* l) {
  */
 int LuaContext::item_api_set_obtainable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     bool obtainable = LuaTools::opt_boolean(l, 2, true);
 
@@ -303,7 +304,7 @@ int LuaContext::item_api_set_obtainable(lua_State* l) {
  */
 int LuaContext::item_api_is_assignable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     lua_pushboolean(l, item.is_assignable());
@@ -318,7 +319,7 @@ int LuaContext::item_api_is_assignable(lua_State* l) {
  */
 int LuaContext::item_api_set_assignable(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     bool assignable = LuaTools::opt_boolean(l, 2, true);
 
@@ -329,13 +330,28 @@ int LuaContext::item_api_set_assignable(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of item:is_being_used().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::item_api_is_being_used(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const EquipmentItem& item = *check_item(l, 1);
+
+    lua_pushboolean(l, item.is_being_used());
+    return 1;
+  });
+}
+
+/**
  * \brief Implementation of item:get_can_disappear().
  * \param l The Lua context that is calling this function.
  * \return Number of values to return to Lua.
  */
 int LuaContext::item_api_get_can_disappear(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     lua_pushboolean(l, item.get_can_disappear());
@@ -350,7 +366,7 @@ int LuaContext::item_api_get_can_disappear(lua_State* l) {
  */
 int LuaContext::item_api_set_can_disappear(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     bool can_disappear = LuaTools::opt_boolean(l, 2, true);
 
@@ -367,7 +383,7 @@ int LuaContext::item_api_set_can_disappear(lua_State* l) {
  */
 int LuaContext::item_api_get_brandish_when_picked(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     lua_pushboolean(l, item.get_brandish_when_picked());
@@ -382,7 +398,7 @@ int LuaContext::item_api_get_brandish_when_picked(lua_State* l) {
  */
 int LuaContext::item_api_set_brandish_when_picked(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     bool brandish_when_picked = LuaTools::opt_boolean(l, 2, true);
 
@@ -399,7 +415,7 @@ int LuaContext::item_api_set_brandish_when_picked(lua_State* l) {
  */
 int LuaContext::item_api_get_shadow(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     const std::string& shadow = item.get_shadow();
@@ -420,7 +436,7 @@ int LuaContext::item_api_get_shadow(lua_State* l) {
  */
 int LuaContext::item_api_set_shadow(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     std::string shadow;
     if (!lua_isnil(l, 2)) {
@@ -440,7 +456,7 @@ int LuaContext::item_api_set_shadow(lua_State* l) {
  */
 int LuaContext::item_api_get_sound_when_picked(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     const std::string& sound_when_picked = item.get_sound_when_picked();
@@ -461,7 +477,7 @@ int LuaContext::item_api_get_sound_when_picked(lua_State* l) {
  */
 int LuaContext::item_api_set_sound_when_picked(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     std::string sound_when_picked;
     if (!lua_isnil(l, 2)) {
@@ -481,7 +497,7 @@ int LuaContext::item_api_set_sound_when_picked(lua_State* l) {
  */
 int LuaContext::item_api_get_sound_when_brandished(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     const std::string& sound_when_brandished = item.get_sound_when_brandished();
@@ -502,7 +518,7 @@ int LuaContext::item_api_get_sound_when_brandished(lua_State* l) {
  */
 int LuaContext::item_api_set_sound_when_brandished(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     std::string sound_when_brandished;
     if (!lua_isnil(l, 2)) {
@@ -522,7 +538,7 @@ int LuaContext::item_api_set_sound_when_brandished(lua_State* l) {
  */
 int LuaContext::item_api_has_variant(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int variant = 1;
     if (lua_gettop(l) >= 2) {
@@ -541,7 +557,7 @@ int LuaContext::item_api_has_variant(lua_State* l) {
  */
 int LuaContext::item_api_get_variant(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     if (!item.is_saved()) {
@@ -560,7 +576,7 @@ int LuaContext::item_api_get_variant(lua_State* l) {
  */
 int LuaContext::item_api_set_variant(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int variant = LuaTools::check_int(l, 2);
 
@@ -581,7 +597,7 @@ int LuaContext::item_api_set_variant(lua_State* l) {
  */
 int LuaContext::item_api_has_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     if (lua_gettop(l) >= 2) {
       int amount = LuaTools::check_int(l, 2);
@@ -604,7 +620,7 @@ int LuaContext::item_api_has_amount(lua_State* l) {
  */
 int LuaContext::item_api_get_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     if (!item.has_amount()) {
@@ -624,7 +640,7 @@ int LuaContext::item_api_get_amount(lua_State* l) {
  */
 int LuaContext::item_api_set_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int amount = LuaTools::check_int(l, 2);
 
@@ -645,7 +661,7 @@ int LuaContext::item_api_set_amount(lua_State* l) {
  */
 int LuaContext::item_api_add_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int amount = LuaTools::check_int(l, 2);
 
@@ -670,7 +686,7 @@ int LuaContext::item_api_add_amount(lua_State* l) {
  */
 int LuaContext::item_api_remove_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int amount = LuaTools::check_int(l, 2);
 
@@ -695,7 +711,7 @@ int LuaContext::item_api_remove_amount(lua_State* l) {
  */
 int LuaContext::item_api_get_max_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     if (!item.has_amount()) {
@@ -714,7 +730,7 @@ int LuaContext::item_api_get_max_amount(lua_State* l) {
  */
 int LuaContext::item_api_set_max_amount(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
     int max_amount = LuaTools::check_int(l, 2);
 
@@ -739,7 +755,7 @@ int LuaContext::item_api_set_max_amount(lua_State* l) {
  */
 int LuaContext::item_api_set_finished(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     EquipmentItem& item = *check_item(l, 1);
 
     // Retrieve the equipment item from the hero.
@@ -766,10 +782,11 @@ void LuaContext::item_on_started(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_started")) {
     return;
   }
-
-  push_item(l, item);
-  on_started();
-  lua_pop(l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_started();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -780,14 +797,15 @@ void LuaContext::item_on_started(EquipmentItem& item) {
  * \param item An equipment item.
  */
 void LuaContext::item_on_finished(EquipmentItem& item) {
-
-  push_item(l, item);
-  if (userdata_has_field(item, "on_finished")) {
-    on_finished();
-  }
-  remove_timers(-1);  // Stop timers and menus associated to this item.
-  remove_menus(-1);
-  lua_pop(l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    if (userdata_has_field(item, "on_finished")) {
+      on_finished();
+    }
+    remove_timers(-1);  // Stop timers and menus associated to this item.
+    remove_menus(-1);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -805,10 +823,11 @@ void LuaContext::item_on_update(EquipmentItem& item) {
   if (!userdata_has_field(item, method_name)) {
     return;
   }
-
-  push_item(l, item);
-  on_update();
-  lua_pop(l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_update();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -824,10 +843,11 @@ void LuaContext::item_on_suspended(EquipmentItem& item, bool suspended) {
   if (!userdata_has_field(item, "on_suspended")) {
     return;
   }
-
-  push_item(l, item);
-  on_suspended(suspended);
-  lua_pop(l, 1);
+  run_on_main([this,&item,suspended](lua_State* l){
+    push_item(l, item);
+    on_suspended(suspended);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -842,10 +862,11 @@ void LuaContext::item_on_created(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_created")) {
     return;
   }
-
-  push_item(l, item);
-  on_created();
-  lua_pop(l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_created();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -861,10 +882,11 @@ void LuaContext::item_on_map_changed(EquipmentItem& item, Map& map) {
   if (!userdata_has_field(item, "on_map_changed")) {
     return;
   }
-
-  push_item(l, item);
-  on_map_changed(map);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&map](lua_State* l){
+    push_item(l, item);
+    on_map_changed(map);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -882,9 +904,11 @@ void LuaContext::item_on_pickable_created(EquipmentItem& item,
     return;
   }
 
-  push_item(l, item);
-  on_pickable_created(pickable);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&pickable](lua_State* l){
+    push_item(l, item);
+    on_pickable_created(pickable);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -900,10 +924,11 @@ void LuaContext::item_on_obtaining(EquipmentItem& item, const Treasure& treasure
   if (!userdata_has_field(item, "on_obtaining")) {
     return;
   }
-
-  push_item(l, item);
-  on_obtaining(treasure);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&treasure](lua_State* l){
+    push_item(l, item);
+    on_obtaining(treasure);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -919,10 +944,11 @@ void LuaContext::item_on_obtained(EquipmentItem& item, const Treasure& treasure)
   if (!userdata_has_field(item, "on_obtained")) {
     return;
   }
-
-  push_item(l, item);
-  on_obtained(treasure);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&treasure](lua_State* l){
+    push_item(l, item);
+    on_obtained(treasure);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -938,10 +964,11 @@ void LuaContext::item_on_variant_changed(EquipmentItem& item, int variant) {
   if (!userdata_has_field(item, "on_variant_changed")) {
     return;
   }
-
-  push_item(l, item);
-  on_variant_changed(variant);
-  lua_pop(l, 1);
+  run_on_main([this,&item,variant](lua_State* l){
+    push_item(l, item);
+    on_variant_changed(variant);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -957,10 +984,11 @@ void LuaContext::item_on_amount_changed(EquipmentItem& item, int amount) {
   if (!userdata_has_field(item, "on_amount_changed")) {
     return;
   }
-
-  push_item(l, item);
-  on_amount_changed(amount);
-  lua_pop(l, 1);
+  run_on_main([this,&item,amount](lua_State* l){
+    push_item(l, item);
+    on_amount_changed(amount);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -975,10 +1003,11 @@ void LuaContext::item_on_using(EquipmentItem& item) {
   if (!userdata_has_field(item, "on_using")) {
     return;
   }
-
-  push_item(l, item);
-  on_using();
-  lua_pop(l, 1);
+  run_on_main([this,&item](lua_State* l){
+    push_item(l, item);
+    on_using();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -994,10 +1023,11 @@ void LuaContext::item_on_ability_used(EquipmentItem& item, Ability ability) {
   if (!userdata_has_field(item, "on_ability_used")) {
     return;
   }
-
-  push_item(l, item);
-  on_ability_used(ability);
-  lua_pop(l, 1);
+  run_on_main([this,&item,ability](lua_State* l){
+    push_item(l, item);
+    on_ability_used(ability);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1013,10 +1043,11 @@ void LuaContext::item_on_npc_interaction(EquipmentItem& item, Npc& npc) {
   if (!userdata_has_field(item, "on_npc_interaction")) {
     return;
   }
-
-  push_item(l, item);
-  on_npc_interaction(npc);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&npc](lua_State* l){
+    push_item(l, item);
+    on_npc_interaction(npc);
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -1036,9 +1067,11 @@ bool LuaContext::item_on_npc_interaction_item(EquipmentItem& item, Npc& npc,
     return false;
   }
 
-  push_item(l, item);
+  //TODO make this on main
+
+  push_item(current_l, item);
   bool result = on_npc_interaction_item(npc, item_used);
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
   return result;
 }
 
@@ -1055,10 +1088,11 @@ void LuaContext::item_on_npc_collision_fire(EquipmentItem& item, Npc& npc) {
   if (!userdata_has_field(item, "on_npc_collision_fire")) {
     return;
   }
-
-  push_item(l, item);
-  on_npc_collision_fire(npc);
-  lua_pop(l, 1);
+  run_on_main([this,&item,&npc](lua_State* l){
+    push_item(l, item);
+    on_npc_collision_fire(npc);
+    lua_pop(l, 1);
+  });
 }
 
 }

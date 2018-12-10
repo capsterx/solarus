@@ -254,11 +254,12 @@ void NonAnimatedRegions::build_cell(int cell_index) {
         tile.box.get_height()
     );
 
-    Debug::check_assertion(tile.tileset != nullptr, "Missing tileset");
+    const Tileset* tileset = tile.tileset != nullptr ? tile.tileset : &map.get_tileset();
+    Debug::check_assertion(tileset != nullptr, "Missing tileset");
     tile.pattern->fill_surface(
         cell_surface,
         dst_position,
-        *tile.tileset,
+        *tileset,
         cell_xy
     );
   }

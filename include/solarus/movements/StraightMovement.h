@@ -35,9 +35,9 @@ class StraightMovement: public Movement {
 
     StraightMovement(bool ignore_obstacles, bool smooth);
 
-    virtual void notify_object_controlled() override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
+    void notify_object_controlled() override;
+    void update() override;
+    void set_suspended(bool suspended) override;
     bool has_to_move_now() const;
 
     // speed vector

@@ -76,11 +76,11 @@ void Hero::BackToSolidGroundState::start(const State* previous_state) {
   int layer = 0;
 
   Hero& hero = get_entity();
-  lua_State* l = hero.get_lua_context()->get_internal_state();
+  lua_State* l = get_lua_context().get_internal_state();
 
   // Call the Lua function to get the coordinates and layer.
   Debug::check_assertion(!target_position.is_empty(), "Missing solid ground callback");
-  target_position.push();
+  target_position.push(l);
   bool success = LuaTools::call_function(l, 0, 3, "Solid ground callback");
   if (success &&
       (!lua_isnumber(l, -3) || !lua_isnumber(l, -2))) {
@@ -229,8 +229,7 @@ bool Hero::BackToSolidGroundState::can_avoid_prickle() const {
 }
 
 /**
- * \brief Returns whether the hero is touching the ground in the current state.
- * \return true if the hero is touching the ground in the current state
+ * \copydoc Entity::State::is_touching_ground
  */
 bool Hero::BackToSolidGroundState::is_touching_ground() const {
   return false;

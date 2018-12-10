@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/core/Rectangle.h"
+#include <memory>
 #include <string>
 
 namespace Solarus {
@@ -34,8 +35,8 @@ struct TileInfo {
   int layer;
   Rectangle box;
   std::string pattern_id;
-  const TilePattern* pattern = nullptr;
-  const Tileset* tileset = nullptr;
+  std::shared_ptr<TilePattern> pattern;  /**< nullptr if it does not exist in the tileset. */
+  const Tileset* tileset = nullptr;      /**< nullptr means the tileset of the map. */
 };
 
 }

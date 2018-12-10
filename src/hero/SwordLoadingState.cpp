@@ -35,12 +35,13 @@ namespace Solarus {
 /**
  * \brief Constructor.
  * \param hero The hero controlled by this state.
+ * \param spin_attack_delay Delay before allowing the spin attack (-1 means never).
  */
-Hero::SwordLoadingState::SwordLoadingState(Hero& hero):
+Hero::SwordLoadingState::SwordLoadingState(Hero& hero, int spin_attack_delay):
   PlayerMovementState(hero, "sword loading"),
+  spin_attack_delay(spin_attack_delay),
   sword_loaded_date(0),
   sword_loaded(false) {
-
 }
 
 /**
@@ -52,7 +53,19 @@ void Hero::SwordLoadingState::start(const State* previous_state) {
   PlayerMovementState::start(previous_state);
 
   sword_loaded = false;
-  sword_loaded_date = System::now() + 1000;
+  if (spin_attack_delay == -1) {
+    // No spin attack.
+    sword_loaded_date = 0;
+  }
+  else if (spin_attack_delay == 0) {
+    // Already allowed: don't play a sound.
+    sword_loaded_date = 0;
+    sword_loaded = true;
+  }
+  else {
+    // Allowed after a delay.
+    sword_loaded_date = System::now() + spin_attack_delay;
+  }
 }
 
 /**
@@ -66,26 +79,30 @@ void Hero::SwordLoadingState::update() {
     return;
   }
 
+  bool attack_pressed = get_commands().is_command_pressed(GameCommand::ATTACK);
   uint32_t now = System::now();
 
   // detect when the sword is loaded (i.e. ready for a spin attack)
-  if (!sword_loaded && now >= sword_loaded_date) {
+  if (attack_pressed &&
+      !sword_loaded &&
+      sword_loaded_date != 0 &&
+      now >= sword_loaded_date) {
     play_load_sound();
     sword_loaded = true;
   }
 
-  if (!get_commands().is_command_pressed(GameCommand::ATTACK)) {
+  if (!attack_pressed) {
     // the player has just released the sword key
 
     // stop loading the sword, go to the normal state or make a spin attack
     Hero& hero = get_entity();
     if (!sword_loaded) {
       // the sword was not loaded yet: go to the normal state
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
     else {
       // the sword is loaded: release a spin attack
-      hero.set_state(new SpinAttackState(hero));
+      hero.set_state(std::make_shared<SpinAttackState>(hero));
     }
   }
 }
@@ -118,7 +135,7 @@ void Hero::SwordLoadingState::notify_obstacle_reached() {
       && get_wanted_movement_direction8() == get_sprites().get_animation_direction8()   // he is trying to move towards the obstacle
       && (facing_entity == nullptr || !facing_entity->is_sword_ignored())) {            // the obstacle allows him to tap with his sword
 
-    hero.set_state(new SwordTappingState(hero));
+    hero.set_state(std::make_shared<SwordTappingState>(hero));
   }
 }
 
@@ -128,8 +145,8 @@ void Hero::SwordLoadingState::notify_obstacle_reached() {
 void Hero::SwordLoadingState::notify_attacked_enemy(
     EnemyAttack attack,
     Enemy& victim,
-    const Sprite* victim_sprite,
-    EnemyReaction::Reaction& result,
+    Sprite* victim_sprite,
+    const EnemyReaction::Reaction& result,
     bool killed) {
 
   if (attack == EnemyAttack::SWORD &&
@@ -139,13 +156,13 @@ void Hero::SwordLoadingState::notify_attacked_enemy(
     Hero& hero = get_entity();
     if (victim.get_push_hero_on_sword()) {
       // let SwordTappingState do the job so that no player movement interferes
-      State* state = new SwordTappingState(hero);
+      std::shared_ptr<State> state = std::make_shared<SwordTappingState>(hero);
       hero.set_state(state);
       state->notify_attacked_enemy(attack, victim, victim_sprite, result, killed);
     }
     else {
       // after an attack, stop loading the sword
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
   }
 }
@@ -163,7 +180,7 @@ bool Hero::SwordLoadingState::is_direction_locked() const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::SwordLoadingState::can_take_stairs() const {
+bool Hero::SwordLoadingState::get_can_take_stairs() const {
   return true;
 }
 
@@ -172,14 +189,14 @@ bool Hero::SwordLoadingState::can_take_stairs() const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::SwordLoadingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::SwordLoadingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::SwordLoadingState::can_use_shield() const {
+bool Hero::SwordLoadingState::get_can_use_shield() const {
   return false;
 }
 

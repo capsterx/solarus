@@ -164,8 +164,10 @@ class SOLARUS_API Entities {
     bool overlaps_raised_blocks(int layer, const Rectangle& rectangle) ;
 
     // Map events.
-    void notify_map_started();
-    void notify_map_opening_transition_finished();
+    void notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination);
+    void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination);
+    void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination);
+    void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination);
     void notify_tileset_changed();
     void notify_map_finished();
 

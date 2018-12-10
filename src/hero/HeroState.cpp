@@ -16,6 +16,7 @@
  */
 #include "solarus/core/CommandsEffects.h"
 #include "solarus/core/Equipment.h"
+#include "solarus/entities/Block.h"
 #include "solarus/entities/Jumper.h"
 #include "solarus/hero/HeroState.h"
 #include "solarus/hero/SwordSwingingState.h"
@@ -25,10 +26,24 @@ namespace Solarus {
 
 /**
  * \brief Constructor.
- * \param hero The hero controlled by this state.
+ * \param hero The hero to control with this state.
+ * \param state_name A name describing this state.
  */
 HeroState::HeroState(Hero& hero, const std::string& state_name):
-  State(hero, state_name) {
+  HeroState(state_name) {
+
+  set_entity(hero);
+}
+
+/**
+ * \brief Constructor.
+ *
+ * Call set_entity() later before starting the state.
+ *
+ * \param state_name A name describing this state.
+ */
+HeroState::HeroState(const std::string& state_name):
+  State(state_name) {
 
 }
 
@@ -100,15 +115,25 @@ void HeroState::notify_item_command_pressed(int slot) {
 }
 
 /**
- * \brief Returns whether a jumper is considered as an obstacle in this state
- * for the hero at the specified position.
- * \param jumper A jumper.
- * \param candidate_position Position of the hero to test.
- * \return \c true if the jumper is an obstacle in this state with this
- * hero position.
+ * \copydoc Entity::State::is_block_obstacle
+ */
+bool HeroState::is_block_obstacle(
+    Block& block) {
+  return block.is_hero_obstacle(get_entity());
+}
+
+/**
+ * \copydoc Entity::State::is_raised_block_obstacle
+ */
+bool HeroState::is_raised_block_obstacle(CrystalBlock& /* raised_block */) {
+  return !get_entity().is_on_raised_blocks();
+}
+
+/**
+ * \copydoc Entity::State::is_jumper_obstacle
  */
 bool HeroState::is_jumper_obstacle(
-    const Jumper& jumper, const Rectangle& candidate_position) const {
+    Jumper& jumper, const Rectangle& candidate_position) {
   const Hero& hero = get_entity();
 
   if (jumper.overlaps_jumping_region(hero.get_bounding_box(), false)) {
@@ -124,7 +149,7 @@ bool HeroState::is_jumper_obstacle(
     return false;
   }
 
-  if (!can_take_jumper()) {
+  if (!get_can_take_jumper()) {
     // If jumpers cannot be used in this state, consider their active region
     // as obstacles and their inactive region as traversable.
     // The active region should be an obstacle.

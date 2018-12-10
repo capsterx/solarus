@@ -206,9 +206,9 @@ void Hookshot::update() {
 }
 
 /**
- * \brief Draws the entity on the map.
+ * \copydoc Entity::built_in_draw
  */
-void Hookshot::draw_on_map() {
+void Hookshot::built_in_draw(Camera& camera) {
 
   static constexpr int nb_links = 7;
   static constexpr Point dxy[] = {
@@ -218,7 +218,7 @@ void Hookshot::draw_on_map() {
     {   0,   7 }
   };
 
-  Entity::draw_on_map();
+  Entity::built_in_draw(camera);
 
   // also draw the links
   const SpritePtr& sprite = get_sprite();
@@ -327,8 +327,8 @@ void Hookshot::notify_collision_with_enemy(
 void Hookshot::notify_attacked_enemy(
     EnemyAttack /* attack */,
     Enemy& /* victim */,
-    const Sprite* /* victim_sprite */,
-    EnemyReaction::Reaction& result,
+    Sprite* /* victim_sprite */,
+    const EnemyReaction::Reaction& result,
     bool /* killed */) {
 
   if (result.type != EnemyReaction::ReactionType::IGNORED && !is_going_back()) {

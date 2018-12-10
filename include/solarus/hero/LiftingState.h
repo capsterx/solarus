@@ -36,7 +36,7 @@ class Hero::LiftingState: public HeroState {
     virtual void stop(const State* next_state) override;
     virtual void update() override;
     virtual void set_suspended(bool suspended) override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
+    virtual bool get_can_be_hurt(Entity* attacker) override;
 
   private:
 

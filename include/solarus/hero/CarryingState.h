@@ -40,9 +40,9 @@ class Hero::CarryingState: public Hero::PlayerMovementState {
     void set_suspended(bool suspended) override;
     void update() override;
     void notify_action_command_pressed() override;
-    bool can_start_sword() const override;
-    bool can_use_shield() const override;
-    bool can_take_stairs() const override;
+    bool get_can_start_sword() const override;
+    bool get_can_use_shield() const override;
+    bool get_can_take_stairs() const override;
     void set_animation_stopped() override;
     void set_animation_walking() override;
     std::shared_ptr<CarriedObject> get_carried_object() const override;

@@ -19,7 +19,6 @@
 #include "solarus/audio/OggDecoder.h"
 #include "solarus/audio/SpcDecoder.h"
 #include "solarus/core/Debug.h"
-#include "solarus/core/Logger.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/String.h"
 #include "solarus/lua/LuaContext.h"
@@ -159,8 +158,6 @@ void Music::set_volume(int volume) {
   if (current_music != nullptr) {
     alSourcef(current_music->source, AL_GAIN, Music::volume);
   }
-
-  Logger::info(std::string("Music volume: ") + String::to_string(get_volume()));
 }
 
 /**

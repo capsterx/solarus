@@ -94,8 +94,12 @@ std::string get_type_name(lua_State*l, int index) {
  * lifetime.
  */
 ScopedLuaRef create_ref(lua_State* l) {
-
-  return ScopedLuaRef(l, luaL_ref(l, LUA_REGISTRYINDEX));
+  lua_State* main = LuaContext::get().get_main_state();
+  //Cross move values to main state to avoid  coroutines GC to invalidate them
+  if(l != main) {
+    lua_xmove(l,main,1);
+  }
+  return ScopedLuaRef(main, luaL_ref(main, LUA_REGISTRYINDEX));
 }
 
 /**
@@ -106,9 +110,8 @@ ScopedLuaRef create_ref(lua_State* l) {
  * lifetime.
  */
 ScopedLuaRef create_ref(lua_State* l, int index) {
-
   lua_pushvalue(l, index);
-  return ScopedLuaRef(l, luaL_ref(l, LUA_REGISTRYINDEX));
+  return create_ref(l);
 }
 
 /**
@@ -136,12 +139,14 @@ bool call_function(
     int nb_results,
     const char* function_name
 ) {
+  Debug::check_assertion(lua_gettop(l) > nb_arguments, "Missing arguments");
   int base = lua_gettop(l) - nb_arguments;
   lua_pushcfunction(l, &LuaContext::l_backtrace);
   lua_insert(l, base);
   int status = lua_pcall(l, nb_arguments, nb_results, base);
-  lua_remove(l,base);
+  lua_remove(l, base);
   if (status != 0) {
+    Debug::check_assertion(lua_isstring(l, -1), "Missing error message");
     Debug::error(std::string("In ") + function_name + ": "
         + lua_tostring(l, -1)
     );

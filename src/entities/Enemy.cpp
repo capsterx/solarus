@@ -88,6 +88,7 @@ Enemy::Enemy(
   damage_on_hero(1),
   life(1),
   hurt_style(HurtStyle::NORMAL),
+  dying_sprite_id("enemies/enemy_killed"),
   pushed_back_when_hurt(true),
   push_hero_on_sword(false),
   can_hurt_hero_running(false),
@@ -473,6 +474,22 @@ Enemy::HurtStyle Enemy::get_hurt_style() const {
  */
 void Enemy::set_hurt_style(HurtStyle hurt_style) {
   this->hurt_style = hurt_style;
+}
+
+/**
+ * \brief Returns the id of the sprite to show during the normal dying animation.
+ * \return The dying sprite id or an empty string.
+ */
+std::string Enemy::get_dying_sprite_id() const {
+  return dying_sprite_id;
+}
+
+/**
+ * \brief Sets the id of the sprite to show during the normal dying animation.
+ * \param dying_sprite_id The dying sprite id or an empty string.
+ */
+void Enemy::set_dying_sprite_id(const std::string& dying_sprite_id) {
+  this->dying_sprite_id = dying_sprite_id;
 }
 
 /**
@@ -895,22 +912,10 @@ void Enemy::set_suspended(bool suspended) {
     end_shaking_date += diff;
     next_explosion_date += diff;
   }
-  get_lua_context()->entity_on_suspended(*this, suspended);
 }
 
 /**
- * \brief Draws the entity on the map.
- */
-void Enemy::draw_on_map() {
-
-  get_lua_context()->entity_on_pre_draw(*this);
-  Entity::draw_on_map();
-  get_lua_context()->entity_on_post_draw(*this);
-}
-
-/**
- * \brief Notifies this entity that it was just enabled or disabled.
- * \param enabled true if the entity is now enabled
+ * \copydoc Entity::notify_enabled
  */
 void Enemy::notify_enabled(bool enabled) {
 
@@ -922,10 +927,6 @@ void Enemy::notify_enabled(bool enabled) {
 
   if (enabled) {
     restart();
-    get_lua_context()->entity_on_enabled(*this);
-  }
-  else {
-    get_lua_context()->entity_on_disabled(*this);
   }
 }
 
@@ -1412,7 +1413,12 @@ void Enemy::kill() {
 
     if (!special_ground) {
       // Normal dying animation.
-      create_sprite("enemies/enemy_killed");
+      if (!dying_sprite_id.empty()) {
+        if (!QuestFiles::data_file_exists("sprites/" + dying_sprite_id + ".dat")) {
+          Debug::error("No such sprite for enemy dying animation: '" + dying_sprite_id + "'");
+        }
+        create_sprite(dying_sprite_id);
+      }
       Sound::play("enemy_killed");
     }
   }
@@ -1465,7 +1471,7 @@ bool Enemy::is_dying_animation_finished() const {
     return sprite->is_animation_finished();
   }
 
-  // There is no dying animation (case of holes, water and lava for now).
+  // There is no dying animation (case of bad ground or empty dying sprite id).
   return true;
 }
 

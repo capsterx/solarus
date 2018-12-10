@@ -1,0 +1,81 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 48,
+  width = 48,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 80,
+  y = 0,
+  width = 8,
+  height = 112,
+  pattern = "30",
+}
+
+tile{
+  layer = 0,
+  x = 48,
+  y = 96,
+  width = 32,
+  height = 16,
+  pattern = "34",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 3,
+}
+
+sensor{
+  name = "sensor_1",
+  layer = 0,
+  x = 24,
+  y = 45,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_2",
+  layer = 0,
+  x = 72,
+  y = 45,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_3",
+  layer = 0,
+  x = 72,
+  y = 93,
+  width = 16,
+  height = 16,
+}
+

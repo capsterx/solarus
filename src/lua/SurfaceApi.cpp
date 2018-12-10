@@ -58,11 +58,13 @@ void LuaContext::register_surface_module() {
       { "set_xy", drawable_api_set_xy },
       { "get_movement", drawable_api_get_movement },
       { "stop_movement", drawable_api_stop_movement },
-      { "get_pixels", surface_api_get_pixels },
+      { "get_pixels", surface_api_get_pixels } //Was already present in 1.5.x
   };
 
   if (CurrentQuest::is_format_at_least({ 1, 6 })) {
     methods.insert(methods.end(), {
+      { "set_color_modulation", drawable_api_set_color_modulation },
+      { "get_color_modulation", drawable_api_get_color_modulation },
       { "set_pixels", surface_api_set_pixels },
       { "set_shader", drawable_api_set_shader },
       { "get_shader", drawable_api_get_shader },
@@ -72,6 +74,8 @@ void LuaContext::register_surface_module() {
       { "get_scale", drawable_api_get_scale },
       { "set_transformation_origin", drawable_api_set_transformation_origin },
       { "get_transformation_origin", drawable_api_get_transformation_origin },
+      { "gl_bind_as_texture", surface_api_gl_bind_as_texture},
+      { "gl_bind_as_target", surface_api_gl_bind_as_target}
     });
   }
 
@@ -121,7 +125,7 @@ void LuaContext::push_surface(lua_State* l, Surface& surface) {
  */
 int LuaContext::surface_api_create(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     SurfacePtr surface;
     if (lua_gettop(l) == 0) {
       // create an empty surface with the screen size
@@ -149,7 +153,7 @@ int LuaContext::surface_api_create(lua_State* l) {
       lua_pushnil(l);
     }
     else {
-      get_lua_context(l).add_drawable(surface);
+      get().add_drawable(surface);
       push_surface(l, *surface);
     }
     return 1;
@@ -163,7 +167,7 @@ int LuaContext::surface_api_create(lua_State* l) {
  */
 int LuaContext::surface_api_get_size(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Surface& surface = *check_surface(l, 1);
 
     lua_pushinteger(l, surface.get_width());
@@ -179,7 +183,7 @@ int LuaContext::surface_api_get_size(lua_State* l) {
  */
 int LuaContext::surface_api_clear(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Surface& surface = *check_surface(l, 1);
 
     surface.clear();
@@ -195,7 +199,7 @@ int LuaContext::surface_api_clear(lua_State* l) {
  */
 int LuaContext::surface_api_fill_color(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Surface& surface = *check_surface(l, 1);
     Color color = LuaTools::check_color(l, 2);
 
@@ -222,7 +226,7 @@ int LuaContext::surface_api_fill_color(lua_State* l) {
  */
 int LuaContext::surface_api_get_pixels(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Surface& surface = *check_surface(l, 1);
     // TODO optional parameters x, y, width, height
 
@@ -237,11 +241,37 @@ int LuaContext::surface_api_get_pixels(lua_State* l) {
  * \return Number of values to return to Lua.
  */
 int LuaContext::surface_api_set_pixels(lua_State* l) {
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Surface& surface = *check_surface(l,1);
     const std::string& buffer = LuaTools::check_string(l,2);
     surface.set_pixels(buffer);
     return 0;
+  });
+}
+
+/**
+ * \brief Implementation of surface:gl_bind_as_texture().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::surface_api_gl_bind_as_texture(lua_State* l) {
+  return state_boundary_handle(l, [&] {
+      const Surface& surface = *check_surface(l,1);
+      surface.bind_as_texture();
+      return 0;
+  });
+}
+
+/**
+ * \brief Implementation of surface:gl_bind_as_target().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::surface_api_gl_bind_as_target(lua_State* l) {
+  return state_boundary_handle(l, [&] {
+      Surface& surface = *check_surface(l,1);
+      surface.bind_as_target();
+      return 0;
   });
 }
 

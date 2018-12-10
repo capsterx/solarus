@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/entities/Entity.h"
+#include "solarus/entities/TraversableInfo.h"
 #include "solarus/lua/ScopedLuaRef.h"
 #include <map>
 #include <string>
@@ -57,10 +58,7 @@ class SOLARUS_API CustomEntity: public Entity {
 
     // Game loop.
     void notify_creating() override;
-    void set_suspended(bool suspended) override;
-    void notify_enabled(bool enabled) override;
     void update() override;
-    void draw_on_map() override;
 
     // Direction.
     int get_sprites_direction() const;
@@ -174,42 +172,6 @@ class SOLARUS_API CustomEntity: public Entity {
   private:
 
     /**
-     * \brief Stores whether a custom entity can be traversed by or can traverse
-     * other entities.
-     */
-    class TraversableInfo {
-
-      public:
-
-        TraversableInfo();
-        TraversableInfo(
-            LuaContext& lua_context,
-            bool traversable
-        );
-        TraversableInfo(
-            LuaContext& lua_context,
-            const ScopedLuaRef& traversable_test_ref
-        );
-
-        bool is_empty() const;
-        bool is_traversable(
-            CustomEntity& current_entity,
-            Entity& other_entity
-        ) const;
-
-      private:
-
-        LuaContext* lua_context;       /**< The Lua world.
-                                        * nullptr means no info. */
-        ScopedLuaRef
-            traversable_test_ref;      /**< Lua ref to a boolean function
-                                        * that decides, or LUA_REFNIL. */
-        bool traversable;              /**< Traversable property (unused if
-                                        * there is a Lua function). */
-
-    };
-
-    /**
      * \brief Stores a callback to be executed when the specified test
      * detects a collision.
      */
@@ -258,11 +220,11 @@ class SOLARUS_API CustomEntity: public Entity {
 
     // Obstacles.
 
-    TraversableInfo traversable_by_entities_general;  /**< Whether entities can traverse me by default or nullptr. */
+    TraversableInfo traversable_by_entities_general;  /**< Whether entities can traverse me by default. */
     std::map<EntityType, TraversableInfo>
         traversable_by_entities_type;                 /**< Whether entities of a type can traverse me. */
 
-    TraversableInfo can_traverse_entities_general;    /**< Whether I can traverse entities by default or nullptr. */
+    TraversableInfo can_traverse_entities_general;    /**< Whether I can traverse entities by default. */
     std::map<EntityType, TraversableInfo>
         can_traverse_entities_type;                   /**< Whether I can traverse entities of a type. */
     std::map<Ground, bool> can_traverse_grounds;      /**< Whether I can traverse each kind of ground. */

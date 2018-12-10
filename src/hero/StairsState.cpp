@@ -50,7 +50,7 @@ Hero::StairsState::StairsState(
   next_phase_date(0),
   carried_object(nullptr) {
 
-  if (get_previous_carried_object_behavior() == CarriedObject::BEHAVIOR_KEEP) {
+  if (get_previous_carried_object_behavior() == CarriedObject::Behavior::KEEP) {
     // Keep the carried object of the previous state.
     carried_object = hero.get_carried_object();
   }
@@ -132,23 +132,19 @@ void Hero::StairsState::stop(const State* next_state) {
 
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       carried_object->throw_item(get_sprites().get_animation_direction());
       get_entities().add_entity(carried_object);
       carried_object = nullptr;
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
+    case CarriedObject::Behavior::REMOVE:
       get_sprites().set_lifted_item(nullptr);
       break;
 
-    case CarriedObject::BEHAVIOR_KEEP:
-      carried_object = nullptr;
+    case CarriedObject::Behavior::KEEP:
       break;
-
-    default:
-      Debug::die("Invalid carried object behavior");
     }
   }
 }
@@ -187,10 +183,10 @@ void Hero::StairsState::update() {
       }
       hero.clear_movement();
       if (carried_object == nullptr) {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
       else {
-        hero.set_state(new CarryingState(hero, carried_object));
+        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
       }
     }
   }
@@ -202,10 +198,10 @@ void Hero::StairsState::update() {
       hero.clear_movement();
 
       if (carried_object == nullptr) {
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
       else {
-        hero.set_state(new CarryingState(hero, carried_object));
+        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
       }
 
       if (way == Stairs::NORMAL_WAY) {
@@ -213,7 +209,9 @@ void Hero::StairsState::update() {
         // there must be a teletransporter associated with these stairs,
         // otherwise the hero would get stuck into the walls
         std::shared_ptr<Teletransporter> teletransporter = hero.get_delayed_teletransporter();
-        if (teletransporter == nullptr) {
+        if (teletransporter == nullptr ||
+            !teletransporter->is_enabled() ||
+            teletransporter->is_being_removed()) {
           Logger::error("Teletransporter expected with the stairs");
         }
         else {
@@ -292,11 +290,9 @@ bool Hero::StairsState::is_touching_ground() const {
 }
 
 /**
- * \brief Returns whether the hero's current position can be considered
- * as a place to come back after a bad ground (hole, deep water, etc).
- * \return true if the hero can come back here
+ * \copydoc Entity::State::get_can_come_from_bad_ground
  */
-bool Hero::StairsState::can_come_from_bad_ground() const {
+bool Hero::StairsState::get_can_come_from_bad_ground() const {
   return false;
 }
 
@@ -339,9 +335,9 @@ std::shared_ptr<CarriedObject> Hero::StairsState::get_carried_object() const {
 CarriedObject::Behavior Hero::StairsState::get_previous_carried_object_behavior() const {
 
   if (stairs->is_inside_floor()) {
-    return CarriedObject::BEHAVIOR_KEEP;
+    return CarriedObject::Behavior::KEEP;
   }
-  return CarriedObject::BEHAVIOR_DESTROY;
+  return CarriedObject::Behavior::REMOVE;
 }
 
 /**

@@ -30,31 +30,32 @@ class Hero::SwordLoadingState: public Hero::PlayerMovementState {
 
   public:
 
-    explicit SwordLoadingState(Hero& hero);
+    SwordLoadingState(Hero& hero, int spin_attack_delay);
 
-    virtual void start(const State* previous_state) override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
-    virtual void notify_obstacle_reached() override;
-    virtual void notify_attacked_enemy(
+    void start(const State* previous_state) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
+    void notify_obstacle_reached() override;
+    void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 
-    virtual bool is_direction_locked() const override;
-    virtual bool can_take_stairs() const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool can_use_shield() const override;
-    virtual void set_animation_stopped() override;
-    virtual void set_animation_walking() override;
+    bool is_direction_locked() const override;
+    bool get_can_take_stairs() const override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool get_can_use_shield() const override;
+    void set_animation_stopped() override;
+    void set_animation_walking() override;
 
   private:
 
     void play_load_sound();
 
+    int spin_attack_delay;                 /**< Delay before allowing the spin attack (-1 means never). */
     uint32_t sword_loaded_date;            /**< date when the sword is loaded */
     bool sword_loaded;                     /**< becomes true when the spin attack is possible */
 

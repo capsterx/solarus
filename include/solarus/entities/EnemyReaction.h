@@ -54,7 +54,7 @@ class SOLARUS_API EnemyReaction {
     struct Reaction {
       ReactionType type;      /**< Type of reaction. */
       int life_lost;          /**< Number of life points lost, possibly zero
-                               * (with reaction type CUSTOM). */
+                               * (with reaction type HURT). */
       ScopedLuaRef callback;  /**< Lua function to call
                                * (with reaction type LUA_CALLBACK). */
 

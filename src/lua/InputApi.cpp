@@ -64,7 +64,7 @@ void LuaContext::register_input_module() {
  */
 int LuaContext::input_api_is_joypad_enabled(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     lua_pushboolean(l, InputEvent::is_joypad_enabled());
     return 1;
   });
@@ -77,7 +77,7 @@ int LuaContext::input_api_is_joypad_enabled(lua_State* l) {
  */
 int LuaContext::input_api_set_joypad_enabled(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     bool joypad_enabled = LuaTools::opt_boolean(l, 2, true);
 
     InputEvent::set_joypad_enabled(joypad_enabled);
@@ -93,7 +93,7 @@ int LuaContext::input_api_set_joypad_enabled(lua_State* l) {
  */
 int LuaContext::input_api_is_key_pressed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& key_name = LuaTools::check_string(l, 1);
     InputEvent::KeyboardKey key = name_to_enum(key_name, InputEvent::KeyboardKey::NONE);
 
@@ -114,7 +114,7 @@ int LuaContext::input_api_is_key_pressed(lua_State* l) {
  */
 int LuaContext::input_api_get_key_modifiers(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const bool shift = InputEvent::is_shift_down();
     const bool control = InputEvent::is_control_down();
     const bool alt = InputEvent::is_alt_down();
@@ -154,7 +154,7 @@ int LuaContext::input_api_get_key_modifiers(lua_State* l) {
  */
 int LuaContext::input_api_is_joypad_button_pressed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int button = LuaTools::check_int(l, 1);
 
     lua_pushboolean(l, InputEvent::is_joypad_button_down(button));
@@ -169,7 +169,7 @@ int LuaContext::input_api_is_joypad_button_pressed(lua_State* l) {
  */
 int LuaContext::input_api_get_joypad_axis_state(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int axis = LuaTools::check_int(l, 1);
 
     lua_pushinteger(l, InputEvent::get_joypad_axis_state(axis));
@@ -184,7 +184,7 @@ int LuaContext::input_api_get_joypad_axis_state(lua_State* l) {
  */
 int LuaContext::input_api_get_joypad_hat_direction(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int hat = LuaTools::check_int(l, 1);
 
     lua_pushinteger(l, InputEvent::get_joypad_hat_direction(hat));
@@ -199,7 +199,7 @@ int LuaContext::input_api_get_joypad_hat_direction(lua_State* l) {
  */
 int LuaContext::input_api_is_mouse_button_pressed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const std::string& button_name = LuaTools::check_string(l, 1);
     InputEvent::MouseButton button = name_to_enum(button_name, InputEvent::MouseButton::NONE);
 
@@ -220,7 +220,7 @@ int LuaContext::input_api_is_mouse_button_pressed(lua_State* l) {
  */
 int LuaContext::input_api_get_mouse_position(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const Point mouse_xy = InputEvent::get_global_mouse_position();
 
     lua_pushinteger(l, mouse_xy.x);
@@ -236,7 +236,7 @@ int LuaContext::input_api_get_mouse_position(lua_State* l) {
  */
 int LuaContext::input_api_is_finger_pressed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int finger_id = LuaTools::check_int(l, 1);
 
     lua_pushboolean(l, InputEvent::is_finger_down(finger_id));
@@ -251,7 +251,7 @@ int LuaContext::input_api_is_finger_pressed(lua_State* l) {
  */
 int LuaContext::input_api_get_finger_position(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     int finger_id = LuaTools::check_int(l, 1);
     Point finger_xy;
 
@@ -273,7 +273,7 @@ int LuaContext::input_api_get_finger_position(lua_State* l) {
  */
 int LuaContext::input_api_get_finger_pressure(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     int finger_id = LuaTools::check_int(l, 1);
     float finger_pressure;
@@ -294,7 +294,7 @@ int LuaContext::input_api_get_finger_pressure(lua_State* l) {
  */
 int LuaContext::input_api_simulate_key_pressed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& key_name = LuaTools::check_string(l, 1);
     InputEvent::KeyboardKey key = name_to_enum(key_name, InputEvent::KeyboardKey::NONE);
@@ -316,7 +316,7 @@ int LuaContext::input_api_simulate_key_pressed(lua_State* l) {
  */
 int LuaContext::input_api_simulate_key_released(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
 
     const std::string& key_name = LuaTools::check_string(l, 1);
     InputEvent::KeyboardKey key = name_to_enum(key_name, InputEvent::KeyboardKey::NONE);

@@ -50,8 +50,6 @@ class SOLARUS_API Color {
     static const Color magenta;
     static const Color cyan;
 
-  private:
-
     friend constexpr bool operator==(const Color& lhs, const Color& rhs);
     friend constexpr bool operator!=(const Color& lhs, const Color& rhs);
 

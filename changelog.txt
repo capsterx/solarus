@@ -8,11 +8,15 @@ Engine changes
 
 * Solarus 1.5 quests are still supported by Solarus 1.6.
 * Add support of OpenGL shaders (#394) by stdgregwar, Vlag and Christopho.
+* Improve the performance of loading images.
 * Maps can now use multiple tilesets (#1174).
 * Animated tile patterns can now have any frame number and delay (#683).
+* Fix crash when using coroutines (#1269) by stdgregwar.
 * Treasure dialogs are now optional (#1076).
+* Allow entities to have a non-multiple of 8 size (#1294).
 * Don't center the hero on non-blocking streams (#1063).
 * Allow pickables to follow streams (#1139).
+* Blocks can now be moved multiple times (#967).
 * Fix enemies unable to move on non-blocking streams.
 * Fix streams stopping when using the sword several times.
 * Fix non-blocking stream turns after going south (#648).
@@ -21,8 +25,12 @@ Engine changes
 * Fix timer:set_suspended_with_map() for entity timers (#1158, #1236).
 * Fix random movement giving the same path for all entities on Mac (#1083).
 * Fix circle_movement:get_direction4() not working (#1163).
+* Fix precision issue with circle_movement angular speed (#1116).
 * Fix path_movement:get_path() and pixel_movement:get_trajectory() (#1136).
+* Fix straight_movement:set_max_distance() incorrect on tables (#1075).
+* Fix straight_movement:set_speed() not handling errors correctly.
 * Fix possible crash when reloading very old savegame files (#1064).
+* Fix crash when loading a map with tiles whose pattern does not exist (#1299).
 * Fix crash when a sprite PNG file is missing.
 * Fix crash when calling entity:test_obstacles() on an unloaded map.
 * Fix crash when opening a chest with a missing treasure dialog (#1089).
@@ -33,6 +41,7 @@ Engine changes
 * Fix hero:on_movement_changed() not called (#1095).
 * Fix hero shield sprite directions in animation sword (#1185).
 * Fix facing entity randomly chosen when the hero faces multiple ones (#1042).
+* Fix disabling teletransporters during their on_activated() event (#1266).
 * Fix blocks not falling into water or lava (#1214).
 * Fix enemy:on_restarted() called twice (#1179).
 * Fix removed entity still drawn during scrolling transition (#1193).
@@ -45,65 +54,117 @@ Engine changes
 * Fix compilation error with Clang 3.9 in SNES_SPC.
 * Fix possible compilation error when HAVE_UNISTD_H has no value (#1084).
 * Fix loading quests in non UTF-8 filesystems.
+* Add support of .otf fonts.
 * Improve Lua error messages.
-* CLI can accept an archive's path as argument
+* CLI can accept an archive's path as argument.
+* Replaced SDL renderer by a custom GL backend, by stdgregwar.
 
 Solarus launcher GUI changes
 ----------------------------
 
+* Show the path and the compatibility format of each quest (#1129).
 * Lua console: provide variables game, map, entities and tp function.
 * Clear the console when a quest is started.
-* FileDialog now expect a file, either quest.dat or an archive (.solarus, .zip)
+* FileDialog now expects a file, either quest.dat or an archive (.solarus, .zip)
 
 Lua API changes
 ---------------
 
-Changes that do not introduce incompatibilities:
+This release adds new features and deprecates a few ones
+but does not introduce any incompatibility.
+
+New features:
 
 * Add a shader API.
-* Video mode functions are now deprecated. Use shader functions instead.
+* Add a custom hero state API.
 * Add an event sol.video:on_draw(screen) to draw to the scaled screen (#1216).
 * Add a function sol.main.get_quest_version() (#1058) by Nate-Devv.
 * Add a function sol.main.get_game() (#1212).
 * Add functions to get and set the resource elements (#959, #630).
 * Add methods game:simulate_key_pressed/released() by Vlag (#1034).
 * Add abilities push, grab and pull to game:get/set_ability() (#788).
+* Add a method item:is_being_used() by alexander-b (#879).
 * Add methods entity:set_size() to all entities (#121, #528).
 * Add methods entity:set_origin() to all entities.
+* Add methods entity:create/remove_sprite() to all entities (#852).
 * Add methods entity:is/set_drawn_in_y_order() to all entities (#1098, #1173).
 * Add methods entity:get/set_weight() to all entities to lift them (#1227).
 * Add methods entity:get_property() and entity:set_property() (#1094).
 * Add methods entity:get_properties() and entity:set_properties() (#1144).
 * Add methods entity:get_layer() and entity:set_layer().
 * Add a method entity:get_controlling_stream() (#1204).
-* Add methods door:open(), door:close() and door:set_open() (#1007).
-* destructible:on_lifting() now gives a carried object parameter.
+* Add optional sprite parameters to entity:overlaps() (#1159).
+* Add methods entity:get/set_draw_override() (#1260).
+* Add events entity:on_pre/post_draw(camera) to all entities (#1260).
+* Add parameter camera to event entity:on_pre/post_draw() (#1260).
+* Add events entity:on_enabled/disabled() to all entities (#898).
+* Add event entity:on_suspended() to all entities (#1261).
 * Add a method hero:get_carried_object().
+* Add a method hero:start_grabbing() (#1303).
+* Add a method hero:start_attack_loading() (#1291).
+* Add an event hero:on_state_changing() (#1247).
+* Add an event camera:on_state_changing().
+* Add a method camera:get_surface() (#1265).
+* Add an event camera:on_state_changing().
+* Add methods dynamic_tile:get/set_tileset() (#1175).
+* Add methods door:open(), door:close() and door:set_open() (#1007).
+* Add methods stairs:get_direction() and stairs:is_inner() (#1037).
+* destructible:on_lifting() now gives a carried object parameter.
+* Add method carried_object:get_carrier().
 * Add methods carried_object:get/set_damage_on_enemies().
 * Add methods carried_object:get/set_destruction_sound().
+* Add events carried_object:on_lifted/thrown/breaking() (#1233).
+* Add property max_moves in map:create_block() replacing maximum_moves (#967).
+* Add methods block:get/set_max_moves() replacing block:get/set_maximum_moves().
 * Add optional callback parameter to enemy:set_attack_consequence() (#1062).
+* Add method enemy:is_immobilized() (#1092).
 * Add methods enemy:get/set_attacking_collision_mode() (#1066).
+* Add methods enemy:get/set_dying_sprite_id() (#955).
+* Add methods custom_entity:is/set_tiled() (#1105).
 * Add methods custom_entity:get/set_follow_streams() (#1221).
 * Add methods drawable:get/set_rotation() and get/set_scaling() by stdgregwar.
 * Add methods get/set_opacity() to sprite and text_surface (#702) by stdgregwar.
+* Add methods sprite:is_animation_started() and sprite:stop_animation() (#1264).
 * Add a method sprite:get_frame_src_xy() (#1093).
+* Add a method sprite:get_ignore_suspend().
 * sprite:get_num_frames() can now optionally take an animation and direction.
 * sprite:get_frame_delay() can now optionally take an animation.
 * sprite:get_size() can now optionally take an animation and direction.
 * sprite:get_origin() can now optionally take an animation and direction.
 * Add a method surface:get_pixels() (#452).
 * Add a method surface:set_pixels() (#466) by stdgregwar.
+* Add methods surface:gl_bind_as_target/texture() by stdgregwar.
+* Add method movement:is_suspended().
+* Add methods movement:get/set_ignore_suspend() (#858).
 * Add method get_angle() to more movement types (#1122) by stdgregwar.
+* Add method circle_movement:get_center() (#1091).
+* Add methods circle_movement:get/set_angle_from_center() in radians (#1116).
+* Add methods circle_movement:get/set_angular_speed() in radians (#1116).
+* Add methods sol.menu.bring_to_front/back() (#1107).
+* Repeated timers can now change their next delay by returning a number (#983).
 * Automatically set the language when there is only one in the quest (#1006).
 * Add functions sol.file.is_dir() and sol.file.list_dir() (#971).
 * Add finger functions to sol.input and finger events by Vlag.
+* Add methods get/set_color_modulation() by stdgregwar.
+* Add function sol.text_surface.get_predicted_size() by stdgregwar.
+
+Deprecated functions:
+
+* Built-in video mode functions: use shaders instead.
+* Property maximum_moves of map:create_block(): use max_moves instead.
+* block:get/set_maximum_moves(): use get/set_max_moves() instead.
+* Angles in degrees in circle movement: use functions with radians instead.
 
 Data files format changes
 -------------------------
 
 * Maps: add support of custom properties for entities (#1094).
+* Maps: add property enabled_at_start to all entities (#1101).
 * Maps: add property tileset to tiles and dynamic tiles (#1174).
+* Maps: add property max_moves to blocks to allow multiple limited moves (#967).
+* Maps: property maximum_moves of blocks is now deprecated and optional (#967).
 * Maps: add properties origin_x, origin_y to custom entities.
+* Maps: add property tiled to custom entities (#1105).
 * Tilesets: add support of border sets (autotiles) (#1069).
 * Tilesets: add support of custom frame number and delay (#683).
 * Make the tileset entities image optional (#884).

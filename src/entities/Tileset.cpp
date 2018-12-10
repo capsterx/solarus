@@ -38,7 +38,8 @@ namespace Solarus {
 Tileset::Tileset(const std::string& id):
   id(id),
   tiles_image(nullptr),
-  entities_image(nullptr) {
+  entities_image(nullptr),
+  loaded(false) {
 }
 
 /**
@@ -127,9 +128,29 @@ void Tileset::add_tile_pattern(
 }
 
 /**
+ * \brief Returns whether this tileset is loaded.
+ * \return \c true if this tileset is loaded.
+ */
+bool Tileset::is_loaded() const {
+  return loaded;
+}
+
+/**
  * \brief Loads the tileset from its file by creating all tile patterns.
+ *
+ * Nothing happens if the tileset is already loaded.
  */
 void Tileset::load() {
+
+  if (is_loaded()) {
+    return;
+  }
+
+  std::lock_guard<std::mutex> lock(load_mutex);
+
+  if (is_loaded()) {
+    return;
+  }
 
   // Load the tileset data file.
   std::string file_name = std::string("tilesets/") + id + ".dat";
@@ -143,16 +164,17 @@ void Tileset::load() {
     }
   }
 
-  // Load the tileset images.
+  // Load the tileset images from disk but don't upload them
+  // to GPU yet because we can be in a separate thread here.
   file_name = std::string("tilesets/") + id + ".tiles.png";
-  tiles_image = Surface::create(file_name, Surface::DIR_DATA);
-  if (tiles_image == nullptr) {
+  tiles_image_soft = Surface::create_sdl_surface_from_file(file_name);
+  if (tiles_image_soft == nullptr) {
     Debug::error(std::string("Missing tiles image for tileset '") + id + "': " + file_name);
-    tiles_image = Surface::create(16, 16);
   }
-
   file_name = std::string("tilesets/") + id + ".entities.png";
-  entities_image = Surface::create(file_name, Surface::DIR_DATA);
+  entities_image_soft = Surface::create_sdl_surface_from_file(file_name);
+
+  loaded = true;
 }
 
 /**
@@ -161,9 +183,21 @@ void Tileset::load() {
  */
 void Tileset::unload() {
 
+  if (!is_loaded()) {
+    return;
+  }
+
+  std::lock_guard<std::mutex> lock(load_mutex);
+
+  if (!is_loaded()) {
+    return;
+  }
+
   tile_patterns.clear();
   tiles_image = nullptr;
   entities_image = nullptr;
+
+  loaded = false;
 }
 
 /**
@@ -175,18 +209,21 @@ const Color& Tileset::get_background_color() const {
 }
 
 /**
- * \brief Returns whether this tileset is loaded.
- * \return \c true if this tileset is loaded.
- */
-bool Tileset::is_loaded() const {
-  return tiles_image != nullptr;
-}
-
-/**
  * \brief Returns the image containing the tiles of this tileset.
  * \return The tiles image.
  */
 const SurfacePtr& Tileset::get_tiles_image() const {
+
+  if (tiles_image == nullptr) {
+    if (tiles_image_soft == nullptr) {
+      tiles_image = Surface::create(16, 16);
+    }
+    else {
+      tiles_image = Surface::create(std::move(tiles_image_soft));
+    }
+    tiles_image_soft = nullptr;
+  }
+
   return tiles_image;
 }
 
@@ -196,23 +233,31 @@ const SurfacePtr& Tileset::get_tiles_image() const {
  * Returns \c nullptr if it does not exist.
  */
 const SurfacePtr& Tileset::get_entities_image() const {
+
+  if (entities_image == nullptr) {
+    if (entities_image_soft == nullptr) {
+      entities_image = Surface::create(16, 16);
+    }
+    else {
+      entities_image = Surface::create(std::move(entities_image_soft));
+    }
+    entities_image_soft = nullptr;
+  }
   return entities_image;
 }
 
 /**
  * \brief Returns a tile pattern from this tileset.
  * \param id Id of the tile pattern to get.
- * \return The tile pattern with this id.
+ * \return The tile pattern with this id, or nullptr if it does not exist.
  */
-const TilePattern& Tileset::get_tile_pattern(const std::string& id) const {
+std::shared_ptr<TilePattern> Tileset::get_tile_pattern(const std::string& id) const {
 
   const auto& it = tile_patterns.find(id);
   if (it == tile_patterns.end()) {
-    std::ostringstream oss;
-    oss << "No such tile pattern in tileset '" << get_id() << "': " << id;
-    Debug::die(oss.str());
+    return nullptr;
   }
-  return *it->second;
+  return it->second;
 }
 
 /**

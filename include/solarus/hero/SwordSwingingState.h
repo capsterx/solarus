@@ -30,22 +30,22 @@ class Hero::SwordSwingingState: public HeroState {
 
     explicit SwordSwingingState(Hero& hero);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void update() override;
-    virtual bool can_start_sword() const override;
-    virtual bool can_be_hurt(Entity* attacker) const override;
-    virtual bool can_pick_treasure(EquipmentItem& item) const override;
-    virtual bool can_use_shield() const override;
-    virtual bool can_sword_hit_crystal() const override;
-    virtual bool is_cutting_with_sword(Entity& entity) override;
-    virtual bool is_teletransporter_obstacle(const Teletransporter& teletransporter) const override;
-    virtual void notify_obstacle_reached() override;
-    virtual void notify_attacked_enemy(
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void update() override;
+    bool get_can_start_sword() const override;
+    bool get_can_be_hurt(Entity* attacker) override;
+    bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool get_can_use_shield() const override;
+    bool can_sword_hit_crystal() const override;
+    bool is_cutting_with_sword(Entity& entity) override;
+    bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
+    void notify_obstacle_reached() override;
+    void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed
     ) override;
 

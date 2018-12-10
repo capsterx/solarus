@@ -595,20 +595,19 @@ void Pickable::update() {
 }
 
 /**
- * \brief Draws the pickable item on the map.
+ * \copydoc Entity::built_in_draw
  *
- * This is a redefinition of Entity::draw_on_map
- * to draw the shadow independently of the item movement.
+ * This is a redefinition to draw the shadow independently of the movement.
  */
-void Pickable::draw_on_map() {
+void Pickable::built_in_draw(Camera& camera) {
 
-  // draw the shadow
+  // Draw the shadow.
   if (shadow_sprite != nullptr) {
     get_map().draw_visual(*shadow_sprite, shadow_xy);
   }
 
-  // draw the sprite
-  Entity::draw_on_map();
+  // Draw the sprite.
+  Entity::built_in_draw(camera);
 }
 
 }

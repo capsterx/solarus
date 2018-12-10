@@ -71,17 +71,13 @@ void Hero::CarryingState::stop(const State* next_state) {
 
     switch (next_state->get_previous_carried_object_behavior()) {
 
-    case CarriedObject::BEHAVIOR_THROW:
+    case CarriedObject::Behavior::THROW:
       throw_item();
       break;
 
-    case CarriedObject::BEHAVIOR_DESTROY:
-    case CarriedObject::BEHAVIOR_KEEP:
-      carried_object = nullptr;
+    case CarriedObject::Behavior::REMOVE:
+    case CarriedObject::Behavior::KEEP:
       break;
-
-    default:
-      Debug::die("Invalid carried object behavior");
     }
   }
 }
@@ -149,12 +145,11 @@ void Hero::CarryingState::update() {
   if (is_current_state()) {
     carried_object->update();
 
-    if (!is_suspended()) {
-
+    if (is_current_state() && !is_suspended()) {
       if (carried_object->is_broken()) {
         carried_object = nullptr;
         Hero& hero = get_entity();
-        hero.set_state(new FreeState(hero));
+        hero.set_state(std::make_shared<FreeState>(hero));
       }
     }
   }
@@ -168,7 +163,7 @@ void Hero::CarryingState::notify_action_command_pressed() {
   if (get_commands_effects().get_action_key_effect() == CommandsEffects::ACTION_KEY_THROW) {
     throw_item();
     Hero& hero = get_entity();
-    hero.set_state(new FreeState(hero));
+    hero.set_state(std::make_shared<FreeState>(hero));
   }
 }
 
@@ -189,14 +184,14 @@ void Hero::CarryingState::throw_item() {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::CarryingState::can_start_sword() const {
+bool Hero::CarryingState::get_can_start_sword() const {
   return true;
 }
 
 /**
  * \copydoc Entity::State::can_use_shield
  */
-bool Hero::CarryingState::can_use_shield() const {
+bool Hero::CarryingState::get_can_use_shield() const {
   return false;
 }
 
@@ -205,7 +200,7 @@ bool Hero::CarryingState::can_use_shield() const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::CarryingState::can_take_stairs() const {
+bool Hero::CarryingState::get_can_take_stairs() const {
   return true;
 }
 
@@ -236,7 +231,7 @@ std::shared_ptr<CarriedObject> Hero::CarryingState::get_carried_object() const {
  */
 CarriedObject::Behavior Hero::CarryingState::get_previous_carried_object_behavior() const {
 
-  return CarriedObject::BEHAVIOR_KEEP;
+  return CarriedObject::Behavior::KEEP;
 }
 
 }

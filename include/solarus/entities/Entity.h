@@ -39,10 +39,12 @@ namespace Solarus {
 
 class Block;
 class Bomb;
+class Camera;
 class Chest;
 class CommandsEffects;
 class Crystal;
 class CrystalBlock;
+class Destination;
 class Destructible;
 class Door;
 class Enemy;
@@ -111,8 +113,6 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_ground_modifier() const;
     virtual Ground get_modified_ground() const;
     virtual bool can_be_drawn() const;
-    bool is_drawn_in_y_order() const;
-    void set_drawn_in_y_order(bool drawn_in_y_order);
     virtual bool is_drawn_at_its_position() const;
 
     virtual void notify_command_pressed(GameCommand command);
@@ -123,10 +123,13 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_on_map() const;
     void set_map(Map& map);
     Map& get_map() const;
-    virtual void notify_map_started();
     virtual void notify_creating();
     virtual void notify_created();
-    virtual void notify_map_opening_transition_finished();
+    virtual void notify_map_starting(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_started(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finishing(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_opening_transition_finished(Map& map, const std::shared_ptr<Destination>& destination);
+    virtual void notify_map_finished();
     virtual void notify_tileset_changed();
     Game& get_game();
     const Game& get_game() const;
@@ -224,8 +227,14 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_sprite_animation_finished(Sprite& sprite, const std::string& animation);
     bool is_visible() const;
     void set_visible(bool visible);
+    bool is_tiled() const;
+    void set_tiled(bool tiled);
+    bool is_drawn_in_y_order() const;
+    void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
     void update_sprite(Sprite& sprite);
+    ScopedLuaRef get_draw_override() const;
+    void set_draw_override(const ScopedLuaRef& draw_override);
 
     // Movement.
     const std::shared_ptr<Movement>& get_movement();
@@ -240,10 +249,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     void start_stream_action(std::unique_ptr<StreamAction> stream_action);
     void stop_stream_action();
 
-    virtual void notify_obstacle_reached();
     virtual void notify_position_changed();
     virtual void notify_layer_changed();
     virtual void notify_ground_below_changed();
+    virtual void notify_obstacle_reached();
     virtual void notify_movement_started();
     virtual void notify_movement_finished();
     virtual void notify_movement_changed();
@@ -293,15 +302,21 @@ class SOLARUS_API Entity: public ExportableToLua {
     void check_collision(Entity& other);
     void check_collision(Entity& other, Sprite& other_sprite);
     void check_collision(Sprite& this_sprite, Entity& other);
-    // TODO void check_collision(Sprite& this_sprite, Entity& other, Sprite& other_sprite);
-    bool test_collision(Entity& entity, CollisionMode collision_mode);
+    bool test_collision(
+        Entity& entity,
+        CollisionMode collision_mode,
+        const SpritePtr& this_sprite,
+        const SpritePtr& other_sprite);
     bool test_collision_rectangle(const Entity& entity) const;
     bool test_collision_inside(const Entity& entity) const;
     bool test_collision_origin_point(const Entity& entity) const;
     bool test_collision_facing_point(const Entity& entity) const;
     bool test_collision_touching(const Entity& entity) const;
     bool test_collision_center(const Entity& entity) const;
-    bool test_collision_sprites(Entity& entity);
+    bool test_collision_sprites(
+        Entity& entity,
+        const SpritePtr& this_sprite,
+        const SpritePtr& other_sprite);
     virtual bool test_collision_custom(Entity& entity);
 
     // Being detected by other entities.
@@ -331,8 +346,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void notify_attacked_enemy(
         EnemyAttack attack,
         Enemy& victim,
-        const Sprite* victim_sprite,
-        EnemyReaction::Reaction& result,
+        Sprite* victim_sprite,
+        const EnemyReaction::Reaction& result,
         bool killed);
 
     // Interactions.
@@ -370,7 +385,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_suspended() const;
     virtual void set_suspended(bool suspended);
     virtual void update();
-    virtual void draw_on_map();
+    void draw(Camera& camera);
+    virtual void built_in_draw(Camera& camera);
 
     // Easy access to various game objects.
     Entities& get_entities();
@@ -392,8 +408,8 @@ class SOLARUS_API Entity: public ExportableToLua {
      */
     class State;                                /**< base class for all states */
 
-    State& get_state() const;
-    void set_state(State* state);
+    std::shared_ptr<State> get_state() const;
+    void set_state(const std::shared_ptr<State>& state);
 
     std::string get_state_name() const;
     void update_state();
@@ -482,7 +498,9 @@ class SOLARUS_API Entity: public ExportableToLua {
         sprites;                                /**< Sprites representing the entity. */
     std::string default_sprite_name;            /**< Name of the sprite to get in get_sprite() without parameter. */
     bool visible;                               /**< Whether this entity's sprites are currently displayed. */
+    bool tiled;                                 /**< Whether sprites should be repeated with tiling. */
     bool drawn_in_y_order;                      /**< Whether this entity is drawn in Y order or in Z order. */
+    ScopedLuaRef draw_override;                 /**< Lua function that draws this entity, if any. */
     std::shared_ptr<Movement> movement;         /**< Movement of the entity.
                                                  * nullptr indicates that the entity has no movement. */
     std::vector<std::shared_ptr<Movement>>
@@ -501,8 +519,8 @@ class SOLARUS_API Entity: public ExportableToLua {
         old_stream_actions;                     /**< Old stream actions to destroy as soon as possible. */
 
     // state
-    std::unique_ptr<State> state;               /**< The current internal state */
-    std::list<std::unique_ptr<State>>
+    std::shared_ptr<State> state;               /**< The current internal state */
+    std::vector<std::shared_ptr<State>>
         old_states;                             /**< Previous state objects to delete as soon as possible. */
 
     bool initialized;                           /**< Whether all initializations were done. */

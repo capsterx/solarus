@@ -21,7 +21,6 @@
 #include "solarus/hero/FreeState.h"
 #include "solarus/hero/GrabbingState.h"
 #include "solarus/hero/HeroSprites.h"
-#include "solarus/hero/PushingState.h"
 #include "solarus/movements/PlayerMovement.h"
 
 namespace Solarus {
@@ -143,7 +142,7 @@ void Hero::FreeState::notify_obstacle_reached() {
     }
     else if (now >= start_pushing_date) {
       equipment.notify_ability_used(Ability::PUSH);
-      hero.set_state(new PushingState(hero));
+      hero.start_pushing();
     }
   }
 }
@@ -161,7 +160,7 @@ bool Hero::FreeState::is_free() const {
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */
-bool Hero::FreeState::can_start_sword() const {
+bool Hero::FreeState::get_can_start_sword() const {
   return true;
 }
 
@@ -170,7 +169,7 @@ bool Hero::FreeState::can_start_sword() const {
  * \param item The equipment item to check.
  * \return true if the hero can use this equipment item in this state.
  */
-bool Hero::FreeState::can_start_item(EquipmentItem& /* item */) const {
+bool Hero::FreeState::get_can_start_item(EquipmentItem& /* item */) const {
 
   return get_entity().get_ground_below() != Ground::HOLE;
 }
@@ -180,7 +179,7 @@ bool Hero::FreeState::can_start_item(EquipmentItem& /* item */) const {
  * If false is returned, stairs have no effect (but they are obstacle for the hero).
  * \return true if the hero ignores the effect of stairs in this state
  */
-bool Hero::FreeState::can_take_stairs() const {
+bool Hero::FreeState::get_can_take_stairs() const {
   return true;
 }
 
@@ -188,7 +187,7 @@ bool Hero::FreeState::can_take_stairs() const {
  * \copydoc Entity::State::get_previous_carried_object_behavior
  */
 CarriedObject::Behavior Hero::FreeState::get_previous_carried_object_behavior() const {
-  return CarriedObject::BEHAVIOR_DESTROY;
+  return CarriedObject::Behavior::REMOVE;
 }
 
 /**

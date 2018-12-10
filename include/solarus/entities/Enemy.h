@@ -107,6 +107,8 @@ class Enemy: public Entity {
     void set_life(int life);
     HurtStyle get_hurt_style() const;
     void set_hurt_style(HurtStyle hurt_style);
+    std::string get_dying_sprite_id() const;
+    void set_dying_sprite_id(const std::string& dying_sprite_id);
     bool get_can_attack() const;
     void set_can_attack(bool can_attack);
     bool is_traversable() const;
@@ -164,7 +166,6 @@ class Enemy: public Entity {
     // enemy state
     void update() override;
     void set_suspended(bool suspended) override;
-    void draw_on_map() override;
 
     void notify_enabled(bool enabled) override;
     void notify_ground_below_changed() override;
@@ -219,6 +220,7 @@ class Enemy: public Entity {
     int life;                          /**< number of health points of the enemy (default: 1) */
     HurtStyle hurt_style;              /**< style of sounds and animations when this enemy gets hurt
                                         * (default: HURT_NORMAL) */
+    std::string dying_sprite_id;       /**< Sprite to show during the dying animation if any. */
     bool pushed_back_when_hurt;        /**< indicates whether the enemy is pushed back when it gets hurt by the hero
                                         * (default: true) */
     bool push_hero_on_sword;           /**< indicates whether the hero is pushed back when he hurts the enemy with his

@@ -129,8 +129,8 @@ class SOLARUS_API TilesetData : public LuaData {
     int get_num_patterns() const;
     const std::map<std::string, TilePatternData>& get_patterns() const;
     bool pattern_exists(const std::string& pattern_id) const;
-    const TilePatternData& get_pattern(const std::string& pattern_id) const;
-    TilePatternData& get_pattern(const std::string& pattern_id);
+    const TilePatternData* get_pattern(const std::string& pattern_id) const;
+    TilePatternData* get_pattern(const std::string& pattern_id);
     bool add_pattern(
         const std::string& pattern_id, const TilePatternData& pattern);
     bool remove_pattern(const std::string& pattern_id);

@@ -32,21 +32,21 @@ class SOLARUS_GUI_API QuestsItemDelegate : public QStyledItemDelegate {
 
 public:
   QuestsItemDelegate(QObject *parent = nullptr);
-  ~QuestsItemDelegate();
 
 public:
-  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+  void paint(QPainter *painter,
+             const QStyleOptionViewItem &option,
              const QModelIndex &index) const override;
 
   QSize sizeHint(const QStyleOptionViewItem &option,
                  const QModelIndex &index) const override;
 
 public:
-  const QSize &iconSize() const;
-  void setIconSize(const QSize &iconSize);
+  const QSize &get_icon_size() const;
+  void set_icon_size(const QSize &icon_size);
 
 private:
-  QSize _iconSize;
+  QSize icon_size;
 };
 
 } // namespace SolarusGui

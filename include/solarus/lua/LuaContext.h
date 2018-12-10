@@ -36,6 +36,7 @@
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/lua/ExportableToLuaPtr.h"
 #include "solarus/lua/ScopedLuaRef.h"
+#include "solarus/lua/LuaTools.h"
 #include <lua.hpp>
 #include <list>
 #include <map>
@@ -43,6 +44,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <queue>
+#include <functional>
 
 namespace Solarus {
 
@@ -53,6 +56,7 @@ class Chest;
 class CircleMovement;
 class Color;
 class CustomEntity;
+class CustomState;
 class Destination;
 class Destructible;
 class Dialog;
@@ -60,6 +64,7 @@ class Door;
 class Drawable;
 class DynamicTile;
 class Enemy;
+class EnemyReaction;
 class Entity;
 class EntityData;
 class ExportableToLua;
@@ -83,6 +88,7 @@ class Shader;
 class ShopTreasure;
 class Sprite;
 class StraightMovement;
+class Stairs;
 class Stream;
 class Switch;
 class TargetMovement;
@@ -90,6 +96,8 @@ class Teletransporter;
 class TextSurface;
 class Timer;
 class Treasure;
+
+class Arguments;
 
 using EntityVector = std::vector<EntityPtr>;
 
@@ -128,6 +136,7 @@ class LuaContext {
     static const std::string menu_module_name;
     static const std::string language_module_name;
     static const std::string shader_module_name;
+    static const std::string state_module_name;
     static const std::string movement_module_name;
     static const std::string movement_straight_module_name;
     static const std::string movement_random_module_name;
@@ -142,13 +151,14 @@ class LuaContext {
     explicit LuaContext(MainLoop& main_loop);
     ~LuaContext();
 
-    static LuaContext& get_lua_context(lua_State* l);
+    static LuaContext& get();
     lua_State* get_internal_state();
+    lua_State* get_main_state();
 
     MainLoop& get_main_loop();
 
     // Main loop from C++.
-    void initialize();
+    void initialize(const Arguments &args);
     void exit();
     void update();
     bool notify_input(const InputEvent& event);
@@ -170,7 +180,7 @@ class LuaContext {
         const ScopedLuaRef& status_ref
     );
     void run_item(EquipmentItem& item);
-    void run_map(Map& map, Destination* destination);
+    void run_map(Map& map, const std::shared_ptr<Destination>& destination);
     void run_enemy(Enemy& enemy);
     void run_custom_entity(CustomEntity& custom_entity);
 
@@ -179,10 +189,11 @@ class LuaContext {
         const std::string& function_name,
         const std::string& message
     );
+    static void print_stack(lua_State* current_l);
 
     // Lua refs.
     ScopedLuaRef create_ref();
-    static void push_ref(lua_State* l, const ScopedLuaRef& ref);
+    static void push_ref(lua_State* current_l, const ScopedLuaRef& ref);
 
     // Executing Lua code.
     bool load_file(const std::string& script_name);
@@ -190,6 +201,35 @@ class LuaContext {
     bool do_file_if_exists(const std::string& script_name);
     bool do_string(const std::string& code, const std::string& chunk_name);
     bool do_string_with_easy_env(const std::string& code, const std::string& chunk_name);
+
+    //TODO put those templates impl in a LuaContext.inl
+    //Getting across coroutines state
+    template<typename Callable>
+    /**
+     * @brief run given closure on main lua thread
+     * @param current current lua state
+     * @param func a void(lua_State* main) closure
+     */
+    static void run_on_main(Callable&& func) {
+      auto& c = LuaContext::get();
+      if(c.current_l == c.main_l) {
+        func(c.current_l);
+      } else {
+        c.cross_state_callbacks.push(func);
+      }
+    }
+
+    template<typename Callable>
+    static int state_boundary_handle(lua_State* l, Callable&& func) {
+      lua_State* previous = lua_context->get_internal_state();
+      lua_context->set_current_state(l);
+      int result = LuaTools::exception_boundary_handle(l,func);
+      lua_context->set_current_state(previous);
+      return result;
+    }
+
+
+    static void set_current_state(lua_State* l);
 
     // Calling Lua functions.
     bool call_function(
@@ -199,7 +239,7 @@ class LuaContext {
     );
 
     static bool is_solarus_userdata(
-        lua_State* l,
+        lua_State* current_l,
         int index,
         std::string& module_name
     );
@@ -256,15 +296,20 @@ class LuaContext {
     void update_movements();
 
     // Maps.
-    static void check_map_has_game(lua_State* l, const Map& map);
+    static void check_map_has_game(lua_State* current_l, const Map& map);
 
     // Entities.
     static const std::string& get_entity_internal_type_name(EntityType entity_type);
     bool create_map_entity_from_data(Map& map, const EntityData& entity_data);
 
-    bool do_custom_entity_traversable_test_function(
+    void do_entity_draw_override_function(
+        const ScopedLuaRef& draw_override,
+        Entity& entity,
+        Camera& camera
+    );
+    bool do_traversable_test_function(
         const ScopedLuaRef& traversable_test_ref,
-        CustomEntity& custom_entity,
+        ExportableToLua& userdata,
         Entity& other_entity
     );
     bool do_custom_entity_collision_test_function(
@@ -283,6 +328,21 @@ class LuaContext {
         Entity& other_entity,
         Sprite& custom_entity_sprite,
         Sprite& other_entity_sprite
+    );
+    void do_state_draw_override_function(
+        const ScopedLuaRef& draw_override,
+        CustomState& state,
+        Camera& camera
+    );
+    bool do_state_can_be_hurt_function(
+        const ScopedLuaRef& can_be_hurt,
+        CustomState& state,
+        Entity* attacker
+    );
+    bool do_state_can_cut_function(
+        const ScopedLuaRef& can_cut,
+        CustomState& state,
+        Entity* entity
     );
 
     // Main loop events (sol.main).
@@ -356,6 +416,11 @@ class LuaContext {
     void game_on_update(Game& game);
     void game_on_draw(Game& game, const SurfacePtr& dst_surface);
     void game_on_map_changed(Game& game, Map& map);
+    void game_on_world_changed(
+        Game& game,
+        const std::string& previous_world,
+        const std::string& new_world
+    );
     void game_on_paused(Game& game);
     void game_on_unpaused(Game& game);
     bool game_on_dialog_started(
@@ -371,13 +436,13 @@ class LuaContext {
     bool game_on_command_released(Game& game, GameCommand command);
 
     // Map events.
-    void map_on_started(Map& map, Destination* destination);
+    void map_on_started(Map& map, const std::shared_ptr<Destination>& destination);
     void map_on_finished(Map& map);
     void map_on_update(Map& map);
     void map_on_draw(Map& map, const SurfacePtr& dst_surface);
     void map_on_suspended(Map& map, bool suspended);
     void map_on_opening_transition_finished(Map& map,
-        Destination* destination);
+        const std::shared_ptr<Destination>& destination);
     void map_on_obtaining_treasure(Map& map, const Treasure& treasure);
     void map_on_obtained_treasure(Map& map, const Treasure& treasure);
     bool map_on_input(Map& map, const InputEvent& event);
@@ -391,8 +456,8 @@ class LuaContext {
     void entity_on_removed(Entity& entity);
     void entity_on_enabled(Entity& entity);
     void entity_on_disabled(Entity& entity);
-    void entity_on_pre_draw(Entity& entity);
-    void entity_on_post_draw(Entity& entity);
+    void entity_on_pre_draw(Entity& entity, Camera& camera);
+    void entity_on_post_draw(Entity& entity, Camera& camera);
     void entity_on_position_changed(Entity& entity, const Point& xy, int layer);
     void entity_on_obstacle_reached(Entity& entity, Movement& movement);
     void entity_on_movement_started(Entity& entity, Movement& movement);
@@ -400,14 +465,22 @@ class LuaContext {
     void entity_on_movement_finished(Entity& entity);
     bool entity_on_interaction(Entity& entity);
     bool entity_on_interaction_item(Entity& entity, EquipmentItem& item_used);
-    void entity_on_state_changed(Entity& entity, const std::string& state_name);
-    void entity_on_lifting(Entity& entity,
-                           Entity& carrier,
-                           CarriedObject& carried_object);
+    void entity_on_state_changing(
+        Entity& entity,
+        const std::string& state_name,
+        const std::string& next_state_name);
+    void entity_on_state_changed(Entity& entity, const std::string& new_state_name);
+    void entity_on_lifting(
+        Entity& entity,
+        Entity& carrier,
+        CarriedObject& carried_object);
     bool hero_on_taking_damage(Hero& hero, int damage);
     void destination_on_activated(Destination& destination);
     void teletransporter_on_activated(Teletransporter& teletransporter);
     void npc_on_collision_fire(Npc& npc);
+    void carried_object_on_lifted(CarriedObject& carried_object);
+    void carried_object_on_thrown(CarriedObject& carried_object);
+    void carried_object_on_breaking(CarriedObject& carried_object);
     bool chest_on_opened(Chest& chest, const Treasure& treasure);
     void block_on_moving(Block& block);
     void block_on_moved(Block& block);
@@ -441,13 +514,44 @@ class LuaContext {
     bool enemy_on_attacking_hero(Enemy& enemy, Hero& hero, Sprite* enemy_sprite);
     void custom_entity_on_ground_below_changed(
         CustomEntity& custom_entity, Ground ground_below);
+    void state_on_started(
+        CustomState& state,
+        const std::string& previous_state_name,
+        CustomState* previous_state);
+    void state_on_finished(
+        CustomState& state,
+        const std::string& next_state_name,
+        CustomState* next_state);
+    void state_on_update(CustomState& state);
+    void state_on_suspended(CustomState& state, bool suspended);
+    void state_on_pre_draw(CustomState& state, Camera& camera);
+    void state_on_post_draw(CustomState& state, Camera& camera);
+    void state_on_map_started(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
+    void state_on_map_opening_transition_finished(CustomState& state, Map& map, const std::shared_ptr<Destination>& destination);
+    void state_on_map_finished(CustomState& state);
+    void state_on_position_changed(CustomState& state, const Point& xy, int layer);
+    void state_on_ground_below_changed(CustomState& state, Ground ground_below);
+    void state_on_obstacle_reached(CustomState& state, Movement& movement);
+    void state_on_movement_started(CustomState& state, Movement& movement);
+    void state_on_movement_changed(CustomState& state, Movement& movement);
+    void state_on_movement_finished(CustomState& state);
+    void state_on_attacked_enemy(
+        CustomState& state,
+        Enemy& enemy,
+        Sprite* enemy_sprite,
+        EnemyAttack attack,
+        const EnemyReaction::Reaction& reaction
+    );
+    bool state_on_input(CustomState& state, const InputEvent& event);
+    bool state_on_command_pressed(CustomState& state, GameCommand command);
+    bool state_on_command_released(CustomState& state, GameCommand command);
 
     // Implementation of the API.
 
     /**
      * \brief Type of the functions that can be called by Lua.
      */
-    using FunctionExportedToLua = int(lua_State* l);
+    using FunctionExportedToLua = int(lua_State* current_l);
 
     // All functions named <type>_api_<name> can be called by Lua.
     static FunctionExportedToLua
@@ -542,6 +646,8 @@ class LuaContext {
       menu_api_stop,
       menu_api_stop_all,
       menu_api_is_started,
+      menu_api_bring_to_front,
+      menu_api_bring_to_back,
 
       // Timer API.
       timer_api_start,
@@ -570,20 +676,22 @@ class LuaContext {
       drawable_api_draw_region,
       drawable_api_get_blend_mode,
       drawable_api_set_blend_mode,
-      drawable_api_set_shader,
       drawable_api_get_shader,
-      drawable_api_set_opacity,
+      drawable_api_set_shader,
+      drawable_api_get_color_modulation,
+      drawable_api_set_color_modulation,
       drawable_api_get_opacity,
+      drawable_api_set_opacity,
       drawable_api_fade_in,
       drawable_api_fade_out,
       drawable_api_get_xy,
       drawable_api_set_xy,
-      drawable_api_set_rotation,
       drawable_api_get_rotation,
-      drawable_api_set_scale,
+      drawable_api_set_rotation,
       drawable_api_get_scale,
-      drawable_api_set_transformation_origin,
+      drawable_api_set_scale,
       drawable_api_get_transformation_origin,
+      drawable_api_set_transformation_origin,
       drawable_api_get_movement,
       drawable_api_stop_movement,
       drawable_meta_gc,
@@ -597,9 +705,12 @@ class LuaContext {
       surface_api_set_opacity,
       surface_api_get_pixels,
       surface_api_set_pixels,
+      surface_api_gl_bind_as_texture,
+      surface_api_gl_bind_as_target,
 
       // Text surface API.
       text_surface_api_create,
+      text_surface_api_get_predicted_size,
       text_surface_api_get_horizontal_alignment,
       text_surface_api_set_horizontal_alignment,
       text_surface_api_get_vertical_alignment,
@@ -620,9 +731,11 @@ class LuaContext {
       // Sprite API.
       sprite_api_create,
       sprite_api_get_animation_set,
+      sprite_api_has_animation,
       sprite_api_get_animation,
       sprite_api_set_animation,
-      sprite_api_has_animation,
+      sprite_api_stop_animation,
+      sprite_api_is_animation_started,
       sprite_api_get_direction,
       sprite_api_set_direction,
       sprite_api_get_num_directions,
@@ -636,7 +749,8 @@ class LuaContext {
       sprite_api_get_frame_src_xy,
       sprite_api_is_paused,
       sprite_api_set_paused,
-      sprite_api_set_ignore_suspend,  // TODO rename to set_suspended_with_map() like timers
+      sprite_api_get_ignore_suspend,
+      sprite_api_set_ignore_suspend,
       sprite_api_synchronize,
 
       // Shader API.
@@ -656,6 +770,9 @@ class LuaContext {
       movement_api_create,
       movement_api_get_xy,
       movement_api_set_xy,
+      movement_api_is_suspended,
+      movement_api_get_ignore_suspend,
+      movement_api_set_ignore_suspend,
       movement_api_get_ignore_obstacles,
       movement_api_set_ignore_obstacles,
       movement_api_start,
@@ -698,6 +815,7 @@ class LuaContext {
       path_finding_movement_api_get_speed,
       path_finding_movement_api_set_speed,
       path_finding_movement_api_get_angle,
+      circle_movement_api_get_center,
       circle_movement_api_set_center,
       circle_movement_api_get_radius,
       circle_movement_api_set_radius,
@@ -705,8 +823,12 @@ class LuaContext {
       circle_movement_api_set_radius_speed,
       circle_movement_api_is_clockwise,
       circle_movement_api_set_clockwise,
+      circle_movement_api_get_angle_from_center,
+      circle_movement_api_set_angle_from_center,
       circle_movement_api_get_initial_angle,
       circle_movement_api_set_initial_angle,
+      circle_movement_api_get_angular_speed,
+      circle_movement_api_set_angular_speed,
       circle_movement_api_get_angle_speed,
       circle_movement_api_set_angle_speed,
       circle_movement_api_get_max_rotations,
@@ -752,7 +874,7 @@ class LuaContext {
       game_api_get_value,
       game_api_set_value,
       game_api_get_starting_location,
-      game_api_set_starting_location,  // TODO don't do it automatically, use on_map_changed
+      game_api_set_starting_location,
       game_api_get_life,
       game_api_set_life,
       game_api_add_life,
@@ -798,6 +920,7 @@ class LuaContext {
       item_api_set_savegame_variable,
       item_api_get_amount_savegame_variable,
       item_api_set_amount_savegame_variable,
+      item_api_is_being_used,
       item_api_is_obtainable,
       item_api_set_obtainable,
       item_api_is_assignable,   // TODO remove
@@ -905,6 +1028,8 @@ class LuaContext {
       entity_api_bring_sprite_to_back,
       entity_api_is_visible,
       entity_api_set_visible,
+      entity_api_get_draw_override,
+      entity_api_set_draw_override,
       entity_api_get_weight,
       entity_api_set_weight,
       entity_api_get_controlling_stream,
@@ -948,7 +1073,9 @@ class LuaContext {
       hero_api_unfreeze,
       hero_api_walk,
       hero_api_start_attack,
+      hero_api_start_attack_loading,
       hero_api_start_item,
+      hero_api_start_grabbing,
       hero_api_start_jumping,
       hero_api_start_treasure,
       hero_api_start_victory,
@@ -957,6 +1084,8 @@ class LuaContext {
       hero_api_start_hookshot,
       hero_api_start_running,
       hero_api_start_hurt,
+      hero_api_start_state,
+      hero_api_get_state_object,
       camera_api_get_position_on_screen,
       camera_api_set_position_on_screen,
       camera_api_get_state,
@@ -964,6 +1093,7 @@ class LuaContext {
       camera_api_start_manual,
       camera_api_get_position_to_track,
       camera_api_get_tracked_entity,
+      camera_api_get_surface,
       destination_api_get_starting_location_mode,
       destination_api_set_starting_location_mode,
       teletransporter_api_get_sound,
@@ -985,6 +1115,8 @@ class LuaContext {
       block_api_set_pushable,
       block_api_is_pullable,
       block_api_set_pullable,
+      block_api_get_max_moves,
+      block_api_set_max_moves,
       block_api_get_maximum_moves,
       block_api_set_maximum_moves,
       switch_api_is_activated,
@@ -1009,6 +1141,8 @@ class LuaContext {
       door_api_open,
       door_api_close,
       door_api_set_open,
+      stairs_api_get_direction,
+      stairs_api_is_inner,
       pickable_api_get_followed_entity,
       pickable_api_get_falling_height,
       pickable_api_get_treasure,
@@ -1027,6 +1161,9 @@ class LuaContext {
       destructible_api_get_modified_ground,
       dynamic_tile_api_get_pattern_id,
       dynamic_tile_api_get_modified_ground,
+      dynamic_tile_api_get_tileset,
+      dynamic_tile_api_set_tileset,
+      carried_object_api_get_carrier,
       carried_object_api_get_destruction_sound,
       carried_object_api_set_destruction_sound,
       carried_object_api_get_damage_on_enemies,
@@ -1046,6 +1183,8 @@ class LuaContext {
       enemy_api_set_can_hurt_hero_running,
       enemy_api_get_hurt_style,
       enemy_api_set_hurt_style,
+      enemy_api_get_dying_sprite_id,
+      enemy_api_set_dying_sprite_id,
       enemy_api_get_can_attack,
       enemy_api_set_can_attack,
       enemy_api_get_minimum_shield_needed,
@@ -1068,11 +1207,14 @@ class LuaContext {
       enemy_api_set_obstacle_behavior,
       enemy_api_restart,
       enemy_api_hurt,
+      enemy_api_is_immobilized,
       enemy_api_immobilize,
       enemy_api_create_enemy,
       custom_entity_api_get_model,
       custom_entity_api_get_direction,
       custom_entity_api_set_direction,
+      custom_entity_api_is_tiled,
+      custom_entity_api_set_tiled,
       custom_entity_api_set_traversable_by,
       custom_entity_api_set_can_traverse,
       custom_entity_api_can_traverse_ground,
@@ -1083,6 +1225,60 @@ class LuaContext {
       custom_entity_api_set_modified_ground,
       custom_entity_api_get_follow_streams,
       custom_entity_api_set_follow_streams,
+
+      // State API.
+      state_api_create,
+      state_api_get_description,
+      state_api_set_description,
+      state_api_get_entity,
+      state_api_get_map,
+      state_api_get_game,
+      state_api_is_started,
+      state_api_is_visible,
+      state_api_set_visible,
+      state_api_get_draw_override,
+      state_api_set_draw_override,
+      state_api_get_can_control_direction,
+      state_api_set_can_control_direction,
+      state_api_get_can_control_movement,
+      state_api_set_can_control_movement,
+      state_api_set_can_traverse,
+      state_api_get_can_traverse_ground,
+      state_api_set_can_traverse_ground,
+      state_api_is_gravity_enabled,
+      state_api_set_gravity_enabled,
+      state_api_is_affected_by_ground,
+      state_api_set_affected_by_ground,
+      state_api_get_can_come_from_bad_ground,
+      state_api_set_can_come_from_bad_ground,
+      state_api_get_can_be_hurt,
+      state_api_set_can_be_hurt,
+      state_api_get_can_use_sword,
+      state_api_set_can_use_sword,
+      state_api_get_can_cut,
+      state_api_set_can_cut,
+      state_api_get_can_use_shield,
+      state_api_set_can_use_shield,
+      state_api_get_can_use_item,
+      state_api_set_can_use_item,
+      state_api_get_can_interact,
+      state_api_set_can_interact,
+      state_api_get_can_grab,
+      state_api_set_can_grab,
+      state_api_get_can_push,
+      state_api_set_can_push,
+      state_api_get_pushing_delay,
+      state_api_set_pushing_delay,
+      state_api_get_can_pick_treasure,
+      state_api_set_can_pick_treasure,
+      state_api_get_can_use_stairs,
+      state_api_set_can_use_stairs,
+      state_api_get_can_use_jumper,
+      state_api_set_can_use_jumper,
+      state_api_get_jumper_delay,
+      state_api_set_jumper_delay,
+      state_api_get_carried_object_action,
+      state_api_set_carried_object_action,
 
       // available to all userdata types
       userdata_meta_gc,
@@ -1100,10 +1296,10 @@ class LuaContext {
     struct LuaMenuData {
       ScopedLuaRef ref;      /**< Lua ref of the table of the menu.
                               * LUA_REFNIL means that the menu will be removed. */
-      const void* context;   /**< Lua table or userdata the menu is attached to. */
+      ScopedLuaRef context;   /**< Lua table or userdata the menu is attached to. */
       bool recently_added;   /**< Used to avoid elements added during an iteration. */
 
-      LuaMenuData(const ScopedLuaRef& ref, const void* context):
+      LuaMenuData(const ScopedLuaRef& ref, const ScopedLuaRef& context):
         ref(ref),
         context(context),
         recently_added(true) {
@@ -1115,7 +1311,7 @@ class LuaContext {
      */
     struct LuaTimerData {
       ScopedLuaRef callback_ref;  /**< Lua ref of the function to call after the timer. */
-      const void* context;        /**< Lua table or userdata the timer is attached to. */
+      ScopedLuaRef context;        /**< Lua table or userdata the timer is attached to. */
     };
 
     // Executing Lua code.
@@ -1123,7 +1319,6 @@ class LuaContext {
         const ExportableToLua& userdata, const char* key) const;
     bool find_method(int index, const char* function_name);
     bool find_method(const char* function_name);
-    void print_stack(lua_State* l);
     void print_lua_version();
 
     // Initialization of modules.
@@ -1155,140 +1350,150 @@ class LuaContext {
     void register_game_module();
     void register_map_module();
     void register_entity_module();
-    void register_testing_module();
+    void register_state_module();
 
     // Pushing objects to Lua.
-    static void push_main(lua_State* l);
-    static void push_video(lua_State* l);
-    static void push_string(lua_State* l, const std::string& text);
-    static void push_color(lua_State* l, const Color& color);
-    static void push_userdata(lua_State* l, ExportableToLua& userdata);
-    static void push_dialog(lua_State* l, const Dialog& dialog);
-    static void push_timer(lua_State* l, const TimerPtr& timer);
-    static void push_surface(lua_State* l, Surface& surface);
-    static void push_text_surface(lua_State* l, TextSurface& text_surface);
-    static void push_sprite(lua_State* l, Sprite& sprite);
-    static void push_shader(lua_State* l, Shader& shader);
-    static void push_item(lua_State* l, EquipmentItem& item);
-    static void push_movement(lua_State* l, Movement& movement);
-    static void push_game(lua_State* l, Savegame& game);
-    static void push_map(lua_State* l, Map& map);
-    static void push_entity(lua_State* l, Entity& entity);
-    static void push_entity_iterator(lua_State* l, const EntityVector& entities);
+    static void push_main(lua_State* current_l);
+    static void push_video(lua_State* current_l);
+    static void push_string(lua_State* current_l, const std::string& text);
+    static void push_color(lua_State* current_l, const Color& color);
+public:
+    static void push_userdata(lua_State* current_l, ExportableToLua& userdata);
+private:
+    static void push_dialog(lua_State* current_l, const Dialog& dialog);
+    static void push_timer(lua_State* current_l, const TimerPtr& timer);
+    static void push_surface(lua_State* current_l, Surface& surface);
+    static void push_text_surface(lua_State* current_l, TextSurface& text_surface);
+    static void push_sprite(lua_State* current_l, Sprite& sprite);
+    static void push_shader(lua_State* current_l, Shader& shader);
+    static void push_item(lua_State* current_l, EquipmentItem& item);
+    static void push_movement(lua_State* current_l, Movement& movement);
+    static void push_game(lua_State* current_l, Savegame& game);
+    static void push_map(lua_State* current_l, Map& map);
+    static void push_state(lua_State* current_l, CustomState& state);
+    static void push_entity(lua_State* current_l, Entity& entity);
+    static void push_entity_iterator(lua_State* current_l, const EntityVector& entities);
     static void push_named_sprite_iterator(
-        lua_State* l,
+        lua_State* current_l,
         const std::vector<Entity::NamedSprite>& sprites
     );
-    static void push_hero(lua_State* l, Hero& hero);
-    static void push_camera(lua_State* l, Camera& camera);
-    static void push_npc(lua_State* l, Npc& npc);
-    static void push_destination(lua_State* l, Destination& destination);
-    static void push_teletransporter(lua_State* l, Teletransporter& teletransporter);
-    static void push_chest(lua_State* l, Chest& chest);
-    static void push_block(lua_State* l, Block& block);
-    static void push_switch(lua_State* l, Switch& sw);
-    static void push_stream(lua_State* l, Stream& stream);
-    static void push_door(lua_State* l, Door& door);
-    static void push_shop_treasure(lua_State* l, ShopTreasure& shop_treasure);
-    static void push_pickable(lua_State* l, Pickable& pickable);
-    static void push_destructible(lua_State* l, Destructible& destructible);
-    static void push_carried_object(lua_State* l, CarriedObject& carried_object);
-    static void push_dynamic_tile(lua_State* l, DynamicTile& dynamic_tile);
-    static void push_enemy(lua_State* l, Enemy& enemy);
-    static void push_custom_entity(lua_State* l, CustomEntity& entity);
+    static void push_hero(lua_State* current_l, Hero& hero);
+    static void push_camera(lua_State* current_l, Camera& camera);
+    static void push_npc(lua_State* current_l, Npc& npc);
+    static void push_destination(lua_State* current_l, Destination& destination);
+    static void push_teletransporter(lua_State* current_l, Teletransporter& teletransporter);
+    static void push_chest(lua_State* current_l, Chest& chest);
+    static void push_block(lua_State* current_l, Block& block);
+    static void push_switch(lua_State* current_l, Switch& sw);
+    static void push_stream(lua_State* current_l, Stream& stream);
+    static void push_door(lua_State* current_l, Door& door);
+    static void push_stairs(lua_State* current_l, Stairs& stairs);
+    static void push_shop_treasure(lua_State* current_l, ShopTreasure& shop_treasure);
+    static void push_pickable(lua_State* current_l, Pickable& pickable);
+    static void push_destructible(lua_State* current_l, Destructible& destructible);
+    static void push_carried_object(lua_State* current_l, CarriedObject& carried_object);
+    static void push_dynamic_tile(lua_State* current_l, DynamicTile& dynamic_tile);
+    static void push_enemy(lua_State* current_l, Enemy& enemy);
+    static void push_custom_entity(lua_State* current_l, CustomEntity& entity);
 
     // Getting objects from Lua.
-    static bool is_main(lua_State* l, int index);
-    static bool is_menu(lua_State* l, int index);
-    static bool is_userdata(lua_State* l, int index,
+    static bool is_main(lua_State* current_l, int index);
+    static bool is_menu(lua_State* current_l, int index);
+    static bool is_userdata(lua_State* current_l, int index,
         const std::string& module_name);
     static const ExportableToLuaPtr& check_userdata(
-        lua_State* l,
+        lua_State* current_l,
         int index,
         const std::string& module_name
     );
-    static bool is_timer(lua_State* l, int index);
-    static TimerPtr check_timer(lua_State* l, int index);
-    static bool is_drawable(lua_State* l, int index);
-    static DrawablePtr check_drawable(lua_State* l, int index);
-    static bool is_surface(lua_State* l, int index);
-    static SurfacePtr check_surface(lua_State* l, int index);
-    static bool is_text_surface(lua_State* l, int index);
-    static std::shared_ptr<TextSurface> check_text_surface(lua_State* l, int index);
-    static bool is_sprite(lua_State* l, int index);
-    static SpritePtr check_sprite(lua_State* l, int index);
-    static bool is_shader(lua_State* l, int index);
-    static ShaderPtr check_shader(lua_State* l, int index);
-    static bool is_item(lua_State* l, int index);
-    static std::shared_ptr<EquipmentItem> check_item(lua_State* l, int index);
-    static bool is_movement(lua_State* l, int index);
-    static std::shared_ptr<Movement> check_movement(lua_State* l, int index);
-    static bool is_straight_movement(lua_State* l, int index);
-    static std::shared_ptr<StraightMovement> check_straight_movement(lua_State* l, int index);
-    static bool is_random_movement(lua_State* l, int index);
-    static std::shared_ptr<RandomMovement> check_random_movement(lua_State* l, int index);
-    static bool is_target_movement(lua_State* l, int index);
-    static std::shared_ptr<TargetMovement> check_target_movement(lua_State* l, int index);
-    static bool is_path_movement(lua_State* l, int index);
-    static std::shared_ptr<PathMovement> check_path_movement(lua_State* l, int index);
-    static bool is_random_path_movement(lua_State* l, int index);
-    static std::shared_ptr<RandomPathMovement> check_random_path_movement(lua_State* l, int index);
-    static bool is_path_finding_movement(lua_State* l, int index);
-    static std::shared_ptr<PathFindingMovement> check_path_finding_movement(lua_State* l, int index);
-    static bool is_circle_movement(lua_State* l, int index);
-    static std::shared_ptr<CircleMovement> check_circle_movement(lua_State* l, int index);
-    static bool is_jump_movement(lua_State* l, int index);
-    static std::shared_ptr<JumpMovement> check_jump_movement(lua_State* l, int index);
-    static bool is_pixel_movement(lua_State* l, int index);
-    static std::shared_ptr<PixelMovement> check_pixel_movement(lua_State* l, int index);
-    static bool is_game(lua_State* l, int index);
-    static std::shared_ptr<Savegame> check_game(lua_State* l, int index);
-    static bool is_map(lua_State* l, int index);
-    static std::shared_ptr<Map> check_map(lua_State* l, int index);
-    static bool is_entity(lua_State* l, int index);
-    static EntityPtr check_entity(lua_State* l, int index);
-    static bool is_hero(lua_State* l, int index);
-    static HeroPtr check_hero(lua_State* l, int index);
-    static bool is_camera(lua_State* l, int index);
-    static std::shared_ptr<Camera> check_camera(lua_State* l, int index);
-    static bool is_destination(lua_State* l, int index);
-    static std::shared_ptr<Destination> check_destination(lua_State* l, int index);
-    static bool is_teletransporter(lua_State* l, int index);
-    static std::shared_ptr<Teletransporter> check_teletransporter(lua_State* l, int index);
-    static bool is_npc(lua_State* l, int index);
-    static std::shared_ptr<Npc> check_npc(lua_State* l, int index);
-    static bool is_chest(lua_State* l, int index);
-    static std::shared_ptr<Chest> check_chest(lua_State* l, int index);
-    static bool is_block(lua_State* l, int index);
-    static std::shared_ptr<Block> check_block(lua_State* l, int index);
-    static bool is_switch(lua_State* l, int index);
-    static std::shared_ptr<Switch> check_switch(lua_State* l, int index);
-    static bool is_stream(lua_State* l, int index);
-    static std::shared_ptr<Stream> check_stream(lua_State* l, int index);
-    static bool is_door(lua_State* l, int index);
-    static std::shared_ptr<Door> check_door(lua_State* l, int index);
-    static bool is_shop_treasure(lua_State* l, int index);
-    static std::shared_ptr<ShopTreasure> check_shop_treasure(lua_State* l, int index);
-    static bool is_pickable(lua_State* l, int index);
-    static std::shared_ptr<Pickable> check_pickable(lua_State* l, int index);
-    static bool is_destructible(lua_State* l, int index);
-    static std::shared_ptr<Destructible> check_destructible(lua_State* l, int index);
-    static bool is_carried_object(lua_State* l, int index);
-    static std::shared_ptr<CarriedObject> check_carried_object(lua_State* l, int index);
-    static bool is_dynamic_tile(lua_State* l, int index);
-    static std::shared_ptr<DynamicTile> check_dynamic_tile(lua_State* l, int index);
-    static bool is_enemy(lua_State* l, int index);
-    static std::shared_ptr<Enemy> check_enemy(lua_State* l, int index);
-    static bool is_custom_entity(lua_State* l, int index);
-    static std::shared_ptr<CustomEntity> check_custom_entity(lua_State* l, int index);
+    static bool is_timer(lua_State* current_l, int index);
+    static TimerPtr check_timer(lua_State* current_l, int index);
+    static bool is_drawable(lua_State* current_l, int index);
+    static DrawablePtr check_drawable(lua_State* current_l, int index);
+    static bool is_surface(lua_State* current_l, int index);
+    static SurfacePtr check_surface(lua_State* current_l, int index);
+    static bool is_text_surface(lua_State* current_l, int index);
+    static std::shared_ptr<TextSurface> check_text_surface(lua_State* current_l, int index);
+    static bool is_sprite(lua_State* current_l, int index);
+    static SpritePtr check_sprite(lua_State* current_l, int index);
+    static bool is_shader(lua_State* current_l, int index);
+    static ShaderPtr check_shader(lua_State* current_l, int index);
+    static bool is_item(lua_State* current_l, int index);
+    static std::shared_ptr<EquipmentItem> check_item(lua_State* current_l, int index);
+    static bool is_movement(lua_State* current_l, int index);
+    static std::shared_ptr<Movement> check_movement(lua_State* current_l, int index);
+    static bool is_straight_movement(lua_State* current_l, int index);
+    static std::shared_ptr<StraightMovement> check_straight_movement(lua_State* current_l, int index);
+    static bool is_random_movement(lua_State* current_l, int index);
+    static std::shared_ptr<RandomMovement> check_random_movement(lua_State* current_l, int index);
+    static bool is_target_movement(lua_State* current_l, int index);
+    static std::shared_ptr<TargetMovement> check_target_movement(lua_State* current_l, int index);
+    static bool is_path_movement(lua_State* current_l, int index);
+    static std::shared_ptr<PathMovement> check_path_movement(lua_State* current_l, int index);
+    static bool is_random_path_movement(lua_State* current_l, int index);
+    static std::shared_ptr<RandomPathMovement> check_random_path_movement(lua_State* current_l, int index);
+    static bool is_path_finding_movement(lua_State* current_l, int index);
+    static std::shared_ptr<PathFindingMovement> check_path_finding_movement(lua_State* current_l, int index);
+    static bool is_circle_movement(lua_State* current_l, int index);
+    static std::shared_ptr<CircleMovement> check_circle_movement(lua_State* current_l, int index);
+    static bool is_jump_movement(lua_State* current_l, int index);
+    static std::shared_ptr<JumpMovement> check_jump_movement(lua_State* current_l, int index);
+    static bool is_pixel_movement(lua_State* current_l, int index);
+    static std::shared_ptr<PixelMovement> check_pixel_movement(lua_State* current_l, int index);
+    static bool is_game(lua_State* current_l, int index);
+    static std::shared_ptr<Savegame> check_game(lua_State* current_l, int index);
+    static bool is_map(lua_State* current_l, int index);
+    static std::shared_ptr<Map> check_map(lua_State* current_l, int index);
+    static bool is_state(lua_State* current_l, int index);
+    static std::shared_ptr<CustomState> check_state(lua_State* current_l, int index);
+    static bool is_entity(lua_State* current_l, int index);
+    static EntityPtr check_entity(lua_State* current_l, int index);
+    static bool is_hero(lua_State* current_l, int index);
+    static HeroPtr check_hero(lua_State* current_l, int index);
+    static bool is_camera(lua_State* current_l, int index);
+    static std::shared_ptr<Camera> check_camera(lua_State* current_l, int index);
+    static bool is_destination(lua_State* current_l, int index);
+    static std::shared_ptr<Destination> check_destination(lua_State* current_l, int index);
+    static bool is_teletransporter(lua_State* current_l, int index);
+    static std::shared_ptr<Teletransporter> check_teletransporter(lua_State* current_l, int index);
+    static bool is_npc(lua_State* current_l, int index);
+    static std::shared_ptr<Npc> check_npc(lua_State* current_l, int index);
+    static bool is_chest(lua_State* current_l, int index);
+    static std::shared_ptr<Chest> check_chest(lua_State* current_l, int index);
+    static bool is_block(lua_State* current_l, int index);
+    static std::shared_ptr<Block> check_block(lua_State* current_l, int index);
+    static bool is_switch(lua_State* current_l, int index);
+    static std::shared_ptr<Switch> check_switch(lua_State* current_l, int index);
+    static bool is_stream(lua_State* current_l, int index);
+    static std::shared_ptr<Stream> check_stream(lua_State* current_l, int index);
+    static bool is_door(lua_State* current_l, int index);
+    static std::shared_ptr<Door> check_door(lua_State* current_l, int index);
+    static bool is_stairs(lua_State* current_l, int index);
+    static std::shared_ptr<Stairs> check_stairs(lua_State* current_l, int index);
+    static bool is_shop_treasure(lua_State* current_l, int index);
+    static std::shared_ptr<ShopTreasure> check_shop_treasure(lua_State* current_l, int index);
+    static bool is_pickable(lua_State* current_l, int index);
+    static std::shared_ptr<Pickable> check_pickable(lua_State* current_l, int index);
+    static bool is_destructible(lua_State* current_l, int index);
+    static std::shared_ptr<Destructible> check_destructible(lua_State* current_l, int index);
+    static bool is_carried_object(lua_State* current_l, int index);
+    static std::shared_ptr<CarriedObject> check_carried_object(lua_State* current_l, int index);
+    static bool is_dynamic_tile(lua_State* current_l, int index);
+    static std::shared_ptr<DynamicTile> check_dynamic_tile(lua_State* current_l, int index);
+    static bool is_enemy(lua_State* current_l, int index);
+    static std::shared_ptr<Enemy> check_enemy(lua_State* current_l, int index);
+    static bool is_custom_entity(lua_State* current_l, int index);
+    static std::shared_ptr<CustomEntity> check_custom_entity(lua_State* current_l, int index);
 
     // Events.
+    void check_callback_thread() const;
+
     void on_started();
+    void on_started(const std::string& previous_state_name, CustomState* previous_state);
     void on_finished();
+    void on_finished(const std::string& next_state_name, CustomState* next_state);
     void on_update();
     void on_draw(const SurfacePtr& dst_surface);
-    void on_pre_draw(const SurfacePtr& dst_surface);
-    void on_post_draw(const SurfacePtr& dst_surface);
     void on_suspended(bool suspended);
     void on_paused();
     void on_unpaused();
@@ -1318,11 +1523,12 @@ class LuaContext {
     void on_position_changed(const Point& xy);
     void on_obstacle_reached();
     void on_changed();
-    void on_started(Destination* destination);
-    void on_opening_transition_finished(Destination* destination);
+    void on_started(const std::shared_ptr<Destination>& destination);
+    void on_opening_transition_finished(const std::shared_ptr<Destination>& destination);
     void on_obtaining_treasure(const Treasure& treasure);
     void on_obtained_treasure(const Treasure& treasure);
-    void on_state_changed(const std::string& state_name);
+    void on_state_changing(const std::string& state_name, const std::string& next_state_name);
+    void on_state_changed(const std::string& new_state_name);
     bool on_taking_damage(int damage);
     void on_activating();
     void on_activating(int direction4);
@@ -1339,6 +1545,9 @@ class LuaContext {
     void on_collision_fire();
     void on_collision_explosion();
     void on_collision_enemy(Enemy& enemy, Sprite& other_sprite, Sprite& this_sprite);
+    void on_lifted();
+    void on_thrown();
+    void on_breaking();
     bool on_buying();
     void on_bought();
     void on_opened();
@@ -1347,6 +1556,7 @@ class LuaContext {
     void on_moving();
     void on_moved();
     void on_map_changed(Map& map);
+    void on_world_changed(const std::string& previous_world, const std::string& new_world);
     void on_pickable_created(Pickable& pickable);
     void on_variant_changed(int variant);
     void on_amount_changed(int amount);
@@ -1359,8 +1569,8 @@ class LuaContext {
     void on_enabled();
     void on_disabled();
     void on_restarted();
-    void on_pre_draw();
-    void on_post_draw();
+    void on_pre_draw(Camera& camera);
+    void on_post_draw(Camera& camera);
     void on_position_changed(const Point& xy, int layer);
     void on_obstacle_reached(Movement& movement);
     void on_movement_started(Movement& movement);
@@ -1380,7 +1590,18 @@ class LuaContext {
     void on_dead();
     void on_immobilized();
     bool on_attacking_hero(Hero& hero, Sprite* attacker_sprite);
+    void on_attacked_enemy(
+        Enemy& enemy,
+        Sprite* enemy_sprite,
+        EnemyAttack attack,
+        const EnemyReaction::Reaction& reaction
+    );
     void on_ground_below_changed(Ground ground_below);
+    void on_map_started(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    void on_map_opening_transition_finished(
+        Map& map, const std::shared_ptr<Destination>& destination);
+    void on_map_finished();
 
     // Functions exported to Lua for internal needs.
     static FunctionExportedToLua
@@ -1421,7 +1642,8 @@ class LuaContext {
       l_create_fire;
 
     // Script data.
-    lua_State* l;                      /**< The Lua state encapsulated. */
+    lua_State* main_l;                 /**< The MAIN Lua state encapsulated. */
+    lua_State* current_l;              /**< The  presumed current Lua state running */
     MainLoop& main_loop;               /**< The Solarus main loop. */
 
     std::list<LuaMenuData> menus;      /**< The menus currently running in their context.
@@ -1447,12 +1669,13 @@ class LuaContext {
         warning_deprecated_functions;  /**< Names of deprecated functions of
                                         * the API for which a warning was emitted. */
 
+    std::queue<std::function<void(lua_State*)>>
+        cross_state_callbacks;         /**< Callbacks that must be executed on main from other coroutines */
+
     static const std::map<EntityType, lua_CFunction>
         entity_creation_functions;     /**< Creation function of each entity type. */
-    static std::map<lua_State*, LuaContext*>
-        lua_contexts;                  /**< Mapping to get the encapsulating object
-                                        * from the lua_State pointer. */
-
+    static LuaContext*
+        lua_context;                  /**< Singleton context */
 };
 
 }

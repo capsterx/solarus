@@ -70,6 +70,7 @@ Game::Game(MainLoop& main_loop, const std::shared_ptr<Savegame>& savegame):
   // initialize members
   commands = std::unique_ptr<GameCommands>(new GameCommands(*this));
   hero = std::make_shared<Hero>(get_equipment());
+  hero->start_free();
   update_commands_effects();
 
   // Maybe we are restarting after a game-over sequence.
@@ -258,7 +259,7 @@ const Equipment& Game::get_equipment() const {
 
 /**
  * \brief This function is called when a low-level input event occurs during the game.
- * \param event the event to handle
+ * \param event The event to handle.
  * \return \c true if the event was handled and should stop being propagated.
  */
 bool Game::notify_input(const InputEvent& event) {
@@ -268,11 +269,14 @@ bool Game::notify_input(const InputEvent& event) {
     if (!handled) {
       handled = current_map->notify_input(event);
       if (!handled) {
-        // Built-in behavior:
-        // the GameCommands object will transform the low-level input event into
-        // a high-level game command event (i.e. a command_pressed event or
-        // a command_released event).
-        commands->notify_input(event);
+        handled = hero->notify_input(event);
+        if (!handled) {
+          // Built-in behavior:
+          // the GameCommands object will transform the low-level input event into
+          // a high-level game command event (i.e. a command_pressed event or
+          // a command_released event).
+          commands->notify_input(event);
+        }
       }
     }
   }
@@ -380,6 +384,13 @@ void Game::update() {
  */
 void Game::update_transitions() {
 
+  Rectangle previous_map_location;
+  std::string previous_world;
+  if (current_map != nullptr) {
+    previous_map_location = current_map->get_location();
+    previous_world = current_map->get_world();
+  }
+
   if (transition != nullptr) {
     transition->update();
   }
@@ -401,8 +412,6 @@ void Game::update_transitions() {
     }
   }
 
-  Rectangle previous_map_location = current_map->get_location();
-
   // if a transition was playing and has just been finished
   if (transition != nullptr && transition->is_finished()) {
 
@@ -417,9 +426,10 @@ void Game::update_transitions() {
       this->savegame = nullptr;  // The new game is the owner.
     }
     else if (transition_direction == Transition::Direction::CLOSING) {
+      // The closing transition has just finished.
 
       bool world_changed = next_map != current_map &&
-          (!next_map->has_world() || next_map->get_world() != current_map->get_world());
+          (!next_map->has_world() || next_map->get_world() != previous_world);
 
       if (world_changed) {
         // Reset the crystal blocks.
@@ -489,7 +499,7 @@ void Game::update_transitions() {
             Transition::Direction::OPENING,
             this
         ));
-        if(needs_previous_surface) {
+        if (needs_previous_surface) {
           transition->set_previous_surface(previous_map_surface.get());
         }
         transition->start();
@@ -532,6 +542,11 @@ void Game::update_transitions() {
     transition->start();
     current_map->start();
     notify_map_changed();
+
+    std::string new_world = current_map->get_world();
+    if (previous_world.empty() || new_world.empty() || new_world != previous_world) {
+      get_lua_context().game_on_world_changed(*this, previous_world, new_world);
+    }
   }
 }
 

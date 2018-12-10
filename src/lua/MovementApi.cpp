@@ -17,6 +17,7 @@
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Game.h"
+#include "solarus/core/Geometry.h"
 #include "solarus/core/MainLoop.h"
 #include "solarus/core/Map.h"
 #include "solarus/entities/Entities.h"
@@ -103,6 +104,9 @@ void LuaContext::register_movement_module() {
       { "set_xy", movement_api_set_xy },
       { "start", movement_api_start },
       { "stop", movement_api_stop },
+      { "is_suspended", movement_api_is_suspended },
+      { "get_ignore_suspend", movement_api_get_ignore_suspend },
+      { "set_ignore_suspend", movement_api_set_ignore_suspend },
       { "get_ignore_obstacles", movement_api_get_ignore_obstacles },
       { "set_ignore_obstacles", movement_api_set_ignore_obstacles },
       { "get_direction4", movement_api_get_direction4 }
@@ -112,7 +116,7 @@ void LuaContext::register_movement_module() {
   const std::vector<luaL_Reg> metamethods = {
       { "__gc", userdata_meta_gc },
       { "__newindex", userdata_meta_newindex_as_table },
-      { "__index", userdata_meta_index_as_table }
+      { "__index", userdata_meta_index_as_table },
   };
 
   register_type(
@@ -282,6 +286,15 @@ void LuaContext::register_movement_module() {
       { "get_loop_delay", circle_movement_api_get_loop_delay },
       { "set_loop_delay", circle_movement_api_set_loop_delay }
   };
+  if (CurrentQuest::is_format_at_least({ 1, 6 })) {
+    circle_movement_methods.insert(circle_movement_methods.end(), {
+        { "get_center", circle_movement_api_get_center },
+        { "get_angle_from_center", circle_movement_api_get_angle_from_center },
+        { "set_angle_from_center", circle_movement_api_set_angle_from_center },
+        { "get_angular_speed", circle_movement_api_get_angular_speed },
+        { "set_angular_speed", circle_movement_api_set_angular_speed },
+    });
+  }
   circle_movement_methods.insert(
         circle_movement_methods.end(),
         movement_common_methods.begin(),
@@ -338,17 +351,17 @@ void LuaContext::register_movement_module() {
 
   // Create the table that will store the movements applied to x,y points.
                                   // ...
-  lua_newtable(l);
+  lua_newtable(current_l);
                                   // ... movements
-  lua_newtable(l);
+  lua_newtable(current_l);
                                   // ... movements meta
-  lua_pushstring(l, "v");
+  lua_pushstring(current_l, "v");
                                   // ... movements meta "v"
-  lua_setfield(l, -2, "__mode");
+  lua_setfield(current_l, -2, "__mode");
                                   // ... movements meta
-  lua_setmetatable(l, -2);
+  lua_setmetatable(current_l, -2);
                                   // ... movements
-  lua_setfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_setfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ...
 }
 
@@ -356,7 +369,7 @@ void LuaContext::register_movement_module() {
  * \brief Returns whether a value is a userdata of type movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a entity.
+ * \return \c true if the value at this index is a movement.
  */
 bool LuaContext::is_movement(lua_State* l, int index) {
   return is_straight_movement(l, index)
@@ -373,9 +386,9 @@ bool LuaContext::is_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * movement (of any subtype) and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the sprite
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<Movement> LuaContext::check_movement(lua_State* l, int index) {
 
@@ -393,8 +406,8 @@ std::shared_ptr<Movement> LuaContext::check_movement(lua_State* l, int index) {
 
 /**
  * \brief Pushes a movement userdata onto the stack.
- * \param l a Lua context
- * \param movement a movement
+ * \param l A Lua context.
+ * \param movement A movement.
  */
 void LuaContext::push_movement(lua_State* l, Movement& movement) {
 
@@ -416,53 +429,55 @@ void LuaContext::start_movement_on_point(
   int x = 0;
   int y = 0;
                                   // ...
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ... movements
-  push_movement(l, *movement);
+  push_movement(current_l, *movement);
                                   // ... movements movement
-  lua_pushvalue(l, point_index);
+  lua_pushvalue(current_l, point_index);
                                   // ... movements movement xy
-  lua_getfield(l, -1, "x");
+  lua_getfield(current_l, -1, "x");
                                   // ... movements movement xy x/nil
-  if (lua_isnil(l, -1)) {
+  if (lua_isnil(current_l, -1)) {
                                   // ... movements movement xy nil
-    lua_pop(l, 1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
-    lua_pushinteger(l, 0);
+    lua_pushinteger(current_l, 0);
                                   // ... movements movement xy 0
-    lua_setfield(l, -2, "x");
+    lua_setfield(current_l, -2, "x");
                                   // ... movements movement xy
   }
   else {
                                   // ... movements movement xy x
-    x = LuaTools::check_int(l, -1);
-    lua_pop(l, 1);
+    x = LuaTools::check_int(current_l, -1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
   }
-  lua_getfield(l, -1, "y");
+  lua_getfield(current_l, -1, "y");
                                   // ... movements movement xy y/nil
-  if (lua_isnil(l, -1)) {
+  if (lua_isnil(current_l, -1)) {
                                   // ... movements movement xy nil
-    lua_pop(l, 1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
-    lua_pushinteger(l, 0);
+    lua_pushinteger(current_l, 0);
                                   // ... movements movement xy 0
-    lua_setfield(l, -2, "y");
+    lua_setfield(current_l, -2, "y");
                                   // ... movements movement xy
-    movement->set_y(0);
   }
   else {
                                   // ... movements movement xy y
-    y = LuaTools::check_int(l, -1);
-    lua_pop(l, 1);
+    y = LuaTools::check_int(current_l, -1);
+    lua_pop(current_l, 1);
                                   // ... movements movement xy
   }
 
-  lua_settable(l, -3);
+  lua_settable(current_l, -3);
                                   // ... movements
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // ...
   movement->set_xy(x, y);
+
+  // Tell the movement it is now controlling this table.
+  movement->notify_object_controlled();
 }
 
 /**
@@ -472,15 +487,15 @@ void LuaContext::start_movement_on_point(
 void LuaContext::stop_movement_on_point(const std::shared_ptr<Movement>& movement) {
 
                                   // ...
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
                                   // ... movements
-  push_movement(l, *movement);
+  push_movement(current_l, *movement);
                                   // ... movements movement
-  lua_pushnil(l);
+  lua_pushnil(current_l);
                                   // ... movements movement nil
-  lua_settable(l, -3);
+  lua_settable(current_l, -3);
                                   // ... movements
-  lua_pop(l, 1);
+  lua_pop(current_l, 1);
                                   // ...
 }
 
@@ -493,15 +508,15 @@ void LuaContext::stop_movement_on_point(const std::shared_ptr<Movement>& movemen
  */
 void LuaContext::update_movements() {
 
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+  lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
   std::vector<std::shared_ptr<Movement>> movements;
-  lua_pushnil(l);  // First key.
-  while (lua_next(l, -2)) {
-    const std::shared_ptr<Movement>& movement = check_movement(l, -2);
+  lua_pushnil(current_l);  // First key.
+  while (lua_next(current_l, -2)) {
+    const std::shared_ptr<Movement>& movement = check_movement(current_l, -2);
     movements.push_back(movement);
-    lua_pop(l, 1);  // Pop the value, keep the key for next iteration.
+    lua_pop(current_l, 1);  // Pop the value, keep the key for next iteration.
   }
-  lua_pop(l, 1);  // Pop the movements table.
+  lua_pop(current_l, 1);  // Pop the movements table.
 
   // Work on a copy of the list because the list may be changed during the iteration.
   for (const std::shared_ptr<Movement>& movement : movements) {
@@ -511,13 +526,13 @@ void LuaContext::update_movements() {
 
 /**
  * \brief Implementation of sol.movement.create().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_create(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get();
     const std::string& type = LuaTools::check_string(l, 1);
 
     std::shared_ptr<Movement> movement;
@@ -563,7 +578,7 @@ int LuaContext::movement_api_create(lua_State* l) {
       movement = path_finding_movement;
     }
     else if (type == "circle") {
-      movement = std::make_shared<CircleMovement>(false);
+      movement = std::make_shared<CircleMovement>();
     }
     else if (type == "jump") {
       movement = std::make_shared<JumpMovement>(0, 0, 0, false);
@@ -591,12 +606,12 @@ int LuaContext::movement_api_create(lua_State* l) {
 
 /**
  * \brief Implementation of movement:get_xy().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_get_xy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Movement& movement = *check_movement(l, 1);
 
     const Point& xy = movement.get_xy();
@@ -608,12 +623,12 @@ int LuaContext::movement_api_get_xy(lua_State* l) {
 
 /**
  * \brief Implementation of movement:set_xy().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_set_xy(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     Movement& movement = *check_movement(l, 1);
     int x = LuaTools::check_int(l, 2);
     int y = LuaTools::check_int(l, 3);
@@ -626,13 +641,13 @@ int LuaContext::movement_api_set_xy(lua_State* l) {
 
 /**
  * \brief Implementation of movement:start().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_start(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get();
 
     std::shared_ptr<Movement> movement = check_movement(l, 1);
     movement_api_stop(l);  // First, stop any previous movement.
@@ -667,13 +682,13 @@ int LuaContext::movement_api_start(lua_State* l) {
 
 /**
  * \brief Implementation of movement:stop().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_stop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
-    LuaContext& lua_context = get_lua_context(l);
+  return state_boundary_handle(l, [&] {
+    LuaContext& lua_context = get();
 
     std::shared_ptr<Movement> movement = check_movement(l, 1);
 
@@ -699,13 +714,60 @@ int LuaContext::movement_api_stop(lua_State* l) {
 }
 
 /**
+ * \brief Implementation of movement:is_suspended().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::movement_api_is_suspended(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+
+    lua_pushboolean(l, movement->is_suspended());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of movement:get_ignore_suspend().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::movement_api_get_ignore_suspend(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+
+    lua_pushboolean(l, movement->get_ignore_suspend());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of movement:set_ignore_suspend().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::movement_api_set_ignore_suspend(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    std::shared_ptr<Movement> movement = check_movement(l, 1);
+    bool ignore_suspend = LuaTools::opt_boolean(l, 2, true);
+
+    movement->set_ignore_suspend(ignore_suspend);
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of movement:get_ignore_obstacles().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_get_ignore_obstacles(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     std::shared_ptr<Movement> movement = check_movement(l, 1);
 
     lua_pushboolean(l, movement->are_obstacles_ignored());
@@ -715,12 +777,12 @@ int LuaContext::movement_api_get_ignore_obstacles(lua_State* l) {
 
 /**
  * \brief Implementation of movement:set_ignore_obstacles().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_set_ignore_obstacles(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     std::shared_ptr<Movement> movement = check_movement(l, 1);
     bool ignore_obstacles = LuaTools::opt_boolean(l, 2, true);
 
@@ -732,12 +794,12 @@ int LuaContext::movement_api_set_ignore_obstacles(lua_State* l) {
 
 /**
  * \brief Implementation of movement:get_direction4().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::movement_api_get_direction4(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     std::shared_ptr<Movement> movement = check_movement(l, 1);
     lua_pushinteger(l, movement->get_displayed_direction4());
     return 1;
@@ -748,7 +810,7 @@ int LuaContext::movement_api_get_direction4(lua_State* l) {
  * \brief Returns whether a value is a userdata of type straight movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a straight movement.
+ * \return \c true if the value at this index is a straight movement.
  */
 bool LuaContext::is_straight_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_straight_module_name);
@@ -757,9 +819,9 @@ bool LuaContext::is_straight_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * straight movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<StraightMovement> LuaContext::check_straight_movement(lua_State* l, int index) {
 
@@ -770,12 +832,12 @@ std::shared_ptr<StraightMovement> LuaContext::check_straight_movement(lua_State*
 
 /**
  * \brief Implementation of straight_movement:get_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const StraightMovement& movement = *check_straight_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -784,25 +846,27 @@ int LuaContext::straight_movement_api_get_speed(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:set_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_set_speed(lua_State* l) {
 
-  StraightMovement& movement = *check_straight_movement(l, 1);
-  int speed = LuaTools::check_int(l, 2);
-  movement.set_speed(speed);
-  return 0;
+  return state_boundary_handle(l, [&] {
+    StraightMovement& movement = *check_straight_movement(l, 1);
+    int speed = LuaTools::check_int(l, 2);
+    movement.set_speed(speed);
+    return 0;
+  });
 }
 
 /**
  * \brief Implementation of straight_movement:get_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_get_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const StraightMovement& movement = *check_straight_movement(l, 1);
     lua_pushnumber(l, movement.get_angle());
     return 1;
@@ -811,12 +875,12 @@ int LuaContext::straight_movement_api_get_angle(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:set_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_set_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     StraightMovement& movement = *check_straight_movement(l, 1);
     double angle = LuaTools::check_number(l, 2);
     movement.set_angle(angle);
@@ -826,12 +890,12 @@ int LuaContext::straight_movement_api_set_angle(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:get_max_distance().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_get_max_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const StraightMovement& movement = *check_straight_movement(l, 1);
     lua_pushinteger(l, movement.get_max_distance());
     return 1;
@@ -840,12 +904,12 @@ int LuaContext::straight_movement_api_get_max_distance(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:set_max_distance().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_set_max_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     StraightMovement& movement = *check_straight_movement(l, 1);
     int max_distance = LuaTools::check_int(l, 2);
     movement.set_max_distance(max_distance);
@@ -855,12 +919,12 @@ int LuaContext::straight_movement_api_set_max_distance(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:is_smooth().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_is_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const StraightMovement& movement = *check_straight_movement(l, 1);
     lua_pushboolean(l, movement.is_smooth());
     return 1;
@@ -869,12 +933,12 @@ int LuaContext::straight_movement_api_is_smooth(lua_State* l) {
 
 /**
  * \brief Implementation of straight_movement:set_smooth().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::straight_movement_api_set_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     StraightMovement& movement = *check_straight_movement(l, 1);
     bool smooth = LuaTools::opt_boolean(l, 2, true);
     movement.set_smooth(smooth);
@@ -913,7 +977,7 @@ std::shared_ptr<RandomMovement> LuaContext::check_random_movement(lua_State* l, 
  */
 int LuaContext::random_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const RandomMovement& movement = *check_random_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -927,7 +991,7 @@ int LuaContext::random_movement_api_get_speed(lua_State* l) {
  */
 int LuaContext::random_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     RandomMovement& movement = *check_random_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_normal_speed(speed);
@@ -942,7 +1006,7 @@ int LuaContext::random_movement_api_set_speed(lua_State* l) {
  */
 int LuaContext::random_movement_api_get_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const RandomMovement& movement = *check_random_movement(l, 1);
     lua_pushnumber(l, movement.get_angle());
     return 1;
@@ -956,7 +1020,7 @@ int LuaContext::random_movement_api_get_angle(lua_State* l) {
  */
 int LuaContext::random_movement_api_get_max_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const RandomMovement& movement = *check_random_movement(l, 1);
     lua_pushinteger(l, movement.get_max_radius());
     return 1;
@@ -970,7 +1034,7 @@ int LuaContext::random_movement_api_get_max_distance(lua_State* l) {
  */
 int LuaContext::random_movement_api_set_max_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     RandomMovement& movement = *check_random_movement(l, 1);
     int max_radius = LuaTools::check_int(l, 2);
     movement.set_max_radius(max_radius);
@@ -985,7 +1049,7 @@ int LuaContext::random_movement_api_set_max_distance(lua_State* l) {
  */
 int LuaContext::random_movement_api_is_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const RandomMovement& movement = *check_random_movement(l, 1);
     lua_pushboolean(l, movement.is_smooth());
     return 1;
@@ -999,7 +1063,7 @@ int LuaContext::random_movement_api_is_smooth(lua_State* l) {
  */
 int LuaContext::random_movement_api_set_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     RandomMovement& movement = *check_random_movement(l, 1);
     bool smooth = LuaTools::opt_boolean(l, 2, true);
     movement.set_smooth(smooth);
@@ -1038,7 +1102,7 @@ std::shared_ptr<TargetMovement> LuaContext::check_target_movement(lua_State* l, 
  */
 int LuaContext::target_movement_api_set_target(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     TargetMovement& movement = *check_target_movement(l, 1);
     if (lua_isnumber(l, 2)) {
       // The target is a fixed point.
@@ -1070,7 +1134,7 @@ int LuaContext::target_movement_api_set_target(lua_State* l) {
  */
 int LuaContext::target_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const TargetMovement& movement = *check_target_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -1084,7 +1148,7 @@ int LuaContext::target_movement_api_get_speed(lua_State* l) {
  */
 int LuaContext::target_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     TargetMovement& movement = *check_target_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_moving_speed(speed);
@@ -1099,7 +1163,7 @@ int LuaContext::target_movement_api_set_speed(lua_State* l) {
  */
 int LuaContext::target_movement_api_get_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const TargetMovement& movement = *check_target_movement(l, 1);
     lua_pushnumber(l, movement.get_angle());
     return 1;
@@ -1113,7 +1177,7 @@ int LuaContext::target_movement_api_get_angle(lua_State* l) {
  */
 int LuaContext::target_movement_api_is_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const TargetMovement& movement = *check_target_movement(l, 1);
     lua_pushboolean(l, movement.is_smooth());
     return 1;
@@ -1127,7 +1191,7 @@ int LuaContext::target_movement_api_is_smooth(lua_State* l) {
  */
 int LuaContext::target_movement_api_set_smooth(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     TargetMovement& movement = *check_target_movement(l, 1);
     bool smooth = LuaTools::opt_boolean(l, 2, true);
     movement.set_smooth(smooth);
@@ -1140,7 +1204,7 @@ int LuaContext::target_movement_api_set_smooth(lua_State* l) {
  * \brief Returns whether a value is a userdata of type path movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a path movement.
+ * \return \c true if the value at this index is a path movement.
  */
 bool LuaContext::is_path_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_path_module_name);
@@ -1149,9 +1213,9 @@ bool LuaContext::is_path_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * path movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<PathMovement> LuaContext::check_path_movement(lua_State* l, int index) {
   return std::static_pointer_cast<PathMovement>(check_userdata(
@@ -1161,12 +1225,12 @@ std::shared_ptr<PathMovement> LuaContext::check_path_movement(lua_State* l, int 
 
 /**
  * \brief Implementation of path_movement:get_path().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_get_path(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PathMovement& movement = *check_path_movement(l, 1);
 
     const std::string& path = movement.get_path();
@@ -1185,12 +1249,12 @@ int LuaContext::path_movement_api_get_path(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:set_path().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_set_path(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathMovement& movement = *check_path_movement(l, 1);
     LuaTools::check_type(l, 2, LUA_TTABLE);
 
@@ -1210,12 +1274,12 @@ int LuaContext::path_movement_api_set_path(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:get_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PathMovement& movement = *check_path_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -1224,12 +1288,12 @@ int LuaContext::path_movement_api_get_speed(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:set_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathMovement& movement = *check_path_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_speed(speed);
@@ -1239,11 +1303,11 @@ int LuaContext::path_movement_api_set_speed(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:get_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_get_angle(lua_State* l) {
-    return LuaTools::exception_boundary_handle(l, [&] {
+    return state_boundary_handle(l, [&] {
        const PathMovement& movement = *check_path_movement(l,1);
        lua_pushnumber(l,movement.get_angle());
        return 1;
@@ -1252,12 +1316,12 @@ int LuaContext::path_movement_api_get_angle(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:get_loop().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_get_loop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PathMovement& movement = *check_path_movement(l, 1);
     lua_pushboolean(l, movement.get_loop());
     return 1;
@@ -1266,12 +1330,12 @@ int LuaContext::path_movement_api_get_loop(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:set_loop().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_set_loop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathMovement& movement = *check_path_movement(l, 1);
     bool loop = LuaTools::opt_boolean(l, 2, true);
 
@@ -1283,12 +1347,12 @@ int LuaContext::path_movement_api_set_loop(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:get_snap_to_grid().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_get_snap_to_grid(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PathMovement& movement = *check_path_movement(l, 1);
     lua_pushboolean(l, movement.get_snap_to_grid());
     return 1;
@@ -1297,12 +1361,12 @@ int LuaContext::path_movement_api_get_snap_to_grid(lua_State* l) {
 
 /**
  * \brief Implementation of path_movement:set_snap_to_grid().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_movement_api_set_snap_to_grid(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathMovement& movement = *check_path_movement(l, 1);
     bool snap_to_grid = LuaTools::opt_boolean(l, 2, true);
 
@@ -1315,9 +1379,9 @@ int LuaContext::path_movement_api_set_snap_to_grid(lua_State* l) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * random path movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<RandomPathMovement> LuaContext::check_random_path_movement(lua_State* l, int index) {
   return std::static_pointer_cast<RandomPathMovement>(check_userdata(
@@ -1329,7 +1393,7 @@ std::shared_ptr<RandomPathMovement> LuaContext::check_random_path_movement(lua_S
  * \brief Returns whether a value is a userdata of type random path movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a random path movement.
+ * \return \c true if the value at this index is a random path movement.
  */
 bool LuaContext::is_random_path_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_random_path_module_name);
@@ -1337,12 +1401,12 @@ bool LuaContext::is_random_path_movement(lua_State* l, int index) {
 
 /**
  * \brief Implementation of random_path_movement:get_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::random_path_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const RandomPathMovement& movement = *check_random_path_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -1351,11 +1415,11 @@ int LuaContext::random_path_movement_api_get_speed(lua_State* l) {
 
 /**
  * \brief Implementation of random_path_movement:get_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::random_path_movement_api_get_angle(lua_State* l) {
-    return LuaTools::exception_boundary_handle(l, [&] {
+    return state_boundary_handle(l, [&] {
        const PathMovement& movement = *check_random_path_movement(l,1);
        lua_pushnumber(l,movement.get_angle());
        return 1;
@@ -1365,12 +1429,12 @@ int LuaContext::random_path_movement_api_get_angle(lua_State* l) {
 
 /**
  * \brief Implementation of random_path_movement:set_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::random_path_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     RandomPathMovement& movement = *check_random_path_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_speed(speed);
@@ -1382,7 +1446,7 @@ int LuaContext::random_path_movement_api_set_speed(lua_State* l) {
  * \brief Returns whether a value is a userdata of type path finding movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a path finding  movement.
+ * \return \c true if the value at this index is a path finding  movement.
  */
 bool LuaContext::is_path_finding_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_path_finding_module_name);
@@ -1391,9 +1455,9 @@ bool LuaContext::is_path_finding_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * path finding movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<PathFindingMovement> LuaContext::check_path_finding_movement(lua_State* l, int index) {
   return std::static_pointer_cast<PathFindingMovement>(check_userdata(
@@ -1403,12 +1467,12 @@ std::shared_ptr<PathFindingMovement> LuaContext::check_path_finding_movement(lua
 
 /**
  * \brief Implementation of path_finding_movement:set_target().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_finding_movement_api_set_target(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathFindingMovement& movement = *check_path_finding_movement(l, 1);
     EntityPtr target = check_entity(l, 2);
 
@@ -1420,12 +1484,12 @@ int LuaContext::path_finding_movement_api_set_target(lua_State* l) {
 
 /**
  * \brief Implementation of path_finding_movement:get_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_finding_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PathFindingMovement& movement = *check_path_finding_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -1434,11 +1498,11 @@ int LuaContext::path_finding_movement_api_get_speed(lua_State* l) {
 
 /**
  * \brief Implementation of path_finding_movement:get_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_finding_movement_api_get_angle(lua_State* l) {
-    return LuaTools::exception_boundary_handle(l, [&] {
+    return state_boundary_handle(l, [&] {
        const PathMovement& movement = *check_path_finding_movement(l,1);
        lua_pushnumber(l,movement.get_angle());
        return 1;
@@ -1448,12 +1512,12 @@ int LuaContext::path_finding_movement_api_get_angle(lua_State* l) {
 
 /**
  * \brief Implementation of path_finding_movement:set_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::path_finding_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PathFindingMovement& movement = *check_path_finding_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_speed(speed);
@@ -1465,7 +1529,7 @@ int LuaContext::path_finding_movement_api_set_speed(lua_State* l) {
  * \brief Returns whether a value is a userdata of type circle movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a circle movement.
+ * \return \c true if the value at this index is a circle movement.
  */
 bool LuaContext::is_circle_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_circle_module_name);
@@ -1475,8 +1539,8 @@ bool LuaContext::is_circle_movement(lua_State* l, int index) {
  * \brief Checks that the userdata at the specified index of the stack is a
  * circle movement and returns it.
  * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<CircleMovement> LuaContext::check_circle_movement(lua_State* l, int index) {
   return std::static_pointer_cast<CircleMovement>(check_userdata(
@@ -1485,13 +1549,30 @@ std::shared_ptr<CircleMovement> LuaContext::check_circle_movement(lua_State* l, 
 }
 
 /**
+ * \brief Implementation of circle_movement:get_center().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_get_center(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CircleMovement& movement = *check_circle_movement(l, 1);
+
+    const Point& xy = movement.get_center();
+    lua_pushinteger(l, xy.x);
+    lua_pushinteger(l, xy.y);
+    return 2;
+  });
+}
+
+/**
  * \brief Implementation of circle_movement:set_center().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_center(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     if (lua_isnumber(l, 2)) {
       // the center is a fixed point
@@ -1514,12 +1595,12 @@ int LuaContext::circle_movement_api_set_center(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:get_radius().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_get_radius(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushinteger(l, movement.get_radius());
     return 1;
@@ -1528,12 +1609,12 @@ int LuaContext::circle_movement_api_get_radius(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_radius().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_radius(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     int radius = LuaTools::check_int(l, 2);
     movement.set_radius(radius);
@@ -1543,12 +1624,12 @@ int LuaContext::circle_movement_api_set_radius(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:get_radius_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_get_radius_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushinteger(l, movement.get_radius_speed());
     return 1;
@@ -1557,12 +1638,12 @@ int LuaContext::circle_movement_api_get_radius_speed(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_radius_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_radius_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     int radius_speed = LuaTools::check_int(l, 2);
     movement.set_radius_speed(radius_speed);
@@ -1572,12 +1653,12 @@ int LuaContext::circle_movement_api_set_radius_speed(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:is_clockwise().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_is_clockwise(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushboolean(l, movement.is_clockwise());
     return 1;
@@ -1586,12 +1667,12 @@ int LuaContext::circle_movement_api_is_clockwise(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_clockwise().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_clockwise(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     bool clockwise = LuaTools::opt_boolean(l, 2, true);
 
@@ -1602,71 +1683,166 @@ int LuaContext::circle_movement_api_set_clockwise(lua_State* l) {
 }
 
 /**
- * \brief Implementation of circle_movement:get_initial_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \brief Implementation of circle_movement:get_angle_from_center().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
-int LuaContext::circle_movement_api_get_initial_angle(lua_State* l) {
+int LuaContext::circle_movement_api_get_angle_from_center(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
-    lua_pushinteger(l, movement.get_initial_angle());
+    lua_pushnumber(l, movement.get_angle_from_center());
     return 1;
   });
 }
 
 /**
- * \brief Implementation of circle_movement:set_initial_angle().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \brief Implementation of circle_movement:get_initial_angle().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
-int LuaContext::circle_movement_api_set_initial_angle(lua_State* l) {
+int LuaContext::circle_movement_api_get_initial_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
+
+    get().warning_deprecated(
+        { 1, 6 },
+        "circle_movement:get_initial_angle()",
+        "Use circle_movement:get_angle_from_center() in radians instead."
+    );
+
+    const CircleMovement& movement = *check_circle_movement(l, 1);
+    int degrees = Geometry::radians_to_degrees(movement.get_initial_angle());
+    lua_pushinteger(l, degrees);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:set_angle_from_center().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_set_angle_from_center(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
-    int initial_angle = LuaTools::check_int(l, 2);
-    movement.set_initial_angle(initial_angle);
+    double angle_from_center = LuaTools::check_number(l, 2);
+    movement.set_angle_from_center(angle_from_center);
     return 0;
   });
 }
 
 /**
- * \brief Implementation of circle_movement:get_angle_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \brief Implementation of circle_movement:set_initial_angle().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
-int LuaContext::circle_movement_api_get_angle_speed(lua_State* l) {
+int LuaContext::circle_movement_api_set_initial_angle(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
+
+    get().warning_deprecated(
+        { 1, 6 },
+        "circle_movement:set_initial_angle()",
+        "Use circle_movement:set_angle_from_center() in radians instead."
+    );
+
+    CircleMovement& movement = *check_circle_movement(l, 1);
+    int initial_angle_degrees = LuaTools::check_int(l, 2);
+    movement.set_angle_from_center(Geometry::degrees_to_radians(initial_angle_degrees));
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:get_angular_speed().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_get_angular_speed(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
-    lua_pushinteger(l, movement.get_angle_speed());
+
+    lua_pushnumber(l, movement.get_angular_speed());
     return 1;
   });
 }
 
 /**
+ * \brief Implementation of circle_movement:get_angle_speed().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_get_angle_speed(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+
+    get().warning_deprecated(
+        { 1, 6 },
+        "circle_movement:get_angle_speed()",
+        "Use circle_movement:get_angular_speed() in radians instead."
+    );
+
+    const CircleMovement& movement = *check_circle_movement(l, 1);
+
+    int degrees_per_second = Geometry::radians_to_degrees(movement.get_angular_speed());
+
+    lua_pushinteger(l, degrees_per_second);
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of circle_movement:set_angular_speed().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::circle_movement_api_set_angular_speed(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CircleMovement& movement = *check_circle_movement(l, 1);
+    double angular_speed = LuaTools::check_number(l, 2);
+
+    movement.set_angular_speed(angular_speed);
+
+    return 0;
+  });
+}
+
+/**
  * \brief Implementation of circle_movement:set_angle_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_angle_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
+
+    get().warning_deprecated(
+        { 1, 6 },
+        "circle_movement:set_angle_speed()",
+        "Use circle_movement:set_angular_speed() in radians instead."
+    );
+
     CircleMovement& movement = *check_circle_movement(l, 1);
-    int angle_speed = LuaTools::check_int(l, 2);
-    movement.set_angle_speed(angle_speed);
+    int angle_speed_degrees = LuaTools::check_int(l, 2);
+
+    movement.set_angular_speed(Geometry::degrees_to_radians(angle_speed_degrees));
+
     return 0;
   });
 }
 
 /**
  * \brief Implementation of circle_movement:get_max_rotations().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_get_max_rotations(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushinteger(l, movement.get_max_rotations());
     return 1;
@@ -1675,12 +1851,12 @@ int LuaContext::circle_movement_api_get_max_rotations(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_max_rotations().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_max_rotations(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     int max_rotations = LuaTools::check_int(l, 2);
     movement.set_max_rotations(max_rotations);
@@ -1690,12 +1866,12 @@ int LuaContext::circle_movement_api_set_max_rotations(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:get_duration().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_get_duration(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushinteger(l, movement.get_duration());
     return 1;
@@ -1704,12 +1880,12 @@ int LuaContext::circle_movement_api_get_duration(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_duration().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_duration(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     int duration = LuaTools::check_int(l, 2);
     movement.set_duration(duration);
@@ -1719,12 +1895,12 @@ int LuaContext::circle_movement_api_set_duration(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:get_loop_delay().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_get_loop_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const CircleMovement& movement = *check_circle_movement(l, 1);
     lua_pushinteger(l, movement.get_loop());
     return 1;
@@ -1733,12 +1909,12 @@ int LuaContext::circle_movement_api_get_loop_delay(lua_State* l) {
 
 /**
  * \brief Implementation of circle_movement:set_loop_delay().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::circle_movement_api_set_loop_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     CircleMovement& movement = *check_circle_movement(l, 1);
     int loop_delay = LuaTools::check_int(l, 2);
     movement.set_loop(loop_delay);
@@ -1750,7 +1926,7 @@ int LuaContext::circle_movement_api_set_loop_delay(lua_State* l) {
  * \brief Returns whether a value is a userdata of type jump movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a jump movement.
+ * \return \c true if the value at this index is a jump movement.
  */
 bool LuaContext::is_jump_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_jump_module_name);
@@ -1759,9 +1935,9 @@ bool LuaContext::is_jump_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * jump movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<JumpMovement> LuaContext::check_jump_movement(lua_State* l, int index) {
   return std::static_pointer_cast<JumpMovement>(check_userdata(
@@ -1771,12 +1947,12 @@ std::shared_ptr<JumpMovement> LuaContext::check_jump_movement(lua_State* l, int 
 
 /**
  * \brief Implementation of jump_movement:get_direction8().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_get_direction8(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const JumpMovement& movement = *check_jump_movement(l, 1);
     lua_pushinteger(l, movement.get_direction8());
     return 1;
@@ -1785,12 +1961,12 @@ int LuaContext::jump_movement_api_get_direction8(lua_State* l) {
 
 /**
  * \brief Implementation of jump_movement:set_direction8().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_set_direction8(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     JumpMovement& movement = *check_jump_movement(l, 1);
     int direction8 = LuaTools::check_int(l, 2);
     movement.set_direction8(direction8);
@@ -1800,12 +1976,12 @@ int LuaContext::jump_movement_api_set_direction8(lua_State* l) {
 
 /**
  * \brief Implementation of jump_movement:get_distance().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_get_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const JumpMovement& movement = *check_jump_movement(l, 1);
     lua_pushinteger(l, movement.get_distance());
     return 1;
@@ -1814,12 +1990,12 @@ int LuaContext::jump_movement_api_get_distance(lua_State* l) {
 
 /**
  * \brief Implementation of jump_movement:set_distance().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_set_distance(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     JumpMovement& movement = *check_jump_movement(l, 1);
     int distance = LuaTools::check_int(l, 2);
     movement.set_distance(distance);
@@ -1829,12 +2005,12 @@ int LuaContext::jump_movement_api_set_distance(lua_State* l) {
 
 /**
  * \brief Implementation of jump_movement:get_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_get_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const JumpMovement& movement = *check_jump_movement(l, 1);
     lua_pushinteger(l, movement.get_speed());
     return 1;
@@ -1843,12 +2019,12 @@ int LuaContext::jump_movement_api_get_speed(lua_State* l) {
 
 /**
  * \brief Implementation of jump_movement:set_speed().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::jump_movement_api_set_speed(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     JumpMovement& movement = *check_jump_movement(l, 1);
     int speed = LuaTools::check_int(l, 2);
     movement.set_speed(speed);
@@ -1860,7 +2036,7 @@ int LuaContext::jump_movement_api_set_speed(lua_State* l) {
  * \brief Returns whether a value is a userdata of type pixel movement.
  * \param l A Lua context.
  * \param index An index in the stack.
- * \return true if the value at this index is a pixel movement.
+ * \return \c true if the value at this index is a pixel movement.
  */
 bool LuaContext::is_pixel_movement(lua_State* l, int index) {
   return is_userdata(l, index, movement_pixel_module_name);
@@ -1869,9 +2045,9 @@ bool LuaContext::is_pixel_movement(lua_State* l, int index) {
 /**
  * \brief Checks that the userdata at the specified index of the stack is a
  * pixel movement and returns it.
- * \param l a Lua context
- * \param index an index in the stack
- * \return the movement
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \return The movement.
  */
 std::shared_ptr<PixelMovement> LuaContext::check_pixel_movement(lua_State* l, int index) {
   return std::static_pointer_cast<PixelMovement>(check_userdata(
@@ -1881,12 +2057,12 @@ std::shared_ptr<PixelMovement> LuaContext::check_pixel_movement(lua_State* l, in
 
 /**
  * \brief Implementation of pixel_movement:get_trajectory().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_get_trajectory(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PixelMovement& movement = *check_pixel_movement(l, 1);
 
     const std::list<Point>& trajectory = movement.get_trajectory();
@@ -1910,12 +2086,12 @@ int LuaContext::pixel_movement_api_get_trajectory(lua_State* l) {
 
 /**
  * \brief Implementation of pixel_movement:set_trajectory().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_set_trajectory(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PixelMovement& movement = *check_pixel_movement(l, 1);
     LuaTools::check_type(l, 2, LUA_TTABLE);
 
@@ -1939,12 +2115,12 @@ int LuaContext::pixel_movement_api_set_trajectory(lua_State* l) {
 
 /**
  * \brief Implementation of pixel_movement:get_loop().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_get_loop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PixelMovement& movement = *check_pixel_movement(l, 1);
     lua_pushboolean(l, movement.get_loop());
     return 1;
@@ -1953,12 +2129,12 @@ int LuaContext::pixel_movement_api_get_loop(lua_State* l) {
 
 /**
  * \brief Implementation of pixel_movement:set_loop().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_set_loop(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PixelMovement& movement = *check_pixel_movement(l, 1);
     bool loop = LuaTools::opt_boolean(l, 2, true);
 
@@ -1970,12 +2146,12 @@ int LuaContext::pixel_movement_api_set_loop(lua_State* l) {
 
 /**
  * \brief Implementation of pixel_movement:get_delay().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_get_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     const PixelMovement& movement = *check_pixel_movement(l, 1);
     lua_pushinteger(l, movement.get_delay());
     return 1;
@@ -1984,12 +2160,12 @@ int LuaContext::pixel_movement_api_get_delay(lua_State* l) {
 
 /**
  * \brief Implementation of pixel_movement:set_delay().
- * \param l the Lua context that is calling this function
- * \return number of values to return to Lua
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
  */
 int LuaContext::pixel_movement_api_set_delay(lua_State* l) {
 
-  return LuaTools::exception_boundary_handle(l, [&] {
+  return state_boundary_handle(l, [&] {
     PixelMovement& movement = *check_pixel_movement(l, 1);
     uint32_t delay = uint32_t(LuaTools::check_int(l, 2));
     movement.set_delay(delay);
@@ -2008,32 +2184,34 @@ int LuaContext::pixel_movement_api_set_delay(lua_State* l) {
 void LuaContext::movement_on_position_changed(
     Movement& movement, const Point& xy) {
 
-                                  // ...
-  push_movement(l, movement);
-                                  // ... movement
-  lua_getfield(l, LUA_REGISTRYINDEX, "sol.movements_on_points");
-                                  // ... movement movements
-  lua_pushvalue(l, -2);
-                                  // ... movement movements movement
-  lua_gettable(l, -2);
-                                  // ... movement movements xy/nil
-  if (!lua_isnil(l, -1)) {
-                                  // ... movement movements xy
-    lua_pushinteger(l, xy.x);
-                                  // ... movement movements xy x
-    lua_setfield(l, -2, "x");
-                                  // ... movement movements xy
-    lua_pushinteger(l, xy.y);
-                                  // ... movement movements xy y
-    lua_setfield(l, -2, "y");
-                                  // ... movement movements xy
-  }
-  lua_pop(l, 2);
-                                  // ... movement
-  if (userdata_has_field(movement, "on_position_changed")) {
-    on_position_changed(xy);
-  }
-  lua_pop(l, 1);
+  run_on_main([this,&movement,&xy](lua_State* current_l){
+                                    // ...
+    push_movement(current_l, movement);
+                                    // ... movement
+    lua_getfield(current_l, LUA_REGISTRYINDEX, "sol.movements_on_points");
+                                    // ... movement movements
+    lua_pushvalue(current_l, -2);
+                                    // ... movement movements movement
+    lua_gettable(current_l, -2);
+                                    // ... movement movements xy/nil
+    if (!lua_isnil(current_l, -1)) {
+                                    // ... movement movements xy
+      lua_pushinteger(current_l, xy.x);
+                                    // ... movement movements xy x
+      lua_setfield(current_l, -2, "x");
+                                    // ... movement movements xy
+      lua_pushinteger(current_l, xy.y);
+                                    // ... movement movements xy y
+      lua_setfield(current_l, -2, "y");
+                                    // ... movement movements xy
+    }
+    lua_pop(current_l, 2);
+                                    // ... movement
+    if (userdata_has_field(movement, "on_position_changed")) {
+      on_position_changed(xy);
+    }
+    lua_pop(current_l, 1);
+  });
 }
 
 /**
@@ -2049,9 +2227,11 @@ void LuaContext::movement_on_obstacle_reached(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
-  on_obstacle_reached();
-  lua_pop(l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_obstacle_reached();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -2067,9 +2247,11 @@ void LuaContext::movement_on_changed(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
-  on_changed();
-  lua_pop(l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_changed();
+    lua_pop(l, 1);
+  });
 }
 
 /**
@@ -2085,9 +2267,11 @@ void LuaContext::movement_on_finished(Movement& movement) {
     return;
   }
 
-  push_movement(l, movement);
-  on_finished();
-  lua_pop(l, 1);
+  run_on_main([this,&movement](lua_State* l){
+    push_movement(l, movement);
+    on_finished();
+    lua_pop(l, 1);
+  });
 }
 
 }

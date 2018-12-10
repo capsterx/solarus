@@ -21,7 +21,6 @@
 #include "solarus/core/Size.h"
 #include "solarus/core/System.h"
 #include "solarus/graphics/Color.h"
-#include "solarus/graphics/RenderTexture.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/SpriteAnimation.h"
 #include "solarus/graphics/SpriteAnimationDirection.h"
@@ -520,6 +519,15 @@ void Sprite::set_suspended(bool suspended) {
 }
 
 /**
+ * \brief Returns whether this sprite keeps playing when the game is suspended.
+ * \return \c true if the sprite continues its animation even when the game is
+ * suspended.
+ */
+bool Sprite::get_ignore_suspend() const {
+  return ignore_suspend;
+}
+
+/**
  * \brief Sets whether this sprite should keep playing its animation when the game is suspended.
  *
  * This will ignore subsequent calls to set_suspended().
@@ -958,12 +966,12 @@ void Sprite::notify_finished() {
 
   LuaContext* lua_context = get_lua_context();
   if (lua_context != nullptr) {
-    lua_State* l = finished_callback_ref.get_lua_state();
+    lua_State* l = lua_context->get_internal_state();
 
     // Sprite callback.
     if (!finished_callback_ref.is_empty()) {
       // The callback may be a function or a string.
-      finished_callback_ref.push();
+      finished_callback_ref.push(l);
       finished_callback_ref.clear();
       if (lua_isstring(l, -1)) {
         // Name of a next animation to set.

@@ -896,8 +896,28 @@ void HeroSprites::draw_on_map() {
     map.draw_visual(*shield_sprite, x, y, clipping_rectangle);
   }
 
+  // Also draw the user additional sprites if any.
+  // TODO use the regular Entity::draw_on_map() instead to make the order more configurable.
+  const Point& xy = hero.get_displayed_xy();
+  for (const Entity::NamedSprite& named_sprite: hero.get_named_sprites()) {
+    if (named_sprite.removed) {
+      continue;
+    }
+    SpritePtr sprite = named_sprite.sprite;
+    if (sprite != shadow_sprite &&
+        sprite != tunic_sprite &&
+        sprite != trail_sprite &&
+        sprite != ground_sprite &&
+        sprite != sword_sprite &&
+        sprite != sword_stars_sprite &&
+        sprite != shield_sprite
+    ) {
+      map.draw_visual(*sprite, xy);
+    }
+  }
+
   if (lifted_item != nullptr) {
-    lifted_item->draw_on_map();
+    lifted_item->draw(*map.get_camera());
   }
 }
 
@@ -940,7 +960,7 @@ void HeroSprites::set_suspended(bool suspended) {
 /**
  * \brief Notifies the hero's sprites that a map has just become active.
  */
-void HeroSprites::notify_map_started() {
+void HeroSprites::notify_map_starting() {
 
   // Some sprites may be tileset dependent.
   notify_tileset_changed();
@@ -1298,7 +1318,7 @@ void HeroSprites::set_animation_sword_tapping() {
 }
 
 /**
- * \brief Starts (or restarts) the "spin_attck" animation of the hero's sprites.
+ * \brief Starts (or restarts) the "spin_attack" animation of the hero's sprites.
  */
 void HeroSprites::set_animation_spin_attack() {
 
@@ -1310,7 +1330,7 @@ void HeroSprites::set_animation_spin_attack() {
 }
 
 /**
- * \brief Starts (or restarts) the "super_spin_attck" animation of the hero's sprites.
+ * \brief Starts (or restarts) the "super_spin_attack" animation of the hero's sprites.
  */
 void HeroSprites::set_animation_super_spin_attack() {
 
@@ -1626,7 +1646,10 @@ void HeroSprites::create_ground(Ground ground) {
  */
 void HeroSprites::destroy_ground() {
 
-  ground_sprite = nullptr;
+  if (ground_sprite != nullptr) {
+    hero.remove_sprite(*ground_sprite);
+    ground_sprite = nullptr;
+  }
 }
 
 /**

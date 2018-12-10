@@ -126,6 +126,7 @@ file(
   include/solarus/entities/TilePtr.h
   include/solarus/entities/TilesetData.h
   include/solarus/entities/Tileset.h
+  include/solarus/entities/TraversableInfo.h
   include/solarus/entities/Wall.h
 
   include/solarus/graphics/BlendMode.h
@@ -142,6 +143,13 @@ file(
   include/solarus/graphics/SDLPtrs.h
   include/solarus/graphics/Shader.h
   include/solarus/graphics/DefaultShaders.h
+  include/solarus/graphics/Renderer.h
+  include/solarus/graphics/sdlrenderer/SDLRenderer.h
+  include/solarus/graphics/sdlrenderer/SDLSurfaceImpl.h
+  include/solarus/graphics/sdlrenderer/SDLShader.h
+  include/solarus/graphics/glrenderer/GlRenderer.h
+  include/solarus/graphics/glrenderer/GlShader.h
+  include/solarus/graphics/glrenderer/GlTexture.h
   include/solarus/graphics/ShaderContext.h
   include/solarus/graphics/ShaderData.h
   include/solarus/graphics/ShaderPtr.h
@@ -170,6 +178,7 @@ file(
   include/solarus/hero/BoomerangState.h
   include/solarus/hero/BowState.h
   include/solarus/hero/CarryingState.h
+  include/solarus/hero/CustomState.h
   include/solarus/hero/FallingState.h
   include/solarus/hero/ForcedWalkingState.h
   include/solarus/hero/FreeState.h
@@ -330,6 +339,7 @@ file(
   src/entities/TilePattern.cpp
   src/entities/Tileset.cpp
   src/entities/TilesetData.cpp
+  src/entities/TraversableInfo.cpp
   src/entities/Wall.cpp
 
   src/graphics/BlendModeInfo.cpp
@@ -339,6 +349,13 @@ file(
   src/graphics/Hq3xFilter.cpp
   src/graphics/Hq4xFilter.cpp
   src/graphics/RenderTexture.cpp
+  src/graphics/Renderer.cpp
+  src/graphics/sdlrenderer/SDLRenderer.cpp
+  src/graphics/sdlrenderer/SDLSurfaceImpl.cpp
+  src/graphics/sdlrenderer/SDLShader.cpp
+  src/graphics/glrenderer/GlRenderer.cpp
+  src/graphics/glrenderer/GlShader.cpp
+  src/graphics/glrenderer/GlTexture.cpp
   src/graphics/Scale2xFilter.cpp
   src/graphics/ShaderContext.cpp
   src/graphics/ShaderData.cpp
@@ -365,6 +382,7 @@ file(
   src/hero/BoomerangState.cpp
   src/hero/BowState.cpp
   src/hero/CarryingState.cpp
+  src/hero/CustomState.cpp
   src/hero/FallingState.cpp
   src/hero/ForcedWalkingState.cpp
   src/hero/FreeState.cpp
@@ -411,6 +429,7 @@ file(
   src/lua/ScopedLuaRef.cpp
   src/lua/ShaderApi.cpp
   src/lua/SpriteApi.cpp
+  src/lua/StateApi.cpp
   src/lua/SurfaceApi.cpp
   src/lua/TextSurfaceApi.cpp
   src/lua/TimerApi.cpp

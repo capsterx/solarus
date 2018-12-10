@@ -78,7 +78,7 @@ void Hero::PullingState::update() {
     // stop pulling if the action key is released or if there is no more obstacle
     if (!get_commands().is_command_pressed(GameCommand::ACTION)
         || !hero.is_facing_obstacle()) {
-      hero.set_state(new FreeState(hero));
+      hero.set_state(std::make_shared<FreeState>(hero));
     }
 
     // stop pulling the obstacle if the player changes his direction
@@ -246,7 +246,7 @@ void Hero::PullingState::stop_moving_pulled_entity() {
  * \param attacker an attacker that is trying to hurt the hero
  * (or nullptr if the source of the attack is not an enemy)
  */
-bool Hero::PullingState::can_be_hurt(Entity* /* attacker */) const {
+bool Hero::PullingState::get_can_be_hurt(Entity* /* attacker */) {
   return !is_moving_grabbed_entity();
 }
 
@@ -255,7 +255,7 @@ bool Hero::PullingState::can_be_hurt(Entity* /* attacker */) const {
  * \param item The equipment item to obtain.
  * \return true if the hero can pick that treasure in this state.
  */
-bool Hero::PullingState::can_pick_treasure(EquipmentItem& /* item */) const {
+bool Hero::PullingState::get_can_pick_treasure(EquipmentItem& /* item */) const {
   return true;
 }
 
@@ -302,7 +302,7 @@ bool Hero::PullingState::is_prickle_obstacle() const {
 /**
  * \copydoc Entity::State::is_stream_obstacle
  */
-bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
+bool Hero::PullingState::is_stream_obstacle(Stream& /* stream */) {
   return true;
 }
 
@@ -310,7 +310,7 @@ bool Hero::PullingState::is_stream_obstacle(const Stream& /* stream */) const {
  * \copydoc Entity::State::is_separator_obstacle
  */
 bool Hero::PullingState::is_separator_obstacle(
-    const Separator& /* separator */) const {
+    Separator& /* separator */) {
   return true;
 }
 
