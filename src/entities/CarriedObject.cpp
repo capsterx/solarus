@@ -185,7 +185,7 @@ void CarriedObject::set_animation_stopped() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "stopped_explosion_soon" : "stopped";
-    if (main_sprite->has_animation("animation")) {
+    if (main_sprite->has_animation(animation)) {
       main_sprite->set_current_animation(animation);
     }
   }
@@ -201,7 +201,7 @@ void CarriedObject::set_animation_walking() {
 
   if (!is_lifting && !is_throwing) {
     std::string animation = will_explode_soon() ? "walking_explosion_soon" : "walking";
-    if (main_sprite->has_animation("animation")) {
+    if (main_sprite->has_animation(animation)) {
       main_sprite->set_current_animation(animation);
     }
   }
@@ -221,7 +221,7 @@ void CarriedObject::throw_item(int direction) {
   Sound::play("throw");
 
   // Set up sprites.
-  if (main_sprite->has_animation("animation")) {
+  if (main_sprite->has_animation("stopped")) {
     main_sprite->set_current_animation("stopped");
   }
   shadow_sprite->start_animation();
@@ -432,10 +432,14 @@ void CarriedObject::update() {
 
       std::string animation = main_sprite->get_current_animation();
       if (animation == "stopped") {
-        main_sprite->set_current_animation("stopped_explosion_soon");
+        if (main_sprite->has_animation("stopped_explosion_soon")) {
+          main_sprite->set_current_animation("stopped_explosion_soon");
+        }
       }
       else if (animation == "walking") {
-        main_sprite->set_current_animation("walking_explosion_soon");
+        if (main_sprite->has_animation("walking_explosion_soon")) {
+          main_sprite->set_current_animation("walking_explosion_soon");
+        }
       }
     }
   }
