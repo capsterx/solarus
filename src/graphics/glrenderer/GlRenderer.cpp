@@ -191,7 +191,9 @@ void GlRenderer::set_render_target(GlTexture* target) {
       ctx.glViewport(0,0,
                      target->get_width(),
                      target->get_height());
+#ifndef ANDROID
       Debug::check_assertion(ctx.glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
+#endif
     } else { //Render to screen
       ctx.glViewport(window_viewport.get_left(),
                      window_viewport.get_top(),
