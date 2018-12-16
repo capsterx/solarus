@@ -112,6 +112,8 @@ class Surface: public Drawable {
     void bind_as_target();
 
     const std::string& get_lua_type_name() const override;
+
+    static void empty_cache();
   private:
     static SurfaceImplPtr get_surface_from_file(
         const std::string& file_name,

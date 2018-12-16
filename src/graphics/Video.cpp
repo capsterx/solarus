@@ -261,6 +261,8 @@ void quit() {
     context.main_window = nullptr;
   }
 
+  Surface::empty_cache();
+
   context = VideoContext();
 }
 

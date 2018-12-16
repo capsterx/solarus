@@ -312,6 +312,7 @@ GlRenderer::~GlRenderer() {
     ctx.glDeleteVertexArrays(1,&vao); //TODO delete rest
   }
   SDL_GL_DeleteContext(sdl_gl_context);
+  instance = nullptr;
 }
 
 /**
