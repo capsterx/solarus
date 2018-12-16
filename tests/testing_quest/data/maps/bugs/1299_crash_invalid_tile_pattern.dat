@@ -39,8 +39,8 @@ dynamic_tile{
   layer = 0,
   x = 48,
   y = 48,
-  pattern = "1299_does_not_exist",
   width = 16,
   height = 16,
+  pattern = "1299_does_not_exist",
 }
 

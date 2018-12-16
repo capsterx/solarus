@@ -21,18 +21,18 @@ dynamic_tile{
   layer = 0,
   x = 8,
   y = 16,
-  pattern = "47",
   width = 32,
   height = 24,
+  pattern = "47",
 }
 
 dynamic_tile{
   layer = 0,
   x = 16,
   y = 8,
-  pattern = "67",
   width = 32,
   height = 32,
+  pattern = "67",
 }
 
 destination{

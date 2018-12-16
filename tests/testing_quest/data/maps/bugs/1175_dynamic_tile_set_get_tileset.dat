@@ -49,9 +49,9 @@ dynamic_tile{
   layer = 0,
   x = 40,
   y = 32,
-  pattern = "26",
   width = 48,
   height = 32,
+  pattern = "26",
 }
 
 destination{

@@ -495,9 +495,9 @@ void GlRenderer::set_blend_mode(GLBlendMode mode) {
  */
 GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(const GlTexture& dst, const GlTexture* src, BlendMode mode) {
   if(dst.is_premultiplied() && mode == BlendMode::BLEND) { //TODO refactor this a bit
-    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+    return GLBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
   } else if(src && src->is_premultiplied() && mode == BlendMode::BLEND) {
-    return {GL_ONE,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+    return GLBlendMode{GL_ONE,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
   } else {
     return make_gl_blend_modes(mode);
   }
@@ -510,13 +510,13 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(const GlTexture& dst, co
  */
 GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
   auto sym = [](GLenum src,GLenum dst) -> GLBlendMode {
-    return {src,dst,src,dst};
+    return GLBlendMode{src,dst,src,dst};
   };
   switch(mode) {
   case BlendMode::BLEND:
-    return {GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
+    return GLBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
   case BlendMode::MULTIPLY:
-    return {GL_DST_COLOR,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
+    return GLBlendMode{GL_DST_COLOR,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE};
   case BlendMode::ADD:
     return sym(GL_ONE,GL_ONE);
   case BlendMode::NONE:

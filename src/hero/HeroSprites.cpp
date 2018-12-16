@@ -26,8 +26,8 @@
 #include "solarus/graphics/Sprite.h"
 #include "solarus/graphics/SpriteAnimationSet.h"
 #include "solarus/lua/LuaContext.h"
-#include <sstream>
 #include <lua.hpp>
+#include <sstream>
 
 namespace Solarus {
 
