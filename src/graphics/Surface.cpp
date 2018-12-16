@@ -44,6 +44,13 @@ std::map<std::string, SurfaceImplPtr> image_files_cache;
 }
 
 /**
+ *  \brief empty the surface cache
+ */
+void Surface::empty_cache() {
+  image_files_cache.clear();
+}
+
+/**
  * \brief Creates a surface with the specified size.
  * \param width The width in pixels.
  * \param height The height in pixels.
