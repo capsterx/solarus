@@ -14,7 +14,7 @@ include_directories(
 )
 
 # Source files.
-set(solarus_gui_lib_SOURCES
+set(solarus_gui_SOURCES
   include/solarus/gui/about_dialog.h
   include/solarus/gui/console.h
   include/solarus/gui/console_line_edit.h
@@ -39,46 +39,46 @@ set(solarus_gui_lib_SOURCES
 )
 
 # UI files.
-set(solarus_gui_lib_FORMS
+set(solarus_gui_FORMS
   src/about_dialog.ui
   src/console.ui
   src/main_window.ui
 )
 
 # Generate .h from .ui.
-qt5_wrap_ui(solarus_gui_lib_FORMS_HEADERS
-  ${solarus_gui_lib_FORMS}
+qt5_wrap_ui(solarus_gui_FORMS_HEADERS
+  ${solarus_gui_FORMS}
 )
 
 # Resources.
-set(solarus_gui_lib_RESOURCES
+set(solarus_gui_RESOURCES
   resources/images.qrc
 )
 
 # Compile resource files.
-qt5_add_resources(solarus_gui_lib_RESOURCES_RCC
-  ${solarus_gui_lib_RESOURCES}
+qt5_add_resources(solarus_gui_RESOURCES_RCC
+  ${solarus_gui_RESOURCES}
 )
 
 # Translations.
-set(solarus_gui_lib_TRANSLATIONS
+set(solarus_gui_TRANSLATIONS
   translations/solarus_es.ts
   translations/solarus_fr.ts
 )
-qt5_add_translation(solarus_gui_lib_TRANSLATIONS_QM
-  ${solarus_gui_lib_TRANSLATIONS}
+qt5_add_translation(solarus_gui_TRANSLATIONS_QM
+  ${solarus_gui_TRANSLATIONS}
 )
 
 # Build the Solarus GUI library.
-add_library(solarus_gui_lib
+add_library(solarus-gui
   SHARED
-  ${solarus_gui_lib_SOURCES}
-  ${solarus_gui_lib_FORMS_HEADERS}
-  ${solarus_gui_lib_RESOURCES_RCC}
-  ${solarus_gui_lib_TRANSLATIONS_QM}
+  ${solarus_gui_SOURCES}
+  ${solarus_gui_FORMS_HEADERS}
+  ${solarus_gui_RESOURCES_RCC}
+  ${solarus_gui_TRANSLATIONS_QM}
 )
 
-target_link_libraries(solarus_gui_lib
+target_link_libraries(solarus-gui
   solarus
   Qt5::Widgets
   "${SDL2_LIBRARY}"
@@ -93,29 +93,26 @@ target_link_libraries(solarus_gui_lib
   "${MODPLUG_LIBRARY}"
 )
 
-set_target_properties(solarus_gui_lib PROPERTIES
-  OUTPUT_NAME solarus-gui
-)
 # Main executable.
-set(solarus_gui_exe_SOURCES
+set(solarus_launcher_SOURCES
   src/main.cpp
 )
 
 # Add the Solarus icon in Windows.
 if(WIN32)
-  set(solarus_gui_exe_SOURCES
-    ${solarus_gui_exe_SOURCES}
+  set(solarus_launcher_SOURCES
+    ${solarus_launcher_SOURCES}
     ../gui/resources/win32/resources.rc
   )
 endif()
 
-add_executable(solarus_gui_exe
-  ${solarus_gui_exe_SOURCES}
+add_executable(solarus-launcher
+  ${solarus_launcher_SOURCES}
 )
 
-target_link_libraries(solarus_gui_exe
+target_link_libraries(solarus-launcher
   solarus
-  solarus_gui_lib
+  solarus-gui
   Qt5::Widgets
   "${SDL2_LIBRARY}"
   "${SDL2_IMAGE_LIBRARY}"
@@ -129,13 +126,8 @@ target_link_libraries(solarus_gui_exe
   "${MODPLUG_LIBRARY}"
 )
 
-# Name the GUI executable "solarus".
-set_target_properties(solarus_gui_exe PROPERTIES
-  OUTPUT_NAME solarus
-)
-
 # Set files to install.
-install(TARGETS solarus_gui_lib solarus_gui_exe
+install(TARGETS solarus-gui solarus-launcher
   LIBRARY DESTINATION ${SOLARUS_LIBRARY_INSTALL_DESTINATION}
   RUNTIME DESTINATION ${SOLARUS_EXECUTABLE_INSTALL_DESTINATION}
 )
