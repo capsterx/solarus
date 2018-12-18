@@ -1217,7 +1217,7 @@ Point InputEvent::get_mouse_position() const {
 
   Debug::check_assertion(is_mouse_event(), "Event is not a mouse event");
 
-  return Video::renderer_to_quest_coordinates(
+  return Video::window_to_quest_coordinates(
       Point(internal_event.button.x, internal_event.button.y));
 }
 
