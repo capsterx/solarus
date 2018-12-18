@@ -32,6 +32,6 @@ npc{
   y = 61,
   direction = 3,
   subtype = 1,
-  sprite = "main_heroes/robyne",
+  sprite = "hero/robyne_tunic",
 }
 

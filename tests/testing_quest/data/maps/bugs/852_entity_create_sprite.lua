@@ -11,14 +11,14 @@ function map:on_started()
   local main_sprite = block:get_sprite()
   assert(main_sprite ~= nil)
   assert(main_sprite ~= sprite_2)
-  assert(main_sprite:get_animation_set() == "entities/block")
+  assert(main_sprite:get_animation_set() == "blocks/block_brown")
 
   for sprite_name, sprite in block:get_sprites() do
     num_sprites = num_sprites + 1
     if num_sprites == 1 then
       assert_equal(sprite_name, "")
       assert_equal(sprite, main_sprite)
-      assert_equal(sprite:get_animation_set(), "entities/block")
+      assert_equal(sprite:get_animation_set(), "blocks/block_brown")
     elseif num_sprites == 2 then
       assert_equal(sprite_name, "")
       assert_equal(sprite, sprite_2)
@@ -31,7 +31,7 @@ function map:on_started()
   local created_sprite = hero:create_sprite("16x16", "additional_sprite")
   local main_sprite = hero:get_sprite()
   assert(main_sprite ~= nil)
-  assert_equal(main_sprite:get_animation_set(), "main_heroes/eldran")
+  assert_equal(main_sprite:get_animation_set(), "hero/tunic1")
 
   local sprite = hero:get_sprite("additional_sprite")
   assert_equal(sprite, created_sprite)

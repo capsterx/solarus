@@ -5,7 +5,7 @@ function map:on_started()
   -- Test an entity with one sprite.
   local block_sprite = block:get_sprite()
   assert(block_sprite ~= nil)
-  assert(block_sprite:get_animation_set() == "entities/block")
+  assert(block_sprite:get_animation_set() == "blocks/block_brown")
 
   -- Test an entity without sprite.
   local destination_sprite = destination:get_sprite()
@@ -14,7 +14,7 @@ function map:on_started()
   -- Test an entity with multiple sprites.
   local hero_tunic_sprite = hero:get_sprite()
   assert(hero_tunic_sprite ~= nil)
-  assert(hero_tunic_sprite:get_animation_set() == "main_heroes/eldran")
+  assert(hero_tunic_sprite:get_animation_set() == "hero/tunic1")
   assert(hero_tunic_sprite:get_animation_set() == hero:get_tunic_sprite_id())
   assert(hero:get_sprite("tunic") == hero_tunic_sprite)
 

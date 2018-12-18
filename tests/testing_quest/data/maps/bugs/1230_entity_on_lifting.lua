@@ -18,7 +18,7 @@ function pot:on_lifting(carrier, carried_object)
   assert_equal(carried_object:get_type(), "carried_object")
   local sprite = carried_object:get_sprite()
   assert(sprite ~= nil)
-  assert_equal(sprite:get_animation_set(), "entities/pot")
+  assert_equal(sprite:get_animation_set(), "destructibles/vase")
 
   assert_equal(carried_object:get_destruction_sound(), "stone")
   assert_equal(carried_object:get_destruction_sound(), self:get_destruction_sound())

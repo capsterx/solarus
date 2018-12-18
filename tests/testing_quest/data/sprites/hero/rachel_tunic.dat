@@ -1,0 +1,140 @@
+animation{
+  name = "stopped",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 0, y = 32, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "brandish",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 64, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 64, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 64, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 64, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "carrying_stopped",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 0, y = 176, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 16, y = 176, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 176, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 48, y = 176, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "carrying_walking",
+  src_image = "hero/rachel.png",
+  frame_delay = 170,
+  frame_to_loop_on = 0,
+  directions = {
+    { x = 0, y = 192, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 32, y = 192, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 208, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 32, y = 208, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+  },
+}
+animation{
+  name = "grabbing",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 48, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 0, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 0, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "lifting",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 48, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 0, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 0, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "plunging_water",
+  src_image = "hero/rachel.png",
+  frame_delay = 50,
+  directions = {
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 32, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+  },
+}
+animation{
+  name = "pulling",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 0, y = 160, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 16, y = 160, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 32, y = 160, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 48, y = 160, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "pushing",
+  src_image = "hero/rachel.png",
+  frame_delay = 170,
+  frame_to_loop_on = 0,
+  directions = {
+    { x = 32, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 32, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 128, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 144, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+  },
+}
+animation{
+  name = "sleeping",
+  src_image = "hero/rachel.png",
+  directions = {
+    { x = 80, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 80, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 64, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+    { x = 64, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
+  },
+}
+animation{
+  name = "sword",
+  src_image = "hero/rachel.png",
+  frame_delay = 70,
+  directions = {
+    { x = 0, y = 64, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 4 },
+    { x = 0, y = 80, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 4 },
+    { x = 0, y = 96, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 4 },
+    { x = 0, y = 112, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 4 },
+  },
+}
+animation{
+  name = "vacuum",
+  src_image = "hero/rachel.png",
+  frame_delay = 80,
+  frame_to_loop_on = 2,
+  directions = {
+    { x = 0, y = 272, frame_width = 48, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 4, num_columns = 1 },
+    { x = 64, y = 224, frame_width = 16, frame_height = 48, origin_x = 8, origin_y = 45, num_frames = 4 },
+    { x = 48, y = 272, frame_width = 48, frame_height = 16, origin_x = 40, origin_y = 13, num_frames = 4, num_columns = 1 },
+    { x = 0, y = 224, frame_width = 16, frame_height = 48, origin_x = 8, origin_y = 13, num_frames = 4 },
+  },
+}
+animation{
+  name = "walking",
+  src_image = "hero/rachel.png",
+  frame_delay = 170,
+  frame_to_loop_on = 0,
+  directions = {
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 32, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+  },
+}

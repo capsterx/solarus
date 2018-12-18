@@ -23,7 +23,7 @@ door{
   x = 48,
   y = 16,
   direction = 3,
-  sprite = "entities/door",
+  sprite = "doors/door_normal",
 }
 
 destination{

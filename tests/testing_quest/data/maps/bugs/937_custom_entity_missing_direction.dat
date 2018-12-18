@@ -33,6 +33,6 @@ custom_entity{
   width = 16,
   height = 16,
   direction = 2,
-  sprite = "citizens/witch",
+  sprite = "npc/witch",
 }
 

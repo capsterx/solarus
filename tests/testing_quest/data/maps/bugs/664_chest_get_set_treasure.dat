@@ -22,7 +22,7 @@ chest{
   layer = 0,
   x = 24,
   y = 29,
-  sprite = "entities/chest",
+  sprite = "chests/chest_brown",
 }
 
 chest{
@@ -31,7 +31,7 @@ chest{
   x = 24,
   y = 61,
   treasure_name = "bomb",
-  sprite = "entities/chest",
+  sprite = "chests/chest_brown",
 }
 
 chest{
@@ -41,7 +41,7 @@ chest{
   y = 61,
   treasure_name = "sword",
   treasure_savegame_variable = "sword_chest",
-  sprite = "entities/chest",
+  sprite = "chests/chest_brown",
 }
 
 chest{
@@ -50,7 +50,7 @@ chest{
   x = 56,
   y = 29,
   treasure_savegame_variable = "empty_chest",
-  sprite = "entities/chest",
+  sprite = "chests/chest_brown",
 }
 
 destination{

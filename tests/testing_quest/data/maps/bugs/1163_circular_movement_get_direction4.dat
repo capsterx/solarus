@@ -40,7 +40,7 @@ block{
   layer = 0,
   x = 152,
   y = 125,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
   max_moves = 1,
@@ -83,6 +83,6 @@ npc{
   y = 125,
   direction = 3,
   subtype = 1,
-  sprite = "main_heroes/robyne",
+  sprite = "hero/robyne_tunic",
 }
 

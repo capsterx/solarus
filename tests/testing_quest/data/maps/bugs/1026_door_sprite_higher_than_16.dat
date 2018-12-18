@@ -41,7 +41,7 @@ door{
   x = 48,
   y = 64,
   direction = 3,
-  sprite = "entities/door_16_24",
+  sprite = "doors/door_16_24",
 }
 
 destination{

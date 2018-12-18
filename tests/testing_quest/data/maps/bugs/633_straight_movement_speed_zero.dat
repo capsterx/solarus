@@ -41,6 +41,6 @@ npc{
   y = 29,
   direction = 0,
   subtype = 0,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
 }
 

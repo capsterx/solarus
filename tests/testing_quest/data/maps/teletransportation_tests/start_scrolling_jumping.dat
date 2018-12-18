@@ -57,7 +57,7 @@ destructible{
   layer = 0,
   x = 96,
   y = 117,
-  sprite = "entities/pot",
+  sprite = "destructibles/vase",
 }
 
 teletransporter{

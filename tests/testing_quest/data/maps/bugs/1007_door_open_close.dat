@@ -76,6 +76,6 @@ door{
   x = 16,
   y = 16,
   direction = 3,
-  sprite = "entities/door",
+  sprite = "doors/door",
 }
 

@@ -2,7 +2,7 @@ local map = ...
 
 function map:on_started()
 
-  local block_sprite = sol.sprite.create("entities/block")
+  local block_sprite = sol.sprite.create("blocks/block_brown")
   assert(block_sprite:get_num_frames() == 1)
 
   local explosion_sprite = sol.sprite.create("entities/explosion")

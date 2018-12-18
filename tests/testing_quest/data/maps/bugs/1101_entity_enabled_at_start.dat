@@ -32,7 +32,7 @@ block{
   layer = 0,
   x = 56,
   y = 29,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
 }
@@ -43,7 +43,7 @@ block{
   x = 56,
   y = 61,
   enabled_at_start = false,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
 }

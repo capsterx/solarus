@@ -44,14 +44,14 @@ destructible{
   layer = 0,
   x = 24,
   y = 125,
-  sprite = "entities/pot",
+  sprite = "destructibles/vase",
 }
 
 chest{
   layer = 0,
   x = 24,
   y = 157,
-  sprite = "entities/chest",
+  sprite = "chests/chest_brown",
 }
 
 jumper{
@@ -88,14 +88,14 @@ npc{
   y = 253,
   direction = 3,
   subtype = 1,
-  sprite = "entities/sign",
+  sprite = "npc/sign",
 }
 
 block{
   layer = 0,
   x = 24,
   y = 285,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
   max_moves = 1,
@@ -162,7 +162,7 @@ door{
   x = 16,
   y = 576,
   direction = 1,
-  sprite = "entities/door",
+  sprite = "doors/door_normal",
 }
 
 stairs{

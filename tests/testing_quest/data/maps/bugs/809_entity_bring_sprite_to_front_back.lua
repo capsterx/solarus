@@ -13,7 +13,7 @@ end
 
 function map:on_started()
 
-  local sprite_1 = custom_entity:create_sprite("entities/block", "my_sprite")
+  local sprite_1 = custom_entity:create_sprite("blocks/block_brown", "my_sprite")
   local sprite_2 = custom_entity:create_sprite("entities/bomb")
 
   check_sprites(custom_entity, {

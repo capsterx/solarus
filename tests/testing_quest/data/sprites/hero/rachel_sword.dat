@@ -1,0 +1,11 @@
+animation{
+  name = "sword",
+  src_image = "hero/rachel_sword.png",
+  frame_delay = 70,
+  directions = {
+    { x = 0, y = 0, frame_width = 32, frame_height = 32, origin_x = 4, origin_y = 29, num_frames = 4 },
+    { x = 0, y = 32, frame_width = 32, frame_height = 32, origin_x = 8, origin_y = 33, num_frames = 4 },
+    { x = 0, y = 64, frame_width = 32, frame_height = 32, origin_x = 28, origin_y = 29, num_frames = 4 },
+    { x = 0, y = 96, frame_width = 32, frame_height = 32, origin_x = 24, origin_y = 9, num_frames = 4 },
+  },
+}

@@ -43,7 +43,7 @@ npc{
   y = 45,
   direction = 2,
   subtype = 1,
-  sprite = "main_heroes/eldran",
+  sprite = "hero/tunic1",
 }
 
 block{
@@ -51,7 +51,7 @@ block{
   layer = 0,
   x = 40,
   y = 45,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
   max_moves = 1,

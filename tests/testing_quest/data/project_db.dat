@@ -164,49 +164,45 @@ tileset{ id = "overworld", description = "Overworld" }
 
 sprite{ id = "16x16", description = "16x16 sprite" }
 sprite{ id = "16x24", description = "16x24 sprite" }
-sprite{ id = "citizens/witch", description = "Witch" }
+sprite{ id = "blocks/block_brown", description = "Block (brown)" }
+sprite{ id = "chests/chest_brown", description = "Chest (brown)" }
+sprite{ id = "destructibles/vase", description = "Vase" }
+sprite{ id = "doors/door", description = "16x16 door" }
+sprite{ id = "doors/door_16_24", description = "16x24 door" }
+sprite{ id = "doors/door_normal", description = "Door (normal)" }
 sprite{ id = "enemies/enemy_killed", description = "Enemy killed" }
 sprite{ id = "enemies/slime_green", description = "Green Slime" }
 sprite{ id = "enemies/test_enemy", description = "Test enemy" }
 sprite{ id = "entities/arrow", description = "Arrow" }
-sprite{ id = "entities/block", description = "Block" }
 sprite{ id = "entities/bomb", description = "Bomb" }
-sprite{ id = "entities/bomb_flower", description = "Bomb flower" }
-sprite{ id = "entities/bush", description = "Bush" }
-sprite{ id = "entities/chest", description = "Chest" }
+sprite{ id = "entities/boomerang1", description = "Boomerang 1" }
 sprite{ id = "entities/crystal", description = "Crystal" }
 sprite{ id = "entities/crystal_block", description = "Crystal block" }
-sprite{ id = "entities/door", description = "Door" }
-sprite{ id = "entities/door_16_24", description = "16x24 Door" }
 sprite{ id = "entities/explosion", description = "Explosion" }
-sprite{ id = "entities/fire", description = "Fire" }
-sprite{ id = "entities/grass", description = "Grass" }
 sprite{ id = "entities/hookshot", description = "Hookshot" }
 sprite{ id = "entities/items", description = "Items" }
-sprite{ id = "entities/platform", description = "Platform" }
-sprite{ id = "entities/pot", description = "Pot" }
 sprite{ id = "entities/rupee_icon", description = "Money icon" }
 sprite{ id = "entities/shadow", description = "Shadow" }
-sprite{ id = "entities/sign", description = "Sign" }
-sprite{ id = "entities/solid_switch", description = "Solid switch" }
 sprite{ id = "entities/star", description = "Star" }
-sprite{ id = "entities/stone_small_black", description = "Stone (black)" }
-sprite{ id = "entities/stone_small_white", description = "Stone (white)" }
-sprite{ id = "entities/switch", description = "Switch" }
 sprite{ id = "hero/ground1", description = "Grass under hero" }
 sprite{ id = "hero/ground2", description = "Shallow water under hero" }
-sprite{ id = "hero/shield1", description = "Hero shield 1" }
+sprite{ id = "hero/rachel_sword", description = "Sword" }
+sprite{ id = "hero/rachel_tunic", description = "Rachel" }
+sprite{ id = "hero/robyne_tunic", description = "Robyne purple" }
+sprite{ id = "hero/shield_1_above", description = "Shield 1 Above" }
+sprite{ id = "hero/shield_1_below", description = "Shield 1 Below" }
+sprite{ id = "hero/shield_collision_mask", description = "Shield Collision Mask" }
 sprite{ id = "hero/sword1", description = "Hero sword 1" }
 sprite{ id = "hero/sword_stars1", description = "Hero sword stars 1" }
-sprite{ id = "hero/trail", description = "Hero trail" }
-sprite{ id = "hero/tunic1", description = "Hero tunic 1" }
-sprite{ id = "main_heroes/eldran", description = "Eldran" }
-sprite{ id = "main_heroes/robyne", description = "Robyne" }
-sprite{ id = "main_heroes/sword", description = "Sword" }
-sprite{ id = "main_heroes/sword_electricity", description = "Sword electricity" }
-sprite{ id = "main_heroes/trail", description = "Trail" }
+sprite{ id = "hero/trail", description = "Trail" }
+sprite{ id = "hero/tunic1", description = "Eldran red" }
+sprite{ id = "hero/tunic2", description = "Eldran blue" }
+sprite{ id = "hero/tunic3", description = "Eldran purple" }
 sprite{ id = "menus/solarus_logo", description = "Solarus logo" }
+sprite{ id = "npc/sign", description = "Sign" }
+sprite{ id = "npc/witch", description = "Witch" }
 sprite{ id = "pivot", description = "Pivot Test" }
+sprite{ id = "things/platform", description = "32x32 platform" }
 sprite{ id = "todo", description = "TODO image" }
 
 
@@ -351,13 +347,662 @@ font{ id = "enter_command", description = "Enter Command" }
 shader{ id = "scale2x", description = "Scale2x" }
 shader{ id = "sepia", description = "Sepia" }
 
+file{ path = "enemies/bugs", license = "GPL v3" }
+file{ path = "enemies/bugs/1179_on_restarted_called_twice.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "enemies/slime_green.lua", author = "Diarandor", license = "GPL v3" }
+file{ path = "enemies/test_enemy.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "enemies/test_flying_enemy.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "fonts/8_bit.png", author = "usr_share, Christopho", license = "Public domain" }
 file{ path = "fonts/enter_command.ttf", author = "Jeti", license = "CC BY 4.0" }
+file{ path = "items/bomb.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/coroutine_handle.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "items/item_dialog_no_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/item_dialog_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/item_no_dialog_no_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/item_no_dialog_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/non_saved_item.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "items/sword.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "languages/en", license = "CC BY-SA 4.0" }
+file{ path = "languages/en/text", license = "CC BY-SA 4.0" }
+file{ path = "languages/en/text/dialogs.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "languages/en/text/strings.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "main.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/all_entities.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/all_entities.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/basic_test.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/basic_test.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1007_door_open_close.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1007_door_open_close.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1015_crash_scrolling_to_invalid_layer/map_1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1015_crash_scrolling_to_invalid_layer/map_1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1015_crash_scrolling_to_invalid_layer/map_2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1015_crash_scrolling_to_invalid_layer/map_2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1024_custom_entity_set_origin.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1024_custom_entity_set_origin.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1026_door_sprite_higher_than_16.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1026_door_sprite_higher_than_16.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1036_falling_again_after_bad_ground.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1036_falling_again_after_bad_ground.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1037_stairs_methods.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1037_stairs_methods.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1062_enemy_set_attack_consequence_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1062_enemy_set_attack_consequence_callback.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1075_straight_movement_set_max_distance_tables.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1075_straight_movement_set_max_distance_tables.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1076_treasure_dialog_optional.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1076_treasure_dialog_optional.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1091_circle_movement_get_center.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1091_circle_movement_get_center.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1092_enemy_is_immobilized.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1092_enemy_is_immobilized.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1094_entity_properties.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1094_entity_properties.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1101_entity_enabled_at_start.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1101_entity_enabled_at_start.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1105_custom_entity_repeat.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1105_custom_entity_repeat.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1107_menu_bring_to_front_back.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1107_menu_bring_to_front_back.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1116_angle_functions_radians.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1116_angle_functions_radians.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1136_get_path_get_trajectory_missing_element.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1136_get_path_get_trajectory_missing_element.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1139_pickable_on_stream.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1139_pickable_on_stream.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1158_entity_timer_suspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1158_entity_timer_suspended.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1159_entity_overlaps_sprites.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1159_entity_overlaps_sprites.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1162_custom_entity_collision_wrong_order.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1162_custom_entity_collision_wrong_order.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1163_circular_movement_get_direction4.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1163_circular_movement_get_direction4.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1171_sword_knowledge_on_ability_used.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1171_sword_knowledge_on_ability_used.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1175_dynamic_tile_set_get_tileset.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1175_dynamic_tile_set_get_tileset.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1179_enemy_on_restarted_called_twice.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1179_enemy_on_restarted_called_twice.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1181_hurt_enemy_after_custom_attack.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1181_hurt_enemy_after_custom_attack.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1195_enemy_dying_animation_never_finishes.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1195_enemy_dying_animation_never_finishes.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1200_create_shader_from_source.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1200_create_shader_from_source.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1210_shader_scaling_factor.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1210_shader_scaling_factor.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1214_blocks_in_water.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1214_blocks_in_water.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1221_custom_entity_follow_stream.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1221_custom_entity_follow_stream.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1228_crash_map_get_hero/1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1228_crash_map_get_hero/1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1228_crash_map_get_hero/2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1228_crash_map_get_hero/2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1230_entity_on_lifting.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1230_entity_on_lifting.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1233_carried_object_events.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1233_carried_object_events.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1236_entity_timer_not_suspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1236_entity_timer_not_suspended.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1247_hero_state_changing.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1247_hero_state_changing.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1260_entity_draw_override.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1260_entity_draw_override.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1261_entity_on_suspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1261_entity_on_suspended.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1262_state_timers.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1262_state_timers.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1264_sprite_is_animation_started.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1264_sprite_is_animation_started.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1265_camera_get_surface.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1265_camera_get_surface.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1266_teletransporter_on_activated_disable.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1266_teletransporter_on_activated_disable.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1268_movement_ignore_suspend_in_timer.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1268_movement_ignore_suspend_in_timer.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1269_coroutines.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1269_coroutines.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1275_map_set_tileset.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1275_map_set_tileset.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1286_crash_state_set_can_traverse.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1286_crash_state_set_can_traverse.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1291_hero_start_attack_loading.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1291_hero_start_attack_loading.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1299_crash_invalid_tile_pattern.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1299_crash_invalid_tile_pattern.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/496_stream_speed_0.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/526_get_entities_same_region.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/526_get_entities_same_region.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/630_change_resources.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/630_change_resources.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/633_straight_movement_speed_zero.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/633_straight_movement_speed_zero.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/656_map_set_world.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/656_map_set_world.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/664_chest_get_set_treasure.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/664_chest_get_set_treasure.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/667_hero_save_solid_ground_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/667_hero_save_solid_ground_callback.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/669_entity_get_sprite.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/669_entity_get_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/670_map_get_entities_no_hero.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/670_map_get_entities_no_hero.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/671_collision_test_not_moving.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/671_collision_test_not_moving.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/686_crash_door_item.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/686_crash_door_item.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/699_crash_exit_surface_moving.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/699_crash_exit_surface_moving.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/712_npc_set_traversable.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/712_npc_set_traversable.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/716_custom_entity_set_can_traverse_door.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/716_custom_entity_set_can_traverse_door.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/729_switch_is_walkable.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/729_switch_is_walkable.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/738_custom_entity_on_ground_below_changed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/738_custom_entity_on_ground_below_changed.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/748_entity_overlaps_collision_modes.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/748_entity_overlaps_collision_modes.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/754_entity_get_max_bounding_box.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/754_entity_get_max_bounding_box.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/762_camera_entity.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/762_camera_entity.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/769_stuck_dynamic_tile_covered.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/769_stuck_dynamic_tile_covered.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/779_get_entities_random_order.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/779_get_entities_random_order.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/781_assert_teletransporter_same_map.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/781_assert_teletransporter_same_map.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/794_custom_entity_set_can_traverse_ground.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/794_custom_entity_set_can_traverse_ground.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/795_recreate_entity_same_name.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/795_recreate_entity_same_name.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/796_map_get_entities_by_type.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/796_map_get_entities_by_type.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/805_hero_set_invincible.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/805_hero_set_invincible.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/807_cannot_traverse_own_ground.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/807_cannot_traverse_own_ground.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/808_get_entities_in_rectangle_duplicates.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/808_get_entities_in_rectangle_duplicates.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/809_entity_bring_sprite_to_front_back.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/809_entity_bring_sprite_to_front_back.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/810_hero_disappears_after_scrolling/1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/810_hero_disappears_after_scrolling/1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/810_hero_disappears_after_scrolling/2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/810_hero_disappears_after_scrolling/2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/817_entity_set_enabled_overlapping_hero.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/817_entity_set_enabled_overlapping_hero.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/818_sprite_get_num_frames.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/818_sprite_get_num_frames.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/3.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/3.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/819_destination_starting_location_mode/start_location_checker.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/821_hero_start_attack.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/821_hero_start_attack.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/823_sprite_get_size_origin.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/823_sprite_get_size_origin.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/827_ground_detection_after_unfreeze.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/827_ground_detection_after_unfreeze.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/830_entity_get_ground_position.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/830_entity_get_ground_position.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/844_camera_on_state_changed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/844_camera_on_state_changed.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/845_game_set_suspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/845_game_set_suspended.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/851_entity_get_sprites.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/851_entity_get_sprites.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/852_entity_create_sprite.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/852_entity_create_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/855_hero_get_sprite_wrong.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/855_hero_get_sprite_wrong.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/858_movement_get_set_ignore_suspend.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/858_movement_get_set_ignore_suspend.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/859_crash_game_start.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/859_crash_game_start.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/860_crash_remove_sprite.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/860_crash_remove_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/861_sprite_set_animation_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/861_sprite_set_animation_callback.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/867_crash_crystal.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/867_crash_crystal.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/875_freeze_load_map_tiles_outside.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/875_freeze_load_map_tiles_outside.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/877_get_facing_entity.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/877_get_facing_entity.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/880_custom_entity_set_origin.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/880_custom_entity_set_origin.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/883_collision_test_not_moving_sprite.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/883_collision_test_not_moving_sprite.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/884_tileset_sprite_file_optional.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/884_tileset_sprite_file_optional.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/889_crash_use_non_saved_item.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/889_crash_use_non_saved_item.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/898_entity_on_enabled.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/898_entity_on_enabled.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/920_game_on_world_changed/1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/920_game_on_world_changed/1.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/920_game_on_world_changed/2.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/920_game_on_world_changed/2.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/920_game_on_world_changed/3.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/920_game_on_world_changed/3.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/920_game_on_world_changed/4.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/920_game_on_world_changed/4.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/937_custom_entity_missing_direction.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/937_custom_entity_missing_direction.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/940_crash_bomb_on_stream.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/940_crash_bomb_on_stream.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/945_flying_enemies_fall_in_hole.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/945_flying_enemies_fall_in_hole.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/946_reused_movement_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/946_reused_movement_callback.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/954_entity_name_nil_after_removed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/954_entity_name_nil_after_removed.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/955_enemy_get_set_dying_sprite_id.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/955_enemy_get_set_dying_sprite_id.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/967_blocks_max_moves.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/967_blocks_max_moves.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/971_sol_file_list.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/971_sol_file_list.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/983_timer_delay.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/983_timer_delay.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/custom_state/can_traverse.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/can_traverse.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/can_traverse_ground.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/can_traverse_ground.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/carried_object.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/carried_object.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/custom_state.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/custom_state.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/draw_override.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/draw_override.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/custom_state/end_map.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/end_map.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/grabbing.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/grabbing.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/custom_state/jumper.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/jumper.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/custom_state/pushing.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/pushing.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/custom_state/reuse_state.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/custom_state/reuse_state.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/dynamic_tile_tests.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/dynamic_tile_tests.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/graphical/scale2x.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/graphical/scale2x.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/jumper_tests.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/jumper_tests.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/oriented_collisions.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/oriented_collisions.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/surface_tests.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/surface_tests.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/main.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/main.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_deep_water_drown.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_deep_water_drown.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_deep_water_swim.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_deep_water_swim.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_hole.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_hole.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_lava.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_lava.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_shallow_water.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_shallow_water.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_in_stairs.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_in_stairs.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_same_point.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_same_point.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling_carrying.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling_carrying.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling_jumping.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling_jumping.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling_running.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling_running.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling_same_map.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling_same_map.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/teletransportation_tests/start_scrolling_sword_charged.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/teletransportation_tests/start_scrolling_sword_charged.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/text_predict.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "maps/text_predict.lua", author = "std::gregwar", license = "GPL v3" }
+file{ path = "maps/traversable.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/traversable.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/scale2x.dat", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/scale2x.frag.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "shaders/scale2x.vert.glsl", author = "Vlag", license = "GPL v3" }
 file{ path = "shaders/sepia.dat", author = "Christopho", license = "GPL v3" }
 file{ path = "shaders/sepia.frag.glsl", author = "Vlag", license = "GPL v3" }
+file{ path = "sounds/arrow_hit.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bird_chirp.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bird_chirp1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bird_chirp2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bird_cute.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bomb.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/boomerang.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/boss_charge.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/boss_fireball.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/boss_hurt.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/boss_killed.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bounce.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bow.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/bush.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cane.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cane2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cane3.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cat.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/chest_appears.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/chest_open.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cricket.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/crystal.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/crystal2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/cursor.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/danger.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sounds/diarandor/solarus_logo.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
-file{ path = "sprites/enemies/diarandor/enemy_killed.png", author = "Diarandor", license = "CC-BY-SA 4.0" }
-file{ path = "sprites/enemies/enemy_killed.dat", author = "Diarandor", license = "CC-BY-SA 4.0" }
+file{ path = "sounds/door_closed.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/door_open.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/door_unlocked.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/eduardo/secret.ogg", author = "Eduardo Dueñas", license = "CC BY-SA 4.0" }
+file{ path = "sounds/electrified.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/electrified2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/enemy_awake.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/enemy_hurt.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/enemy_killed.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/explosion.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/falling_on_hole.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/falling_rock.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/fire_ball.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/fire_ball2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/frost1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/frost2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/heart.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/heart_container.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_dying.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_falls.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_hurt.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_lands.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_pushes.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hero_seen.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/hookshot.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/item_fall.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/jump.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/key_fall.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/lamp.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/lift.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/magnet1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/message_end.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/message_letter.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/money_counter.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/money_counter_end.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/monster_hurt.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/mouse.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/ok.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/open_lock.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/pause_closed.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/pause_open.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/picked_item.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/picked_money.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/picked_small_key.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/quake.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/running.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/running_obstacle.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/shield.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/shield2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/shield3.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/soft_tap.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/splash.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/stairs_down_end.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/stairs_down_start.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/stairs_up_end.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/stairs_up_start.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/stone.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/swim.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/switch.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/switch_hero.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword3.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword4.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword_spin_attack_load.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword_spin_attack_release.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword_tapping.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/sword_tapping_weak_wall.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/teleporter.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/throw.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/thunder1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/thunder2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/thunder3.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/thunder_double.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/thunder_far.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/timer.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/timer2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/timer_hurry.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/tongue.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/treasure.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/victory.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/walk_on_grass.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/walk_on_water.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/warp.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/water_fill.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/wings1.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/wings2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/world_warp.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/wrong.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/wrong2.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sounds/wrong3.ogg", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/16x16.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/16x16.png", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/16x24.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/16x24.png", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/blocks/block.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/blocks/block_brown.dat", license = "CC BY-SA 4.0" }
+file{ path = "sprites/chests/chest.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/chests/chest_brown.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/destructibles/vase.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/destructibles/vase.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/doors/door.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/doors/door.png", license = "CC BY-SA 4.0" }
+file{ path = "sprites/doors/door_16_24.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/doors/door_normal.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/enemy_killed.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/enemy_killed.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/slime_green.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/slime_green.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/enemies/test_enemy.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/arrow.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/arrow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/bomb.dat", author = "Bertram, hyptosis", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/boomerang1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/crystal.dat", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/crystal_block.dat", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/dark0.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/dark1.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/dark2.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/dark3.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/explosion.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/explosion.png", author = "Bertram, hyptosis", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/fountain v1.1.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/hookshot.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/items.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/items.png", author = "Diarandor, Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/rupee_icon.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/shadow.dat", author = "Zane Kukta", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/shadow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/star.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/entities/zoria.png", author = "DragonDePlatino, Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/ground_effects/walking_ground_effects.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_boomerang.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_bow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_grabbing.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_jumping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_miscellaneous.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_on_shield.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_plunging.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_running.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_running_on_sword.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_seashell_flute.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_shovel.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_spin_attack.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_swimming.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_sword_brandish.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_sword_loading.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_sword_tapping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran2_victory.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_boomerang.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_bow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_grabbing.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_jumping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_miscellaneous.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_on_shield.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_plunging.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_running.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_running_on_sword.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_seashell_flute.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_shovel.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_spin_attack.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_swimming.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_sword_brandish.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_sword_loading.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_sword_tapping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran3_victory.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_boomerang v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_boomerang.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_bow v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_bow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_grabbing.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_hookshot v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_jumping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_miscellaneous.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_on_shield.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_plunging.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_running.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_running_on_sword v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_running_on_sword.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_seashell_flute v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_seashell_flute.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_shovel v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_shovel.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_spin_attack v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_spin_attack.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_swimming.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_brandish v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_brandish.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_loading v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_loading.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_tapping v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_sword_tapping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_victory v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/eldran_victory.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/ground1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/ground2.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/hero_on_shield v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/loading_sword_magic.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/rachel.png", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/rachel_sword.dat", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/rachel_sword.png", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/rachel_tunic.dat", author = "Alex Gleason", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne v2.2.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_boomerang v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_boomerang.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_bow v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_bow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_carrying.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_grabbing v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_grabbing.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_hookshot v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_mermaid.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_miscellaneous v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_miscellaneous.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_on_shield.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_plunging v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_plunging.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_running v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_running.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_running_on_sword v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_running_on_sword.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_shovel v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_shovel.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_spin_attack v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_spin_attack.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_swimming v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_swimming.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_brandish v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_brandish.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_loading v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_loading.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_tapping v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_sword_tapping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_tunic.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_victory v2.0.ase", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/robyne_victory.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_1_above.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_1_above.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_1_below.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_1_below.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_collision_mask.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/shield_collision_mask.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/spin_attack.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_brandish.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_loading.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_running.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_stars1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_tapping.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/sword_victory.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/trail.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/tunic1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/tunic2.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/hero/tunic3.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/bomb1.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/gems1.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/sword1.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/menus/solarus_logo.dat", author = "Olivier Cléro", license = "CC BY-SA 4.0" }
+file{ path = "sprites/menus/solarus_logo.png", author = "Olivier Cléro", license = "CC BY-SA 4.0" }
+file{ path = "sprites/npc/sign.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/npc/sign.png", author = "Bertam", license = "CC BY-SA 4.0" }
+file{ path = "sprites/npc/witch.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/npc/witch.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/pivot.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "sprites/things/collision_lollipop.png", author = "std::gregwar", license = "CC BY-SA 4.0" }
+file{ path = "sprites/things/platform.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/things/platform.png", author = "Stephen Challener", license = "CC BY 4.0" }
+file{ path = "sprites/todo.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "sprites/todo.png", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle.entities.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle.tiles.png", author = "Stephen Challener, Jetrel", license = "CC BY 4.0" }
+file{ path = "tilesets/castle_grayscale.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle_grayscale.entities.png", author = "Bertram, Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle_grayscale.tiles.png", author = "Stephen Challener, Jetrel, Christopho", license = "CC BY 4.0" }
+file{ path = "tilesets/castle_no_sprites_file.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/castle_no_sprites_file.tiles.png", author = "Stephen Challener, Jetrel", license = "CC BY 4.0" }
+file{ path = "tilesets/overworld.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/overworld.entities.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "tilesets/overworld.tiles.png", author = "Diarandor", license = "CC BY-SA 4.0" }

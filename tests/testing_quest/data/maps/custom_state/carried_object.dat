@@ -29,6 +29,6 @@ destructible{
   layer = 0,
   x = 40,
   y = 29,
-  sprite = "entities/pot",
+  sprite = "destructibles/vase",
 }
 

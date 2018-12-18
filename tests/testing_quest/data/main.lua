@@ -77,7 +77,6 @@ function game_meta:on_started()
   assert(sol.main.get_game() ~= nil)
   assert(sol.main.get_game() == self)
   local hero = self:get_hero()
-  hero:set_tunic_sprite_id("main_heroes/eldran")
   self:set_max_life(40)
   self:set_life(self:get_max_life())
 end

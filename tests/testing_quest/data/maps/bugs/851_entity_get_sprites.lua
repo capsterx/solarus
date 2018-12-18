@@ -24,13 +24,13 @@ function map:on_started()
   assert(num_sprites == 0)
 
   -- Test an entity with multiple sprites.
-  local sprite_1 = custom_entity:create_sprite("entities/block", "my_sprite")
+  local sprite_1 = custom_entity:create_sprite("blocks/block_brown", "my_sprite")
   local sprite_2 = custom_entity:create_sprite("entities/bomb")
   num_sprites = 0
   local main_sprite = custom_entity:get_sprite()
   assert(main_sprite ~= nil)
   assert(main_sprite == sprite_1)
-  assert(main_sprite:get_animation_set() == "entities/block")
+  assert(main_sprite:get_animation_set() == "blocks/block_brown")
 
   for sprite_name, sprite in custom_entity:get_sprites() do
     num_sprites = num_sprites + 1

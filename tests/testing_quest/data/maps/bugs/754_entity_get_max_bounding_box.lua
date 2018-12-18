@@ -5,10 +5,10 @@ local function check_max_box(entity, expected_x, expected_y, expected_width, exp
   print("Checking max box of " .. entity:get_type())
 
   local x, y, width, height = entity:get_max_bounding_box()
-  assert(x == expected_x)
-  assert(y == expected_y)
-  assert(width == expected_width)
-  assert(height == expected_height)
+  assert_equal(x, expected_x)
+  assert_equal(y, expected_y)
+  assert_equal(width, expected_width)
+  assert_equal(height, expected_height)
 end
 
 
@@ -21,7 +21,7 @@ function map:on_started()
   check_max_box(block, block:get_bounding_box())
 
   -- Check an entity with larger sprites.
-  check_max_box(hero, -12, -10, 72, 64)
+  check_max_box(hero, -12, -8, 72, 64)
 
   sol.main.exit()
 end

@@ -29,7 +29,7 @@ block{
   layer = 0,
   x = 56,
   y = 29,
-  sprite = "entities/block",
+  sprite = "blocks/block_brown",
   pushable = true,
   pullable = false,
   max_moves = 1,
