@@ -36,7 +36,6 @@ GlTexture::GlTexture(int width, int height, bool screen_tex)
   Debug::check_assertion(surf_ptr != nullptr,
                          std::string("Failed to create backup surface ") + SDL_GetError());
   surface.reset(surf_ptr);
-  set_premultiplied(true);
   GlRenderer::get().rebind_texture();
 }
 

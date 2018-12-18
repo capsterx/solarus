@@ -77,7 +77,7 @@ private:
   /**
    * Blend mode aggregate
    */
-  using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum>;
+  using GLBlendMode = std::tuple<GLenum,GLenum,GLenum,GLenum,bool>;
 
 
   bool use_vao() const;
@@ -108,7 +108,7 @@ private:
   const GlTexture* current_texture = nullptr;
   GlTexture* current_target = nullptr;
   GLBlendMode current_blend_mode =
-    GLBlendMode{GL_ONE,GL_ONE,GL_ONE,GL_ONE};
+    GLBlendMode{GL_ONE,GL_ONE,GL_ONE,GL_ONE,false};
   ShaderPtr main_shader;
 
   GLuint vao = 0;

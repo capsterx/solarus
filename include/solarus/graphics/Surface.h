@@ -60,12 +60,12 @@ class Surface: public Drawable {
 
     explicit Surface(SurfaceImplPtr impl, bool premultiplied = false);
     explicit Surface(SDL_Surface_UniquePtr surf, bool premultiplied = false);
-    Surface(int width, int height, bool premultiplied = false);
+    Surface(int width, int height, bool premultiplied = true);
 
     ~Surface();
 
-    static SurfacePtr create(int width, int height, bool premultiplied = false);
-    static SurfacePtr create(const Size& size, bool premultiplied = false);
+    static SurfacePtr create(int width, int height, bool premultiplied = true);
+    static SurfacePtr create(const Size& size, bool premultiplied = true);
     static SurfacePtr create(const std::string& file_name,
         ImageDirectory base_directory = DIR_SPRITES, bool premultiplied = false);
     static SurfacePtr create(SurfaceImplPtr impl, bool premultiplied = false);
