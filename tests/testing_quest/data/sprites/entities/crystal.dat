@@ -1,18 +1,18 @@
 animation{
   name = "orange_lowered",
-  src_image = "entities/zoria.png",
+  src_image = "todo.png",
   frame_delay = 700,
   frame_to_loop_on = 0,
   directions = {
-    { x = 48, y = 96, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
   },
 }
 animation{
   name = "blue_lowered",
-  src_image = "entities/zoria.png",
+  src_image = "todo.png",
   frame_delay = 700,
   frame_to_loop_on = 0,
   directions = {
-    { x = 16, y = 96, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 2 },
+    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
   },
 }
