@@ -70,15 +70,7 @@ void GlTexture::set_texture_params() {
  */
 void GlTexture::upload_surface() {
   SDL_Surface* surface = get_surface();
-  const auto& ctx = GlRenderer::ctx;
-  ctx.glBindTexture(GL_TEXTURE_2D,tex_id);
-  ctx.glTexSubImage2D(GL_TEXTURE_2D,
-                      0,
-                      0,0,
-                      get_width(),get_height(),
-                      GL_RGBA,GL_UNSIGNED_BYTE,
-                      surface->pixels);
-  GlRenderer::get().rebind_texture();
+  GlRenderer::get().put_pixels(this,surface->pixels);
 }
 
 /**

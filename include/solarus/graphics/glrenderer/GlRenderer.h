@@ -83,11 +83,12 @@ private:
   bool use_vao() const;
 
   void read_pixels(GlTexture* from, void* to);
+  void put_pixels(GlTexture* to, void* data);
 
   void restart_batch();
   void set_shader(GlShader* shader);
   void set_texture(const GlTexture* texture);
-  void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode);
+  void set_state(const GlTexture* src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode, bool force = false);
   void rebind_texture();
   void rebind_shader();
   void set_blend_mode(GLBlendMode mode);

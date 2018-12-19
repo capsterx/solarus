@@ -141,7 +141,6 @@ set(lua_test_maps_non_fatal_errors
 set(lua_test_maps_with_window
   "bugs/1200_create_shader_from_source"
   "bugs/1210_shader_scaling_factor"
-  "graphical/scale2x"
 )
 
 # Build the Solarus testing library.

@@ -136,7 +136,6 @@ map{ id = "custom_state/jumper", description = "get/set_can_take_jumper(), get_s
 map{ id = "custom_state/pushing", description = "get/set_can_push(), get/set_pushing_delay()" }
 map{ id = "custom_state/reuse_state", description = "Using the same state object a second time" }
 map{ id = "dynamic_tile_tests", description = "Dynamic tile tests" }
-map{ id = "graphical/scale2x", description = "Scale2x shader test" }
 map{ id = "jumper_tests", description = "Jumper tests" }
 map{ id = "oriented_collisions", description = "Test rotation and scaled collisions" }
 map{ id = "surface_tests", description = "Surface tests" }
@@ -644,8 +643,6 @@ file{ path = "maps/custom_state/reuse_state.dat", author = "std::gregwar", licen
 file{ path = "maps/custom_state/reuse_state.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/dynamic_tile_tests.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/dynamic_tile_tests.lua", author = "Christopho", license = "GPL v3" }
-file{ path = "maps/graphical/scale2x.dat", author = "std::gregwar", license = "CC BY-SA 4.0" }
-file{ path = "maps/graphical/scale2x.lua", author = "std::gregwar", license = "GPL v3" }
 file{ path = "maps/jumper_tests.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/jumper_tests.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/oriented_collisions.dat", author = "Christopho", license = "CC BY-SA 4.0" }
