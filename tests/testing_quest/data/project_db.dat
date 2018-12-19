@@ -839,12 +839,10 @@ file{ path = "sprites/entities/fountain v1.1.ase", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/hookshot.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/hookshot.png", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/items.dat", author = "Christopho", license = "CC BY-SA 4.0" }
-file{ path = "sprites/entities/items.png", author = "Diarandor, Bertram", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/rupee_icon.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/shadow.dat", author = "Zane Kukta", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/shadow.png", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/entities/star.dat", author = "Christopho", license = "CC BY-SA 4.0" }
-file{ path = "sprites/entities/zoria.png", author = "DragonDePlatino, Alex Gleason", license = "CC BY-SA 4.0" }
 file{ path = "sprites/ground_effects/walking_ground_effects.png", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/hero", license = "CC BY-SA 4.0" }
 file{ path = "sprites/hero/eldran.png", author = "Diarandor", license = "CC BY-SA 4.0" }
@@ -977,9 +975,9 @@ file{ path = "sprites/hero/trail.dat", author = "Diarandor", license = "CC BY-SA
 file{ path = "sprites/hero/tunic1.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/hero/tunic2.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/hero/tunic3.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
-file{ path = "sprites/items/bomb1.png", author = "Bertram", license = "CC BY-SA 4.0" }
-file{ path = "sprites/items/gems1.png", author = "Diarandor", license = "CC BY-SA 4.0" }
-file{ path = "sprites/items/sword1.png", author = "Diarandor", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/bomb.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/gem.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/items/sword.png", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/menus/solarus_logo.dat", author = "Olivier Cléro", license = "CC BY-SA 4.0" }
 file{ path = "sprites/menus/solarus_logo.png", author = "Olivier Cléro", license = "CC BY-SA 4.0" }
 file{ path = "sprites/npc/sign.dat", author = "Christopho", license = "CC BY-SA 4.0" }

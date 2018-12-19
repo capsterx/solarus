@@ -1,34 +1,34 @@
 animation{
   name = "bomb",
-  src_image = "items/bomb1.png",
+  src_image = "items/bomb.png",
   directions = {
     { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
   },
 }
 animation{
   name = "coroutine_handle",
-  src_image = "entities/items.png",
+  src_image = "todo.png",
   directions = {
     { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
   },
 }
 animation{
   name = "gem",
-  src_image = "items/gems1.png",
+  src_image = "items/gem.png",
   frame_delay = 150,
   frame_to_loop_on = 0,
   directions = {
-    { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
-    { x = 0, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
-    { x = 0, y = 32, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
-    { x = 80, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
-    { x = 80, y = 16, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
-    { x = 80, y = 32, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 5 },
+    { x = 0, y = 0, frame_width = 8, frame_height = 16, origin_x = 4, origin_y = 13, num_frames = 10 },
+    { x = 0, y = 16, frame_width = 8, frame_height = 16, origin_x = 4, origin_y = 13, num_frames = 10 },
+    { x = 0, y = 32, frame_width = 8, frame_height = 16, origin_x = 4, origin_y = 13, num_frames = 10 },
+    { x = 0, y = 48, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 10 },
+    { x = 0, y = 64, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 10 },
+    { x = 0, y = 80, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13, num_frames = 10 },
   },
 }
 animation{
   name = "sword",
-  src_image = "items/sword1.png",
+  src_image = "items/sword.png",
   directions = {
     { x = 0, y = 0, frame_width = 16, frame_height = 16, origin_x = 8, origin_y = 13 },
   },
