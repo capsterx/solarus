@@ -32,10 +32,14 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
+#include <algorithm>
+#include <sstream>
+
 namespace Solarus {
 
 namespace {
 GlRenderer::GlFunctions* ctx;
+std::string version_string;
 }
 
 /**
@@ -44,6 +48,52 @@ GlRenderer::GlFunctions* ctx;
  */
 bool GlShader::initialize() {
   ctx = &GlRenderer::ctx;
+
+  GLint major;
+  GLint minor;
+  ctx->glGetIntegerv(GL_MAJOR_VERSION,&major);
+  ctx->glGetIntegerv(GL_MINOR_VERSION,&minor);
+
+  auto make_number = [&](int major,int minor) -> std::string {
+    std::string version((const char *)ctx->glGetString(GL_VERSION));
+    bool is_es_context = version.find("OpenGL ES") != std::string::npos;
+    if(is_es_context) {
+      switch(major*10+minor){
+        case 20:
+          return "100";
+        case 30:
+          return "300";
+        case 31:
+          return "310";
+        default:
+          return "100";
+      }
+    } else {
+      switch(major*10+minor){
+        case 20:
+          return "110";
+        case 21:
+          return "120";
+        case 30:
+          return "130";
+        case 31:
+          return "140";
+        case 32:
+          return "150";
+        default:
+        if(major*10+minor >= 33) {
+          std::ostringstream oss;
+          oss << (major*100+minor*10);
+          return oss.str();
+        } else {
+          return "110";
+        }
+      }
+    }
+  };
+
+  std::string version = make_number(major,minor);
+  version_string = "#version " + version + "\n";
 
   Logger::info("Using modern GL Shaders");
 
@@ -92,19 +142,23 @@ GlShader::~GlShader() {
   ctx->glDeleteProgram(program);
 }
 
+std::string GlShader::sanitize_shader_source(const std::string source) {
+  if(source.find("#version") != std::string::npos) {
+    return source;
+  } else {
+    return version_string + source;
+  }
+}
+
 /**
  * \brief Compiles the shader program.
  */
 void GlShader::compile() {
-
-  //GLint previous_program;
-  //ctx->glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
-
   GLint linked;
 
   // Create the vertex and fragment shaders.
-  vertex_shader = create_shader(GL_VERTEX_SHADER, get_vertex_source().c_str());
-  fragment_shader = create_shader(GL_FRAGMENT_SHADER, get_fragment_source().c_str());
+  vertex_shader = create_shader(GL_VERTEX_SHADER, sanitize_shader_source(get_vertex_source()).c_str());
+  fragment_shader = create_shader(GL_FRAGMENT_SHADER, sanitize_shader_source(get_fragment_source()).c_str());
 
   // Create a program object with both shaders.
   program = ctx->glCreateProgram();

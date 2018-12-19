@@ -126,5 +126,7 @@ private:
   Fbo screen_fbo = {0,glm::mat4()};
   std::unordered_map<uint_fast64_t,Fbo> fbos;
   Rectangle window_viewport;
+
+  bool is_es_context;
 };
 }

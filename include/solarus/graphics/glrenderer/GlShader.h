@@ -137,21 +137,11 @@ class SOLARUS_API GlShader : public Shader {
     };
 
 
+    std::string sanitize_shader_source(const std::string source);
 
     GLuint create_shader(unsigned int type, const char* source);
     static void set_rendering_settings();
     GLint get_uniform_location(const std::string& uniform_name) const;
-
-    static inline void compute_matrices(
-        const Size& surface_size,
-        const Rectangle& region,
-        const Size& dst_size,
-        const Point& dst_position,
-        bool flip_y,
-        glm::mat4& viewport,
-        glm::mat4& dst,
-        glm::mat4& scale,
-        glm::mat3& uvm);
 
     bool bound = false;
     GLuint program;                         /**< The program which bind the vertex and fragment shader. */
