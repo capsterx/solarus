@@ -106,11 +106,27 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 }
 
 RendererPtr GlRenderer::create(SDL_Window* window) {
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE | SDL_GL_CONTEXT_PROFILE_ES);
+  //TODO add special case for raspberry and so on
+#ifdef ANDROID
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
+#else
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,2);
+#endif
 
+  //Try to create core context
   SDL_GLContext sdl_ctx = SDL_GL_CreateContext(window);
   if(!sdl_ctx) {
-    return nullptr;
+
+    //Fallback on previous opengl
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,1);
+
+    sdl_ctx = SDL_GL_CreateContext(window);
+    if(!sdl_ctx) {
+      return nullptr;
+    }
   }
 
   SDL_GL_SetSwapInterval(1);
@@ -250,12 +266,35 @@ void GlRenderer::clear(SurfaceImpl& dst) {
  * @param to the buffer
  */
 void GlRenderer::read_pixels(GlTexture* from, void* to) {
-  set_state(current_texture,current_shader,from,current_blend_mode);
-  ctx.glReadPixels(0,0, //TODO check read y order
+  //Make sure we draw everything before read
+  set_state(current_texture,current_shader,from,current_blend_mode,true);
+  ctx.glReadPixels(0,0,
                    from->get_width(),from->get_height(),
                    GL_RGBA,
                    GL_UNSIGNED_BYTE,
                    to);
+}
+
+/**
+ * @brief put pixels into the given texture
+ * @param to texture to upload pixel to
+ * @param data pixel data (RGBA unsigned bytes)
+ */
+void GlRenderer::put_pixels(GlTexture* to, void* data) {
+  if(current_target == to) {
+    //Texture is attached, detach
+    restart_batch(); //draw everything
+    ctx.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,0,0);
+    current_target = nullptr; //Set target as invalid
+  }
+  ctx.glBindTexture(GL_TEXTURE_2D,to->get_texture());
+  ctx.glTexSubImage2D(GL_TEXTURE_2D,
+                      0,
+                      0,0,
+                      to->get_width(),to->get_height(),
+                      GL_RGBA,GL_UNSIGNED_BYTE,
+                      data);
+  GlRenderer::get().rebind_texture();
 }
 
 void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& where, BlendMode mode) {
@@ -431,11 +470,12 @@ void GlRenderer::rebind_texture() {
  * @param dst the texture to draw to
  * @param mode the blend mode to use
  */
-void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode) {
+void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst, const GLBlendMode& mode, bool force) {
   if(src != current_texture ||
      shad != current_shader ||
      dst != current_target ||
-     mode != current_blend_mode) { //Need to restart the batch!
+     mode != current_blend_mode ||
+     force) { //Need to restart the batch!
 
     restart_batch(); //Draw current buffer if needed
     set_shader(shad);
