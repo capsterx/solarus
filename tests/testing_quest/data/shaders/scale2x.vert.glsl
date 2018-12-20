@@ -19,7 +19,7 @@
 // https://gitorious.org/bsnes/xml-shaders/
 
 #if __VERSION__ >= 130
-#define COMPAT_VARYING in
+#define COMPAT_VARYING out
 #define COMPAT_ATTRIBUTE in
 #define COMPAT_TEXTURE texture
 #else

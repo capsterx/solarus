@@ -86,8 +86,8 @@ MessageCallback( GLenum /*source*/,
 }
 
 
-GlRenderer::GlRenderer(SDL_GLContext ctx) :
-  sdl_gl_context(ctx),
+GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
+  sdl_gl_context(sdl_ctx),
   screen_fbo{0,glm::mat4()}
 {
 
@@ -96,6 +96,9 @@ GlRenderer::GlRenderer(SDL_GLContext ctx) :
 
 
   create_vbo(512); //TODO check sprite buffer size
+
+  std::string version((const char *)ctx.glGetString(GL_VERSION));
+  is_es_context = version.find("OpenGL ES") != std::string::npos;
 
   //Create main shader
   main_shader = create_shader(DefaultShaders::get_default_vertex_source(),
@@ -111,8 +114,8 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
 #else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,2);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,2);
 #endif
 
   //Try to create core context
