@@ -47,7 +47,6 @@ class Timer: public ExportableToLua {
     void set_expiration_date(uint32_t expiration_date);
 
     void update();
-    void notify_map_suspended(bool suspended);
 
     virtual const std::string& get_lua_type_name() const override;
 

@@ -265,7 +265,6 @@ class LuaContext {
     void destroy_timers();
     void update_timers();
     void notify_timers_map_suspended(bool suspended);
-    void set_entity_timers_suspended(Entity& entity, bool suspended);
     void set_entity_timers_suspended_as_map(Entity& entity, bool suspended);
     void do_timer_callback(const TimerPtr& timer);
 
@@ -1311,7 +1310,7 @@ class LuaContext {
      */
     struct LuaTimerData {
       ScopedLuaRef callback_ref;  /**< Lua ref of the function to call after the timer. */
-      ScopedLuaRef context;        /**< Lua table or userdata the timer is attached to. */
+      ScopedLuaRef context;       /**< Lua table or userdata the timer is attached to. */
     };
 
     // Executing Lua code.

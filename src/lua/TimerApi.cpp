@@ -240,37 +240,24 @@ void LuaContext::update_timers() {
 }
 
 /**
- * \brief This function is called when the game (if any) is being suspended
- * or resumed.
- * \param suspended true if the game is suspended, false if it is resumed.
+ * \brief This function is called when the game is being suspended or resumed.
+ * \param suspended \c true if the game is suspended, false if it is resumed.
  */
 void LuaContext::notify_timers_map_suspended(bool suspended) {
 
   for (const auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
-    if (timer->is_suspended_with_map()) {
-      timer->notify_map_suspended(suspended);
+    const ScopedLuaRef& context = kvp.second.context;
+    context.push(current_l);
+    if (is_entity(current_l, -1) || is_state(current_l, -1)) {
+      // Already handled by the entity.
+      lua_pop(current_l, 1);
+      continue;
     }
-  }
-}
-
-/**
- * \brief Suspends or resumes the timers attached to a map entity.
- *
- * This is independent from the Timer::is_suspended_with_map() property.
- *
- * \param entity A map entity.
- * \param suspended \c true to suspend its timers, \c false to resume them.
- */
-void LuaContext::set_entity_timers_suspended(
-    Entity& entity, bool suspended
-) {
-
-  for (const auto& kvp: timers) {
-    const TimerPtr& timer = kvp.first;
-    if (kvp.second.context == entity) {
+    if (timer->is_suspended_with_map()) {
       timer->set_suspended(suspended);
     }
+    lua_pop(current_l, 1);
   }
 }
 
@@ -286,18 +273,19 @@ void LuaContext::set_entity_timers_suspended(
 void LuaContext::set_entity_timers_suspended_as_map(
     Entity& entity, bool suspended
 ) {
-  if (!suspended) {
-    set_entity_timers_suspended(entity, suspended);
-    return;
-  }
-
-  // Suspend timers except the ones that ignore the map being suspended.
   for (const auto& kvp: timers) {
     const TimerPtr& timer = kvp.first;
     if (kvp.second.context == entity ||
         (entity.get_state() && kvp.second.context == *entity.get_state().get())) {
-      if (timer->is_suspended_with_map()) {
-        timer->set_suspended(suspended);
+
+      if (!suspended) {
+        timer->set_suspended(false);
+      }
+      else {
+        // Suspend timers except the ones that ignore the map being suspended.
+        if (timer->is_suspended_with_map()) {
+          timer->set_suspended(true);
+        }
       }
     }
   }
@@ -575,9 +563,11 @@ int LuaContext::timer_api_set_suspended_with_map(lua_State* l) {
     timer->set_suspended_with_map(suspended_with_map);
 
     Game* game = lua_context.get_main_loop().get_game();
-    if (game != nullptr && game->has_current_map()) {
+    if (game != nullptr &&
+        game->has_current_map() &&
+        suspended_with_map) {
       // If the game is running, suspend/resume the timer like the map.
-      timer->notify_map_suspended(game->get_current_map().is_suspended());
+      timer->set_suspended(game->get_current_map().is_suspended());
     }
 
     return 0;

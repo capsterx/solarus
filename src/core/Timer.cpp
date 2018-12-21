@@ -194,17 +194,6 @@ void Timer::update() {
 }
 
 /**
- * \brief Notifies this timer that the current map is being suspended or resumed.
- * \param suspended true if the map is suspended, false if it is resumed.
- */
-void Timer::notify_map_suspended(bool suspended) {
-
-  if (suspended_with_map) {
-    set_suspended(suspended);
-  }
-}
-
-/**
  * \brief Returns the name identifying this type in Lua.
  * \return the name identifying this type in Lua
  */
