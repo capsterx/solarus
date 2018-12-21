@@ -54,6 +54,7 @@ map{ id = "bugs/1286_crash_state_set_can_traverse", description = "#1286: Crash 
 map{ id = "bugs/1291_hero_start_attack_loading", description = "#1291: hero:start_attack_loading" }
 map{ id = "bugs/1299_crash_invalid_tile_pattern", description = "#1299: Crash when loading a map with an invalid tile pattern" }
 map{ id = "bugs/1301_state_set_can_be_hurt_function", description = "#1301: Allow to pass a function to state:set_can_be_hurt()" }
+map{ id = "bugs/1319_disabled_entity_timer_unsuspended", description = "#1319: Timers of disabled entity continue when the game is unsuspended" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -478,6 +479,8 @@ file{ path = "maps/bugs/1299_crash_invalid_tile_pattern.dat", author = "Christop
 file{ path = "maps/bugs/1299_crash_invalid_tile_pattern.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1319_disabled_entity_timer_unsuspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1319_disabled_entity_timer_unsuspended.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }
