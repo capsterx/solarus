@@ -10,4 +10,5 @@ tags
 developer_doc/1.*
 work/unversioned/
 build/
-
+/.flatpak-builder
+/build-dir
