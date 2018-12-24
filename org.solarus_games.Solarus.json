@@ -4,6 +4,9 @@
     "runtime-version": "5.11",
     "sdk": "org.kde.Sdk",
     "command": "solarus-launcher",
+    "rename-icon": "solarus",
+    "rename-desktop-file": "solarus.desktop",
+    "rename-appdata-file": "solarus.appdata.xml",
     "finish-args": [
         "--socket=x11",
         "--share=ipc",
@@ -61,7 +64,7 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.com/solarus-games/solarus.git",
-                    "tag": "v1.6.0"
+                    "commit": "633bad6be5fbe2f77c3d63db497f7d7e2b1128f6"
                 }
             ]
         }
