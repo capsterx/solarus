@@ -498,12 +498,8 @@ set_target_properties(solarus PROPERTIES
   SOVERSION ${SOLARUS_MAJOR_VERSION}
 )
 
-# Configuration for OSX and iOS build and deployment.
+# Configuration for macOS build and deployment.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  if(NOT SOLARUS_IOS_BUILD)
-    include(cmake/apple/OSXBuild.cmake)
-  else()
-    include(cmake/apple/iOSBuild.cmake)
-  endif()
+  include(cmake/macOS/macOSBuild.cmake)
 endif()
 

@@ -149,15 +149,15 @@ For some of them you have to compile the binary libraries yourself.
 In any case, you will then need to tell CMake the location of these
 dependencies.
 
-2.3  Mac OS X users:
+2.3  MacOS users:
 --------------------
 
-The directory libraries/macosx contains some required static and dynamic
+The directory libraries/macOS contains some required static and dynamic
 libraries that are not provided as binaries by their authors, but I don't
 guarantee that they are up-to-date.
 The Lua readme recommends to link statically against Lua, so you shouldn't
 embed it.
-Also, the OpenAL framework is already part of the OSX system since 10.4, so you
+Also, the OpenAL framework is already part of the macOS system since 10.4, so you
 don't have to embed this one either.
 You can use both .dylib or .framework for the other ones, but just remember
 that you have to check the version number, runpath search, architecture and
@@ -334,9 +334,9 @@ You will also need a copy of OS X SDK, which is included with XCode. XCode is
 freely available on the App Store.
 
 
-- Compile on OSX
+- Compile on macOS
 
-You can follow the standard compilation instructions to build Solarus on OSX.
+You can follow the standard compilation instructions to build Solarus on macOS.
 However here are some tips that may be useful depending on your developer environment :
 
 You can build the XCode project using cmake
@@ -346,13 +346,34 @@ If you wish to build the solarus GUI, the cmake line will probably become
 something like
 $ cmake -DCMAKE_PREFIX_PATH="<path_to_Qt>/Qt/<version>/clang_64/lib/cmake" -Wno-dev  ..
 
-If you want to deploy a quest on non-developer environment with a
+
+- Deploy on macOS
+
+If you wish to deploy a quest on non-developer environment with a
 standalone bundle, the better way is to use the Solarus package provided on
 http://www.solarus-games.org/ and use a post-build script to replace
-Solarus.app/Contents/Resources/solarus-run and
-Solarus.app/Contents/Frameworks/libsolarus.dylib by ones just compiled.
-The bundle is made to run the data/ or data.solarus quest located into
-Solarus.app/Contents/Resources.
+Solarus-run.app/Contents/Resources/solarus-run and
+Solarus-run.app/Contents/Frameworks/libsolarus.dylib by ones just compiled.
+The bundle is made to run the data/ or data.solarus quest located into 
+Solarus-run.app/Contents/Resources.
+
+Once done, you eventually have to make sure that all new embed binaries
+are undependant from your developer environment.
+Open a new command line window and run the following on all of them.
+$ otool -L <binary_to_check>
+
+Check that all depencies path related to an embed binary are correct
+and begin with the "@rpath/" string.
+If not, run
+$ install_name_tool -id <binary_path>
+to update the first line returned by otool -L or
+$ install_name_tool -change <old_path> <new_path>
+to update one of the other.
+
+Note: If you wish to deploy the Solarus GUI instead of a standalone quest,
+steps are the same except that you will use the Solarus.app package 
+instead of Solarus-run.app one, and will copy libsolarus-gui.dylib and
+solarus-launcher binaries instead of the solarus-run one and the quest.
 
 
 4.2  OpenPandora

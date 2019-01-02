@@ -4,8 +4,8 @@
 # To do so, overload the following options :
 #
 # SOLARUS_ARCH represent the build (multi-)architecture.
-# SOLARUS_SYSROOT represent the path to the OSX SDK.
-# SOLARUS_DEPLOYMENT represent the oldest OSX version supported.
+# SOLARUS_SYSROOT represent the path to the macOS SDK.
+# SOLARUS_DEPLOYMENT represent the oldest macOS version supported.
 #
 # Some options set to the cache also need the FORCE parameter for obscure reasons.
 #
