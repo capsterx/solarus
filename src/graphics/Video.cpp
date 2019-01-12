@@ -126,7 +126,7 @@ void create_window() {
   Debug::check_assertion(context.main_window != nullptr,
                          std::string("Cannot create the window: ") + SDL_GetError());
 
-  context.renderer = create_chain<GlRenderer>(context.main_window);
+  context.renderer = create_chain<GlRenderer,SDLRenderer>(context.main_window);
 
   Debug::check_assertion(static_cast<bool>(context.renderer),
                          std::string("Cannot create the renderer: ") + SDL_GetError());
