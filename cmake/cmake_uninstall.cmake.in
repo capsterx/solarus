@@ -1,0 +1,24 @@
+# Remove all files installed by Solarus.
+
+set(install_manifest "@CMAKE_BINARY_DIR@/install_manifest.txt")
+if(NOT EXISTS "${install_manifest}")
+  message(FATAL_ERROR "Cannot find install manifest: ${install_manifest}")
+endif()
+
+file(READ "${install_manifest}" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+foreach(file ${files})
+  set(destfile $ENV{DESTDIR}${file})
+  message(STATUS "Uninstalling ${destfile}")
+  if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "${destfile}")
+    execute_process(COMMAND @CMAKE_COMMAND@ -E remove "${destfile}"
+      OUTPUT_VARIABLE rm_out
+      RESULT_VARIABLE rm_res
+    )
+    if(NOT "${rm_res}" STREQUAL 0)
+      message(FATAL_ERROR "Problem when removing ${destfile}")
+    endif()
+  else()
+    message(STATUS "File ${destfile} does not exist.")
+  endif()
+endforeach(file)
