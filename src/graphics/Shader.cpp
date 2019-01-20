@@ -29,8 +29,68 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <sstream>
+
+#include "solarus/third_party/glad/glad.h"
 
 namespace Solarus {
+
+std::string Shader::version_string;
+
+
+void Shader::setup_version_string() {
+  GLint major = GLVersion.major; //Using GLVersion from glad
+  GLint minor = GLVersion.minor;
+
+  auto make_number = [&](int major,int minor) -> std::string {
+    std::string version((const char *)glGetString(GL_VERSION));
+    bool is_es_context = version.find("OpenGL ES") != std::string::npos;
+    if(is_es_context) {
+      switch(major*10+minor){
+        case 20:
+          return "100";
+        case 30:
+          return "300";
+        case 31:
+          return "310";
+        default:
+          return "100";
+      }
+    } else {
+      switch(major*10+minor){
+        case 20:
+          return "110";
+        case 21:
+          return "120";
+        case 30:
+          return "130";
+        case 31:
+          return "140";
+        case 32:
+          return "150";
+        default:
+        if(major*10+minor >= 33) {
+          std::ostringstream oss;
+          oss << (major*100+minor*10);
+          return oss.str();
+        } else {
+          return "110";
+        }
+      }
+    }
+  };
+
+  std::string version = make_number(major,minor);
+  version_string = "#version " + version + "\n";
+}
+
+std::string Shader::sanitize_shader_source(const std::string &source) {
+  if(source.find("#version") != std::string::npos) {
+    return source;
+  } else {
+    return version_string + source;
+  }
+}
 
 /**
  * \brief Creates a shader from a shader resource file.
@@ -175,6 +235,22 @@ std::string Shader::get_fragment_source() const {
     return fragment_source;
   }
   return DefaultShaders::get_default_fragment_source();
+}
+
+/**
+ * @brief Returns the vertex source with #version header
+ * @return
+ */
+std::string Shader::get_sanitized_vertex_source() const {
+  return sanitize_shader_source(get_vertex_source());
+}
+
+/**
+ * @brief Returns the fragment source with #version header
+ * @return
+ */
+std::string Shader::get_sanitized_fragment_source() const {
+  return sanitize_shader_source(get_fragment_source());
 }
 
 /**

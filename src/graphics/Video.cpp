@@ -40,11 +40,6 @@
 #include <SDL.h>
 #include <SDL_render.h>
 #include <SDL_hints.h>
-#ifdef SOLARUS_HAVE_OPENGL
-#  include <SDL_opengl.h>
-#else
-#  include <SDL_opengles2.h>
-#endif
 
 namespace Solarus {
 

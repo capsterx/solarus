@@ -17,7 +17,8 @@ void SDLRenderer::SurfaceDraw::draw(Surface& dst_surface, const Surface& src_sur
   SDLRenderer::get().draw(dst_surface.get_impl(),src_surface.get_impl(),params);
 }
 
-SDLRenderer::SDLRenderer(SDL_Renderer* a_renderer) : renderer(a_renderer) {
+SDLRenderer::SDLRenderer(SDL_Renderer* a_renderer, bool shaders) : renderer(a_renderer),
+  shaders(shaders) {
   if(!renderer) {
     auto rgba_format = Video::get_pixel_format();
     software_screen.reset(SDL_CreateRGBSurface(
@@ -40,7 +41,7 @@ SDLRenderer::SDLRenderer(SDL_Renderer* a_renderer) : renderer(a_renderer) {
 RendererPtr SDLRenderer::create(SDL_Window* window) {
   if(!window) {
     //No window... asked for a software renderer
-    return RendererPtr(new SDLRenderer(nullptr));
+    return RendererPtr(new SDLRenderer(nullptr,false));
   }
 
   // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
@@ -59,15 +60,13 @@ RendererPtr SDLRenderer::create(SDL_Window* window) {
   if(not renderer) {
     return nullptr;
   } else {
-    //Init shaders :
-    if(!SDLShader::initialize()) {
-      //return nullptr; //TODO Set some flags
-    }
+    //Init shaders
+    bool shaders = SDLShader::initialize();
 
     auto size = Video::get_quest_size();
     SDL_RenderSetLogicalSize(renderer,size.width,size.height);
 
-    return RendererPtr(new SDLRenderer(renderer));
+    return RendererPtr(new SDLRenderer(renderer, shaders));
   }
 }
 
@@ -78,24 +77,28 @@ SurfaceImplPtr SDLRenderer::create_texture(int width, int height) {
 }
 
 SurfaceImplPtr SDLRenderer::create_texture(SDL_Surface_UniquePtr&& surface) {
-  return SurfaceImplPtr(new SDLSurfaceImpl(renderer,std::move(surface)));
+  return SurfaceImplPtr(new SDLSurfaceImpl(renderer, std::move(surface)));
 }
 
 SurfaceImplPtr SDLRenderer::create_window_surface(SDL_Window* /*w*/, int width, int height) {
-  return SurfaceImplPtr(new SDLSurfaceImpl(renderer,width,height,true));
+  return SurfaceImplPtr(new SDLSurfaceImpl(renderer, width, height, true));
 }
 
 ShaderPtr SDLRenderer::create_shader(const std::string& shader_id) {
-  return std::make_shared<SDLShader>(shader_id);
+  return shaders ? std::make_shared<SDLShader>(shader_id) : nullptr;
 }
 
 ShaderPtr SDLRenderer::create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) {
-  return std::make_shared<SDLShader>(vertex_source, fragment_source, scaling_factor);
+  return shaders ? std::make_shared<SDLShader>(
+                     vertex_source,
+                     fragment_source,
+                     scaling_factor) :
+                   nullptr;
 }
 
 void SDLRenderer::set_render_target(SDL_Texture* target) {
   if(target != render_target || !valid_target) {
-    SDL_SetRenderTarget(renderer,target);
+    SDL_SetRenderTarget(renderer, target);
     render_target=target;
     valid_target = true;
   }
@@ -128,7 +131,9 @@ void SDLRenderer::clear(SurfaceImpl& dst) {
   set_render_target(sdst.get_texture());
 
   SOLARUS_CHECK_SDL(SDL_SetRenderDrawColor(renderer,0,0,0,0));
-  SOLARUS_CHECK_SDL(SDL_SetTextureBlendMode(sdst.get_texture(),SDL_BLENDMODE_BLEND));
+  if(sdst.get_texture()) { //texture can be nullptr in case of the screen
+    SOLARUS_CHECK_SDL(SDL_SetTextureBlendMode(sdst.get_texture(),SDL_BLENDMODE_BLEND));
+  }
   SOLARUS_CHECK_SDL(SDL_RenderClear(renderer));
 
   sdst.surface_dirty = true;

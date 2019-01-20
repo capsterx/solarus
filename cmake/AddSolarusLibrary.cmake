@@ -243,6 +243,7 @@ file(
   include/solarus/third_party/snes_spc/SPC_Filter.h
   include/solarus/third_party/snes_spc/spc.h
   include/solarus/third_party/shelf-pack.h
+  include/solarus/third_party/glad/glad.h
 
   src/audio/ItDecoder.cpp
   src/audio/Music.cpp
@@ -461,6 +462,7 @@ file(
   src/third_party/snes_spc/spc.cpp
   src/third_party/snes_spc/SPC_DSP.cpp
   src/third_party/snes_spc/SPC_Filter.cpp
+  src/third_party/glad/glad.c
 )
 
 # Additional source files for Apple systems.
