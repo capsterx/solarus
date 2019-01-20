@@ -111,8 +111,8 @@ void SDLShader::compile() {
   GLint linked;
 
   // Create the vertex and fragment shaders.
-  vertex_shader = create_shader(GL_VERTEX_SHADER, get_vertex_source().c_str());
-  fragment_shader = create_shader(GL_FRAGMENT_SHADER, get_fragment_source().c_str());
+  vertex_shader = create_shader(GL_VERTEX_SHADER, get_sanitized_vertex_source().c_str());
+  fragment_shader = create_shader(GL_FRAGMENT_SHADER, get_sanitized_fragment_source().c_str());
 
   // Create a program object with both shaders.
   program = glCreateProgram();

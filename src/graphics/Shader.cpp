@@ -220,9 +220,9 @@ void Shader::set_data(const ShaderData& data) {
 std::string Shader::get_vertex_source() const {
 
   if (!vertex_source.empty()) {
-    return sanitize_shader_source(vertex_source);
+    return vertex_source;
   }
-  return sanitize_shader_source(DefaultShaders::get_default_vertex_source());
+  return DefaultShaders::get_default_vertex_source();
 }
 
 /**
@@ -232,9 +232,25 @@ std::string Shader::get_vertex_source() const {
 std::string Shader::get_fragment_source() const {
 
   if (!fragment_source.empty()) {
-    return sanitize_shader_source(fragment_source);
+    return fragment_source;
   }
-  return sanitize_shader_source(DefaultShaders::get_default_fragment_source());
+  return DefaultShaders::get_default_fragment_source();
+}
+
+/**
+ * @brief Returns the vertex source with #version header
+ * @return
+ */
+std::string Shader::get_sanitized_vertex_source() const {
+  return sanitize_shader_source(get_vertex_source());
+}
+
+/**
+ * @brief Returns the fragment source with #version header
+ * @return
+ */
+std::string Shader::get_sanitized_fragment_source() const {
+  return sanitize_shader_source(get_fragment_source());
 }
 
 /**
