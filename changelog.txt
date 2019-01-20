@@ -1,3 +1,13 @@
+___________________________
+
+Solarus 1.6.0 (in progress)
+___________________________
+
+Engine changes
+--------------
+
+* Fix OpenGL compatibility issues.
+
 __________________________
 
 Solarus 1.6.0 (2018-12-22)
