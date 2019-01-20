@@ -38,7 +38,6 @@
 namespace Solarus {
 
 namespace {
-GlRenderer::GlFunctions* ctx;
 std::string version_string;
 }
 
@@ -47,55 +46,9 @@ std::string version_string;
  * \return \c true if GL 2D shaders are supported.
  */
 bool GlShader::initialize() {
-  ctx = &GlRenderer::ctx;
-
-  GLint major;
-  GLint minor;
-  ctx->glGetIntegerv(GL_MAJOR_VERSION,&major);
-  ctx->glGetIntegerv(GL_MINOR_VERSION,&minor);
-
-  auto make_number = [&](int major,int minor) -> std::string {
-    std::string version((const char *)ctx->glGetString(GL_VERSION));
-    bool is_es_context = version.find("OpenGL ES") != std::string::npos;
-    if(is_es_context) {
-      switch(major*10+minor){
-        case 20:
-          return "100";
-        case 30:
-          return "300";
-        case 31:
-          return "310";
-        default:
-          return "100";
-      }
-    } else {
-      switch(major*10+minor){
-        case 20:
-          return "110";
-        case 21:
-          return "120";
-        case 30:
-          return "130";
-        case 31:
-          return "140";
-        case 32:
-          return "150";
-        default:
-        if(major*10+minor >= 33) {
-          std::ostringstream oss;
-          oss << (major*100+minor*10);
-          return oss.str();
-        } else {
-          return "110";
-        }
-      }
-    }
-  };
-
-  std::string version = make_number(major,minor);
-  version_string = "#version " + version + "\n";
-
   Logger::info("Using modern GL Shaders");
+
+  setup_version_string();
 
   return true;
 }
@@ -137,17 +90,9 @@ GlShader::GlShader(const std::string& vertex_source,
  * \brief Destructor.
  */
 GlShader::~GlShader() {
-  ctx->glDeleteShader(vertex_shader);
-  ctx->glDeleteShader(fragment_shader);
-  ctx->glDeleteProgram(program);
-}
-
-std::string GlShader::sanitize_shader_source(const std::string source) {
-  if(source.find("#version") != std::string::npos) {
-    return source;
-  } else {
-    return version_string + source;
-  }
+  glDeleteShader(vertex_shader);
+  glDeleteShader(fragment_shader);
+  glDeleteProgram(program);
 }
 
 /**
@@ -157,57 +102,57 @@ void GlShader::compile() {
   GLint linked;
 
   // Create the vertex and fragment shaders.
-  vertex_shader = create_shader(GL_VERTEX_SHADER, sanitize_shader_source(get_vertex_source()).c_str());
-  fragment_shader = create_shader(GL_FRAGMENT_SHADER, sanitize_shader_source(get_fragment_source()).c_str());
+  vertex_shader = create_shader(GL_VERTEX_SHADER, get_vertex_source().c_str());
+  fragment_shader = create_shader(GL_FRAGMENT_SHADER, get_fragment_source().c_str());
 
   // Create a program object with both shaders.
-  program = ctx->glCreateProgram();
+  program = glCreateProgram();
   if (program == 0) {
     Debug::error(std::string("Could not create OpenGL program"));
     return;
   }
 
-  ctx->glAttachShader(program, vertex_shader);
-  ctx->glAttachShader(program, fragment_shader);
+  glAttachShader(program, vertex_shader);
+  glAttachShader(program, fragment_shader);
 
-  ctx->glLinkProgram(program);
+  glLinkProgram(program);
 
   // Check GL status.
-  ctx->glGetProgramiv(program, GL_LINK_STATUS, &linked);
+  glGetProgramiv(program, GL_LINK_STATUS, &linked);
   GLint info_len = 0;
-  ctx->glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
+  glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
 
   if (info_len > 1) {
     std::string log;
     log.resize(info_len, '\0');
-    ctx->glGetProgramInfoLog(program, info_len, nullptr, &log[0]);
+    glGetProgramInfoLog(program, info_len, nullptr, &log[0]);
     Logger::info(std::string("Linking result of shader '") + get_id() + std::string("':\n") + log);
   }
 
   if (!linked) {
     Debug::error(std::string("Failed to link shader '") + get_id() + std::string("':\n"));
-    ctx->glDeleteProgram(program);
+    glDeleteProgram(program);
   }
 
-  ctx->glUseProgram(program);
+  glUseProgram(program);
 
   // Set up constant uniform variables.
-  GLint location = ctx->glGetUniformLocation(program, TEXTURE_NAME);
+  GLint location = glGetUniformLocation(program, TEXTURE_NAME);
   if (location >= 0) {
-    ctx->glUniform1i(location, 0);
+    glUniform1i(location, 0);
   }
 
   const Size& quest_size = Video::get_quest_size();
-  location = ctx->glGetUniformLocation(program, INPUT_SIZE_NAME);
+  location = glGetUniformLocation(program, INPUT_SIZE_NAME);
   if (location >= 0) {
-    ctx->glUniform2f(location, quest_size.width, quest_size.height);
+    glUniform2f(location, quest_size.width, quest_size.height);
   }
 
-  position_location = ctx->glGetAttribLocation(program, POSITION_NAME);
-  tex_coord_location = ctx->glGetAttribLocation(program, TEXCOORD_NAME);
-  color_location = ctx->glGetAttribLocation(program, COLOR_NAME);
+  position_location = glGetAttribLocation(program, POSITION_NAME);
+  tex_coord_location = glGetAttribLocation(program, TEXCOORD_NAME);
+  color_location = glGetAttribLocation(program, COLOR_NAME);
 
-  //ctx->glUseProgram(previous_program);
+  //glUseProgram(previous_program);
   GlRenderer::get().rebind_shader();
 }
 
@@ -222,7 +167,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
   GLint compiled;
 
   // Create the shader object.
-  GLuint shader = ctx->glCreateShader(type);
+  GLuint shader = glCreateShader(type);
   //GlRenderer::check_gl_error(__FILE__,"undef");
 
   if (shader == 0) {
@@ -230,26 +175,26 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
     return shader;
   }
 
-  ctx->glShaderSource(shader, 1, &source, NULL);
-  ctx->glCompileShader(shader);
+  glShaderSource(shader, 1, &source, NULL);
+  glCompileShader(shader);
 
   // Check the compile status.
   std::string shader_type_string = (type == GL_VERTEX_SHADER) ?
         "vertex" : "fragment";
-  ctx->glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   GLint info_len = 0;
-  ctx->glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
+  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
 
   if (info_len > 1) {
     std::string log;
     log.resize(info_len, '\0');
-    ctx->glGetShaderInfoLog(shader, info_len, nullptr, &log[0]);
+    glGetShaderInfoLog(shader, info_len, nullptr, &log[0]);
     Logger::info("Compilation result of " + shader_type_string + " shader '" + get_id() + "':\n" + log);
   }
 
   if (!compiled) {
     Debug::error("Failed to compile " + shader_type_string + " shader '" + get_id() + "'");
-    ctx->glDeleteShader(shader);
+    glDeleteShader(shader);
     shader = 0;
   }
 
@@ -257,7 +202,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
 }
 
 void GlShader::bind() {
-  ctx->glUseProgram(program); //TODO check if this can be done only once
+  glUseProgram(program); //TODO check if this can be done only once
   bound = true;
 
   //Upload uniforms that were postponed
@@ -268,26 +213,26 @@ void GlShader::bind() {
 
   //Enable and paramatrize vertex attributes
   if(position_location != -1) {
-    ctx->glEnableVertexAttribArray(position_location);
-    ctx->glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
+    glEnableVertexAttribArray(position_location);
+    glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
                                reinterpret_cast<void*>(offsetof(Vertex,position)));
   }
   if(tex_coord_location != -1) {
-    ctx->glEnableVertexAttribArray(tex_coord_location);
-    ctx->glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
+    glEnableVertexAttribArray(tex_coord_location);
+    glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
                                reinterpret_cast<void*>(offsetof(Vertex,texcoords)));
   }
   if(color_location != -1) {
-    ctx->glEnableVertexAttribArray(color_location);
-    ctx->glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
+    glEnableVertexAttribArray(color_location);
+    glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
                                reinterpret_cast<void*>(offsetof(Vertex,color)));
   }
 
   //Bind correct uniform textures
   for(const auto& kvp : uniform_textures) {
     const GLuint texture_unit = kvp.second.unit;
-    ctx->glActiveTexture(GL_TEXTURE0 + texture_unit);
-    ctx->glBindTexture(GL_TEXTURE_2D,kvp.second.surface->get_impl().as<GlTexture>().get_texture());
+    glActiveTexture(GL_TEXTURE0 + texture_unit);
+    glBindTexture(GL_TEXTURE_2D,kvp.second.surface->get_impl().as<GlTexture>().get_texture());
   }
 }
 
@@ -306,7 +251,7 @@ GLint GlShader::get_uniform_location(const std::string& uniform_name) const {
     return it->second;
   }
 
-  const GLint location = ctx->glGetUniformLocation(program, uniform_name.c_str());
+  const GLint location = glGetUniformLocation(program, uniform_name.c_str());
   uniform_locations.insert(std::make_pair(uniform_name, location));
   return location;
 }
@@ -333,17 +278,17 @@ void GlShader::upload_uniform(const Uniform& u) {
   using T = Uniform::Type;
   switch(u.t) {
     case T::U1B:
-      return ctx->glUniform1i(loc,u.b);
+      return glUniform1i(loc,u.b);
     case T::U1I:
-      return ctx->glUniform1i(loc,u.i);
+      return glUniform1i(loc,u.i);
     case T::U1F:
-      return ctx->glUniform1f(loc,u.f);
+      return glUniform1f(loc,u.f);
     case T::U2F:
-      return ctx->glUniform2f(loc,u.ff.x,u.ff.y);
+      return glUniform2f(loc,u.ff.x,u.ff.y);
     case T::U3F:
-      return ctx->glUniform3f(loc,u.fff.x,u.fff.y,u.fff.z);
+      return glUniform3f(loc,u.fff.x,u.fff.y,u.fff.z);
     case T::U4F:
-      return ctx->glUniform4f(loc,u.ffff.x,u.ffff.y,u.ffff.z,u.ffff.w);
+      return glUniform4f(loc,u.ffff.x,u.ffff.y,u.ffff.z,u.ffff.w);
   }
 }
 

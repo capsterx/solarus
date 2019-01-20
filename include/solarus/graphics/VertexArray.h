@@ -10,11 +10,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 
-#ifdef SOLARUS_HAVE_OPENGL
-#  include <SDL_opengl.h>
-#else
-#  include <SDL_opengles2.h>
-#endif
+#include "solarus/third_party/glad/glad.h"
 
 namespace Solarus {
 

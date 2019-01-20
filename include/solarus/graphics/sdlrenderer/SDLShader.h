@@ -30,11 +30,7 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef SOLARUS_HAVE_OPENGL
-#  include <SDL_opengl.h>
-#else
-#  include <SDL_opengles2.h>
-#endif
+#include "solarus/third_party/glad/glad.h"
 
 namespace Solarus {
 
@@ -83,6 +79,8 @@ class SOLARUS_API SDLShader : public Shader {
 
   private:
     void compile();
+    static std::string sanitize_shader_source(const std::string source);
+
 
     static VertexArray screen_quad; /**< The quad used to draw surfaces with shaders */
 

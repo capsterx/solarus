@@ -32,11 +32,11 @@ public:
   /**
    * @brief Structure containing all usefull GlFunctions
    */
-  struct GlFunctions {
+  /*struct GlFunctions {
     #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
     #include "gles2funcs.h"
     #undef SDL_PROC
-  };
+  };*/
 
   /**
    * @brief Draw destination
@@ -103,7 +103,6 @@ private:
   void shader_about_to_change(GlShader* shader);
 
   static GlRenderer* instance;
-  static GlFunctions ctx;
   SDL_GLContext sdl_gl_context;
   GlShader* current_shader = nullptr;
   const GlTexture* current_texture = nullptr;

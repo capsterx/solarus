@@ -40,11 +40,6 @@
 #include <SDL.h>
 #include <SDL_render.h>
 #include <SDL_hints.h>
-#ifdef SOLARUS_HAVE_OPENGL
-#  include <SDL_opengl.h>
-#else
-#  include <SDL_opengles2.h>
-#endif
 
 namespace Solarus {
 
@@ -126,7 +121,7 @@ void create_window() {
   Debug::check_assertion(context.main_window != nullptr,
                          std::string("Cannot create the window: ") + SDL_GetError());
 
-  context.renderer = create_chain<GlRenderer>(context.main_window);
+  context.renderer = create_chain<GlRenderer,SDLRenderer>(context.main_window);
 
   Debug::check_assertion(static_cast<bool>(context.renderer),
                          std::string("Cannot create the renderer: ") + SDL_GetError());
