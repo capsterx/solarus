@@ -98,7 +98,7 @@ class SOLARUS_API Shader : public DrawProxy, public ExportableToLua {
     std::string get_sanitized_vertex_source() const;
     std::string get_sanitized_fragment_source() const;
   private:
-    static std::string sanitize_shader_source(const std::string source);
+    static std::string sanitize_shader_source(const std::string& source);
     static std::string version_string;
 
     const std::string shader_id;  /**< The id of the shader (filename without extension). */

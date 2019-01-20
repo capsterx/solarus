@@ -84,7 +84,7 @@ void Shader::setup_version_string() {
   version_string = "#version " + version + "\n";
 }
 
-std::string Shader::sanitize_shader_source(const std::string source) {
+std::string Shader::sanitize_shader_source(const std::string &source) {
   if(source.find("#version") != std::string::npos) {
     return source;
   } else {
