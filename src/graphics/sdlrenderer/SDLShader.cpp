@@ -93,15 +93,22 @@ SDLShader::SDLShader(const std::string& vertex_source,
  * \brief Destructor.
  */
 SDLShader::~SDLShader() {
-  glDeleteShader(vertex_shader);
-  glDeleteShader(fragment_shader);
-  glDeleteProgram(program);
+  if(is_valid()) {
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+    glDeleteProgram(program);
+  }
 }
 
 /**
  * \brief Compiles the shader program.
  */
 void SDLShader::compile() {
+
+  if(screen_quad.vertices.size() == 0) {
+    set_error("shaders unavailable");
+    return;
+  }
 
   GLint previous_program;
   glGetIntegerv(GL_CURRENT_PROGRAM, &previous_program);
@@ -141,7 +148,10 @@ void SDLShader::compile() {
   if (!linked) {
     Debug::error(std::string("Failed to link shader '") + get_id() + std::string("':\n"));
     glDeleteProgram(program);
+    return;
   }
+
+  set_valid(true);
 
   glUseProgram(program);
 

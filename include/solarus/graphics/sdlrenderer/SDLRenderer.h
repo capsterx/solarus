@@ -28,7 +28,7 @@ class SDLRenderer : public Renderer {
   };
 public:
   SDLRenderer(SDL_Renderer* window, bool shaders);
-  static RendererPtr create(SDL_Window* window);
+  static RendererPtr create(SDL_Window* window, bool force_software);
   SurfaceImplPtr create_texture(int width, int height) override;
   SurfaceImplPtr create_texture(SDL_Surface_UniquePtr &&surface) override;
   SurfaceImplPtr create_window_surface(SDL_Window* w, int width, int height) override;
@@ -49,6 +49,9 @@ public:
   }
   const DrawProxy& default_terminal() const override {
     return surface_draw;
+  }
+  bool needs_window_workaround() const override {
+    return true;
   }
   ~SDLRenderer() override;
 private:

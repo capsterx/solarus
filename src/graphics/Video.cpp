@@ -66,10 +66,10 @@ struct VideoContext {
   SurfacePtr screen_surface = nullptr;      /**< Strange surface representing the window */
   ShaderPtr  current_shader = nullptr;      /**< Current fullscreen effect */
 
-  std::string opengl_version;
-  std::string shading_language_version;
-  std::string opengl_vendor;
-  std::string opengl_renderer;
+  std::string opengl_version = "none";
+  std::string shading_language_version = "none";
+  std::string opengl_vendor = "none";
+  std::string opengl_renderer = "none";
 
   bool disable_window = false;              /**< Indicates that no window is displayed (used for unit tests). */
   bool fullscreen_window = false;           /**< True if the window is in fullscreen. */
@@ -81,22 +81,22 @@ VideoContext context;
 struct chain_end{};
 
 template<typename T = chain_end>
-RendererPtr renderer_chain(SDL_Window*) {
+RendererPtr renderer_chain(SDL_Window*, bool) {
   return nullptr;
 }
 
 template<typename T, typename ...Rest>
 typename std::enable_if<!std::is_same<T,chain_end>::value,RendererPtr>::type
-renderer_chain(SDL_Window* w) {
-  auto p = T::create(w);
+renderer_chain(SDL_Window* w, bool force_software) {
+  auto p = T::create(w, force_software);
   if(p) return p;
-  return renderer_chain<Rest...>(w);
+  return renderer_chain<Rest...>(w, force_software);
 }
 
 
 template<typename ...T>
-RendererPtr create_chain(SDL_Window* w) {
-  return renderer_chain<T...,chain_end>(w);
+RendererPtr create_chain(SDL_Window* w, bool force_software) {
+  return renderer_chain<T...,chain_end>(w, force_software);
 }
 
 
@@ -104,9 +104,15 @@ RendererPtr create_chain(SDL_Window* w) {
  * \brief Creates the window but does not show it.
  * \param args Command-line arguments.
  */
-void create_window() {
+void create_window(const Arguments& args) {
 
   Debug::check_assertion(context.main_window == nullptr, "Window already exists");
+
+  bool force_software = args.has_argument("-force-software-rendering");
+
+  if(force_software) {
+    Logger::info("Forcing software rendering : shaders will be unavailable");
+  }
 
   std::string title = std::string("Solarus ") + SOLARUS_VERSION;
   context.main_window = SDL_CreateWindow(
@@ -115,31 +121,30 @@ void create_window() {
         SDL_WINDOWPOS_CENTERED,
         context.geometry.wanted_quest_size.width,
         context.geometry.wanted_quest_size.height,
-        SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+        SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | (force_software ? 0 : SDL_WINDOW_OPENGL)
         );
 
   Debug::check_assertion(context.main_window != nullptr,
                          std::string("Cannot create the window: ") + SDL_GetError());
 
-  context.renderer = create_chain<GlRenderer,SDLRenderer>(context.main_window);
+  context.renderer = create_chain<GlRenderer,SDLRenderer>(context.main_window, force_software);
 
   Debug::check_assertion(static_cast<bool>(context.renderer),
                          std::string("Cannot create the renderer: ") + SDL_GetError());
 
   Logger::info("Renderer: " + context.renderer->get_name());
 
-  context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-  context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
-  context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-  context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  if(not force_software) {
+    context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  }
 
   Logger::info(std::string("OpenGL: ") + context.opengl_version);
   Logger::info(std::string("OpenGL vendor: ") + context.opengl_vendor);
   Logger::info(std::string("OpenGL renderer: ") + context.opengl_renderer);
   Logger::info(std::string("OpenGL shading language: ") + context.shading_language_version);
-
-
-  // TODO handle shaders !
 }
 
 /**
@@ -222,12 +227,12 @@ void initialize(const Arguments& args) {
   }
 
   // Create a pixel format anyway to make surface and color operations work,
-  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
+  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888); 
 
   if (context.disable_window) {
-    context.renderer = SDLRenderer::create(nullptr); //Create window-less sdl renderer
+    context.renderer = SDLRenderer::create(nullptr, true); //Create window-less sdl renderer
   }else {
-    create_window();
+    create_window(args);
   }
 }
 
