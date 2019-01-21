@@ -89,6 +89,10 @@ QStringList QuestRunner::create_arguments(const QString& quest_path) const {
     arguments << "-no-audio";
   }
 
+  if (settings.value("force_software", false).toBool()) {
+    arguments << "-force-software-rendering";
+  }
+
   // quest-size
   const QSize size = settings.value("quest_size").toSize();
   if (size.isValid()) {

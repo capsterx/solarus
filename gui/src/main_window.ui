@@ -241,7 +241,7 @@ QPushButton#play_button {
              <x>0</x>
              <y>0</y>
              <width>260</width>
-             <height>464</height>
+             <height>456</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -612,7 +612,7 @@ QPushButton#play_button {
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -647,6 +647,7 @@ QPushButton#play_button {
     </widget>
     <addaction name="action_fullscreen"/>
     <addaction name="menu_zoom"/>
+    <addaction name="action_force_software"/>
    </widget>
    <widget class="QMenu" name="menu_audio">
     <property name="title">
@@ -766,6 +767,14 @@ QPushButton#play_button {
     <string>About</string>
    </property>
   </action>
+  <action name="action_force_software">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Force Software</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -786,7 +795,6 @@ QPushButton#play_button {
   <tabstop>play_button</tabstop>
  </tabstops>
  <resources>
-  <include location="../resources/images.qrc"/>
   <include location="../resources/images.qrc"/>
  </resources>
  <connections/>
