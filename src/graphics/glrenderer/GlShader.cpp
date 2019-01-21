@@ -132,7 +132,10 @@ void GlShader::compile() {
   if (!linked) {
     Debug::error(std::string("Failed to link shader '") + get_id() + std::string("':\n"));
     glDeleteProgram(program);
+    return;
   }
+
+  set_valid(true);
 
   glUseProgram(program);
 

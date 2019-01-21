@@ -47,7 +47,7 @@ public:
   };
 
   GlRenderer(SDL_GLContext ctx);
-  static RendererPtr create(SDL_Window* window);
+  static RendererPtr create(SDL_Window* window, bool force_software);
   SurfaceImplPtr create_texture(int width, int height) override;
   SurfaceImplPtr create_texture(SDL_Surface_UniquePtr &&surface) override;
   SurfaceImplPtr create_window_surface(SDL_Window* w, int width, int height) override;

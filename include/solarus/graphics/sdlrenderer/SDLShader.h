@@ -39,6 +39,7 @@ namespace Solarus {
  */
 class SOLARUS_API SDLShader : public Shader {
   public:
+    SDLShader();
     explicit SDLShader(const std::string& shader_id);
     SDLShader(const std::string& vertex_source,
            const std::string& fragment_source,

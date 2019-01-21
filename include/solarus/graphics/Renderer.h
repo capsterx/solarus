@@ -123,6 +123,15 @@ public:
    * @param surf the surface to bind
    */
   virtual void bind_as_gl_texture(const SurfaceImpl& surf) = 0;
+
+  /**
+   * @brief tells if this renderer needs the window to be shown to operate on
+   *  offscreen textures
+   * @return
+   */
+  virtual bool needs_window_workaround() const {
+    return false;
+  }
   virtual ~Renderer();
 };
 
