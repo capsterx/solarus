@@ -89,7 +89,7 @@ QStringList QuestRunner::create_arguments(const QString& quest_path) const {
     arguments << "-no-audio";
   }
 
-  if (settings.value("force_software", false).toBool()) {
+  if (settings.value("force_software_rendering", false).toBool()) {
     arguments << "-force-software-rendering";
   }
 

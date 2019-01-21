@@ -156,7 +156,7 @@ void MainWindow::update_fullscreen_action() {
 void MainWindow::update_force_software_action() {
   Settings settings;
 
-  bool force_software = settings.value("force_software", false).toBool();
+  bool force_software = settings.value("force_software_rendering", false).toBool();
   ui.action_force_software->setChecked(force_software);
 }
 
@@ -351,12 +351,7 @@ void MainWindow::on_action_force_software_triggered() {
   bool force = ui.action_force_software->isChecked();
 
   Settings settings;
-  bool previous = settings.value("force_software", false).toBool();
-  if (force == previous) {
-    return;
-  }
-
-  settings.setValue("force_software", force);
+  settings.setValue("force_software_rendering", force);
 }
 
 /**
