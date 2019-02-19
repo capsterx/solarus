@@ -109,7 +109,7 @@ int GlTexture::get_height() const {
   return surface->h;
 }
 
-GlTexture::~GlTexture() {
+void GlTexture::release() const {
   glDeleteTextures(1,&tex_id);
 }
 
