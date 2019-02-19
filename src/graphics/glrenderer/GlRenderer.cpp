@@ -318,14 +318,18 @@ void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& whe
 
 void GlRenderer::invalidate(const SurfaceImpl& surf) {
   const GlTexture* tex = &surf.as<GlTexture>();
-  //TODO
-  if(tex == current_target) {
+
+  if(tex == current_target) { //current target goes down, ignore last write
+    buffered_sprites = 0; //Trash pending batch, after all dst is destroyed
     current_target = nullptr;
   }
 
   if(tex == current_texture) {
+    restart_batch(); //Quickly write the texture before it dies
     current_texture = nullptr;
   }
+
+  tex->release(); // actually free texture memory
 }
 
 std::string GlRenderer::get_name() const {
