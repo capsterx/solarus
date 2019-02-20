@@ -120,9 +120,7 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
   if(!sdl_ctx) {
 
     Logger::info("Failed to obtain core GL. Trying compatibility instead...");
-    //Fallback on previous opengl
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,0);
 
     sdl_ctx = SDL_GL_CreateContext(window);
     if(!sdl_ctx) {
@@ -135,11 +133,13 @@ RendererPtr GlRenderer::create(SDL_Window* window) {
 
   if(not gladLoadGLLoader(SDL_GL_GetProcAddress)) {
     Debug::warning("failed to load gl 2.1 with glad");
+    SDL_GL_DeleteContext(sdl_ctx);
     return nullptr;
   }
 
   if(not GLAD_GL_ARB_framebuffer_object) {
     Debug::warning("failed to load framebuffer extension");
+    SDL_GL_DeleteContext(sdl_ctx);
     return nullptr;
   }
 
