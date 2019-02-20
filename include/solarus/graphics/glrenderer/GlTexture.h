@@ -35,10 +35,9 @@ public:
    * to upload it to the texture for changes to be reflected
    */
   void upload_surface() override;
-
-  ~GlTexture() override;
 private:
   bool target = false;
+  void release() const;
   void set_texture_params();
   glm::mat3 uv_transform;
   mutable bool surface_dirty = true;

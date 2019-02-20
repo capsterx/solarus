@@ -206,9 +206,14 @@ MainLoop::MainLoop(const Arguments& args):
   // Do this after the creation of the window, but before showing the window,
   // because Lua might change the video mode initially.
   lua_context = std::unique_ptr<LuaContext>(new LuaContext(*this));
-  //Video::show_window();
-  lua_context->initialize(args);
-  //Video::hide_window();
+
+  if(Video::get_renderer().needs_window_workaround()) {
+    Video::show_window();
+    lua_context->initialize(args);
+    Video::hide_window();
+  } else {
+    lua_context->initialize(args);
+  }
 
   // Set up the Lua console.
   const std::string& lua_console_arg = args.get_argument_value("-lua-console");

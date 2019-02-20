@@ -101,7 +101,7 @@ Shader::Shader(const std::string& shader_id):
   data(),
   vertex_source(),
   fragment_source(),
-  valid(true),
+  valid(false),
   error() {
 
   // Load the shader data file.
@@ -148,7 +148,7 @@ Shader::Shader(const std::string& vertex_source,
   data(),
   vertex_source(vertex_source),
   fragment_source(fragment_source),
-  valid(true),
+  valid(false),
   error() {
   data.set_scaling_factor(scaling_factor);
 }

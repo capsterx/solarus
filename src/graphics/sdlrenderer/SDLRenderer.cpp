@@ -38,7 +38,7 @@ SDLRenderer::SDLRenderer(SDL_Renderer* a_renderer, bool shaders) : renderer(a_re
   instance = this; //Set this renderer as the unique instance
 }
 
-RendererPtr SDLRenderer::create(SDL_Window* window) {
+RendererPtr SDLRenderer::create(SDL_Window* window, bool force_software) {
   if(!window) {
     //No window... asked for a software renderer
     return RendererPtr(new SDLRenderer(nullptr,false));
@@ -47,13 +47,19 @@ RendererPtr SDLRenderer::create(SDL_Window* window) {
   // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
   SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
 
+  if(force_software) {
+    SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "software", SDL_HINT_OVERRIDE);
+  }
+
   // Set the default OpenGL built-in shader (nearest).
   SDL_SetHint(SDL_HINT_RENDER_OPENGL_SHADERS, "1");
 
-  auto renderer = SDL_CreateRenderer(
-        window,
-        -1,
-        SDL_RENDERER_ACCELERATED);
+  SDL_Renderer* renderer = force_software ?
+        nullptr :
+        SDL_CreateRenderer(
+          window,
+          -1,
+          SDL_RENDERER_ACCELERATED);
   if(not renderer) {
     renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_SOFTWARE);
   }
@@ -61,7 +67,7 @@ RendererPtr SDLRenderer::create(SDL_Window* window) {
     return nullptr;
   } else {
     //Init shaders
-    bool shaders = SDLShader::initialize();
+    bool shaders = not force_software and SDLShader::initialize();
 
     auto size = Video::get_quest_size();
     SDL_RenderSetLogicalSize(renderer,size.width,size.height);
@@ -85,15 +91,14 @@ SurfaceImplPtr SDLRenderer::create_window_surface(SDL_Window* /*w*/, int width, 
 }
 
 ShaderPtr SDLRenderer::create_shader(const std::string& shader_id) {
-  return shaders ? std::make_shared<SDLShader>(shader_id) : nullptr;
+  return std::make_shared<SDLShader>(shader_id);
 }
 
 ShaderPtr SDLRenderer::create_shader(const std::string& vertex_source, const std::string& fragment_source, double scaling_factor) {
-  return shaders ? std::make_shared<SDLShader>(
+  return std::make_shared<SDLShader>(
                      vertex_source,
                      fragment_source,
-                     scaling_factor) :
-                   nullptr;
+                     scaling_factor);
 }
 
 void SDLRenderer::set_render_target(SDL_Texture* target) {

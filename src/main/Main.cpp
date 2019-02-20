@@ -68,6 +68,10 @@ void print_help(const Arguments& args) {
     << "  -turbo=yes|no                 runs as fast as possible rather than simulating real time (default no)"
     << std::endl
     << "  -lag=X                        slows down each frame of X milliseconds to simulate slower systems for debugging (default 0)"
+    << std::endl
+    << "  -s=<script>                   set a script to be executed before the main.lua of the quest."
+    << std::endl
+    << "  -force-software-rendering     force the engine to use SDL software rendering. Disabling opengl."
     << std::endl;
 }
 

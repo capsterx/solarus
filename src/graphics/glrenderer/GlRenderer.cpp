@@ -107,7 +107,11 @@ GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
   Debug::check_assertion(static_cast<bool>(main_shader),"Failed to compile glRenderer main shader");
 }
 
-RendererPtr GlRenderer::create(SDL_Window* window) {
+RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
+
+  if(force_software) {
+    return nullptr; // this renderer does not support software rendering
+  }
   //TODO add special case for raspberry and so on
 #ifdef ANDROID
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
@@ -314,14 +318,18 @@ void GlRenderer::fill(SurfaceImpl& dst, const Color& color, const Rectangle& whe
 
 void GlRenderer::invalidate(const SurfaceImpl& surf) {
   const GlTexture* tex = &surf.as<GlTexture>();
-  //TODO
-  if(tex == current_target) {
+
+  if(tex == current_target) { //current target goes down, ignore last write
+    buffered_sprites = 0; //Trash pending batch, after all dst is destroyed
     current_target = nullptr;
   }
 
   if(tex == current_texture) {
+    restart_batch(); //Quickly write the texture before it dies
     current_texture = nullptr;
   }
+
+  tex->release(); // actually free texture memory
 }
 
 std::string GlRenderer::get_name() const {

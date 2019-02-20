@@ -151,6 +151,16 @@ void MainWindow::update_fullscreen_action() {
 }
 
 /**
+ * @brief Updates the force software action with the current settings.
+ */
+void MainWindow::update_force_software_action() {
+  Settings settings;
+
+  bool force_software = settings.value("force_software_rendering", false).toBool();
+  ui.action_force_software->setChecked(force_software);
+}
+
+/**
  * @brief Receives a window close event.
  * @param event The event to handle.
  */
@@ -335,6 +345,13 @@ void MainWindow::on_action_fullscreen_triggered() {
     QString command = QString("sol.video.set_fullscreen(%1)").arg(fullscreen ? "true" : "false");
     ui.console->execute_command(command);
   }
+}
+
+void MainWindow::on_action_force_software_triggered() {
+  bool force = ui.action_force_software->isChecked();
+
+  Settings settings;
+  settings.setValue("force_software_rendering", force);
 }
 
 /**

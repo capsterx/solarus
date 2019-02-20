@@ -26,10 +26,7 @@
 #include <string>
 
 struct SDL_PixelFormat;
-struct SDL_Renderer;
 struct SDL_Window;
-struct SDL_Renderer;
-struct SDL_Texture;
 struct SDL_PixelFormat;
 
 namespace Solarus {
