@@ -65,12 +65,14 @@ local interpreter = {
   api = {"baselib", "solarus","solarus_map"},
   frun = function(self,wfilename, rundebug)
     local projdir = self:fworkdir(wfilename)
+    local datalessdir = projdir:match('(.*)/data.*$') or projdir --remove data folder if present
+    
     
     local debuggerPath = ide:GetRootPath("lualibs/mobdebug/?.lua")
     local packagePath = ide:GetPackagePath("?.lua")
     
     local engine_cmd = ide.solarus_path or "solarus-run" --TODO take windows (and mac) into account
-    local cmd = string.format("%s %s",engine_cmd,projdir)
+    local cmd = string.format("%s '%s'",engine_cmd,datalessdir)
     if rundebug then
       ide:GetDebugger():SetOptions({runstart = true})
       --adapt command to run debug connection
@@ -78,7 +80,7 @@ local interpreter = {
 [=[local path=package.path;package.path=[[%s;%s;]]..path;local mdb=require('mobdebug');require('solarus_pretty_printer');package.path=path;mdb.coro();mdb.start()]=],
         debuggerPath,
         packagePath)
-      cmd = string.format('%s -s="%s" %s',engine_cmd,code,projdir)
+      cmd = string.format('%s -s="%s" "%s"',engine_cmd,code,datalessdir)
     end
     CommandLineRun(cmd,projdir,true,false)
   end,
