@@ -308,7 +308,7 @@ void LuaContext::do_timer_callback(const TimerPtr& timer) {
   if (it != timers.end() &&
       !it->second.callback_ref.is_empty()) {
     ScopedLuaRef& callback_ref = it->second.callback_ref;
-    run_on_main([&](lua_State* l){ //Here l shadow previous l on purpose
+    run_on_main([&,timer](lua_State* l){ //Here l shadow previous l on purpose, capture timer by value to increase ref count
       if(callback_ref.is_empty()) {
         return; //Ref might be cleared meanwhile
       }
