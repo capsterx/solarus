@@ -111,7 +111,7 @@ set the CMake variable SOLARUS_USE_LUAJIT to OFF at the configuration step.
 - About ModPlug:
 
 We maintain a fork of libmodplug 0.8.8.4 here:
-https://github.com/christopho/liibmodplug
+https://gitlab.com/solarus-games/libmodplug
 Previous versions of libmodplug cause compilation problems as well as issues
 like .it musics that do not correctly loop.
 
