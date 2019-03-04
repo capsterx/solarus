@@ -79,6 +79,8 @@ namespace Video {
     std::string get_window_title();
     void set_window_title(const std::string& window_title);
 
+    void set_window_icon(SDL_Surface* icon);
+
     const ShaderPtr& get_shader();
     void set_shader(const ShaderPtr& shader);
 
