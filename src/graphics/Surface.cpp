@@ -207,6 +207,21 @@ SDL_Surface_UniquePtr Surface::create_sdl_surface_from_file(
 }
 
 /**
+ * @brief create_sdl_surface_from_memory
+ * @param data
+ * @param data_len
+ * @return
+ */
+SDL_Surface_UniquePtr Surface::create_sdl_surface_from_memory(
+    void* data,
+    size_t data_len
+    ) {
+  SDL_RWops* rw = SDL_RWFromMem(data, data_len);
+  SDL_Surface* surface = IMG_Load_RW(rw, true);
+  return SDL_Surface_UniquePtr{surface};
+}
+
+/**
  * \brief Creates a surface implemetation corresponding to the requested file.
  * \param file_name Name of the image file to load, relative to the base directory specified.
  * \param base_directory The base directory to use.

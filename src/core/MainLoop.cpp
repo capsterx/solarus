@@ -31,8 +31,11 @@
 #include "solarus/graphics/Color.h"
 #include "solarus/graphics/Surface.h"
 #include "solarus/graphics/Video.h"
+#include "solarus/graphics/quest_icon.h"
+
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
+
 #include <lua.hpp>
 #include <clocale>
 #include <sstream>
@@ -235,6 +238,9 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Start loading resources in background.
   resource_provider.start_preloading_resources();
+
+  // Display the game icon as window icon (if any)
+  setup_game_icon();
 
   // Show the window.
   Video::show_window();
@@ -505,6 +511,34 @@ void MainLoop::check_input() {
     }
     lua_commands.clear();
   }
+}
+
+void MainLoop::setup_game_icon() {
+  static const std::vector<std::string> file_names = {
+    "logos/icon_1024.png",
+    "logos/icon_512.png",
+    "logos/icon_256.png",
+    "logos/icon_128.png",
+    "logos/icon_64.png",
+    "logos/icon_48.png",
+    "logos/icon_32.png",
+    "logos/icon_24.png",
+    "logos/icon_16.png"
+  };
+
+  for(const auto& file : file_names) {
+    SDL_Surface_UniquePtr surface = Surface::create_sdl_surface_from_file(file);
+    if(surface) {
+      Video::set_window_icon(surface.get());
+      return;
+    }
+  }
+
+  //else try to use default icon
+  SDL_Surface_UniquePtr surface = Surface::create_sdl_surface_from_memory(quest_icon_data, quest_icon_data_len);
+  Debug::check_assertion(bool(surface), "Could not load built-in icon");
+
+  Video::set_window_icon(surface.get());
 }
 
 /**

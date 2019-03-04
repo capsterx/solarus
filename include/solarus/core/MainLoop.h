@@ -66,6 +66,7 @@ class SOLARUS_API MainLoop {
     void draw();
     void update();
 
+    void setup_game_icon();
     void load_quest_properties();
     void initialize_lua_console();
     void quit_lua_console();
