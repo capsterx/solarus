@@ -1315,7 +1315,7 @@ int LuaContext::entity_api_overlaps(lua_State* l) {
       }
       else {
         LuaTools::arg_error(l, 3,
-            std::string("Invalid name '") + lua_tostring(l, 2) + "'"
+            std::string("Invalid name '") + collision_mode_name + "'"
         );
       }
 
