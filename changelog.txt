@@ -14,6 +14,7 @@ teletransporter (#1353).
 * Fix incorrect mapping from window coords to quest coords (#1340).
 * Fix FindOpengl complaining about GLVND vs GLX choice (#1320).
 * Fix entity:overlaps(...) crashing when given bad collision mode (#1041).
+* Fix hero being hurt while in spiral stairs (#1038).
 __________________________
 
 Solarus 1.6.0 (2018-12-22)

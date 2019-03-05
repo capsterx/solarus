@@ -197,13 +197,6 @@ void Hero::StairsState::update() {
     if (hero.get_movement()->is_finished()) {
       hero.clear_movement();
 
-      if (carried_object == nullptr) {
-        hero.set_state(std::make_shared<FreeState>(hero));
-      }
-      else {
-        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
-      }
-
       if (way == Stairs::NORMAL_WAY) {
         // we are on the old floor:
         // there must be a teletransporter associated with these stairs,
@@ -221,6 +214,13 @@ void Hero::StairsState::update() {
       else {
         // we are on the new floor: everything is finished
         sprites.set_clipping_rectangle();
+      }
+
+      if (carried_object == nullptr) {
+        hero.set_state(std::make_shared<FreeState>(hero));
+      }
+      else {
+        hero.set_state(std::make_shared<CarryingState>(hero, carried_object));
       }
     }
     else { // movement not finished yet
