@@ -130,6 +130,7 @@ set(lua_test_maps
   "bugs/1291_hero_start_attack_loading"
   "bugs/1301_state_set_can_be_hurt_function"
   "bugs/1319_disabled_entity_timer_unsuspended"
+  "bugs/1354_crash_start_movement"
 )
 
 # Test that should not fail when there are errors.
