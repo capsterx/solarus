@@ -1,0 +1,79 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 72,
+  y = 64,
+  width = 16,
+  height = 16,
+  pattern = "5",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 80,
+  y = 93,
+  direction = 1,
+}
+
+stairs{
+  layer = 0,
+  x = 72,
+  y = 64,
+  direction = 1,
+  subtype = 0,
+}
+
+enemy{
+  layer = 0,
+  x = 92,
+  y = 73,
+  direction = 0,
+  breed = "slime_green",
+}
+
+teletransporter{
+  layer = 0,
+  x = 72,
+  y = 64,
+  width = 16,
+  height = 16,
+  destination_map = "bugs/1038_hero_hurt_in_stairs",
+  destination = "destination_2",
+}
+
+destination{
+  name = "destination_2",
+  layer = 0,
+  x = 176,
+  y = 165,
+  direction = 1,
+}
+
+sensor{
+  name = "arrival",
+  layer = 0,
+  x = 176,
+  y = 165,
+  width = 16,
+  height = 16,
+}
+

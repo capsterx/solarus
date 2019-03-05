@@ -133,6 +133,7 @@ set(lua_test_maps
   "bugs/1354_crash_start_movement"
   "bugs/1353_water_no_flippers"
   "bugs/1041_crash_entity_overlaps"
+  "bugs/1038_hero_hurt_in_stairs"
 )
 
 # Test that should not fail when there are errors.
