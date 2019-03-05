@@ -3,6 +3,9 @@
 # Whether LuaJIT should be used instead of vanilla Lua.
 option(SOLARUS_USE_LUAJIT "Use LuaJIT instead of default Lua (recommended)" ON)
 
+# Tell FindOpengl to use modern GL lib system
+set(OpenGL_GL_PREFERENCE GLVND)
+
 # Find dependencies.
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 find_package(SDL2 REQUIRED)
