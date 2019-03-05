@@ -10,7 +10,8 @@ Engine changes
 * Add `-force-software-rendering` switch to solarus-run (stdgregwar)
 * Fix crash when starting a hero movement from hero:on_state_changed (#1354).
 * Fix crash when starting drowning on a map after falling into a
-teletransporter (#1353)
+teletransporter (#1353).
+* Fix incorrect mapping from window coords to quest coords (#1340).
 __________________________
 
 Solarus 1.6.0 (2018-12-22)

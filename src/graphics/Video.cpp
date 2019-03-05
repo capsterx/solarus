@@ -227,7 +227,7 @@ void initialize(const Arguments& args) {
   }
 
   // Create a pixel format anyway to make surface and color operations work,
-  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888); 
+  context.rgba_format = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
 
   if (context.disable_window) {
     context.renderer = SDLRenderer::create(nullptr, true); //Create window-less sdl renderer
@@ -800,13 +800,7 @@ const SoftwareVideoMode* get_video_mode_by_name(
  * \return The size of the window in pixels.
  */
 Size get_window_size() {
-
   Debug::check_assertion(context.main_window != nullptr, "No window");
-
-  if (is_fullscreen()) {
-    // Returns the memorized window size.
-    return context.geometry.window_size;
-  }
 
   // Returns the current window size.
   int width = 0;
