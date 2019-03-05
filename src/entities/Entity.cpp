@@ -2429,7 +2429,7 @@ void Entity::notify_movement_finished() {
  */
 void Entity::notify_movement_changed() {
 
-  if (are_movement_notifications_enabled()) {
+  if (are_movement_notifications_enabled() && get_movement()) {
     get_lua_context()->entity_on_movement_changed(*this, *get_movement());
   }
 }
