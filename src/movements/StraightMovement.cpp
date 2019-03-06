@@ -97,6 +97,8 @@ void StraightMovement::set_x_speed(double x_speed) {
   this->x_speed = x_speed;
   uint32_t now = System::now();
 
+  uint32_t to_go = y_delay - (next_move_date_x - now);
+
   // compute x_delay, x_move and next_move_date_x
   if (x_speed == 0) {
     x_move = 0;
@@ -110,7 +112,7 @@ void StraightMovement::set_x_speed(double x_speed) {
       x_delay = (uint32_t) (1000 / (-x_speed));
       x_move = -1;
     }
-    set_next_move_date_x(now + x_delay);
+    set_next_move_date_x(now + x_delay - to_go); //Substract the already waited time
   }
   angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
   initial_xy = get_xy();
@@ -132,6 +134,8 @@ void StraightMovement::set_y_speed(double y_speed) {
   this->y_speed = y_speed;
   uint32_t now = System::now();
 
+  uint32_t to_go = y_delay - (next_move_date_y - now);
+
   // compute y_delay, y_move and next_move_date_y
   if (y_speed == 0) {
     y_move = 0;
@@ -145,7 +149,7 @@ void StraightMovement::set_y_speed(double y_speed) {
       y_delay = (uint32_t) (1000 / (-y_speed));
       y_move = -1;
     }
-    set_next_move_date_y(now + y_delay);
+    set_next_move_date_y(now + y_delay-to_go); //Substract already waited time
   }
   angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
   initial_xy = get_xy();
