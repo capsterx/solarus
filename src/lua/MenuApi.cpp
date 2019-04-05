@@ -70,6 +70,12 @@ void LuaContext::add_menu(
   ScopedLuaRef context = LuaTools::create_ref(current_l,context_index);
   Debug::check_assertion(!context.is_empty(), "creating context with empty context");
 
+  if(std::count_if(menus.begin(), menus.end(),[&](const LuaMenuData& menu){
+                   return menu.ref == menu_ref;
+  })){
+    LuaTools::error(current_l, "Cannot start an already started menu");
+  }
+
   run_on_main([this, on_top, context, menu_ref](lua_State*) {
     if (on_top) {
       menus.emplace_back(menu_ref, context);

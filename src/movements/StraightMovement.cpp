@@ -88,17 +88,20 @@ double StraightMovement::get_speed() const {
  * \brief Sets the x speed.
  * \param x_speed the x speed of the object in pixels per second
  */
-void StraightMovement::set_x_speed(double x_speed, bool angle_changed) {
+void StraightMovement::set_x_speed(double x_speed, double keep_factor) {
 
   if (std::abs(x_speed) <= 1E-6) {
     x_speed = 0;
   }
 
-  this->x_speed = x_speed;
+
   uint32_t now = System::now();
 
-  uint32_t to_go = angle_changed ? 0 : y_delay - (next_move_date_x - now);
+  int64_t remaining = int64_t(x_delay) - (int64_t(next_move_date_x) - int64_t(now));
+  //if speed was 0, don't even try to compensate
+  int64_t to_go = this->x_speed != 0.0 ? keep_factor * remaining : 0;
 
+  this->x_speed = x_speed;
   // compute x_delay, x_move and next_move_date_x
   if (x_speed == 0) {
     x_move = 0;
@@ -125,16 +128,19 @@ void StraightMovement::set_x_speed(double x_speed, bool angle_changed) {
  * \brief Sets the y speed.
  * \param y_speed the y speed of the object in pixels per second
  */
-void StraightMovement::set_y_speed(double y_speed, bool angle_changed) {
+void StraightMovement::set_y_speed(double y_speed, double keep_factor) {
 
   if (std::abs(y_speed) <= 1E-6) {
     y_speed = 0;
   }
 
-  this->y_speed = y_speed;
   uint32_t now = System::now();
 
-  uint32_t to_go = angle_changed ? 0 : y_delay - (next_move_date_y - now);
+  int64_t remaining = int64_t(y_delay) - (int64_t(next_move_date_y) - int64_t(now));
+   //if speed was 0, don't even try to compensate
+  int64_t to_go = this->y_speed != 0.0 ? keep_factor * remaining : 0;
+
+  this->y_speed = y_speed;
 
   // compute y_delay, y_move and next_move_date_y
   if (y_speed == 0) {
@@ -169,8 +175,8 @@ void StraightMovement::set_speed(double speed) {
 
   // compute the new speed vector
   double old_angle = this->angle;
-  set_x_speed(speed * std::cos(old_angle), is_stopped());
-  set_y_speed(-speed * std::sin(old_angle), is_stopped());
+  set_x_speed(speed * std::cos(old_angle), is_stopped() ? 0.0 : 1.0);
+  set_y_speed(-speed * std::sin(old_angle), is_stopped() ? 0.0 : 1.0);
   this->angle = old_angle;
 
   notify_movement_changed();
@@ -248,8 +254,9 @@ void StraightMovement::set_angle(double angle) {
 
   if (!is_stopped()) {
     double speed = get_speed();
-    set_x_speed(speed * std::cos(angle), true);
-    set_y_speed(-speed * std::sin(angle), true);
+    double dot = std::cos(std::fabs(angle-this->angle));
+    set_x_speed(speed * std::cos(angle), dot);
+    set_y_speed(-speed * std::sin(angle), dot);
   }
   this->angle = angle;
 

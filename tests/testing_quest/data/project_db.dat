@@ -10,6 +10,7 @@ map{ id = "bugs/1037_stairs_methods", description = "#1037: Stairs methods" }
 map{ id = "bugs/1038_hero_hurt_in_stairs", description = "#1038: The hero can be hurt while taking spiral stairs" }
 map{ id = "bugs/1041_crash_entity_overlaps", description = "#1041: Crash when entity:overlaps is called with invalid value" }
 map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "#1042: Facing entity is random when multiple ones overlap" }
+map{ id = "bugs/1044_sol_menu_multiple_start", description = "#1044 : menus can be started multiple times" }
 map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
 map{ id = "bugs/1075_straight_movement_set_max_distance_tables", description = "#1075: straight_movement:set_max_distance() not working on tables" }
 map{ id = "bugs/1076_treasure_dialog_optional", description = "#1076: Treasure dialog should be optional" }
