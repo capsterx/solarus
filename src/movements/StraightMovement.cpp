@@ -88,7 +88,7 @@ double StraightMovement::get_speed() const {
  * \brief Sets the x speed.
  * \param x_speed the x speed of the object in pixels per second
  */
-void StraightMovement::set_x_speed(double x_speed) {
+void StraightMovement::set_x_speed(double x_speed, bool angle_changed) {
 
   if (std::abs(x_speed) <= 1E-6) {
     x_speed = 0;
@@ -97,7 +97,7 @@ void StraightMovement::set_x_speed(double x_speed) {
   this->x_speed = x_speed;
   uint32_t now = System::now();
 
-  uint32_t to_go = y_delay - (next_move_date_x - now);
+  uint32_t to_go = angle_changed ? 0 : y_delay - (next_move_date_x - now);
 
   // compute x_delay, x_move and next_move_date_x
   if (x_speed == 0) {
@@ -125,7 +125,7 @@ void StraightMovement::set_x_speed(double x_speed) {
  * \brief Sets the y speed.
  * \param y_speed the y speed of the object in pixels per second
  */
-void StraightMovement::set_y_speed(double y_speed) {
+void StraightMovement::set_y_speed(double y_speed, bool angle_changed) {
 
   if (std::abs(y_speed) <= 1E-6) {
     y_speed = 0;
@@ -134,7 +134,7 @@ void StraightMovement::set_y_speed(double y_speed) {
   this->y_speed = y_speed;
   uint32_t now = System::now();
 
-  uint32_t to_go = y_delay - (next_move_date_y - now);
+  uint32_t to_go = angle_changed ? 0 : y_delay - (next_move_date_y - now);
 
   // compute y_delay, y_move and next_move_date_y
   if (y_speed == 0) {
@@ -169,8 +169,8 @@ void StraightMovement::set_speed(double speed) {
 
   // compute the new speed vector
   double old_angle = this->angle;
-  set_x_speed(speed * std::cos(old_angle));
-  set_y_speed(-speed * std::sin(old_angle));
+  set_x_speed(speed * std::cos(old_angle), is_stopped());
+  set_y_speed(-speed * std::sin(old_angle), is_stopped());
   this->angle = old_angle;
 
   notify_movement_changed();
@@ -248,8 +248,8 @@ void StraightMovement::set_angle(double angle) {
 
   if (!is_stopped()) {
     double speed = get_speed();
-    set_x_speed(speed * std::cos(angle));
-    set_y_speed(-speed * std::sin(angle));
+    set_x_speed(speed * std::cos(angle), true);
+    set_y_speed(-speed * std::sin(angle), true);
   }
   this->angle = angle;
 
