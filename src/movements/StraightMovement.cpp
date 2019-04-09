@@ -88,15 +88,20 @@ double StraightMovement::get_speed() const {
  * \brief Sets the x speed.
  * \param x_speed the x speed of the object in pixels per second
  */
-void StraightMovement::set_x_speed(double x_speed) {
+void StraightMovement::set_x_speed(double x_speed, double keep_factor) {
 
   if (std::abs(x_speed) <= 1E-6) {
     x_speed = 0;
   }
 
-  this->x_speed = x_speed;
+
   uint32_t now = System::now();
 
+  int64_t remaining = int64_t(x_delay) - (int64_t(next_move_date_x) - int64_t(now));
+  //if speed was 0, don't even try to compensate
+  int64_t to_go = this->x_speed != 0.0 ? keep_factor * remaining : 0;
+
+  this->x_speed = x_speed;
   // compute x_delay, x_move and next_move_date_x
   if (x_speed == 0) {
     x_move = 0;
@@ -110,7 +115,7 @@ void StraightMovement::set_x_speed(double x_speed) {
       x_delay = (uint32_t) (1000 / (-x_speed));
       x_move = -1;
     }
-    set_next_move_date_x(now + x_delay);
+    set_next_move_date_x(now + x_delay - to_go); //Substract the already waited time
   }
   angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
   initial_xy = get_xy();
@@ -123,14 +128,19 @@ void StraightMovement::set_x_speed(double x_speed) {
  * \brief Sets the y speed.
  * \param y_speed the y speed of the object in pixels per second
  */
-void StraightMovement::set_y_speed(double y_speed) {
+void StraightMovement::set_y_speed(double y_speed, double keep_factor) {
 
   if (std::abs(y_speed) <= 1E-6) {
     y_speed = 0;
   }
 
-  this->y_speed = y_speed;
   uint32_t now = System::now();
+
+  int64_t remaining = int64_t(y_delay) - (int64_t(next_move_date_y) - int64_t(now));
+   //if speed was 0, don't even try to compensate
+  int64_t to_go = this->y_speed != 0.0 ? keep_factor * remaining : 0;
+
+  this->y_speed = y_speed;
 
   // compute y_delay, y_move and next_move_date_y
   if (y_speed == 0) {
@@ -145,7 +155,7 @@ void StraightMovement::set_y_speed(double y_speed) {
       y_delay = (uint32_t) (1000 / (-y_speed));
       y_move = -1;
     }
-    set_next_move_date_y(now + y_delay);
+    set_next_move_date_y(now + y_delay-to_go); //Substract already waited time
   }
   angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
   initial_xy = get_xy();
@@ -165,8 +175,8 @@ void StraightMovement::set_speed(double speed) {
 
   // compute the new speed vector
   double old_angle = this->angle;
-  set_x_speed(speed * std::cos(old_angle));
-  set_y_speed(-speed * std::sin(old_angle));
+  set_x_speed(speed * std::cos(old_angle), is_stopped() ? 0.0 : 1.0);
+  set_y_speed(-speed * std::sin(old_angle), is_stopped() ? 0.0 : 1.0);
   this->angle = old_angle;
 
   notify_movement_changed();
@@ -244,8 +254,9 @@ void StraightMovement::set_angle(double angle) {
 
   if (!is_stopped()) {
     double speed = get_speed();
-    set_x_speed(speed * std::cos(angle));
-    set_y_speed(-speed * std::sin(angle));
+    double dot = std::cos(std::fabs(angle-this->angle));
+    set_x_speed(speed * std::cos(angle), dot);
+    set_y_speed(-speed * std::sin(angle), dot);
   }
   this->angle = angle;
 
