@@ -31,7 +31,10 @@ You might be interested in our fangames created with Solarus:
 If you want to create your own games with the Solarus engine, see
 [Solarus Quest Editor](https://gitlab.com/solarus-games/solarus-quest-editor), our Solarus game creation software.
 
-See our [website](http://www.solarus-games.org) to get more
+See our [website](https://www.solarus-games.org) to get more
 information and documentation about using the Solarus engine.
-The compilation instructions can be found
-in the compilation.txt file or on the [website](http://www.solarus-games.org/source-code/compilation-instructions).
+
+
+### Compile Solarus
+
+To compile Solarus, instructions can be found in the compilation.txt file.
