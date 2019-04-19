@@ -6,6 +6,7 @@
 #define SOLARUS_GL_ES
 #else
 #include "solarus/third_party/glad/glad.h" //Only include glad to have GL work
+#include <SDL_video.h>
 #endif
 
 namespace Solarus { namespace Gl {
@@ -13,7 +14,7 @@ namespace Solarus { namespace Gl {
 #ifdef SOLARUS_GL_ES
       GLint major, minor;
       const char* version = (const char*)glGetString(GL_VERSION);
-      sscanf(version,"%d.%d", &major, &minor);
+      sscanf(version,"OpenGL ES %d.%d", &major, &minor);
       return {major, minor};
 #else
       GLint major = GLVersion.major; //Using GLVersion from glad
