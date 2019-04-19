@@ -113,7 +113,7 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
     return nullptr; // this renderer does not support software rendering
   }
   //TODO add special case for raspberry and so on
-#ifdef ANDROID
+#ifdef SOLARUS_GL_ES
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
 #else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
@@ -135,13 +135,13 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   SDL_GL_SetSwapInterval(1);
   //Contex created, populate ctx
 
-  if(not gladLoadGLLoader(SDL_GL_GetProcAddress)) {
-    Debug::warning("failed to load gl 2.1 with glad");
+  if(not Gl::load()) {
+    Debug::warning("failed to load gl 2.1");
     SDL_GL_DeleteContext(sdl_ctx);
     return nullptr;
   }
 
-  if(not GLAD_GL_ARB_framebuffer_object) {
+  if(not Gl::has_framebuffer()) {
     Debug::warning("failed to load framebuffer extension");
     SDL_GL_DeleteContext(sdl_ctx);
     return nullptr;
@@ -171,11 +171,6 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   //Context populated create Renderer
   std::cerr << SDL_GetError();
   return RendererPtr(new GlRenderer(sdl_ctx));
-}
-
-bool GlRenderer::use_vao() const {
-  //If extension found, use it
-  return GLAD_GL_ARB_vertex_array_object;
 }
 
 SurfaceImplPtr GlRenderer::create_texture(int width, int height) {
@@ -209,7 +204,7 @@ void GlRenderer::set_render_target(GlTexture* target) {
       glViewport(0,0,
                      target->get_width(),
                      target->get_height());
-#ifndef ANDROID
+#ifndef SOLARUS_GL_ES
       Debug::check_assertion(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
 #endif
     } else { //Render to screen
@@ -355,8 +350,8 @@ const DrawProxy& GlRenderer::default_terminal() const {
 }
 
 GlRenderer::~GlRenderer() {
-  if(use_vao()) {
-    glDeleteVertexArrays(1,&vao); //TODO delete rest
+  if(Gl::use_vao()) {
+    Gl::DeleteVertexArrays(1,&vao); //TODO delete rest
   }
   SDL_GL_DeleteContext(sdl_gl_context);
   instance = nullptr;
@@ -593,9 +588,9 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
-  if(use_vao()) {
-    glGenVertexArrays(1,&vao); //TODO for android ifndef this
-    glBindVertexArray(vao);
+  if(Gl::use_vao()) {
+    Gl::GenVertexArrays(1,&vao); //TODO for android ifndef this
+    Gl::BindVertexArray(vao);
   }
 
   glGenBuffers(1,&vbo);

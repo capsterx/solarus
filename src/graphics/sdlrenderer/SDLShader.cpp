@@ -41,7 +41,7 @@ VertexArray SDLShader::screen_quad(TRIANGLES);
  * \return \c true if GL 2D shaders are supported.
  */
 bool SDLShader::initialize() {
-  if(not gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+  if(not Gl::load()) {
     Logger::info("Failed to initialize SDL shader Hack. Shaders unavailable.");
     return false;
   }

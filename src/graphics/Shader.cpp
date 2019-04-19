@@ -31,7 +31,7 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <sstream>
 
-#include "solarus/third_party/glad/glad.h"
+#include "solarus/graphics/SolarusGl.h"
 
 namespace Solarus {
 
@@ -39,8 +39,9 @@ std::string Shader::version_string;
 
 
 void Shader::setup_version_string() {
-  GLint major = GLVersion.major; //Using GLVersion from glad
-  GLint minor = GLVersion.minor;
+  auto version = Gl::getVersion();
+  GLint major = version.first;
+  GLint minor = version.second;
 
   auto make_number = [&](int major,int minor) -> std::string {
     std::string version((const char *)glGetString(GL_VERSION));
@@ -80,8 +81,8 @@ void Shader::setup_version_string() {
     }
   };
 
-  std::string version = make_number(major,minor);
-  version_string = "#version " + version + "\n";
+  std::string version_str = make_number(major,minor);
+  version_string = "#version " + version_str + "\n";
 }
 
 std::string Shader::sanitize_shader_source(const std::string &source) {

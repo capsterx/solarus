@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "solarus/third_party/glad/glad.h" //Only include glad to have GL work
+#include "../SolarusGl.h"
 
 namespace Solarus {
 
