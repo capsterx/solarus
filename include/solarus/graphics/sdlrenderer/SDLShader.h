@@ -30,7 +30,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "solarus/third_party/glad/glad.h"
+#include "../SolarusGl.h"
 
 namespace Solarus {
 

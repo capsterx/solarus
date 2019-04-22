@@ -10,7 +10,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 
-#include "solarus/third_party/glad/glad.h"
+#include "SolarusGl.h"
 
 namespace Solarus {
 
