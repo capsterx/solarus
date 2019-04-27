@@ -87,7 +87,10 @@ set(lua_test_maps
   "bugs/1026_door_sprite_higher_than_16"
   "bugs/1036_falling_again_after_bad_ground"
   "bugs/1037_stairs_methods"
+  "bugs/1038_hero_hurt_in_stairs"
+  "bugs/1041_crash_entity_overlaps"
   "bugs/1042_multiple_facing_entities_random_picked"
+  "bugs/1044_sol_menu_multiple_start"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1075_straight_movement_set_max_distance_tables"
   "bugs/1076_treasure_dialog_optional"
@@ -132,9 +135,7 @@ set(lua_test_maps
   "bugs/1319_disabled_entity_timer_unsuspended"
   "bugs/1354_crash_start_movement"
   "bugs/1353_water_no_flippers"
-  "bugs/1041_crash_entity_overlaps"
-  "bugs/1038_hero_hurt_in_stairs"
-  "bugs/1044_sol_menu_multiple_start"
+  "bugs/1361_crash_pickable_on_stream"
 )
 
 # Test that should not fail when there are errors.
