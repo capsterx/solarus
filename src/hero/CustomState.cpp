@@ -75,6 +75,9 @@ CustomState::CustomState(
   pushing_direction4(-1),
   start_pushing_date(0),
   can_pick_treasure(true),
+  can_take_teletransporter(true),
+  can_take_switch(true),
+  can_take_stream(true),
   can_take_stairs(true),
   can_take_jumper(true),
   current_jumper(nullptr),
@@ -1338,6 +1341,75 @@ bool CustomState::get_can_pick_treasure(EquipmentItem& /* item */) const {
  */
 void CustomState::set_can_pick_treasure(bool can_pick_treasure) {
   this->can_pick_treasure = can_pick_treasure;
+}
+
+/**
+ * \copydoc EntityState::can_avoid_teletransporter
+ */
+bool CustomState::can_avoid_teletransporter() const {
+  return !get_can_take_teletransporter();
+}
+
+/**
+ * \brief Returns whether teletransporters can be used during this state.
+ * \return \c true if teletransporters are allowed.
+ */
+bool CustomState::get_can_take_teletransporter() const {
+  return can_take_teletransporter;
+}
+
+/**
+ * \brief Sets whether teletransporters can be used during this state.
+ * \param can_take_teletransporter \c true to allow teletransporters.
+ */
+void CustomState::set_can_take_teletransporter(bool can_take_teletransporter) {
+  this->can_take_teletransporter = can_take_teletransporter;
+}
+
+/**
+ * \copydoc EntityState::can_avoid_switch
+ */
+bool CustomState::can_avoid_switch() const {
+  return !get_can_take_switch();
+}
+
+/**
+ * \brief Returns whether switches can be used during this state.
+ * \return \c true if switches are allowed.
+ */
+bool CustomState::get_can_take_switch() const {
+  return can_take_switch;
+}
+
+/**
+ * \brief Sets whether switches can be used during this state.
+ * \param can_take_switch \c true to allow switches.
+ */
+void CustomState::set_can_take_switch(bool can_take_switch) {
+  this->can_take_switch = can_take_switch;
+}
+
+/**
+ * \copydoc EntityState::get_can_take_stream
+ */
+bool CustomState::can_avoid_stream(const Stream& /* stream */) const {
+  return !get_can_take_stream();
+}
+
+/**
+ * \brief Returns whether streams can be used during this state.
+ * \return \c true if streams are allowed.
+ */
+bool CustomState::get_can_take_stream() const {
+  return can_take_stream;
+}
+
+/**
+ * \brief Sets whether streams can be used during this state.
+ * \param can_take_stream \c true to allow streams.
+ */
+void CustomState::set_can_take_stream(bool can_take_stream) {
+  this->can_take_stream = can_take_stream;
 }
 
 /**

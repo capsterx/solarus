@@ -59,7 +59,6 @@ class Hero::JumpingState: public HeroState {
     bool can_avoid_prickle() const override;
     bool can_avoid_teletransporter() const override;
     bool can_avoid_stream(const Stream& stream) const override;
-    bool can_avoid_sensor() const override;
     bool can_avoid_switch() const override;
     bool get_can_be_hurt(Entity* attacker) override;
     std::shared_ptr<CarriedObject> get_carried_object() const override;

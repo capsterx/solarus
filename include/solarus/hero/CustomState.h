@@ -154,6 +154,15 @@ class CustomState: public HeroState {
     bool get_can_pick_treasure() const;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
     void set_can_pick_treasure(bool can_pick_treasure);
+    bool can_avoid_teletransporter() const override;
+    bool get_can_take_teletransporter() const;
+    void set_can_take_teletransporter(bool can_take_teletransporter);
+    bool can_avoid_switch() const override;
+    bool get_can_take_switch() const;
+    void set_can_take_switch(bool can_take_switch);
+    bool can_avoid_stream(const Stream& stream) const override;
+    bool get_can_take_stream() const;
+    void set_can_take_stream(bool can_take_stream);
     bool get_can_take_stairs() const override;
     void set_can_take_stairs(bool can_take_stairs);
     bool get_can_take_jumper() const override;
@@ -217,6 +226,9 @@ class CustomState: public HeroState {
                                             * push an obstacle: 0 to 3 or -1 */
     uint32_t start_pushing_date;           /**< Date when state pushing should start. */
     bool can_pick_treasure;                /**< Whether treasures can be picked in this state. */
+    bool can_take_teletransporter;         /**< Whether teletransporters can be used in this state. */
+    bool can_take_switch;                  /**< Whether switches can be used in this state. */
+    bool can_take_stream;                  /**< Whether streams can be used in this state. */
     bool can_take_stairs;                  /**< Whether stairs can be used in this state. */
     bool can_take_jumper;                  /**< Whether jumpers can be used in this state. */
     std::shared_ptr<Jumper>

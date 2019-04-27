@@ -89,6 +89,12 @@ void LuaContext::register_state_module() {
     { "set_pushing_delay", state_api_set_pushing_delay },
     { "get_can_pick_treasure", state_api_get_can_pick_treasure },
     { "set_can_pick_treasure", state_api_set_can_pick_treasure },
+    { "get_can_use_teletransporter", state_api_get_can_use_teletransporter },
+    { "set_can_use_teletransporter", state_api_set_can_use_teletransporter },
+    { "get_can_use_switch", state_api_get_can_use_switch },
+    { "set_can_use_switch", state_api_set_can_use_switch },
+    { "get_can_use_stream", state_api_get_can_use_stream },
+    { "set_can_use_stream", state_api_set_can_use_stream },
     { "get_can_use_stairs", state_api_get_can_use_stairs },
     { "set_can_use_stairs", state_api_set_can_use_stairs },
     { "get_can_use_jumper", state_api_get_can_use_jumper },
@@ -1050,6 +1056,102 @@ int LuaContext::state_api_set_can_pick_treasure(lua_State* l) {
     bool can_pick_treasure = LuaTools::check_boolean(l, 2);
 
     state.set_can_pick_treasure(can_pick_treasure);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_teletransporter().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_teletransporter(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_teletransporter());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_teletransporter().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_teletransporter(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_teletransporter = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_teletransporter(can_take_teletransporter);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_switch().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_switch(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_switch());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_switch().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_switch(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_switch = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_switch(can_take_switch);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of state:get_can_use_stream().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_get_can_use_stream(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const CustomState& state = *check_state(l, 1);
+
+    lua_pushboolean(l, state.get_can_take_stream());
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of state:set_can_use_stream().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::state_api_set_can_use_stream(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    CustomState& state = *check_state(l, 1);
+    bool can_take_stream = LuaTools::check_boolean(l, 2);
+
+    state.set_can_take_stream(can_take_stream);
 
     return 0;
   });

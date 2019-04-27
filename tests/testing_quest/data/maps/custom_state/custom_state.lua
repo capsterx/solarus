@@ -65,6 +65,12 @@ local function test_state_methods_presence()
     "set_pushing_delay",
     "get_can_pick_treasure",
     "set_can_pick_treasure",
+    "get_can_use_teletransporter",
+    "set_can_use_teletransporter",
+    "get_can_use_switch",
+    "set_can_use_switch",
+    "get_can_use_stream",
+    "set_can_use_stream",
     "get_can_use_stairs",
     "set_can_use_stairs",
     "get_can_use_jumper",
@@ -219,6 +225,9 @@ local function test_state_methods(cont)
       test_setget("can_push", true, false)
       test_setget("pushing_delay", 0, 1000, 800)
       test_setget("can_pick_treasure", true, false)
+      test_setget("can_use_teletransporter", true, false)
+      test_setget("can_use_switch", true, false)
+      test_setget("can_use_stream", true, false)
       test_setget("can_use_stairs", true, false)
       test_setget("can_use_jumper", true, false)
       test_setget("carried_object_action", "throw", "remove", "keep")

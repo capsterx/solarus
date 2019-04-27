@@ -284,14 +284,6 @@ bool Hero::JumpingState::is_separator_obstacle(
 }
 
 /**
- * \brief Returns whether the hero ignores the effect of sensors in this state.
- * \return true if the hero ignores the effect of sensors in this state
- */
-bool Hero::JumpingState::can_avoid_sensor() const {
-  return false;
-}
-
-/**
  * \brief Returns whether the hero ignores the effect of switches in this state.
  * \return true if the hero ignores the effect of switches in this state
  */
