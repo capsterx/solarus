@@ -136,6 +136,7 @@ set(lua_test_maps
   "bugs/1354_crash_start_movement"
   "bugs/1353_water_no_flippers"
   "bugs/1361_crash_pickable_on_stream"
+  "bugs/1366_crash_disabled_stairs_on_dynamic_tile"
 )
 
 # Test that should not fail when there are errors.

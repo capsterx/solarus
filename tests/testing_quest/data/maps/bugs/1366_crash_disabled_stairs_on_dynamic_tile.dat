@@ -1,0 +1,46 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 1,
+}
+
+dynamic_tile{
+  layer = 0,
+  x = 16,
+  y = 48,
+  width = 32,
+  height = 32,
+  pattern = "67",
+}
+
+stairs{
+  name = "stairs",
+  layer = 0,
+  x = 24,
+  y = 56,
+  enabled_at_start = false,
+  direction = 1,
+  subtype = 4,
+}
+

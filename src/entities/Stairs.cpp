@@ -338,6 +338,10 @@ void Stairs::notify_enabled(bool enabled) {
 
   Entity::notify_enabled(enabled);
 
+  if (!is_on_map()) {
+    return;
+  }
+
   update_dynamic_tiles();
 }
 
