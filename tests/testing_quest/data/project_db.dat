@@ -61,6 +61,7 @@ map{ id = "bugs/1319_disabled_entity_timer_unsuspended", description = "#1319: T
 map{ id = "bugs/1353_water_no_flippers", description = "#1535: No flippers when arriving in deep water and callback" }
 map{ id = "bugs/1354_crash_start_movement", description = "#1354: Crash when starting a movement from hero:on_state_changed()" }
 map{ id = "bugs/1361_crash_pickable_on_stream", description = "#1361: Crash when a pickable overlaps a stream" }
+map{ id = "bugs/1364_state_set_can_use_stairs_not_working", description = "#1364: state:set_can_use_stairs() does not work when direction is locked" }
 map{ id = "bugs/1366_crash_disabled_stairs_on_dynamic_tile", description = "#1366: Crash when disabled stairs overlap a dynamic tile" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }

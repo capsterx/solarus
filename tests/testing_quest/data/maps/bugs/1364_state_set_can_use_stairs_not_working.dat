@@ -1,0 +1,79 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 32,
+  y = 40,
+  width = 16,
+  height = 24,
+  pattern = "4",
+}
+
+wall{
+  layer = 0,
+  x = 32,
+  y = 40,
+  width = 16,
+  height = 8,
+  stops_hero = true,
+  stops_npcs = true,
+  stops_enemies = true,
+  stops_blocks = true,
+  stops_projectiles = true,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 56,
+  y = 61,
+  direction = 1,
+}
+
+stairs{
+  layer = 0,
+  x = 32,
+  y = 48,
+  direction = 2,
+  subtype = 4,
+}
+
+wall{
+  layer = 0,
+  x = 32,
+  y = 64,
+  width = 16,
+  height = 8,
+  stops_hero = true,
+  stops_npcs = true,
+  stops_enemies = true,
+  stops_blocks = true,
+  stops_projectiles = true,
+}
+
+tile{
+  layer = 1,
+  x = 0,
+  y = 0,
+  width = 32,
+  height = 96,
+  pattern = "67",
+}
+

@@ -495,7 +495,7 @@ int CustomState::get_wanted_movement_direction8() const {
     return -1;
   }
 
-  if (!get_can_control_direction()) {
+  if (!get_can_control_movement()) {
     return -1;
   }
 
