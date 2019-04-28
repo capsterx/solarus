@@ -41,7 +41,7 @@ pickable{
 
 stream{
   layer = 0,
-  x = 56,
+  x = 72,
   y = 61,
   direction = 6,
   allow_movement = false,
@@ -51,8 +51,59 @@ stream{
 
 pickable{
   layer = 0,
-  x = 56,
+  x = 72,
   y = 61,
   treasure_name = "item_dialog_sprite",
+}
+
+stream{
+  layer = 0,
+  x = 40,
+  y = 61,
+  direction = 4,
+}
+
+stream{
+  layer = 0,
+  x = 40,
+  y = 77,
+  direction = 2,
+}
+
+stream{
+  layer = 0,
+  x = 24,
+  y = 77,
+  direction = 0,
+}
+
+stream{
+  layer = 0,
+  x = 72,
+  y = 77,
+  direction = 0,
+  allow_movement = false,
+  allow_attack = false,
+  allow_item = false,
+}
+
+stream{
+  layer = 0,
+  x = 88,
+  y = 77,
+  direction = 2,
+  allow_movement = false,
+  allow_attack = false,
+  allow_item = false,
+}
+
+stream{
+  layer = 0,
+  x = 88,
+  y = 61,
+  direction = 4,
+  allow_movement = false,
+  allow_attack = false,
+  allow_item = false,
 }
 
