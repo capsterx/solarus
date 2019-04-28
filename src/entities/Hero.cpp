@@ -242,12 +242,7 @@ void Hero::update_movement() {
   }
   // TODO clear_old_movements() is missing
 
-  if (has_stream_action()) {
-    get_stream_action()->update();
-    if (!get_stream_action()->is_active()) {
-      stop_stream_action();
-    }
-  }
+  update_stream_action();
 }
 
 /**

@@ -361,12 +361,14 @@ void Pickable::notify_collision_with_stream(
     Stream& stream, int /* dx */, int /* dy */) {
 
   if (has_stream_action()) {
-    get_stream_action()->update();
+    return;
   }
 
-  if (!has_stream_action()) {
-    stream.activate(*this);
+  if (!stream.overlaps(get_ground_point())) {
+    return;
   }
+
+  stream.activate(*this);
 }
 
 /**

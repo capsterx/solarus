@@ -440,6 +440,7 @@ class SOLARUS_API Entity: public ExportableToLua {
         Entity& entity_overlapping, CollisionMode collision_mode);
     virtual void notify_collision(
         Entity& other_entity, Sprite& this_sprite, Sprite& other_sprite);
+    void update_stream_action();
 
     // Obstacles.
     virtual bool is_traversable_obstacle() const;

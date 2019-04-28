@@ -13,6 +13,7 @@ Engine changes
 * Fix crash when starting drowning on a map after falling into a
 teletransporter (#1353).
 * Fix crash when stairs are disabled at map start with dynamic tiles (#1366).
+* Fix crash when pickable follow streams (#1361).
 * Fix OpenGL compatibility issues.
 * Fix FindOpengl complaining about GLVND vs GLX choice (#1320).
 * Fix incorrect mapping from window coords to quest coords (#1340).

@@ -1766,6 +1766,7 @@ void Entity::stop_stream_action() {
 
   old_stream_actions.emplace_back(std::move(stream_action));
   stream_action = nullptr;
+  check_collision_with_detectors();
 }
 
 /**
@@ -1774,6 +1775,20 @@ void Entity::stop_stream_action() {
 void Entity::clear_old_stream_actions() {
 
   old_stream_actions.clear();
+}
+
+/**
+ * \brief Updates the stream action of this entity if any.
+ */
+void Entity::update_stream_action() {
+
+  if (has_stream_action()) {
+    get_stream_action()->update();
+    if (get_stream_action() != nullptr && !get_stream_action()->is_active()) {
+      stop_stream_action();
+    }
+  }
+  clear_old_stream_actions();
 }
 
 /**
@@ -2368,6 +2383,10 @@ void Entity::check_collision_with_detectors() {
 
   if (!is_enabled()) {
     // The entity is disabled.
+    return;
+  }
+
+  if (is_being_removed()) {
     return;
   }
 
@@ -3679,14 +3698,7 @@ void Entity::update() {
     movement->update();
   }
   clear_old_movements();
-
-  if (stream_action != nullptr) {
-    stream_action->update();
-    if (stream_action != nullptr && !get_stream_action()->is_active()) {
-      stop_stream_action();
-    }
-  }
-  clear_old_stream_actions();
+  update_stream_action();
 
   // Update the state if any.
   update_state();

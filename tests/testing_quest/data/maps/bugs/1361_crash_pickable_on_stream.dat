@@ -17,6 +17,24 @@ tile{
   pattern = "3",
 }
 
+tile{
+  layer = 0,
+  x = 16,
+  y = 48,
+  width = 32,
+  height = 32,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 64,
+  y = 48,
+  width = 32,
+  height = 32,
+  pattern = "67",
+}
+
 destination{
   name = "destination",
   layer = 0,
@@ -33,6 +51,7 @@ stream{
 }
 
 pickable{
+  name = "pickable_1",
   layer = 0,
   x = 24,
   y = 61,
@@ -50,6 +69,7 @@ stream{
 }
 
 pickable{
+  name = "pickable_2",
   layer = 0,
   x = 72,
   y = 61,
