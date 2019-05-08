@@ -113,8 +113,7 @@ namespace Video {
     Size get_output_size();
     Size get_output_size_no_bars();
 
-    Rectangle get_viewport();
-    Point window_to_quest_coordinates(const Point& window_xy);
+    Point output_to_quest_coordinates(const Point& output_xy);
     Point renderer_to_quest_coordinates(const Point& renderer_xy);
 
     void render(const SurfacePtr& quest_surface);
