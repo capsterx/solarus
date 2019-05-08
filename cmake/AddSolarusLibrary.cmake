@@ -495,6 +495,10 @@ target_link_libraries(solarus
   "${MODPLUG_LIBRARY}"
 )
 
+target_compile_options(solarus PUBLIC
+  "${SDL2_CFLAGS_OTHER}"
+)
+
 set_target_properties(solarus PROPERTIES
   VERSION ${SOLARUS_VERSION_STRING}
   SOVERSION ${SOLARUS_MAJOR_VERSION}

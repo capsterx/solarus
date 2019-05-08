@@ -29,3 +29,6 @@ target_link_libraries(solarus-run
   "${MODPLUG_LIBRARY}"
 )
 
+target_compile_options(solarus-run PUBLIC
+  "${SDL2_CFLAGS_OTHER}"
+)
