@@ -808,6 +808,11 @@ const SoftwareVideoMode* get_video_mode_by_name(
 Size get_window_size() {
   Debug::check_assertion(context.main_window != nullptr, "No window");
 
+  if (is_fullscreen()) {
+    // Returns the memorized window size.
+    return context.geometry.window_size;
+  }
+
   // Returns the current window size.
   int width = 0;
   int height = 0;
@@ -938,33 +943,21 @@ Size get_output_size_no_bars() {
 }
 
 /**
- * \brief Gets the viewport of the renderer.
- *
- * The viewport is the logical drawing area of the renderer.
- * x and y indicate the possible letterboxing black bars.
- *
- * \return The viewport, in renderer logical coordinates (before window scaling).
- */
-Rectangle get_viewport() {
-  return get_letter_box(get_window_size());
-}
-
-/**
- * \brief Converts window coordinates to quest size coordinates.
- * \param window_xy A position relative to the window, not including
+ * \brief Converts renderer output coordinates to quest size coordinates.
+ * \param output_xy A position relative to the renderer output, not including
  * window decorations.
  * \return The position in quest size coordinate.
  */
-Point window_to_quest_coordinates(const Point& window_xy) {
+Point output_to_quest_coordinates(const Point& output_xy) {
 
-  Rectangle viewport = get_viewport();
+  Rectangle viewport = get_letter_box(get_output_size());
   Size qs = get_quest_size();
 
   float scale_x = viewport.get_width() / static_cast<float>(qs.width);
   float scale_y = viewport.get_height() / static_cast<float>(qs.height);
 
-  const int x = (window_xy.x - viewport.get_x())/scale_x;
-  const int y = (window_xy.y - viewport.get_y())/scale_y;
+  const int x = (output_xy.x - viewport.get_x())/scale_x;
+  const int y = (output_xy.y - viewport.get_y())/scale_y;
 
   Debug::check_assertion(!qs.is_flat(), "Quest size is not initialized");
   Debug::check_assertion(!viewport.is_flat(), "Viewport is not initialized");
