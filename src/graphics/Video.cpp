@@ -547,17 +547,23 @@ void set_fullscreen(bool fullscreen) {
     return;
   }
 
-  Uint32 fullscreen_flag;
-  if (fullscreen) {
-    fullscreen_flag = SDL_WINDOW_FULLSCREEN_DESKTOP;
-    context.geometry.window_size = get_window_size();  // Store the window size before fullscreen.
-  }
-  else {
-    fullscreen_flag = 0;
-  }
-  context.fullscreen_window = fullscreen;
+  if (context.fullscreen_window != fullscreen) {
+    Uint32 fullscreen_flag;
+    if (fullscreen) {
+      fullscreen_flag = SDL_WINDOW_FULLSCREEN_DESKTOP;
+      context.geometry.window_size = get_window_size();  // Store the window size before fullscreen.
+    }
+    else {
+      fullscreen_flag = 0;
+    }
+    context.fullscreen_window = fullscreen;
 
-  SDL_SetWindowFullscreen(context.main_window, fullscreen_flag);
+    SDL_SetWindowFullscreen(context.main_window, fullscreen_flag);
+    if (not fullscreen && not context.geometry.window_size.is_flat()) {
+      // Restore saved window size after coming back from fullscreen
+      set_window_size(context.geometry.window_size);
+    }
+  }
 
   Logger::info(std::string("Fullscreen: ") + (fullscreen ? "yes" : "no"));
 }
