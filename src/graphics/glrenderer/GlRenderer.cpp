@@ -112,7 +112,6 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   if(force_software) {
     return nullptr; // this renderer does not support software rendering
   }
-  //TODO add special case for raspberry and so on
 #ifdef SOLARUS_GL_ES
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
 #else
@@ -407,7 +406,7 @@ void GlRenderer::restart_batch() {
       Debug::warning("InCONSISTENT state");
     }
     glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
-    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_INT,nullptr);
+    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
     if(buffered_sprites == buffer_size) {
       //Orphan buffer to refill faster
       glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
@@ -602,8 +601,8 @@ void GlRenderer::create_vbo(size_t num_sprites) {
 
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
-  std::vector<GLuint> indices(indice_count);
-  static constexpr std::array<GLuint,6> quad{{0,1,2,2,3,0}};
+  std::vector<GLushort> indices(indice_count);
+  static constexpr std::array<GLushort,6> quad{{0,1,2,2,3,0}};
   for(size_t i = 0; i < num_sprites; i++) {
     size_t vbase = i*4;
     size_t ibase = i*6;
@@ -611,7 +610,7 @@ void GlRenderer::create_vbo(size_t num_sprites) {
       indices[ibase+j] = vbase + quad[j];
     }
   }
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLuint),indices.data(),GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLushort),indices.data(),GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
