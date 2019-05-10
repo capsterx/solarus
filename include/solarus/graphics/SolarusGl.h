@@ -11,7 +11,7 @@
 
 namespace Solarus { namespace Gl {
     inline std::pair<GLint, GLint> getVersion() {
-#ifdef SOLARUS_GL_ES
+#ifdef ANDROID
       GLint major, minor;
       const char* version = (const char*)glGetString(GL_VERSION);
       sscanf(version,"OpenGL ES %d.%d", &major, &minor);
@@ -24,8 +24,10 @@ namespace Solarus { namespace Gl {
     }
 
     inline bool load() {
-#ifdef SOLARUS_GL_ES
+#ifdef ANDROID
         return true;
+#elif SOLARUS_GL_ES
+        return gladLoadGLES2Loader(SDL_GL_GetProcAddress);
 #else
         return gladLoadGLLoader(SDL_GL_GetProcAddress);
 #endif
@@ -50,18 +52,26 @@ namespace Solarus { namespace Gl {
     inline void DeleteVertexArrays(GLsizei count, GLuint* arrays) {
 #ifndef SOLARUS_GL_ES
         glDeleteVertexArrays(count, arrays);
+#else
+        (void)count;
+        (void)arrays;
 #endif
     }
 
     inline void GenVertexArrays(GLsizei count, GLuint* arrays) {
 #ifndef SOLARUS_GL_ES
         glGenVertexArrays(count, arrays);
+#else
+        (void)count;
+        (void)arrays;
 #endif
     }
 
     inline void BindVertexArray(GLuint array) {
 #ifndef SOLARUS_GL_ES
         glBindVertexArray(array);
+#else
+        (void)array;
 #endif
     }
 
