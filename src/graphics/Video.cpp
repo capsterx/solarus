@@ -526,6 +526,9 @@ void set_quest_size_range(
 
   // We know the quest size: we can initialize legacy video modes.
   initialize_software_video_modes();
+
+  // Initialize the screen surface with an initial window resized event.
+  on_window_resized(get_window_size());
 }
 
 /**
