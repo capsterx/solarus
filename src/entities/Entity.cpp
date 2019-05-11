@@ -1412,21 +1412,47 @@ std::vector<Entity::NamedSprite> Entity::get_named_sprites() const {
  * \brief Creates a sprite and adds it to this entity.
  * \param animation_set_id Id of the sprite's animation set to use.
  * \param sprite_name Name to identify the sprite or an empty string.
+ * \param order Index where to insert to sprite. \c -1 means last.
  * \return The sprite created.
  */
 SpritePtr Entity::create_sprite(
     const std::string& animation_set_id,
-    const std::string& sprite_name
+    const std::string& sprite_name,
+    int order
 ) {
+  if (order == -1) {
+    order = sprites.size();
+  }
   SpritePtr sprite = std::make_shared<Sprite>(animation_set_id);
 
   NamedSprite named_sprite;
   named_sprite.name = sprite_name;
   named_sprite.sprite = sprite;
   named_sprite.removed = false;
-  sprites.emplace_back(named_sprite);
+  sprites.insert(sprites.begin() + order, named_sprite);
   notify_bounding_box_changed();
   return sprite;
+}
+
+/**
+ * \brief Returns the index of a sprite in the list of sprites of this entity.
+ * \param sprite A sprite.
+ * \return Index of the sprite for this entity, or \c -1 if this entity has
+ * no such sprite.
+ */
+int Entity::get_sprite_order(Sprite& sprite) {
+
+  int i = 0;
+  for (NamedSprite& named_sprite: sprites) {
+    if (named_sprite.sprite.get() == &sprite) {
+      if (named_sprite.removed) {
+        continue;
+      }
+      return i;
+    }
+    ++i;
+  }
+  return -1;
 }
 
 /**
@@ -3773,13 +3799,25 @@ void Entity::draw(Camera& camera) {
 /**
  * \brief Built-in implementation of drawing the entity on the map.
  *
- * By default, this function draws the entity's sprites (if any) and if
+ * By default, this function draws the entity's sprites.
+ * Lua scripts can replace this built-in draw with entity:set_draw_override().
+ *
+ * \param camera The camera where to draw.
+ */
+void Entity::built_in_draw(Camera& camera) {
+  draw_sprites(camera);
+}
+
+/**
+ * \brief Draws the sprites of this entity.
+ *
+ * This function draws the entity's sprites (if any) and if
  * at least one of them is in the visible part of the map.
  * Subclasses can reimplement this method to draw differently.
  *
- * Lua scripts can replace this built-in draw with entity:set_draw_override().
+ * \param camera The camera where to draw.
  */
-void Entity::built_in_draw(Camera& /* camera */) {
+void Entity::draw_sprites(Camera& /* camera */) {
 
   const Point& xy = get_displayed_xy();
   const Size& size = get_size();

@@ -9,6 +9,7 @@ Engine changes
 
 * Add state:get/set_can_use_teletransporter/switch/stream (#1363).
 * Add `-force-software-rendering` switch to solarus-run (stdgregwar).
+* Fix reordering hero sprites (#1243).
 * Fix crash when starting a hero movement from hero:on_state_changed (#1354).
 * Fix crash when starting drowning on a map after falling into a
 teletransporter (#1353).

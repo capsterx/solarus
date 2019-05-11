@@ -264,7 +264,7 @@ void Entity::State::update() {
  * \brief Draws this state.
  *
  * This function draws this entity in its current state.
- * The default implement does nothing.
+ * The default implementation does nothing.
  * If your state needs to draw additional elements, you can redefine this function.
  */
 void Entity::State::draw_on_map() {

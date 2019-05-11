@@ -215,8 +215,10 @@ class SOLARUS_API Entity: public ExportableToLua {
     std::vector<NamedSprite> get_named_sprites() const;
     SpritePtr create_sprite(
         const std::string& animation_set_id,
-        const std::string& sprite_name = ""
+        const std::string& sprite_name = "",
+        int order = -1
     );
+    int get_sprite_order(Sprite& sprite);
     bool remove_sprite(Sprite& sprite);
     void clear_sprites();
     bool bring_sprite_to_back(Sprite& sprite);
@@ -387,6 +389,7 @@ class SOLARUS_API Entity: public ExportableToLua {
     virtual void update();
     void draw(Camera& camera);
     virtual void built_in_draw(Camera& camera);
+    void draw_sprites(Camera& camera);
 
     // Easy access to various game objects.
     Entities& get_entities();
