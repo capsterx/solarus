@@ -26,6 +26,7 @@ namespace Logger {
 
 namespace {
 
+#ifdef SOLARUS_FILE_LOGGING
   const std::string error_log_file_name = "error.txt";
   std::ofstream error_log_file;
 
@@ -41,6 +42,7 @@ namespace {
     }
     return error_log_file;
   }
+#endif
 }
 
 /**
@@ -80,36 +82,42 @@ SOLARUS_API void info(const std::string& message) {
 }
 
 /**
- * \brief Logs a warning message on stdout and error.txt.
+ * \brief Logs a warning message on stdout and error.txt (if configured).
  * \param message The message to log.
  */
 SOLARUS_API void warning(const std::string& message) {
 
   std::string prefixed_message = "Warning: " + message;
   print(prefixed_message);
+#ifdef SOLARUS_FILE_LOGGING
   print(prefixed_message, get_error_log_file());
+#endif
 }
 
 /**
- * \brief Logs an error message on stdout and error.txt.
+ * \brief Logs an error message on stdout and error.txt (if configured).
  * \param message The message to log.
  */
 SOLARUS_API void error(const std::string& message) {
 
   std::string prefixed_message = "Error: " + message;
   print(prefixed_message);
+#ifdef SOLARUS_FILE_LOGGING
   print(prefixed_message, get_error_log_file());
+#endif
 }
 
 /**
- * \brief Logs a fatal error message on stdout and error.txt.
+ * \brief Logs a fatal error message on stdout and error.txt (if configured).
  * \param message The message to log.
  */
 SOLARUS_API void fatal(const std::string& message) {
 
   std::string prefixed_message = "Fatal: " + message;
   print(prefixed_message);
+#ifdef SOLARUS_FILE_LOGGING
   print(prefixed_message, get_error_log_file());
+#endif
 }
 
 }  // namespace Logger

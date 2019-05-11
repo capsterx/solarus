@@ -63,7 +63,7 @@ SOLARUS_API void set_abort_on_die(bool abort) {
 }
 
 /**
- * \brief Prints "Warning: " and a message on both stdout and error.txt.
+ * \brief Prints "Warning: " and a message using Logger::warning().
  * \param message The warning message to print.
  */
 SOLARUS_API void warning(const std::string& message) {
@@ -72,7 +72,7 @@ SOLARUS_API void warning(const std::string& message) {
 }
 
 /**
- * \brief Prints "Error: " and a message on both stdout and error.txt.
+ * \brief Prints "Error: " and a message using Logger::error().
  *
  * Use this function for non fatal errors such as errors in quest data files.
  * Stops Solarus if set_die_on_error(true) was called.
@@ -117,7 +117,7 @@ void SOLARUS_API check_assertion(bool assertion, const std::string& error_messag
  * \brief Stops Solarus on a fatal error.
  *
  * This function is equivalent to check_assertion(false, error_message).
- * The error message is printed on both stdout and error.txt.
+ * The error message is printed using Logger::fatal().
  *
  * \param error_message The error message to report.
  */
