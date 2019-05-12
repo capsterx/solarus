@@ -528,7 +528,9 @@ void set_quest_size_range(
   initialize_software_video_modes();
 
   // Initialize the screen surface with an initial window resized event.
-  on_window_resized(get_window_size());
+  if (!context.disable_window) {
+    on_window_resized(get_window_size());
+  }
 }
 
 /**
