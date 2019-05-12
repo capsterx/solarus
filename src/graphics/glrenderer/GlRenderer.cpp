@@ -15,6 +15,10 @@
 #include <array>
 #include <sstream>
 
+
+#define SOLARUS_SPRITE_BUFFER_SIZE 64
+#define SOLARUS_SPRITE_BUFFER_VERTICE_COUNT SOLARUS_SPRITE_BUFFER_SIZE * 6
+
 namespace Solarus {
 
 using namespace glm;
@@ -94,7 +98,7 @@ GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
   instance = this; //Set this renderer as the unique instance
 
 
-  create_vbo(64); //TODO check sprite buffer size
+  create_vbo(SOLARUS_SPRITE_BUFFER_SIZE); //TODO check sprite buffer size
 
   std::string version((const char *)glGetString(GL_VERSION));
   is_es_context = version.find("OpenGL ES") != std::string::npos;
@@ -114,8 +118,8 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   }
 #ifdef SOLARUS_GL_ES
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
-  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
@@ -407,21 +411,41 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
+#ifdef SOLARUS_GL_MAPBUFFER
+    sol_glUnmapBuffer(GL_ARRAY_BUFFER);
+    current_vertex = nullptr;
+#else
 #ifndef SOLARUS_VBO_LESS
     glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
 #endif
+#endif
     glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
 #ifndef SOLARUS_VBO_LESS
-    if(buffered_sprites == buffer_size or SOLARUS_GL_ORPHANING) {
-      //Orphan buffer to refill faster
-      glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
-    }
+#ifdef SOLARUS_GL_ORPHANING
+    //Orphan buffer to refill faster
+    glBufferData(GL_ARRAY_BUFFER,SOLARUS_SPRITE_BUFFER_VERTICE_COUNT*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
+#endif
 #endif
   }
   test_texture = nullptr;
   //Done rendering, start actual batch
+#ifdef SOLARUS_GL_MAPBUFFER
+  if(current_vertex == nullptr) {
+    Vertex* mapped = reinterpret_cast<Vertex*>(sol_glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+    current_vertex = mapped;
+  }
+#else
   current_vertex = vertex_buffer.data();
+#endif
   buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
+}
+
+Vertex* GlRenderer::shader_base() {
+#ifdef SOLARUS_GL_MAPBUFFER
+  return nullptr;
+#else
+  return vertex_buffer.data();
+#endif
 }
 
 /**
@@ -430,7 +454,7 @@ void GlRenderer::restart_batch() {
  */
 void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
-    shader->bind(vertex_buffer.data());
+    shader->bind(shader_base());
     if(current_shader){
       current_shader->unbind();
     }
@@ -443,7 +467,7 @@ void GlRenderer::set_shader(GlShader* shader) {
  */
 void GlRenderer::rebind_shader() {
   if(current_shader) {
-    current_shader->bind(vertex_buffer.data());
+    current_shader->bind(shader_base());
   }
 }
 
@@ -619,14 +643,16 @@ void GlRenderer::create_vbo(size_t num_sprites) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLushort),indices.data(),GL_STATIC_DRAW);
 
   //Give vertex buffer a size
+#ifndef SOLARUS_GL_MAPBUFFER
   vertex_buffer.resize(vertex_count);
+#endif
 #ifndef SOLARUS_VBO_LESS
 
   //Create GPU side buffer storage
   glGenBuffers(1,&vbo);
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
-  glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
 #endif
 }
 

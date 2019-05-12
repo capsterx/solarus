@@ -215,6 +215,7 @@ void GlShader::bind(void* vertex_buffer_base) {
   pending_uniforms.clear();
 
 #ifndef SOLARUS_VBO_LESS
+  (void)vertex_buffer_base;
   size_t base_addr = 0;
 #else
   size_t base_addr = reinterpret_cast<size_t>(vertex_buffer_base);

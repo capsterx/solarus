@@ -12,7 +12,17 @@
 //TODO remove me :
 //#define SOLARUS_GL_ES 1
 //#define SOLARUS_VBO_LESS 1
-#define SOLARUS_GL_ORPHANING 1
+//#define SOLARUS_GL_ORPHANING 1
+//#define SOLARUS_GL_MAPBUFFER 1
+
+//replace glMapBuffer by the extension when in an ES context
+#ifdef SOLARUS_GL_ES
+#define sol_glMapBuffer glMapBufferOES
+#define sol_glUnmapBuffer glUnmapBufferOES
+#else
+#define sol_glMapBuffer glMapBuffer
+#define sol_glUnmapBuffer glUnmapBuffer
+#endif
 
 namespace Solarus { namespace Gl {
     inline std::pair<GLint, GLint> getVersion() {
@@ -50,7 +60,7 @@ namespace Solarus { namespace Gl {
 #ifdef SOLARUS_GL_ES
         return false;
 #else
-        return GLAD_GL_ARB_framebuffer_object;
+        return GLAD_GL_ARB_vertex_array_object;
 #endif
     }
 
