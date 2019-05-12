@@ -94,7 +94,7 @@ GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
   instance = this; //Set this renderer as the unique instance
 
 
-  create_vbo(512); //TODO check sprite buffer size
+  create_vbo(64); //TODO check sprite buffer size
 
   std::string version((const char *)glGetString(GL_VERSION));
   is_es_context = version.find("OpenGL ES") != std::string::npos;
@@ -412,9 +412,9 @@ void GlRenderer::restart_batch() {
 #endif
     glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
 #ifndef SOLARUS_VBO_LESS
-    if(buffered_sprites == buffer_size) {
+    if(buffered_sprites == buffer_size or SOLARUS_GL_ORPHANING) {
       //Orphan buffer to refill faster
-      glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+      glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
     }
 #endif
   }
@@ -626,7 +626,7 @@ void GlRenderer::create_vbo(size_t num_sprites) {
   glGenBuffers(1,&vbo);
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
-  glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
 #endif
 }
 

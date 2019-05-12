@@ -10,8 +10,9 @@
 #endif
 
 //TODO remove me :
-#define SOLARUS_GL_ES 1
-#define SOLARUS_VBO_LESS 1
+//#define SOLARUS_GL_ES 1
+//#define SOLARUS_VBO_LESS 1
+#define SOLARUS_GL_ORPHANING 1
 
 namespace Solarus { namespace Gl {
     inline std::pair<GLint, GLint> getVersion() {
