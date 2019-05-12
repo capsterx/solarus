@@ -32,3 +32,8 @@ if(SOLARUS_DEFAULT_QUEST_HEIGHT)
   add_definitions(-DSOLARUS_DEFAULT_QUEST_HEIGHT=${SOLARUS_DEFAULT_QUEST_HEIGHT})
 endif()
 
+# Use OpenGL ES implementation.
+set(SOLARUS_GL_ES "OFF" CACHE BOOL "Use OpenGL ES implementation.")
+if(SOLARUS_GL_ES)
+  add_definitions(-DSOLARUS_GL_ES)
+endif()
