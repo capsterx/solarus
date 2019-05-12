@@ -153,6 +153,7 @@ file(
   include/solarus/graphics/ShaderContext.h
   include/solarus/graphics/ShaderData.h
   include/solarus/graphics/ShaderPtr.h
+  include/solarus/graphics/SolarusGl.h
   include/solarus/graphics/SoftwarePixelFilter.h
   include/solarus/graphics/SoftwareVideoMode.h
   include/solarus/graphics/SpriteAnimationDirection.h

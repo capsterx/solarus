@@ -204,7 +204,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
   return shader;
 }
 
-void GlShader::bind() {
+void GlShader::bind(void* vertex_buffer_base) {
   glUseProgram(program); //TODO check if this can be done only once
   bound = true;
 
@@ -214,21 +214,27 @@ void GlShader::bind() {
   }
   pending_uniforms.clear();
 
+#ifndef SOLARUS_VBO_LESS
+  size_t base_addr = 0;
+#else
+  size_t base_addr = reinterpret_cast<size_t>(vertex_buffer_base);
+#endif
+
   //Enable and paramatrize vertex attributes
   if(position_location != -1) {
     glEnableVertexAttribArray(position_location);
     glVertexAttribPointer(position_location,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),
-                               reinterpret_cast<void*>(offsetof(Vertex,position)));
+                               reinterpret_cast<void*>(base_addr + offsetof(Vertex,position)));
   }
   if(tex_coord_location != -1) {
     glEnableVertexAttribArray(tex_coord_location);
     glVertexAttribPointer(tex_coord_location,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),
-                               reinterpret_cast<void*>(offsetof(Vertex,texcoords)));
+                               reinterpret_cast<void*>(base_addr + offsetof(Vertex,texcoords)));
   }
   if(color_location != -1) {
     glEnableVertexAttribArray(color_location);
     glVertexAttribPointer(color_location,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Vertex),
-                               reinterpret_cast<void*>(offsetof(Vertex,color)));
+                               reinterpret_cast<void*>(base_addr + offsetof(Vertex,color)));
   }
 
   //Bind correct uniform textures

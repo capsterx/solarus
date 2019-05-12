@@ -114,6 +114,8 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   }
 #ifdef SOLARUS_GL_ES
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
@@ -405,12 +407,16 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
+#ifndef SOLARUS_VBO_LESS
     glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
+#endif
     glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
+#ifndef SOLARUS_VBO_LESS
     if(buffered_sprites == buffer_size) {
       //Orphan buffer to refill faster
       glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
     }
+#endif
   }
   test_texture = nullptr;
   //Done rendering, start actual batch
@@ -424,7 +430,7 @@ void GlRenderer::restart_batch() {
  */
 void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
-    shader->bind();
+    shader->bind(vertex_buffer.data());
     if(current_shader){
       current_shader->unbind();
     }
@@ -437,7 +443,7 @@ void GlRenderer::set_shader(GlShader* shader) {
  */
 void GlRenderer::rebind_shader() {
   if(current_shader) {
-    current_shader->bind();
+    current_shader->bind(vertex_buffer.data());
   }
 }
 
@@ -592,7 +598,7 @@ void GlRenderer::create_vbo(size_t num_sprites) {
     Gl::BindVertexArray(vao);
   }
 
-  glGenBuffers(1,&vbo);
+
   glGenBuffers(1,&ibo);
 
   size_t indice_count = num_sprites*6;
@@ -612,10 +618,16 @@ void GlRenderer::create_vbo(size_t num_sprites) {
   }
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLushort),indices.data(),GL_STATIC_DRAW);
 
+  //Give vertex buffer a size
+  vertex_buffer.resize(vertex_count);
+#ifndef SOLARUS_VBO_LESS
+
+  //Create GPU side buffer storage
+  glGenBuffers(1,&vbo);
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
-  vertex_buffer.resize(vertex_count);
   glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+#endif
 }
 
 /**
