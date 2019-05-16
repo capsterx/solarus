@@ -17,7 +17,7 @@
 
 
 #define SOLARUS_SPRITE_BUFFER_SIZE 64
-#define SOLARUS_SPRITE_BUFFER_VERTICE_COUNT SOLARUS_SPRITE_BUFFER_SIZE * 6
+#define SOLARUS_SPRITE_BUFFER_VERTICE_COUNT SOLARUS_SPRITE_BUFFER_SIZE * 4
 
 namespace Solarus {
 
@@ -118,8 +118,6 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
   }
 #ifdef SOLARUS_GL_ES
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
@@ -207,16 +205,16 @@ void GlRenderer::set_render_target(GlTexture* target) {
     if(fbo->id) { //Render to Texture
       glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
       glViewport(0,0,
-                     target->get_width(),
-                     target->get_height());
+                 target->get_width(),
+                 target->get_height());
 #ifndef SOLARUS_GL_ES
       Debug::check_assertion(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
 #endif
     } else { //Render to screen
       glViewport(window_viewport.get_left(),
-                     window_viewport.get_top(),
-                     window_viewport.get_width(),
-                     window_viewport.get_height());
+                 window_viewport.get_top(),
+                 window_viewport.get_width(),
+                 window_viewport.get_height());
     }
     current_target = target;
   }
@@ -271,10 +269,10 @@ void GlRenderer::read_pixels(GlTexture* from, void* to) {
   //Make sure we draw everything before read
   set_state(current_texture,current_shader,from,current_blend_mode,true);
   glReadPixels(0,0,
-                   from->get_width(),from->get_height(),
-                   GL_RGBA,
-                   GL_UNSIGNED_BYTE,
-                   to);
+               from->get_width(),from->get_height(),
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               to);
 }
 
 /**
@@ -291,11 +289,11 @@ void GlRenderer::put_pixels(GlTexture* to, void* data) {
   }
   glBindTexture(GL_TEXTURE_2D,to->get_texture());
   glTexSubImage2D(GL_TEXTURE_2D,
-                      0,
-                      0,0,
-                      to->get_width(),to->get_height(),
-                      GL_RGBA,GL_UNSIGNED_BYTE,
-                      data);
+                  0,
+                  0,0,
+                  to->get_width(),to->get_height(),
+                  GL_RGBA,GL_UNSIGNED_BYTE,
+                  data);
   GlRenderer::get().rebind_texture();
 }
 
@@ -411,41 +409,17 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
-#ifdef SOLARUS_GL_MAPBUFFER
-    sol_glUnmapBuffer(GL_ARRAY_BUFFER);
-    current_vertex = nullptr;
-#else
-#ifndef SOLARUS_VBO_LESS
-    glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
-#endif
-#endif
-    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
-#ifndef SOLARUS_VBO_LESS
-#ifdef SOLARUS_GL_ORPHANING
+    glBufferSubData(GL_ARRAY_BUFFER, 0, buffered_vertices()*sizeof(Vertex), vertex_buffer.data());
+    glDrawElements(GL_TRIANGLES, buffered_indices(), GL_UNSIGNED_SHORT, nullptr);
     //Orphan buffer to refill faster
-    glBufferData(GL_ARRAY_BUFFER,SOLARUS_SPRITE_BUFFER_VERTICE_COUNT*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
-#endif
-#endif
+    glBufferData(GL_ARRAY_BUFFER, SOLARUS_SPRITE_BUFFER_VERTICE_COUNT*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+
   }
   test_texture = nullptr;
   //Done rendering, start actual batch
-#ifdef SOLARUS_GL_MAPBUFFER
-  if(current_vertex == nullptr) {
-    Vertex* mapped = reinterpret_cast<Vertex*>(sol_glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
-    current_vertex = mapped;
-  }
-#else
   current_vertex = vertex_buffer.data();
-#endif
-  buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
-}
 
-Vertex* GlRenderer::shader_base() {
-#ifdef SOLARUS_GL_MAPBUFFER
-  return nullptr;
-#else
-  return vertex_buffer.data();
-#endif
+  buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
 }
 
 /**
@@ -454,7 +428,7 @@ Vertex* GlRenderer::shader_base() {
  */
 void GlRenderer::set_shader(GlShader* shader) {
   if(shader != current_shader) {
-    shader->bind(shader_base());
+    shader->bind();
     if(current_shader){
       current_shader->unbind();
     }
@@ -467,7 +441,7 @@ void GlRenderer::set_shader(GlShader* shader) {
  */
 void GlRenderer::rebind_shader() {
   if(current_shader) {
-    current_shader->bind(shader_base());
+    current_shader->bind();
   }
 }
 
@@ -516,14 +490,14 @@ void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst,
     if(!current_shader) return; //Dont upload uniform if there is no shader
     //Resend mvp and uvm
     glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
-                           1,
-                           GL_FALSE,
-                           glm::value_ptr(dst->fbo->view));
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(dst->fbo->view));
     if(current_texture) {
       glUniformMatrix3fv(current_shader->get_uniform_location(Shader::UV_MATRIX_NAME),
-                             1,
-                             GL_FALSE,
-                             glm::value_ptr(current_texture->uv_transform));
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(current_texture->uv_transform));
       int sw = current_texture->get_width();
       int sh = current_texture->get_height();
       glUniform2f(
@@ -555,7 +529,7 @@ void GlRenderer::set_blend_mode(GLBlendMode mode) {
     bool alpha_mult;
     std::tie(srcRGB,dstRGB,srcA,dstA,alpha_mult) = mode;
     glBlendFuncSeparate(srcRGB,dstRGB,
-                            srcA,dstA);
+                        srcA,dstA);
 
     if(current_shader) {
       glUniform1i(
@@ -640,20 +614,16 @@ void GlRenderer::create_vbo(size_t num_sprites) {
       indices[ibase+j] = vbase + quad[j];
     }
   }
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLushort),indices.data(),GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indice_count*sizeof(GLushort), indices.data(), GL_STATIC_DRAW);
 
-  //Give vertex buffer a size
-#ifndef SOLARUS_GL_MAPBUFFER
+  //Give CPU side vertex buffer a size
   vertex_buffer.resize(vertex_count);
-#endif
-#ifndef SOLARUS_VBO_LESS
 
   //Create GPU side buffer storage
-  glGenBuffers(1,&vbo);
-  glBindBuffer(GL_ARRAY_BUFFER,vbo);
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(Vertex),nullptr,GL_DYNAMIC_DRAW);
-#endif
+  glBufferData(GL_ARRAY_BUFFER, vertex_count*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 }
 
 /**

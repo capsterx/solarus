@@ -66,7 +66,7 @@ class SOLARUS_API GlShader : public Shader {
 
     void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
-    void bind(void *vertex_buffer_base);
+    void bind();
     void unbind();
 
     struct Uniform {

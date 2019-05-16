@@ -9,21 +9,6 @@
 #include <SDL_video.h>
 #endif
 
-//TODO remove me :
-//#define SOLARUS_GL_ES 1
-//#define SOLARUS_VBO_LESS 1
-//#define SOLARUS_GL_ORPHANING 1
-//#define SOLARUS_GL_MAPBUFFER 1
-
-//replace glMapBuffer by the extension when in an ES context
-#ifdef SOLARUS_GL_ES
-#define sol_glMapBuffer glMapBufferOES
-#define sol_glUnmapBuffer glUnmapBufferOES
-#else
-#define sol_glMapBuffer glMapBuffer
-#define sol_glUnmapBuffer glUnmapBuffer
-#endif
-
 namespace Solarus { namespace Gl {
     inline std::pair<GLint, GLint> getVersion() {
 #ifdef ANDROID

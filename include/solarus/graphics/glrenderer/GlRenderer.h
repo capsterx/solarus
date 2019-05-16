@@ -30,15 +30,6 @@ public:
               const void *userParam);
 
   /**
-   * @brief Structure containing all usefull GlFunctions
-   */
-  /*struct GlFunctions {
-    #define SDL_PROC(ret,func,params) ret (APIENTRY* func) params;
-    #include "gles2funcs.h"
-    #undef SDL_PROC
-  };*/
-
-  /**
    * @brief Draw destination
    */
   struct Fbo{
@@ -99,7 +90,6 @@ private:
   size_t buffered_indices() const;
   size_t buffered_vertices() const;
   Fbo* get_fbo(int width, int height, bool screen = false);
-  Vertex* shader_base();
 
   void shader_about_to_change(GlShader* shader);
 
@@ -121,9 +111,8 @@ private:
   Vertex* current_vertex = nullptr;
   size_t buffered_sprites = 0;
   size_t buffer_size = 0;
-#ifndef SOLARUS_GL_MAPBUFFER
+
   std::vector<Vertex> vertex_buffer;
-#endif
 
   Fbo screen_fbo = {0,glm::mat4()};
   std::unordered_map<uint_fast64_t,Fbo> fbos;
