@@ -17,7 +17,6 @@
 
 
 #define SOLARUS_SPRITE_BUFFER_SIZE 64
-#define SOLARUS_SPRITE_BUFFER_VERTICE_COUNT SOLARUS_SPRITE_BUFFER_SIZE * 4
 
 namespace Solarus {
 
@@ -412,7 +411,7 @@ void GlRenderer::restart_batch() {
     glBufferSubData(GL_ARRAY_BUFFER, 0, buffered_vertices()*sizeof(Vertex), vertex_buffer.data());
     glDrawElements(GL_TRIANGLES, buffered_indices(), GL_UNSIGNED_SHORT, nullptr);
     //Orphan buffer to refill faster
-    glBufferData(GL_ARRAY_BUFFER, SOLARUS_SPRITE_BUFFER_VERTICE_COUNT*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size()*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 
   }
   test_texture = nullptr;
