@@ -15,6 +15,9 @@
 #include <array>
 #include <sstream>
 
+
+#define SOLARUS_SPRITE_BUFFER_SIZE 64
+
 namespace Solarus {
 
 using namespace glm;
@@ -94,7 +97,7 @@ GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
   instance = this; //Set this renderer as the unique instance
 
 
-  create_vbo(512); //TODO check sprite buffer size
+  create_vbo(SOLARUS_SPRITE_BUFFER_SIZE); //TODO check sprite buffer size
 
   std::string version((const char *)glGetString(GL_VERSION));
   is_es_context = version.find("OpenGL ES") != std::string::npos;
@@ -201,16 +204,16 @@ void GlRenderer::set_render_target(GlTexture* target) {
     if(fbo->id) { //Render to Texture
       glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target->get_texture(),0);
       glViewport(0,0,
-                     target->get_width(),
-                     target->get_height());
+                 target->get_width(),
+                 target->get_height());
 #ifndef SOLARUS_GL_ES
       Debug::check_assertion(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"glFrameBufferTexture2D failed");
 #endif
     } else { //Render to screen
       glViewport(window_viewport.get_left(),
-                     window_viewport.get_top(),
-                     window_viewport.get_width(),
-                     window_viewport.get_height());
+                 window_viewport.get_top(),
+                 window_viewport.get_width(),
+                 window_viewport.get_height());
     }
     current_target = target;
   }
@@ -265,10 +268,10 @@ void GlRenderer::read_pixels(GlTexture* from, void* to) {
   //Make sure we draw everything before read
   set_state(current_texture,current_shader,from,current_blend_mode,true);
   glReadPixels(0,0,
-                   from->get_width(),from->get_height(),
-                   GL_RGBA,
-                   GL_UNSIGNED_BYTE,
-                   to);
+               from->get_width(),from->get_height(),
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               to);
 }
 
 /**
@@ -285,11 +288,11 @@ void GlRenderer::put_pixels(GlTexture* to, void* data) {
   }
   glBindTexture(GL_TEXTURE_2D,to->get_texture());
   glTexSubImage2D(GL_TEXTURE_2D,
-                      0,
-                      0,0,
-                      to->get_width(),to->get_height(),
-                      GL_RGBA,GL_UNSIGNED_BYTE,
-                      data);
+                  0,
+                  0,0,
+                  to->get_width(),to->get_height(),
+                  GL_RGBA,GL_UNSIGNED_BYTE,
+                  data);
   GlRenderer::get().rebind_texture();
 }
 
@@ -405,16 +408,16 @@ void GlRenderer::restart_batch() {
     if(test_texture != current_target) {
       Debug::warning("InCONSISTENT state");
     }
-    glBufferSubData(GL_ARRAY_BUFFER,0,buffered_vertices()*sizeof(Vertex),vertex_buffer.data());
-    glDrawElements(GL_TRIANGLES,buffered_indices(),GL_UNSIGNED_SHORT,nullptr);
-    if(buffered_sprites == buffer_size) {
-      //Orphan buffer to refill faster
-      glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
-    }
+    glBufferSubData(GL_ARRAY_BUFFER, 0, buffered_vertices()*sizeof(Vertex), vertex_buffer.data());
+    glDrawElements(GL_TRIANGLES, buffered_indices(), GL_UNSIGNED_SHORT, nullptr);
+    //Orphan buffer to refill faster
+    glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size()*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+
   }
   test_texture = nullptr;
   //Done rendering, start actual batch
   current_vertex = vertex_buffer.data();
+
   buffered_sprites = 0; //Reset sprite count, lets accumulate sprites!
 }
 
@@ -486,14 +489,14 @@ void GlRenderer::set_state(const GlTexture *src, GlShader* shad, GlTexture* dst,
     if(!current_shader) return; //Dont upload uniform if there is no shader
     //Resend mvp and uvm
     glUniformMatrix4fv(current_shader->get_uniform_location(Shader::MVP_MATRIX_NAME),
-                           1,
-                           GL_FALSE,
-                           glm::value_ptr(dst->fbo->view));
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(dst->fbo->view));
     if(current_texture) {
       glUniformMatrix3fv(current_shader->get_uniform_location(Shader::UV_MATRIX_NAME),
-                             1,
-                             GL_FALSE,
-                             glm::value_ptr(current_texture->uv_transform));
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(current_texture->uv_transform));
       int sw = current_texture->get_width();
       int sh = current_texture->get_height();
       glUniform2f(
@@ -525,7 +528,7 @@ void GlRenderer::set_blend_mode(GLBlendMode mode) {
     bool alpha_mult;
     std::tie(srcRGB,dstRGB,srcA,dstA,alpha_mult) = mode;
     glBlendFuncSeparate(srcRGB,dstRGB,
-                            srcA,dstA);
+                        srcA,dstA);
 
     if(current_shader) {
       glUniform1i(
@@ -592,7 +595,7 @@ void GlRenderer::create_vbo(size_t num_sprites) {
     Gl::BindVertexArray(vao);
   }
 
-  glGenBuffers(1,&vbo);
+
   glGenBuffers(1,&ibo);
 
   size_t indice_count = num_sprites*6;
@@ -610,12 +613,16 @@ void GlRenderer::create_vbo(size_t num_sprites) {
       indices[ibase+j] = vbase + quad[j];
     }
   }
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,indice_count*sizeof(GLushort),indices.data(),GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indice_count*sizeof(GLushort), indices.data(), GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ARRAY_BUFFER,vbo);
-
+  //Give CPU side vertex buffer a size
   vertex_buffer.resize(vertex_count);
-  glBufferData(GL_ARRAY_BUFFER,vertex_buffer.size()*sizeof(Vertex),nullptr,GL_STREAM_DRAW);
+
+  //Create GPU side buffer storage
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+  glBufferData(GL_ARRAY_BUFFER, vertex_count*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 }
 
 /**

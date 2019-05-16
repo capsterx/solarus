@@ -45,7 +45,7 @@ namespace Solarus { namespace Gl {
 #ifdef SOLARUS_GL_ES
         return false;
 #else
-        return GLAD_GL_ARB_framebuffer_object;
+        return GLAD_GL_ARB_vertex_array_object;
 #endif
     }
 

@@ -178,7 +178,7 @@ GLuint GlShader::create_shader(GLenum type, const char* source) {
     return shader;
   }
 
-  glShaderSource(shader, 1, &source, NULL);
+  glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
 
   // Check the compile status.
