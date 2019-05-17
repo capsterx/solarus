@@ -37,4 +37,4 @@ information and documentation about using the Solarus engine.
 
 ### Compile Solarus
 
-To compile Solarus, instructions can be found in the compilation.txt file.
+To compile Solarus, instructions can be found in the [compilation.md](compilation.md) file.

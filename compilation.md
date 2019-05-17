@@ -69,6 +69,7 @@ time, and then you don't require the Qt dependencies.
 # External dependencies
 
 The build process of Solarus uses [CMake](https://cmake.org/).
+You also will need the [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) helper tool installed.
 
 To compile Solarus, you need a C++ compiler with support of C++11.
 Solarus compiles fine with GCC 4.8.1 or greater and Clang 3.4 or greater, and
@@ -128,7 +129,7 @@ variable `SOLARUS_GL_ES` to `ON` at the configuration step.
 Just install the corresponding packages.
 For example, in Ubuntu or Debian:
 
-    build-essential cmake
+    build-essential cmake pkg-config
     libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libluajit-5.1-dev
     libphysfs-dev libopenal-dev libvorbis-dev libmodplug-dev
     qtbase5-dev qttools5-dev qttools5-dev-tools libglm-dev
