@@ -18,6 +18,7 @@
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Logger.h"
+#include "solarus/core/PerfCounter.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/core/Size.h"
@@ -74,6 +75,7 @@ struct VideoContext {
   bool disable_window = false;              /**< Indicates that no window is displayed (used for unit tests). */
   bool fullscreen_window = false;           /**< True if the window is in fullscreen. */
   bool visible_cursor = true;               /**< True if the mouse cursor is visible. */
+  bool pc_render = false;                   /**< Whether rendering performance counter is used. */
 };
 
 VideoContext context;
@@ -194,6 +196,7 @@ namespace Video {
  * This method should be called when the program starts.
  * Options recognized:
  *   -no-video
+ *   -perf-video-render=yes|no
  *   -quest-size=WIDTHxHEIGHT
  *
  * \param args Command-line arguments.
@@ -211,9 +214,10 @@ void initialize(const Arguments& args) {
 
 
 
-  // Check the -no-video and the -quest-size options.
+  // Check the -no-video, -perf-video-render and the -quest-size options.
   const std::string& quest_size_string = args.get_argument_value("-quest-size");
   context.disable_window = args.has_argument("-no-video");
+  context.pc_render = args.get_argument_value("-perf-video-render") == "yes";
 
   context.geometry.wanted_quest_size = {
     SOLARUS_DEFAULT_QUEST_WIDTH,
@@ -345,6 +349,9 @@ void hide_window() {
  * \param quest_surface The quest surface to render on the screen.
  */
 void render(const SurfacePtr& quest_surface) {
+  if (context.pc_render) {
+    PerfCounter::update("video-render");
+  }
 
   if (context.disable_window) {
     return;
