@@ -37,3 +37,9 @@ set(SOLARUS_GL_ES "OFF" CACHE BOOL "Use OpenGL ES implementation.")
 if(SOLARUS_GL_ES)
   add_definitions(-DSOLARUS_GL_ES)
 endif()
+
+# Enable logging of errors to file.
+set(SOLARUS_FILE_LOGGING "ON" CACHE BOOL "Enable logging of errors to file.")
+if(SOLARUS_FILE_LOGGING)
+  add_definitions(-DSOLARUS_FILE_LOGGING)
+endif()
