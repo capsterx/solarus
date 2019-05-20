@@ -39,6 +39,7 @@ file(
   include/solarus/core/MainLoop.h
   include/solarus/core/Map.h
   include/solarus/core/MapData.h
+  include/solarus/core/PerfCounter.h
   include/solarus/core/PixelBits.h
   include/solarus/core/Point.h
   include/solarus/core/Point.inl
@@ -273,6 +274,7 @@ file(
   src/core/MainLoop.cpp
   src/core/Map.cpp
   src/core/MapData.cpp
+  src/core/PerfCounter.cpp
   src/core/PixelBits.cpp
   src/core/Point.cpp
   src/core/QuestFiles.cpp

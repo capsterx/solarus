@@ -69,6 +69,10 @@ void print_help(const Arguments& args) {
     << std::endl
     << "  -lag=X                        slows down each frame of X milliseconds to simulate slower systems for debugging (default 0)"
     << std::endl
+    << "  -perf-sound-play=yes|no       enables performance reporting of sound playing (default no)"
+    << std::endl
+    << "  -perf-video-render=yes|no     enables performance reporting of video rendering, i.e. FPS (default no)"
+    << std::endl
     << "  -s=<script>                   set a script to be executed before the main.lua of the quest."
     << std::endl
     << "  -force-software-rendering     force the engine to use SDL software rendering. Disabling opengl."

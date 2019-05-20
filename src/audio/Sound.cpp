@@ -20,6 +20,7 @@
 #include "solarus/core/Arguments.h"
 #include "solarus/core/CurrentQuest.h"
 #include "solarus/core/Debug.h"
+#include "solarus/core/PerfCounter.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/String.h"
 #include "solarus/audio/Music.h"
@@ -33,6 +34,7 @@ ALCcontext* Sound::context = nullptr;
 bool Sound::initialized = false;
 bool Sound::sounds_preloaded = false;
 float Sound::volume = 1.0;
+bool Sound::pc_play = false;
 std::list<Sound*> Sound::current_sounds;
 std::map<std::string, Sound> Sound::all_sounds;
 
@@ -174,6 +176,8 @@ Sound::~Sound() {
  * This method should be called when the application starts.
  * If the argument -no-audio is provided, this function has no effect and
  * there will be no sound.
+ * If the argument -perf-sound-play is provided and is "yes", sound
+ * playing will be accounted using a performance counter.
  *
  * \param args Command-line arguments.
  */
@@ -184,6 +188,9 @@ void Sound::initialize(const Arguments& args) {
   if (disable) {
     return;
   }
+
+  // Check the -perf-sound-play option.
+  pc_play = args.get_argument_value("-perf-sound-play") == "yes";
 
   // Initialize OpenAL.
 
@@ -289,6 +296,9 @@ bool Sound::exists(const std::string& sound_id) {
  * \param sound_id id of the sound to play
  */
 void Sound::play(const std::string& sound_id) {
+  if (pc_play) {
+    PerfCounter::update("sound-play");
+  }
 
   if (all_sounds.find(sound_id) == all_sounds.end()) {
     all_sounds[sound_id] = Sound(sound_id);
