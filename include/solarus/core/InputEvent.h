@@ -329,6 +329,8 @@ class InputEvent {
     static bool repeat_keyboard;                  /**< True to handle repeat KEYDOWN and KEYUP events. */
     static std::set<SDL_Keycode> keys_pressed;    /**< Keys currently down, only according to SDL_KEYDOWN and SDL_KEYUP events
                                                    * (i.e. independently of the real current state SDL_GetKeyboardState()). */
+    static std::set<Uint8> jbuttons_pressed;      /**< Joypad buttons currently down, only according to SDL_JOYBUTTONDOWN and
+                                                   * SDL_JOYBUTTONUP events. */
 
     const SDL_Event internal_event;               /**< the internal event encapsulated */
 

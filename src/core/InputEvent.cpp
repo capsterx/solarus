@@ -36,6 +36,7 @@ bool InputEvent::joypad_enabled = false;
 SDL_Joystick* InputEvent::joystick = nullptr;
 bool InputEvent::repeat_keyboard = false;
 std::set<SDL_Keycode> InputEvent::keys_pressed;
+std::set<Uint8> InputEvent::jbuttons_pressed;
 // Default the axis states to centered
 std::vector<int> InputEvent::joypad_axis_state;
 
@@ -211,6 +212,7 @@ void InputEvent::quit() {
   joystick = nullptr;
   repeat_keyboard = false;
   keys_pressed.clear();
+  jbuttons_pressed.clear();
   joypad_axis_state.clear();
   initialized = false;
 }
@@ -297,6 +299,14 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
         // Already known as not pressed: mark repeated.
         internal_event.key.repeat = 1;
       }
+    }
+
+    // Track joypad button events for checking button combinations.
+    else if (internal_event.type == SDL_JOYBUTTONDOWN) {
+      jbuttons_pressed.insert(internal_event.jbutton.button);
+    }
+    else if (internal_event.type == SDL_JOYBUTTONUP) {
+      jbuttons_pressed.erase(internal_event.jbutton.button);
     }
 
     // Capture mouse movements outside the window
