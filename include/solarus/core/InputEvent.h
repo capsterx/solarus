@@ -29,6 +29,7 @@
 
 namespace Solarus {
 
+class Arguments;
 class Point;
 class Rectangle;
 class Size;
@@ -203,7 +204,7 @@ class InputEvent {
       X2              = SDL_BUTTON_X2,
     };
 
-    static void initialize();
+    static void initialize(const Arguments& args);
     static void quit();
     static bool is_initialized();
 
@@ -331,6 +332,7 @@ class InputEvent {
                                                    * (i.e. independently of the real current state SDL_GetKeyboardState()). */
     static std::set<Uint8> jbuttons_pressed;      /**< Joypad buttons currently down, only according to SDL_JOYBUTTONDOWN and
                                                    * SDL_JOYBUTTONUP events. */
+    static std::set<Uint8> quit_combo;            /**< Optional joypad buttons combination for quitting the application. */
 
     const SDL_Event internal_event;               /**< the internal event encapsulated */
 

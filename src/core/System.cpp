@@ -52,7 +52,7 @@ void System::initialize(const Arguments& args) {
   Sound::initialize(args);
 
   // input
-  InputEvent::initialize();
+  InputEvent::initialize(args);
 
   // random number generator
   Random::initialize();
