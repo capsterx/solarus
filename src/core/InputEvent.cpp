@@ -892,6 +892,17 @@ void InputEvent::simulate_key_released(KeyboardKey key) {
   SDL_PushEvent(&event);
 }
 
+/**
+ * \brief Simulates a window closing event.
+ */
+void InputEvent::simulate_window_closing() {
+
+  SDL_Event event;
+  event.type = SDL_QUIT;
+
+  SDL_PushEvent(&event);
+}
+
 // joypad
 
 /**

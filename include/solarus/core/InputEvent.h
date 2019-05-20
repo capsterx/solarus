@@ -259,6 +259,7 @@ class InputEvent {
 
     static void simulate_key_pressed(KeyboardKey key);
     static void simulate_key_released(KeyboardKey key);
+    static void simulate_window_closing();
 
     // joypad
     static bool is_joypad_enabled();
