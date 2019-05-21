@@ -247,6 +247,12 @@ MainLoop::MainLoop(const Arguments& args):
 #ifdef ANDROID
   Video::set_fullscreen(true);
 #endif
+
+  // Set the mouse cursor visibility if requested.
+  const std::string& cursor_visible_arg = args.get_argument_value("-cursor-visible");
+  if (!cursor_visible_arg.empty()) {
+    Video::set_cursor_visible(cursor_visible_arg == "yes");
+  }
 }
 
 /**
