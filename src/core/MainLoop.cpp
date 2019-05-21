@@ -244,9 +244,12 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Show the window.
   Video::show_window();
-#ifdef ANDROID
-  Video::set_fullscreen(true);
-#endif
+
+  // Set the fullscreen mode if requested.
+  const std::string& fullscreen_arg = args.get_argument_value("-fullscreen");
+  if (!fullscreen_arg.empty()) {
+    Video::set_fullscreen(fullscreen_arg == "yes");
+  }
 
   // Set the mouse cursor visibility if requested.
   const std::string& cursor_visible_arg = args.get_argument_value("-cursor-visible");
