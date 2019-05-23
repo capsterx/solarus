@@ -4,7 +4,12 @@ set(solarus_run_SOURCES
 )
 
 # Add the Solarus icon in Windows.
-if(WIN32)
+if(MINGW)
+  set(solarus_run_SOURCES
+    ${solarus_run_SOURCES}
+    cmake/win32/resources-mingw.rc
+  )
+elseif(WIN32)
   set(solarus_run_SOURCES
     ${solarus_run_SOURCES}
     cmake/win32/resources.rc

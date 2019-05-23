@@ -21,12 +21,7 @@
 #include "solarus/core/MainLoop.h"
 #include <iostream>
 #include <string>
-
-// On iOS SDL provides a main function that creates an application delegate
-// and starts the iOS application run loop.
-#if defined(SOLARUS_IOS)
-#  include "SDL_main.h"
-#endif
+#include <SDL.h>
 
 namespace Solarus {
 
