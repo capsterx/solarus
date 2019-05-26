@@ -71,6 +71,8 @@ void print_help(const Arguments& args) {
     << std::endl
     << "  -cursor-visible=yes|no        sets the mouse cursor visibility on start (default leave unchanged)"
     << std::endl
+    << "  -fullscreen=yes|no            sets fullscreen mode on start (default leave unchanged)"
+    << std::endl
     << "  -perf-sound-play=yes|no       enables performance reporting of sound playing (default no)"
     << std::endl
     << "  -perf-video-render=yes|no     enables performance reporting of video rendering, i.e. FPS (default no)"
