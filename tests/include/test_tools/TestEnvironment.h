@@ -23,6 +23,7 @@
 #include "solarus/core/Point.h"
 #include <cstdint>
 #include <memory>
+#include <SDL.h>
 
 namespace Solarus {
 
