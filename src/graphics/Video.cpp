@@ -572,8 +572,8 @@ void set_fullscreen(bool fullscreen) {
 
     SDL_SetWindowFullscreen(context.main_window, fullscreen_flag);
     if (not fullscreen && not context.geometry.window_size.is_flat()) {
-      // Restore saved window size after coming back from fullscreen
-      set_window_size(context.geometry.window_size);
+      // Do window resized event after coming back from fullscreen
+      on_window_resized(context.geometry.window_size);
     }
   }
 
