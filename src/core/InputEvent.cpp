@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "solarus/core/Arguments.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/InputEvent.h"
 #include "solarus/core/Logger.h"
@@ -21,6 +22,7 @@
 #include "solarus/graphics/Video.h"
 #include <SDL.h>
 #include <cstdlib>  // std::abs
+#include <sstream>
 
 namespace Solarus {
 
@@ -36,6 +38,8 @@ bool InputEvent::joypad_enabled = false;
 SDL_Joystick* InputEvent::joystick = nullptr;
 bool InputEvent::repeat_keyboard = false;
 std::set<SDL_Keycode> InputEvent::keys_pressed;
+std::set<Uint8> InputEvent::jbuttons_pressed;
+std::set<Uint8> InputEvent::quit_combo;
 // Default the axis states to centered
 std::vector<int> InputEvent::joypad_axis_state;
 
@@ -186,7 +190,19 @@ const EnumInfo<InputEvent::MouseButton>::names_type EnumInfoTraits<InputEvent::M
 /**
  * \brief Initializes the input event manager.
  */
-void InputEvent::initialize() {
+void InputEvent::initialize(const Arguments& args) {
+
+  // Check the -quit-combo option.
+  const std::string& quit_combo_arg = args.get_argument_value("-quit-combo");
+  if (!quit_combo_arg.empty()) {
+    quit_combo.clear();
+    std::stringstream ss(quit_combo_arg);
+    std::string jbutton;
+    while (std::getline(ss, jbutton, '+')) {
+      quit_combo.insert(std::stoi(jbutton));
+    }
+    Logger::info(std::string("Joypad quit combo enabled: ") + quit_combo_arg);
+  }
 
   initialized = true;
 
@@ -211,6 +227,7 @@ void InputEvent::quit() {
   joystick = nullptr;
   repeat_keyboard = false;
   keys_pressed.clear();
+  jbuttons_pressed.clear();
   joypad_axis_state.clear();
   initialized = false;
 }
@@ -297,6 +314,17 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
         // Already known as not pressed: mark repeated.
         internal_event.key.repeat = 1;
       }
+    }
+
+    // Track joypad button events for checking button combinations.
+    else if (internal_event.type == SDL_JOYBUTTONDOWN) {
+      jbuttons_pressed.insert(internal_event.jbutton.button);
+      if (jbuttons_pressed == quit_combo) {
+        simulate_window_closing();
+      }
+    }
+    else if (internal_event.type == SDL_JOYBUTTONUP) {
+      jbuttons_pressed.erase(internal_event.jbutton.button);
     }
 
     // Capture mouse movements outside the window
@@ -888,6 +916,17 @@ void InputEvent::simulate_key_released(KeyboardKey key) {
   event.type = SDL_KEYUP;
   event.key.keysym.sym = static_cast<SDL_Keycode>(key);
   event.key.repeat = 0;
+
+  SDL_PushEvent(&event);
+}
+
+/**
+ * \brief Simulates a window closing event.
+ */
+void InputEvent::simulate_window_closing() {
+
+  SDL_Event event;
+  event.type = SDL_QUIT;
 
   SDL_PushEvent(&event);
 }
