@@ -99,7 +99,12 @@ set(solarus_launcher_SOURCES
 )
 
 # Add the Solarus icon in Windows.
-if(WIN32)
+if(MINGW)
+  set(solarus_launcher_SOURCES
+    ${solarus_launcher_SOURCES}
+    ../gui/resources/win32/resources-mingw.rc
+  )
+elseif(WIN32)
   set(solarus_launcher_SOURCES
     ${solarus_launcher_SOURCES}
     ../gui/resources/win32/resources.rc

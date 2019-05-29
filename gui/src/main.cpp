@@ -29,6 +29,7 @@
 #include <QTextStream>
 #include <QTranslator>
 #include <iostream>
+#include <SDL.h>
 
 namespace SolarusGui {
 
