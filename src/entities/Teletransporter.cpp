@@ -81,17 +81,21 @@ void Teletransporter::notify_creating() {
 
   // Compute the destination side in case the destination name is "_side"
   // or becomes it later.
-  if (get_width() == 16 && x == -16) {
-    destination_side = 0;
+  if (get_height() > get_width()) {
+    if (x + get_width() == 0) {
+      destination_side = 0;
+    }
+    else if (x == get_map().get_width()) {
+      destination_side = 2;
+    }
   }
-  else if (get_width() == 16 && x == get_map().get_width()) {
-    destination_side = 2;
-  }
-  else if (get_height() == 16 && y == -16) {
-    destination_side = 3;
-  }
-  else if (get_height() == 16 && y == get_map().get_height()) {
-    destination_side = 1;
+  else if (get_width() > get_height()) {
+    if (y + get_height() == 0) {
+      destination_side = 3;
+    }
+    else if (y == get_map().get_height()) {
+      destination_side = 1;
+    }
   }
 
   if (destination_side != -1) {
