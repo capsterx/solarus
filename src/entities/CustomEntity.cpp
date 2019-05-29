@@ -597,13 +597,13 @@ bool CustomEntity::is_destructible_obstacle(Destructible& destructible) {
 /**
  * \copydoc Entity::is_separator_obstacle
  */
-bool CustomEntity::is_separator_obstacle(Separator& separator) {
+bool CustomEntity::is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) {
 
   const TraversableInfo& info = get_can_traverse_entity_info(separator.get_type());
   if (!info.is_empty()) {
     return !info.is_traversable(*this, separator);
   }
-  return Entity::is_separator_obstacle(separator);
+  return Entity::is_separator_obstacle(separator, candidate_position);
 }
 
 /**

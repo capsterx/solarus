@@ -58,6 +58,7 @@ map{ id = "bugs/1291_hero_start_attack_loading", description = "#1291: hero:star
 map{ id = "bugs/1299_crash_invalid_tile_pattern", description = "#1299: Crash when loading a map with an invalid tile pattern" }
 map{ id = "bugs/1301_state_set_can_be_hurt_function", description = "#1301: Allow to pass a function to state:set_can_be_hurt()" }
 map{ id = "bugs/1319_disabled_entity_timer_unsuspended", description = "#1319: Timers of disabled entity continue when the game is unsuspended" }
+map{ id = "bugs/1351_camera_stuck_on_separator", description = "#1351: Camera stuck on separators" }
 map{ id = "bugs/1353_water_no_flippers", description = "#1535: No flippers when arriving in deep water and callback" }
 map{ id = "bugs/1354_crash_start_movement", description = "#1354: Crash when starting a movement from hero:on_state_changed()" }
 map{ id = "bugs/1361_crash_pickable_on_stream", description = "#1361: Crash when a pickable overlaps a stream" }

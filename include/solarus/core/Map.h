@@ -21,7 +21,7 @@
 #include "solarus/core/Debug.h"
 #include "solarus/core/MapData.h"
 #include "solarus/core/Rectangle.h"
-#include "solarus/entities/Camera.h"
+#include "solarus/entities/CameraPtr.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/Ground.h"
 #include "solarus/entities/NonAnimatedRegions.h"

@@ -16,6 +16,7 @@
  */
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/Map.h"
+#include "solarus/entities/Camera.h"
 #include "solarus/entities/Tile.h"
 #include "solarus/entities/TileInfo.h"
 #include "solarus/entities/Tileset.h"

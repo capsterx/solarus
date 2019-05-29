@@ -19,6 +19,7 @@
 #include "solarus/core/Map.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/ResourceProvider.h"
+#include "solarus/entities/Camera.h"
 #include "solarus/entities/DynamicTile.h"
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Tileset.h"

@@ -16,6 +16,7 @@
  */
 #include "solarus/core/Debug.h"
 #include "solarus/core/Map.h"
+#include "solarus/entities/Camera.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/NonAnimatedRegions.h"
 #include "solarus/entities/Tileset.h"

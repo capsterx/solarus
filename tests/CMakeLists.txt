@@ -134,6 +134,7 @@ set(lua_test_maps
   "bugs/1301_state_set_can_be_hurt_function"
   "bugs/1319_disabled_entity_timer_unsuspended"
   "bugs/1354_crash_start_movement"
+  "bugs/1351_camera_stuck_on_separator"
   "bugs/1353_water_no_flippers"
   "bugs/1361_crash_pickable_on_stream"
   "bugs/1364_state_set_can_use_stairs_not_working"

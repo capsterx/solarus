@@ -19,8 +19,8 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/graphics/Transition.h"
-#include "solarus/entities/Camera.h"
 #include "solarus/entities/CameraPtr.h"
+#include "solarus/entities/Entity.h"
 #include "solarus/entities/EntityPtr.h"
 #include "solarus/entities/EntityType.h"
 #include "solarus/entities/Ground.h"
@@ -36,6 +36,7 @@
 
 namespace Solarus {
 
+class Camera;
 class Destination;
 class Hero;
 class Map;

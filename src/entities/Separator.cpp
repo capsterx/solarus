@@ -68,10 +68,10 @@ bool Separator::is_vertical() const {
 }
 
 /**
- * \copydoc Entity::is_obstacle_for
+ * \copydoc Entity::is_obstacle_for(Entity&, const Rectangle&)
  */
-bool Separator::is_obstacle_for(Entity& other) {
-  return other.is_separator_obstacle(*this);
+bool Separator::is_obstacle_for(Entity& other, const Rectangle& candidate_position) {
+  return other.is_separator_obstacle(*this, candidate_position);
 }
 
 /**

@@ -53,6 +53,7 @@ class Camera : public Entity {
     void set_suspended(bool suspended) override;
     void notify_movement_started() override;
     void notify_size_changed() override;
+    bool is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) override;
 
     const SurfacePtr& get_surface() const;
 

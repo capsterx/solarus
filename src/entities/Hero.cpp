@@ -1664,7 +1664,7 @@ bool Hero::is_destructible_obstacle(Destructible& destructible) {
 /**
  * \copydoc Entity::is_separator_obstacle
  */
-bool Hero::is_separator_obstacle(Separator& separator) {
+bool Hero::is_separator_obstacle(Separator& separator, const Rectangle& /* candidate_position */) {
   return get_state()->is_separator_obstacle(separator);
 }
 

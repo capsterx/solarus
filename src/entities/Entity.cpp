@@ -2988,7 +2988,7 @@ bool Entity::is_enemy_obstacle(Enemy& /* enemy */) {
 /**
  * \brief Returns whether a jumper is currently considered as an obstacle by this entity.
  * \param jumper A jumper.
- * \param candidate_position Candidate position of this entity to test.
+ * \param candidate_position Candidate position of the entity to test.
  * \return \c true if the jumper is currently an obstacle for this entity at
  * this candidate position.
  */
@@ -3016,9 +3016,10 @@ bool Entity::is_destructible_obstacle(Destructible& /* destructible */) {
  * By default, this function returns \c true.
  *
  * \param separator A separator.
+ * \param candidate_position Candidate position of the entity to test.
  * \return \c true if the separator is currently an obstacle for this entity.
  */
-bool Entity::is_separator_obstacle(Separator& /* separator */) {
+bool Entity::is_separator_obstacle(Separator& /* separator */, const Rectangle& /* candidate_position */) {
 
   return true;
 }

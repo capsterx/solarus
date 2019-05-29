@@ -194,7 +194,7 @@ class Hero: public Entity {
     bool is_enemy_obstacle(Enemy& enemy) override;
     bool is_jumper_obstacle(Jumper& jumper, const Rectangle& candidate_position) override;
     bool is_destructible_obstacle(Destructible& destructible) override;
-    bool is_separator_obstacle(Separator& separator) override;
+    bool is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) override;
 
     /**
      * \name Collisions.

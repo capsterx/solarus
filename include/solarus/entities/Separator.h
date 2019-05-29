@@ -49,9 +49,9 @@ class Separator: public Entity {
     bool is_horizontal() const;
     bool is_vertical() const;
 
-    virtual bool is_obstacle_for(Entity& other) override;
-    virtual bool test_collision_custom(Entity& entity) override;
-    virtual void notify_collision(
+    bool is_obstacle_for(Entity& other, const Rectangle& candidate_position) override;
+    bool test_collision_custom(Entity& entity) override;
+    void notify_collision(
         Entity& entity_overlapping,
         CollisionMode collision_mode
     ) override;

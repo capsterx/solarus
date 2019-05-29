@@ -1,0 +1,70 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 640,
+  height = 480,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "overworld",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 240,
+  width = 320,
+  height = 240,
+  pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 320,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "9",
+}
+
+tile{
+  layer = 0,
+  x = 320,
+  y = 240,
+  width = 320,
+  height = 240,
+  pattern = "9",
+}
+
+separator{
+  layer = 0,
+  x = 312,
+  y = 0,
+  width = 16,
+  height = 480,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 1,
+}
+
+separator{
+  layer = 0,
+  x = 320,
+  y = 232,
+  width = 320,
+  height = 16,
+}
+

@@ -281,6 +281,30 @@ void Camera::notify_size_changed() {
 }
 
 /**
+ * \copydoc Entity::is_separator_obstacle
+ */
+bool Camera::is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) {
+
+  const Point& center = separator.get_center_point();
+  if (separator.is_vertical()) {
+    if (candidate_position.get_x() + get_width() <= center.x) {
+      return false;
+    }
+    if (candidate_position.get_x() >= center.x) {
+      return false;
+    }
+  } else if (separator.is_horizontal()) {
+    if (candidate_position.get_y() + get_height() <= center.y) {
+      return false;
+    }
+    if (candidate_position.get_y() >= center.y) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
  * \brief Returns where this camera is displayed on the screen.
  * \return Position of the upper-left corner of the camera relative to the
  * quest screen.
