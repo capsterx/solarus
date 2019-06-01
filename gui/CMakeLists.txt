@@ -93,6 +93,11 @@ target_link_libraries(solarus-gui
   "${MODPLUG_LIBRARY}"
 )
 
+set_target_properties(solarus-gui PROPERTIES
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
 # Main executable.
 set(solarus_launcher_SOURCES
   src/main.cpp

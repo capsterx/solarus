@@ -503,8 +503,8 @@ target_compile_options(solarus PUBLIC
 )
 
 set_target_properties(solarus PROPERTIES
-  VERSION ${SOLARUS_VERSION_STRING}
-  SOVERSION ${SOLARUS_MAJOR_VERSION}
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 # Configuration for macOS build and deployment.
