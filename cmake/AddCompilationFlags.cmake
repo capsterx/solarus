@@ -19,6 +19,13 @@ if(NOT CMAKE_BUILD_TYPE)
         FORCE)
 endif()
 
+# Compile libraries as shared by default.
+if(NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL
+        "Choose if building static or shared (default) libraries."
+        FORCE)
+endif()
+
 # Warnings and errors.
 
 # Be less pedantic in release builds for users.

@@ -19,6 +19,7 @@ set(SOLARUS_HEADERS_INSTALL_DESTINATION "include" CACHE PATH "Headers install de
 # Files to install with make install.
 # Install the shared library and the solarus-run executable.
 install(TARGETS solarus solarus-run
+  ARCHIVE DESTINATION ${SOLARUS_LIBRARY_INSTALL_DESTINATION}
   LIBRARY DESTINATION ${SOLARUS_LIBRARY_INSTALL_DESTINATION}
   RUNTIME DESTINATION ${SOLARUS_EXECUTABLE_INSTALL_DESTINATION}
 )
