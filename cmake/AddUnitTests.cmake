@@ -1,12 +1,6 @@
 # Unit tests.
-enable_testing()
-add_subdirectory(tests)
+option(SOLARUS_TESTS "Generate the unit tests" ON)
 
-# Set up the root path on OSX testing target.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set_target_properties(solarus-testing PROPERTIES
-    MACOSX_RPATH                       ON
-    BUILD_WITH_INSTALL_RPATH           1
-    INSTALL_NAME_DIR                   "@rpath"
-  )
+if(SOLARUS_TESTS)
+  add_subdirectory(tests)
 endif()
