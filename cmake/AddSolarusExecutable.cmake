@@ -1,39 +1,25 @@
-# Source file of the solarus-run executable.
-set(solarus_run_SOURCES
-  src/main/Main.cpp
+# Declare the "solarus-run" executable target and its public/private sources
+add_executable(solarus-run "")
+target_sources(solarus-run
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/main/Main.cpp"
 )
 
-# Add the Solarus icon in Windows.
+# Add the Solarus icon for Windows-based builds
 if(MINGW)
-  set(solarus_run_SOURCES
-    ${solarus_run_SOURCES}
-    cmake/win32/resources-mingw.rc
+  target_sources(solarus-run
+    PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/win32/resources-mingw.rc"
   )
 elseif(WIN32)
-  set(solarus_run_SOURCES
-    ${solarus_run_SOURCES}
-    cmake/win32/resources.rc
+  target_sources(solarus-run
+    PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/win32/resources.rc"
   )
 endif()
 
-add_executable(solarus-run
-  ${solarus_run_SOURCES}
-)
-
+# Declare the public/private libraries that "solarus-run" depends on
 target_link_libraries(solarus-run
-  solarus
-  "${SDL2_LIBRARY}"
-  "${SDL2_IMAGE_LIBRARY}"
-  "${SDL2_TTF_LIBRARY}"
-  "${OPENAL_LIBRARY}"
-  "${LUA_LIBRARY}"
-  "${DL_LIBRARY}"
-  "${PHYSFS_LIBRARY}"
-  "${VORBISFILE_LIBRARY}"
-  "${OGG_LIBRARY}"
-  "${MODPLUG_LIBRARY}"
-)
-
-target_compile_options(solarus-run PUBLIC
-  "${SDL2_CFLAGS_OTHER}"
+  PUBLIC
+    solarus
 )
