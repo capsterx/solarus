@@ -1,3 +1,5 @@
+enable_testing()
+
 include(cmake/AddIncludeDirectories.cmake)
 include(cmake/AddSolarusTestingLibrary.cmake)
 include(cmake/AddTestMaps.cmake)
