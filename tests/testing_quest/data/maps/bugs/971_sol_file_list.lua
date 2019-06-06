@@ -31,10 +31,11 @@ function map:on_started()
   assert(not sol.file.is_dir("971_not_a_dir"))
   f = sol.file.open("971_not_a_dir")
   assert_equal(f:read("*a"), "hello")
+  f:close()
   files = sol.file.list_dir("971_not_a_dir")
   assert(files == nil)
   sol.file.remove("971_not_a_dir")
-  assert(not sol.file.exists("971971_not_a_dir"))
+  assert(not sol.file.exists("971_not_a_dir"))
 
   -- Non existing directory.
   assert(not sol.file.exists("does_not_exist"))
