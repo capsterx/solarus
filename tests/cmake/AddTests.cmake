@@ -13,6 +13,16 @@ list(APPEND TESTS_MAIN_FILES
   src/tests/RunLuaTest.cpp
 )
 
+# Wrapper for add_test() to set root build path if we are in Windows
+function(_add_test)
+  add_test(${ARGN})
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    set_tests_properties(${ARGV0} PROPERTIES
+      ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}\\;$ENV{PATH}"
+    )
+  endif()
+endfunction(_add_test)
+
 # Generate test executables
 foreach(TEST_MAIN_FILE ${TESTS_MAIN_FILES})
   get_filename_component(TEST_BIN_FILE ${TEST_MAIN_FILE} NAME_WE)
@@ -32,20 +42,20 @@ foreach(TEST_MAIN_FILE ${TESTS_MAIN_FILES})
   # Lua test runner: add an individual test for each map.
   if (${TEST_MAIN_FILE} MATCHES "src/tests/RunLuaTest.cpp")
     foreach(MAP_ID ${LUA_TEST_MAPS})
-      add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      _add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
     # Tests that want to survive on errors.
     foreach(MAP_ID ${LUA_TEST_MAPS_NON_FATAL})
-      add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes -fatal-errors=no "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      _add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes -fatal-errors=no "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
     # Tests that need a window to run.
     foreach(MAP_ID ${LUA_TEST_MAPS_REQUIRE_WINDOW})
-      add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -turbo=yes "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+      _add_test("lua/${MAP_ID}" "bin/${TEST_BIN_FILE}" -no-audio -turbo=yes "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
     endforeach()
   else()
     # Normal C++ test.
     get_filename_component(TEST_NAME "${TEST_MAIN_FILE}" NAME_WE)
     string(TOLOWER "${TEST_NAME}" TEST_NAME)
-    add_test("${TEST_NAME}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+    _add_test("${TEST_NAME}" "bin/${TEST_BIN_FILE}" -no-audio -no-video -turbo=yes "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
   endif()
 endforeach()
