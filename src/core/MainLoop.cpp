@@ -173,9 +173,9 @@ MainLoop::MainLoop(const Arguments& args):
   num_lua_commands_done(0) {
 
 #ifdef SOLARUS_GIT_REVISION
-  Logger::info(std::string("Solarus ") + SOLARUS_VERSION + " (" + SOLARUS_GIT_REVISION + ")");
+  Logger::info("Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")");
 #else
-  Logger::info(std::string("Solarus ") + SOLARUS_VERSION);
+  Logger::info("Solarus " SOLARUS_VERSION);
 #endif
 
   // Main loop settings.
@@ -623,9 +623,9 @@ void MainLoop::load_quest_properties() {
       window_title += " " + quest_version;
     }
 #ifdef SOLARUS_GIT_REVISION
-    window_title += std::string(" - Solarus ") + SOLARUS_VERSION + " (" + SOLARUS_GIT_REVISION + ")";
+    window_title += " - Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")";
 #else
-    window_title += std::string(" - Solarus ") + SOLARUS_VERSION;
+    window_title += " - Solarus " SOLARUS_VERSION;
 #endif
     Video::set_window_title(window_title);
   }
