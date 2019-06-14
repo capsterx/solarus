@@ -172,7 +172,11 @@ MainLoop::MainLoop(const Arguments& args):
   num_lua_commands_pushed(0),
   num_lua_commands_done(0) {
 
-  Logger::info(std::string("Solarus ") + SOLARUS_VERSION);
+#ifdef SOLARUS_GIT_REVISION
+  Logger::info("Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")");
+#else
+  Logger::info("Solarus " SOLARUS_VERSION);
+#endif
 
   // Main loop settings.
   const std::string lag_arg = args.get_argument_value("-lag");
@@ -618,7 +622,11 @@ void MainLoop::load_quest_properties() {
     if (!quest_version.empty()) {
       window_title += " " + quest_version;
     }
-    window_title += std::string(" - Solarus ") + SOLARUS_VERSION;
+#ifdef SOLARUS_GIT_REVISION
+    window_title += " - Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")";
+#else
+    window_title += " - Solarus " SOLARUS_VERSION;
+#endif
     Video::set_window_title(window_title);
   }
 
