@@ -72,6 +72,8 @@ void print_help(const Arguments& args) {
     << std::endl
     << "  -perf-video-render=yes|no     enables performance reporting of video rendering, i.e. FPS (default no)"
     << std::endl
+    << "  -joypad-deadzone=<value>      sets the joypad axis deadzone between 0-32767 (default 10000)"
+    << std::endl
     << "  -quit-combo=<b1>+<b2>+...     enables joypad buttons combo for quitting (default disabled)"
     << std::endl
     << "  -s=<script>                   set a script to be executed before the main.lua of the quest."

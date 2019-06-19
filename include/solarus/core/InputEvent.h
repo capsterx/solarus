@@ -322,7 +322,6 @@ class InputEvent {
     static bool joypad_enabled;                   /**< true if joypad support is enabled
                                                    * (may be true even without joypad plugged) */
     static SDL_Joystick* joystick;                /**< the joystick object if enabled and plugged */
-    static std::vector<int> joypad_axis_state;    /**< keep track of the current horizontal and vertical axis states */
     static std::map<KeyboardKey, std::string>
       keyboard_key_names;                         /**< Names of all existing keyboard keys. */
     static std::map<MouseButton, std::string>
@@ -330,6 +329,7 @@ class InputEvent {
     static bool repeat_keyboard;                  /**< True to handle repeat KEYDOWN and KEYUP events. */
     static std::set<SDL_Keycode> keys_pressed;    /**< Keys currently down, only according to SDL_KEYDOWN and SDL_KEYUP events
                                                    * (i.e. independently of the real current state SDL_GetKeyboardState()). */
+    static int joypad_deadzone;                   /**< Joypad axis deadzone for detecting directions. */
     static std::set<Uint8> jbuttons_pressed;      /**< Joypad buttons currently down, only according to SDL_JOYBUTTONDOWN and
                                                    * SDL_JOYBUTTONUP events. */
     static std::set<Uint8> quit_combo;            /**< Optional joypad buttons combination for quitting the application. */
