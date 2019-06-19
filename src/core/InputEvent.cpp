@@ -38,10 +38,9 @@ bool InputEvent::joypad_enabled = false;
 SDL_Joystick* InputEvent::joystick = nullptr;
 bool InputEvent::repeat_keyboard = false;
 std::set<SDL_Keycode> InputEvent::keys_pressed;
+int InputEvent::joypad_deadzone = 10000;
 std::set<Uint8> InputEvent::jbuttons_pressed;
 std::set<Uint8> InputEvent::quit_combo;
-// Default the axis states to centered
-std::vector<int> InputEvent::joypad_axis_state;
 
 // Keyboard key names.
 const std::string EnumInfoTraits<InputEvent::KeyboardKey>::pretty_name = "keyboard key";
@@ -204,6 +203,13 @@ void InputEvent::initialize(const Arguments& args) {
     Logger::info(std::string("Joypad quit combo enabled: ") + quit_combo_arg);
   }
 
+  // Check the -joypad-deadzone option.
+  const std::string joypad_deadzone_arg = args.get_argument_value("-joypad-deadzone");
+  if (!joypad_deadzone_arg.empty()) {
+    joypad_deadzone = std::stoi(joypad_deadzone_arg);
+    Logger::info(std::string("Joypad axis deadzone: ") + joypad_deadzone_arg);
+  }
+
   initialized = true;
 
   // Initialize text events.
@@ -228,7 +234,6 @@ void InputEvent::quit() {
   repeat_keyboard = false;
   keys_pressed.clear();
   jbuttons_pressed.clear();
-  joypad_axis_state.clear();
   initialized = false;
 }
 
@@ -263,45 +268,12 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
   SDL_Event internal_event;
   if (SDL_PollEvent(&internal_event)) {
 
-    // If this is a joypad axis event
-    if (internal_event.type == SDL_JOYAXISMOTION) {
-      // Determine the current state of the axis
-      int axis = internal_event.jaxis.axis;
-      int value = internal_event.jaxis.value;
-      int joystick_deadzone = 8000;
-      if (axis == 0) {  // X axis
-        int x_dir = 0;
-        if (value < -joystick_deadzone) {
-          // Left of dead zone
-          x_dir = -1;
-        } else if(value > joystick_deadzone) {
-          // Right of dead zone
-          x_dir =  1;
-        } else {
-          x_dir = 0;
-        }
-        joypad_axis_state[axis] = x_dir;
-      } else if (axis == 1) {  // Y axis
-        int y_dir = 0;
-        if (value < -joystick_deadzone) {
-          // Below dead zone
-          y_dir = -1;
-        } else if(value > joystick_deadzone) {
-          // Above dead zone
-          y_dir =  1;
-        } else {
-          y_dir = 0;
-        }
-        joypad_axis_state[axis] = y_dir;
-      }
-    }
-
     // Check if keyboard events are correct.
     // For some reason, when running Solarus from a Qt application
     // (which is not recommended)
     // multiple SDL_KEYUP events are generated when a key remains pressed
     // (Qt/SDL conflict). This fixes most problems but not all of them.
-    else if (internal_event.type == SDL_KEYDOWN) {
+    if (internal_event.type == SDL_KEYDOWN) {
       SDL_Keycode key = internal_event.key.keysym.sym;
       if (!keys_pressed.insert(key).second) {
         // Already known as pressed: mark repeated.
@@ -487,7 +459,7 @@ int InputEvent::get_joypad_axis_state(int axis) {
   int state = SDL_JoystickGetAxis(joystick, axis);
 
   int result;
-  if (std::abs(state) < 10000) {
+  if (std::abs(state) < joypad_deadzone) {
     result = 0;
   }
   else {
@@ -961,13 +933,12 @@ void InputEvent::set_joypad_enabled(bool joypad_enabled) {
     if (joystick != nullptr) {
       SDL_JoystickClose(joystick);
       joystick = nullptr;
-      joypad_axis_state.clear();
+      jbuttons_pressed.clear();
     }
 
     if (joypad_enabled && SDL_NumJoysticks() > 0) {
         SDL_InitSubSystem(SDL_INIT_JOYSTICK);
         joystick = SDL_JoystickOpen(0);
-        joypad_axis_state.assign(SDL_JoystickNumAxes(joystick), 0);
     }
     else {
       SDL_JoystickEventState(SDL_IGNORE);
@@ -1060,7 +1031,7 @@ int InputEvent::get_joypad_axis_state() const {
 
   int result;
   int value = internal_event.jaxis.value;
-  if (std::abs(value) < 10000) {
+  if (std::abs(value) < joypad_deadzone) {
     result = 0;
   }
   else {
