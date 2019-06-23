@@ -9,6 +9,17 @@ Engine changes
 
 * Add state:get/set_can_use_teletransporter/switch/stream (#1363).
 * Add `-force-software-rendering` switch to solarus-run (stdgregwar).
+* Add argument to set mouse cursor visibility on start (!1263).
+* Add option in CMake to support building with OpenGL ES (!1270).
+* Add option in CMake to disable logging errors to file (!1276).
+* Add simple performance counters to the engine (!1280).
+* Add argument to set fullscreen mode on start (!1281).
+* Add joypad buttons combo for quitting the engine (!1283).
+* Add option in CMake to control building of unit tests (!1288).
+* Add root build path to unit tests environment in Windows (!1291).
+* Add git revision information to build and main loop startup (!1292).
+* Add argument to set the joypad axis deadzone (!1293).
+* Add debug warning if a surface is larger than 2048 x 2048 (!1294).
 * Fix reordering hero sprites (#1243).
 * Fix crash when starting a hero movement from hero:on_state_changed (#1354).
 * Fix crash when starting drowning on a map after falling into a
@@ -24,6 +35,18 @@ teletransporter (#1353).
 * Fix camera movement stuck on separators (#1351).
 * Fix sol.menu.start allowing to start one menu multiple times (#1044).
 * Fix straight movement progress reinitialized when setting speed/angle.
+* Fix GlRenderer for non-Android GLES 2.0 devices (!1267).
+* Fix mouse and finger coordinates using renderer output size instead of
+window size (!1268).
+* Fix restoring to windowed mode from fullscreen (!1269).
+* Fix screen surface not being initialised in 640x480 video mode (!1273).
+* Fix initialisation of screen surface without video window (!1274).
+* Fix detection of LuaJIT version in CMake module (!1277).
+* Fix building with mingw-w64 in Linux (!1282).
+* Fix restoring from fullscreen mode in Windows (!1284).
+* Fix building GUI with mingw-w64 in Linux (!1285).
+* Fix running the unit tests from the build root folder (!1289).
+* Fix broken unit test that fails in Windows but not Linux (!1290).
 
 __________________________
 
