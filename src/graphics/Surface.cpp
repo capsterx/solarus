@@ -188,6 +188,12 @@ SDL_Surface_UniquePtr Surface::create_sdl_surface_from_file(
   Debug::check_assertion(surface != nullptr,
                          std::string("Cannot load image '") + file_name + "'");
 
+  // Check if the surface is too large and emit a warning
+  if (surface->w >= 2048 || surface->h >= 2048) {
+    Debug::warning(std::string("Image '") + file_name +
+                               "' is larger than 2048 x 2048 and may not render correctly");
+  }
+
   SDL_PixelFormat* pixel_format = Video::get_pixel_format();
   if (surface->format->format == pixel_format->format) {
     return surface;
