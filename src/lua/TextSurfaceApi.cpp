@@ -116,7 +116,9 @@ void LuaContext::register_text_surface_module() {
   }
 
   const std::vector<luaL_Reg> metamethods = {
-      { "__gc", drawable_meta_gc }
+      { "__gc", drawable_meta_gc },
+      { "__newindex", userdata_meta_newindex_as_table },
+      { "__index", userdata_meta_index_as_table }
   };
 
   register_type(text_surface_module_name, functions, methods, metamethods);

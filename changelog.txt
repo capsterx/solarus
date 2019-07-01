@@ -48,6 +48,11 @@ window size (!1268).
 * Fix running the unit tests from the build root folder (!1289).
 * Fix broken unit test that fails in Windows but not Linux (!1290).
 
+Lua API changes
+---------------
+
+* Make surface, text_surface and timer userdata types indexable (#1394).
+
 __________________________
 
 Solarus 1.6.0 (2018-12-22)
