@@ -306,33 +306,31 @@ void LuaContext::run_map(Map& map, const std::shared_ptr<Destination>& destinati
   std::string file_name = std::string("maps/") + map.get_id();
 
   // Load the map's code.
-  bool load_success = load_file(file_name);
-                                  // map_fun
+  if (load_file(file_name)) {
+                                    // map_fun
+    // Set a special environment to access map entities like global variables.
+    lua_newtable(current_l);
+                                    // map_fun env
+    lua_newtable(current_l);
+                                    // map_fun env env_mt
+    push_map(current_l, map);
+                                    // map_fun env env_mt map
+    // Set our special __index function that gets entities on-demand.
+    lua_pushcclosure(current_l, l_get_map_entity_or_global, 1);
+                                    // map_fun env env_mt __index
+    lua_setfield(current_l, -2, "__index");
+                                    // map_fun env env_mt
+    // We are changing the environment, so we need to also define __newindex
+    // with its usual setting (the global table).
+    lua_pushvalue(current_l, LUA_GLOBALSINDEX);
+                                    // map_fun env env_mt _G
+    lua_setfield(current_l, -2, "__newindex");
+                                    // map_fun env env_mt
+    lua_setmetatable(current_l, -2);
+                                    // map_fun env
+    lua_setfenv(current_l, -2);
+                                    // map_fun
 
-  // Set a special environment to access map entities like global variables.
-  lua_newtable(current_l);
-                                  // map_fun env
-  lua_newtable(current_l);
-                                  // map_fun env env_mt
-  push_map(current_l, map);
-                                  // map_fun env env_mt map
-  // Set our special __index function that gets entities on-demand.
-  lua_pushcclosure(current_l, l_get_map_entity_or_global, 1);
-                                  // map_fun env env_mt __index
-  lua_setfield(current_l, -2, "__index");
-                                  // map_fun env env_mt
-  // We are changing the environment, so we need to also define __newindex
-  // with its usual setting (the global table).
-  lua_pushvalue(current_l, LUA_GLOBALSINDEX);
-                                  // map_fun env env_mt _G
-  lua_setfield(current_l, -2, "__newindex");
-                                  // map_fun env env_mt
-  lua_setmetatable(current_l, -2);
-                                  // map_fun env
-  lua_setfenv(current_l, -2);
-                                  // map_fun
-
-  if (load_success) {
     // Run the map's code with the map userdata as parameter.
     push_map(current_l, map);
     call_function(1, 0, file_name.c_str());
