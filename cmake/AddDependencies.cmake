@@ -24,7 +24,7 @@ find_package(PhysFS REQUIRED)
 if(SOLARUS_USE_LUAJIT)
   find_package(LuaJit REQUIRED)
 else()
-  find_package(Lua51 REQUIRED)
+  find_package(Lua "5.1" EXACT REQUIRED)
 endif()
 
 # Explicit link to libdl is needed for Lua on some systems.
