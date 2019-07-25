@@ -32,6 +32,9 @@ QuestRunner::QuestRunner(QObject* parent) :
   process(this),
   last_command_id(-1) {
 
+  // Set the process channel mode to merged (stdout + stderr)
+  process.setProcessChannelMode(QProcess::MergedChannels);
+
   // Connect to QProcess signals to know when the quest is running and finished.
   connect(&process, SIGNAL(started()),
           this, SIGNAL(running()));
@@ -185,14 +188,12 @@ void QuestRunner::standard_output_data_available() {
 
   // Read the UTF-8 data available.
   QStringList lines;
-  QByteArray line_utf8 = process.readLine();
-  while (!line_utf8.isEmpty()) {
-    QString line(line_utf8);
+  while (process.canReadLine()) {
+    QString line(process.readLine());
     line = line.trimmed();  // Remove the final '\n'.
     if (!line.isEmpty()) {
       lines << line;
     }
-    line_utf8 = process.readLine();
   }
 
   if (!lines.isEmpty()) {
