@@ -117,12 +117,6 @@ void HeroSprites::rebuild_equipment() {
     set_tunic_sprite_id(get_default_tunic_sprite_id());
   }
 
-  // The hero's shadow.
-  if (shadow_sprite == nullptr) {
-    shadow_sprite = hero.create_sprite("entities/shadow", "shadow");
-    shadow_sprite->set_current_animation("big");
-  }
-
   // The hero's sword.
   if (has_default_sword_sprite) {
     set_sword_sprite_id(get_default_sword_sprite_id());
@@ -814,6 +808,18 @@ void HeroSprites::update() {
     ground_sprite->update();
   }
 
+  if (hero.is_shadow_visible()) {
+    if (!shadow_sprite->is_animation_started()) {
+      shadow_sprite->set_current_animation("big");
+    }
+    shadow_sprite->set_xy(hero.get_xy() - hero.get_displayed_xy());
+    shadow_sprite->update();
+  } else {
+    if (shadow_sprite->is_animation_started()) {
+      shadow_sprite->stop_animation();
+    }
+  }
+
   // Blinking.
   if (is_blinking()
       && end_blink_date != 0
@@ -894,12 +900,12 @@ void HeroSprites::notify_creating() {
   // Shadow, tunic, trail, ground, sword, sword stars, shield.
   hero.set_default_sprite_name("tunic");
   shadow_sprite = hero.create_sprite("entities/shadow", "shadow");
+  shadow_sprite->stop_animation();
   set_tunic_sprite_id(get_default_tunic_sprite_id());
   trail_sprite = hero.create_sprite("hero/trail", "trail");
   trail_sprite->stop_animation();
   create_ground(Ground::SHALLOW_WATER);
   ground_sprite->stop_animation();
-  shadow_sprite->set_current_animation("big");
   set_sword_sprite_id(get_default_sword_sprite_id());
   sword_stars_sprite = hero.create_sprite("hero/sword_stars1", "sword_stars");
   sword_stars_sprite->stop_animation();
