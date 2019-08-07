@@ -48,6 +48,7 @@ class Separator: public Entity {
 
     bool is_horizontal() const;
     bool is_vertical() const;
+    bool is_crossed_by(const Rectangle& candidate_position) const;
 
     bool is_obstacle_for(Entity& other, const Rectangle& candidate_position) override;
     bool test_collision_custom(Entity& entity) override;

@@ -61,6 +61,7 @@ map{ id = "bugs/1319_disabled_entity_timer_unsuspended", description = "#1319: T
 map{ id = "bugs/1351_camera_stuck_on_separator", description = "#1351: Camera stuck on separators" }
 map{ id = "bugs/1353_water_no_flippers", description = "#1535: No flippers when arriving in deep water and callback" }
 map{ id = "bugs/1354_crash_start_movement", description = "#1354: Crash when starting a movement from hero:on_state_changed()" }
+map{ id = "bugs/1356_block_on_separator", description = "#1356: Cannot push a block onto a separator" }
 map{ id = "bugs/1361_crash_pickable_on_stream", description = "#1361: Crash when a pickable overlaps a stream" }
 map{ id = "bugs/1364_state_set_can_use_stairs_not_working", description = "#1364: state:set_can_use_stairs() does not work when direction is locked" }
 map{ id = "bugs/1366_crash_disabled_stairs_on_dynamic_tile", description = "#1366: Crash when disabled stairs overlap a dynamic tile" }
@@ -490,6 +491,20 @@ file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.dat", author = "Chri
 file{ path = "maps/bugs/1301_state_set_can_be_hurt_function.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1319_disabled_entity_timer_unsuspended.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1319_disabled_entity_timer_unsuspended.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1351_camera_stuck_on_separator.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1351_camera_stuck_on_separator.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1353_water_no_flippers.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1353_water_no_flippers.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1354_crash_start_movement.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1354_crash_start_movement.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1356_block_on_separator.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1356_block_on_separator.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1361_crash_pickable_on_stream.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1361_crash_pickable_on_stream.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1364_state_set_can_use_stairs_not_working.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1364_state_set_can_use_stairs_not_working.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }

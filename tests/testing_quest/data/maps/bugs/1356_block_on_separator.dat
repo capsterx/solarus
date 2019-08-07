@@ -1,0 +1,295 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 640,
+  height = 480,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "overworld",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 240,
+  width = 320,
+  height = 240,
+  pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 320,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "9",
+}
+
+tile{
+  layer = 0,
+  x = 320,
+  y = 240,
+  width = 320,
+  height = 240,
+  pattern = "9",
+}
+
+separator{
+  layer = 0,
+  x = 312,
+  y = 0,
+  width = 16,
+  height = 480,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 1,
+}
+
+separator{
+  layer = 0,
+  x = 320,
+  y = 232,
+  width = 320,
+  height = 16,
+}
+
+block{
+  layer = 0,
+  x = 312,
+  y = 29,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 320,
+  y = 61,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "true",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 328,
+  y = 93,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 344,
+  y = 237,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 408,
+  y = 253,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 376,
+  y = 245,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "true",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 320,
+  y = 245,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "true",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 312,
+  y = 285,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 328,
+  y = 349,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 320,
+  y = 317,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "true",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 280,
+  y = 245,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 344,
+  y = 205,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 280,
+  y = 205,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 280,
+  y = 285,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+
+block{
+  layer = 0,
+  x = 344,
+  y = 285,
+  properties = {
+    {
+      key = "expected_in_obstacle",
+      value = "false",
+    },
+  },
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = false,
+}
+

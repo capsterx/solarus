@@ -33,6 +33,7 @@ teletransporter (#1353).
 * Fix hero being hurt while in spiral stairs (#1038).
 * Fix stairs not activating in a custom state with fixed direction (#1364).
 * Fix camera movement stuck on separators (#1351).
+* Fix blocks stuck on separators (#1356).
 * Fix sol.menu.start allowing to start one menu multiple times (#1044).
 * Fix straight movement progress reinitialized when setting speed/angle.
 * Fix GlRenderer for non-Android GLES 2.0 devices (!1267).

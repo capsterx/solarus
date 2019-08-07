@@ -55,6 +55,7 @@ class Block: public Entity {
     bool is_hero_obstacle(Hero& hero) override;
     bool is_enemy_obstacle(Enemy& enemy) override;
     bool is_destructible_obstacle(Destructible& destructible) override;
+    bool is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) override;
     void notify_created() override;
     void notify_collision(Entity& entity_overlapping, CollisionMode collision_mode) override;
     void notify_collision_with_switch(Switch& sw, CollisionMode collision_mode) override;

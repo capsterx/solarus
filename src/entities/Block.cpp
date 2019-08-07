@@ -23,6 +23,7 @@
 #include "solarus/core/System.h"
 #include "solarus/entities/Block.h"
 #include "solarus/entities/Hero.h"
+#include "solarus/entities/Separator.h"
 #include "solarus/entities/Switch.h"
 #include "solarus/graphics/Sprite.h"
 #include "solarus/lua/LuaContext.h"
@@ -164,6 +165,13 @@ bool Block::is_enemy_obstacle(Enemy& /* enemy */) {
  */
 bool Block::is_destructible_obstacle(Destructible& /* destructible */) {
   return true;
+}
+
+/**
+ * \copydoc Entity::is_separator_obstacle
+ */
+bool Block::is_separator_obstacle(Separator& separator, const Rectangle& candidate_position) {
+  return separator.is_crossed_by(candidate_position);
 }
 
 /**
