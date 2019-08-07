@@ -31,6 +31,7 @@ teletransporter (#1353).
 * Fix incorrect mapping from window coords to quest coords (#1340).
 * Fix entity:overlaps(...) crashing when given bad collision mode (#1041).
 * Fix hero being hurt while in spiral stairs (#1038).
+* Fix displaying the hero trail and sword stars sprites (#1373).
 * Fix stairs not activating in a custom state with fixed direction (#1364).
 * Fix camera movement stuck on separators (#1351).
 * Fix sol.menu.start allowing to start one menu multiple times (#1044).

@@ -44,6 +44,7 @@
 #include <iterator>
 #include <list>
 #include <utility>
+#include <iostream>
 
 namespace Solarus {
 
@@ -3824,10 +3825,14 @@ void Entity::draw_sprites(Camera& /* camera */) {
   const Size& size = get_size();
 
   // Draw the sprites.
+  if (is_hero())
+    std::cout << "Start draw\n";
   for (const NamedSprite& named_sprite: sprites) {
     if (named_sprite.removed) {
       continue;
     }
+    if (is_hero())
+      std::cout << named_sprite.name << " " << named_sprite.sprite.get() << std::endl;
     Sprite& sprite = *named_sprite.sprite;
 
     if (!is_tiled()) {
@@ -3848,6 +3853,8 @@ void Entity::draw_sprites(Camera& /* camera */) {
       }
     }
   }
+  if (is_hero())
+    std::cout << "End draw\n";
 }
 
 /**

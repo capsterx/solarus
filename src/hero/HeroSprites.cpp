@@ -137,8 +137,7 @@ void HeroSprites::rebuild_equipment() {
     // TODO make this sprite depend on the sword sprite: sword_sprite_id + "_stars"
     std::ostringstream oss;
     oss << "hero/sword_stars" << sword_number;
-    sword_stars_sprite = hero.create_sprite(oss.str(), "sword_stars");
-    sword_stars_sprite->stop_animation();
+    set_sword_stars_sprite_id(oss.str());
   }
 
   // The hero's shield.
@@ -147,7 +146,6 @@ void HeroSprites::rebuild_equipment() {
   }
 
   // The trail.
-  trail_sprite = hero.create_sprite("hero/trail", "trail");
   trail_sprite->stop_animation();
 
   // Restore the animation direction.
@@ -273,6 +271,55 @@ void HeroSprites::set_sword_sprite_id(const std::string& sprite_id) {
   }
 
   has_default_sword_sprite = (sprite_id == get_default_sword_sprite_id());
+}
+
+/**
+ * \brief Returns the animation set id used for the sword stars sprite.
+ * \return The sword stars sprite animation set id.
+ */
+const std::string& HeroSprites::get_sword_stars_sprite_id() const {
+
+  return sword_stars_sprite_id;
+}
+
+/**
+ * \brief Sets the animation set id to use for the sword stars sprite.
+ * \param sprite_id The sword stars sprite animation set id.
+ * An empty string means no sword stars sprite.
+ */
+void HeroSprites::set_sword_stars_sprite_id(const std::string& sprite_id) {
+
+  if (sprite_id == this->sword_stars_sprite_id) {
+    return;
+  }
+
+  this->sword_stars_sprite_id = sprite_id;
+
+  int order = -1;
+  std::string animation;
+  int direction = -1;
+  if (sword_stars_sprite != nullptr) {
+    // Delete the previous sprite, but save its animation and direction.
+    if (sword_stars_sprite->is_animation_started()) {
+      animation = sword_stars_sprite->get_current_animation();
+      direction = sword_stars_sprite->get_current_direction();
+    }
+    order = hero.get_sprite_order(*sword_stars_sprite);
+    hero.remove_sprite(*sword_stars_sprite);
+    sword_stars_sprite = nullptr;
+  }
+
+  if (!sprite_id.empty()) {
+    // There is a sword sprite specified.
+    sword_stars_sprite = hero.create_sprite(sprite_id, "sword_stars", order);
+    if (animation.empty()) {
+      sword_stars_sprite->stop_animation();
+    }
+    else {
+      sword_stars_sprite->set_current_animation(animation);
+      sword_stars_sprite->set_current_direction(direction);
+    }
+  }
 }
 
 /**

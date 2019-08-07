@@ -60,6 +60,8 @@ class HeroSprites {
     void set_tunic_sprite_id(const std::string& sprite_id);
     const std::string& get_sword_sprite_id() const;
     void set_sword_sprite_id(const std::string& sprite_id);
+    const std::string& get_sword_stars_sprite_id() const;
+    void set_sword_stars_sprite_id(const std::string& sprite_id);
     const std::string& get_sword_sound_id() const;
     void set_sword_sound_id(const std::string& sound_id);
     const std::string& get_shield_sprite_id() const;
@@ -169,6 +171,8 @@ class HeroSprites {
                                              * By default, "hero/swordX" where X is the sword level. */
     bool has_default_sword_sprite;          /**< Whether sword_sprite_id has the defaut value. */
     SpritePtr sword_sprite;                 /**< Current sword sprite. */
+    std::string sword_stars_sprite_id;      /**< Animation set used for the sword stars.
+                                             * An empty string means no sword stars sprite. */
     SpritePtr sword_stars_sprite;           /**< Stars running along the sword when the sword is loading. */
 
     std::string sword_sound_id;             /**< Sound played when using the sword.
