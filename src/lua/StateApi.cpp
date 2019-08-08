@@ -1325,12 +1325,14 @@ void LuaContext::state_on_finished(
     const std::string& next_state_name,
     CustomState* next_state) {
 
-  push_state(current_l, state);
-  if (userdata_has_field(state, "on_finished")) {
-    on_finished(next_state_name, next_state);
-  }
-  remove_timers(-1);  // Stop timers associated to this state.
-  lua_pop(current_l, 1);
+  run_on_main([this, &state, next_state_name, next_state](lua_State* l) {
+    push_state(l, state);
+    if (userdata_has_field(state, "on_finished")) {
+      on_finished(next_state_name, next_state);
+    }
+    remove_timers(-1);  // Stop timers associated to this state.
+    lua_pop(current_l, 1);
+  });
 }
 
 /**

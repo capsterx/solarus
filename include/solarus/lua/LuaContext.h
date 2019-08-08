@@ -212,7 +212,7 @@ class LuaContext {
      */
     static void run_on_main(Callable&& func) {
       auto& c = LuaContext::get();
-      if(c.current_l == c.main_l) {
+      if (c.current_l == c.main_l) {
         func(c.current_l);
       } else {
         c.cross_state_callbacks.push(func);
