@@ -514,17 +514,7 @@ void set_quest_size_range(
       || context.geometry.wanted_quest_size.height < min_size.height
       || context.geometry.wanted_quest_size.width > max_size.width
       || context.geometry.wanted_quest_size.height > max_size.height) {
-    std::ostringstream oss;
-    oss << "Cannot use quest size "
-        << context.geometry.wanted_quest_size.width << "x" << context.geometry.wanted_quest_size.height
-        << ": this quest only supports "
-        << min_size.width << "x" << min_size.height
-        << " to "
-        << max_size.width << "x" << max_size.height
-        << ". Using "
-        << normal_size.width << "x" << normal_size.height
-        << " instead.";
-    Debug::warning(oss.str());
+    // The wanted size is not in the range supported by this quest.
     context.geometry.quest_size = normal_size;
   }
   else {

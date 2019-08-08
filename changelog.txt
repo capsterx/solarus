@@ -42,6 +42,7 @@ Engine changes
 * Fix screen surface not being initialised in 640x480 video mode (#1273).
 * Fix initialisation of screen surface without video window (#1274).
 * Fix restoring from fullscreen mode in Windows (#1284).
+* Fix warning when the default quest size is not supported by the quest (#1376). 
 * Fix building with mingw-w64 in Linux (#1282).
 * Fix detection of LuaJIT version in CMake module (#1277).
 * Fix building GUI with mingw-w64 in Linux (#1285).
