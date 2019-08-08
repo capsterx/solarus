@@ -622,7 +622,7 @@ void MainLoop::load_quest_properties() {
     if (!quest_version.empty()) {
       window_title += " " + quest_version;
     }
-#ifdef SOLARUS_GIT_REVISION
+#if defined(SOLARUS_GIT_REVISION) && !defined(NDEBUG)
     window_title += " - Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")";
 #else
     window_title += " - Solarus " SOLARUS_VERSION;

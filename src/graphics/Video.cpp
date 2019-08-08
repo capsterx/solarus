@@ -654,7 +654,7 @@ void set_window_title(const std::string& window_title) {
  * @param icon, the surface containing the icon, ownership is not taken, surface can be freed after the call
  */
 void set_window_icon(SDL_Surface* icon) {
-  if(context.main_window) {
+  if (context.main_window) {
     SDL_SetWindowIcon(context.main_window, icon);
   }
 }
