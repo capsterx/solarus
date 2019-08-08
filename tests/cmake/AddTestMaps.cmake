@@ -140,6 +140,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1361_crash_pickable_on_stream"
   "bugs/1364_state_set_can_use_stairs_not_working"
   "bugs/1366_crash_disabled_stairs_on_dynamic_tile"
+  "bugs/1371_crash_pulling_block_on_switch"
 )
 
 # Test that should not fail when there are errors

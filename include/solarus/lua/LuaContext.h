@@ -228,7 +228,6 @@ class LuaContext {
       return result;
     }
 
-
     static void set_current_state(lua_State* l);
 
     // Calling Lua functions.

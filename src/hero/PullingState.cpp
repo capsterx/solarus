@@ -232,6 +232,12 @@ void Hero::PullingState::stop_moving_pulled_entity() {
     entity_just_moved->notify_moved_by(hero);
   }
 
+  if (!is_current_state()) {
+    // Another state is already starting (for example TreasureState).
+    // In this case, don't overwrite it.
+    return;
+  }
+
   if (hero.can_grab()) {
     hero.start_grabbing();
   }

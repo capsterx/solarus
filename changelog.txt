@@ -21,33 +21,32 @@ Engine changes
 * Add argument to set the joypad axis deadzone (!1293).
 * Add debug warning if a surface is larger than 2048 x 2048 (!1294).
 * Fix reordering hero sprites (#1243).
-* Fix crash when starting a hero movement from hero:on_state_changed (#1354).
-* Fix crash when starting drowning on a map after falling into a
-teletransporter (#1353).
+* Fix crash when starting a hero movement from hero:on_state_changed() (#1354).
+* Fix crash when changing the hero state while pulling a block (#1371).
+* Fix crash when starting drowning after falling into a teletransporter (#1353).
 * Fix crash when stairs are disabled at map start with dynamic tiles (#1366).
+* Fix hero being hurt while in spiral stairs (#1038).
+* Fix stairs not activating in a custom state with fixed direction (#1364).
 * Fix crash when pickable follow streams (#1361).
+* Fix camera movement stuck on separators (#1351).
+* Fix blocks stuck on separators (#1356).
+* Fix entity:overlaps(...) crashing when given bad collision mode (#1041).
+* Fix straight movement progress reinitialized when setting speed/angle.
+* Fix sol.menu.start allowing to start one menu multiple times (#1044).
+* Fix GlRenderer for non-Android GLES 2.0 devices (#1267).
 * Fix OpenGL compatibility issues.
 * Fix FindOpengl complaining about GLVND vs GLX choice (#1320).
 * Fix incorrect mapping from window coords to quest coords (#1340).
-* Fix entity:overlaps(...) crashing when given bad collision mode (#1041).
-* Fix hero being hurt while in spiral stairs (#1038).
-* Fix stairs not activating in a custom state with fixed direction (#1364).
-* Fix camera movement stuck on separators (#1351).
-* Fix blocks stuck on separators (#1356).
-* Fix sol.menu.start allowing to start one menu multiple times (#1044).
-* Fix straight movement progress reinitialized when setting speed/angle.
-* Fix GlRenderer for non-Android GLES 2.0 devices (!1267).
-* Fix mouse and finger coordinates using renderer output size instead of
-window size (!1268).
-* Fix restoring to windowed mode from fullscreen (!1269).
-* Fix screen surface not being initialised in 640x480 video mode (!1273).
-* Fix initialisation of screen surface without video window (!1274).
-* Fix detection of LuaJIT version in CMake module (!1277).
-* Fix building with mingw-w64 in Linux (!1282).
-* Fix restoring from fullscreen mode in Windows (!1284).
-* Fix building GUI with mingw-w64 in Linux (!1285).
-* Fix running the unit tests from the build root folder (!1289).
-* Fix broken unit test that fails in Windows but not Linux (!1290).
+* Fix mouse and finger coordinates using a wrong window size (#1268).
+* Fix restoring to windowed mode from fullscreen (#1269).
+* Fix screen surface not being initialised in 640x480 video mode (#1273).
+* Fix initialisation of screen surface without video window (#1274).
+* Fix restoring from fullscreen mode in Windows (#1284).
+* Fix building with mingw-w64 in Linux (#1282).
+* Fix detection of LuaJIT version in CMake module (#1277).
+* Fix building GUI with mingw-w64 in Linux (#1285).
+* Fix running the unit tests from the build root folder (#1289).
+* Fix broken unit test that fails in Windows but not Linux (#1290).
 
 Lua API changes
 ---------------
