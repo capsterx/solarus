@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/CommandsEffects.h"
+#include <iostream>
 
 namespace Solarus {
 
@@ -61,13 +62,13 @@ const EnumInfo<CommandsEffects::PauseKeyEffect>::names_type EnumInfoTraits<Comma
  */
 CommandsEffects::CommandsEffects():
   action_key_effect(ACTION_KEY_NONE),
-  action_key_effect_saved(ACTION_KEY_NONE),
+  action_key_effects_saved(),
   action_key_enabled(true),
   sword_key_effect(ATTACK_KEY_NONE),
-  sword_key_effect_saved(ATTACK_KEY_NONE),
+  sword_key_effects_saved(),
   sword_key_enabled(true),
   pause_key_effect(PAUSE_KEY_PAUSE),
-  pause_key_effect_saved(PAUSE_KEY_PAUSE),
+  pause_key_effects_saved(),
   pause_key_enabled(true),
   item_keys_enabled(true) {
 
@@ -112,7 +113,7 @@ void CommandsEffects::set_action_key_enabled(bool enable) {
  * Call restore_action_key_effect() to restore the action key saved here.
  */
 void CommandsEffects::save_action_key_effect() {
-  this->action_key_effect_saved = get_action_key_effect();
+  action_key_effects_saved.push(get_action_key_effect());
 }
 
 /**
@@ -120,7 +121,10 @@ void CommandsEffects::save_action_key_effect() {
  * call to save_action_key_effect().
  */
 void CommandsEffects::restore_action_key_effect() {
-  this->action_key_effect = action_key_effect_saved;
+  if (!action_key_effects_saved.empty()) {
+    action_key_effect = action_key_effects_saved.top();
+    action_key_effects_saved.pop();
+  }
 }
 
 /**
@@ -180,7 +184,7 @@ void CommandsEffects::set_sword_key_enabled(bool enable) {
  * Call restore_sword_key_effect to restore the sword key saved here.
  */
 void CommandsEffects::save_sword_key_effect() {
-  this->sword_key_effect_saved = get_sword_key_effect();
+  sword_key_effects_saved.push(get_sword_key_effect());
 }
 
 /**
@@ -188,7 +192,10 @@ void CommandsEffects::save_sword_key_effect() {
  * call to save_sword_key_effect().
  */
 void CommandsEffects::restore_sword_key_effect() {
-  this->sword_key_effect = sword_key_effect_saved;
+  if (!sword_key_effects_saved.empty()) {
+    sword_key_effect = sword_key_effects_saved.top();
+    sword_key_effects_saved.pop();
+  }
 }
 
 // pause key
@@ -231,7 +238,7 @@ void CommandsEffects::set_pause_key_enabled(bool enable) {
  * Call restore_pause_key_effect to restore the pause key saved here.
  */
 void CommandsEffects::save_pause_key_effect() {
-  this->pause_key_effect_saved = get_pause_key_effect();
+  pause_key_effects_saved.push(get_pause_key_effect());
 }
 
 /**
@@ -239,7 +246,10 @@ void CommandsEffects::save_pause_key_effect() {
  * call to save_pause_key_effect().
  */
 void CommandsEffects::restore_pause_key_effect() {
-  this->pause_key_effect = pause_key_effect_saved;
+  if (!pause_key_effects_saved.empty()) {
+    pause_key_effect = pause_key_effects_saved.top();
+    pause_key_effects_saved.pop();
+  }
 }
 
 // item keys

@@ -109,7 +109,7 @@ void DialogBoxSystem::open(
 
   // A dialog was just started: notify Lua when possible
   LuaContext& lua_context = game.get_lua_context();
-  lua_context.run_on_main([this,&lua_context,info_ref,&keys_effect](lua_State* l){
+  lua_context.run_on_main([this, &lua_context, info_ref, &keys_effect](lua_State* l){
     //lua_State* l = lua_context.get_internal_state();
     built_in = !lua_context.notify_dialog_started(
         game, dialog, info_ref

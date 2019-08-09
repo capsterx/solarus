@@ -19,6 +19,7 @@
 
 #include "solarus/core/Common.h"
 #include "solarus/core/EnumInfo.h"
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -116,15 +117,15 @@ class CommandsEffects {
   private:
 
     ActionKeyEffect action_key_effect;       /**< current effect of the action key */
-    ActionKeyEffect action_key_effect_saved; /**< a previous effect of the action key */
+    std::stack<ActionKeyEffect> action_key_effects_saved; /**< previous effects of the action key */
     bool action_key_enabled;                 /**< indicates that the action key is currently enabled */
 
     AttackKeyEffect sword_key_effect;         /**< current effect of the sword key */
-    AttackKeyEffect sword_key_effect_saved;   /**< a previous effect of the sword key */
+    std::stack<AttackKeyEffect> sword_key_effects_saved;   /**< previous effects of the sword key */
     bool sword_key_enabled;                  /**< indicates that the sword key is currently enabled */
 
     PauseKeyEffect pause_key_effect;         /**< current effect of the pause key */
-    PauseKeyEffect pause_key_effect_saved;   /**< a previous effect of the pause key */
+    std::stack<PauseKeyEffect> pause_key_effects_saved;   /**< previous effects of the pause key */
     bool pause_key_enabled;                  /**< indicates that the pause key is currently enabled */
 
     bool item_keys_enabled;
