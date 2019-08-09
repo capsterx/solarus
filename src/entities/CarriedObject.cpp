@@ -106,12 +106,18 @@ CarriedObject::CarriedObject(
   if (main_sprite->has_animation("stopped")) {
     main_sprite->set_current_animation("stopped");
   }
+  if (direction < main_sprite->get_nb_directions()) {
+    main_sprite->set_current_direction(direction);
+  }
   set_default_sprite_name("main");
   set_movement(movement);
 
   // create the shadow (not visible yet)
   shadow_sprite = create_sprite("entities/shadow", "shadow");
   shadow_sprite->set_current_animation("big");
+  if (direction < shadow_sprite->get_nb_directions()) {
+    shadow_sprite->set_current_direction(direction);
+  }
   shadow_sprite->stop_animation();
 }
 

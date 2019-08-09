@@ -714,6 +714,13 @@ void HeroSprites::set_animation_direction(int direction) {
   if (lifted_item != nullptr) {
     const SpritePtr& sprite = lifted_item->get_sprite();
     sprite->restart_animation();
+    if (direction < sprite->get_nb_directions()) {
+      sprite->set_current_direction(direction);
+    }
+    const SpritePtr& shadow_sprite = lifted_item->get_sprite("shadow");
+    if (direction < shadow_sprite->get_nb_directions()) {
+      shadow_sprite->set_current_direction(direction);
+    }
   }
 }
 

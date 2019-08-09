@@ -66,6 +66,7 @@ map{ id = "bugs/1361_crash_pickable_on_stream", description = "#1361: Crash when
 map{ id = "bugs/1364_state_set_can_use_stairs_not_working", description = "#1364: state:set_can_use_stairs() does not work when direction is locked" }
 map{ id = "bugs/1366_crash_disabled_stairs_on_dynamic_tile", description = "#1366: Crash when disabled stairs overlap a dynamic tile" }
 map{ id = "bugs/1371_crash_pulling_block_on_switch", description = "#1371: Crash when pulling a block on a switch and changing state" }
+map{ id = "bugs/1392_carried_object_directions", description = "#1392: Allow carried objects to have 4 directions" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -178,6 +179,7 @@ sprite{ id = "16x24", description = "16x24 sprite" }
 sprite{ id = "blocks/block_brown", description = "Block (brown)" }
 sprite{ id = "chests/chest_brown", description = "Chest (brown)" }
 sprite{ id = "destructibles/vase", description = "Vase" }
+sprite{ id = "destructibles/vase_multi_directions", description = "Vase (4 directions)" }
 sprite{ id = "doors/door", description = "16x16 door" }
 sprite{ id = "doors/door_16_24", description = "16x24 door" }
 sprite{ id = "doors/door_normal", description = "Door (normal)" }
@@ -396,8 +398,14 @@ file{ path = "maps/bugs/1036_falling_again_after_bad_ground.dat", author = "Chri
 file{ path = "maps/bugs/1036_falling_again_after_bad_ground.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1037_stairs_methods.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1037_stairs_methods.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1038_hero_hurt_in_stairs.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1038_hero_hurt_in_stairs.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1041_crash_entity_overlaps.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1041_crash_entity_overlaps.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1044_sol_menu_multiple_start.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1044_sol_menu_multiple_start.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1062_enemy_set_attack_consequence_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1062_enemy_set_attack_consequence_callback.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1075_straight_movement_set_max_distance_tables.dat", author = "Christopho", license = "CC BY-SA 4.0" }
@@ -506,6 +514,8 @@ file{ path = "maps/bugs/1364_state_set_can_use_stairs_not_working.dat", author =
 file{ path = "maps/bugs/1364_state_set_can_use_stairs_not_working.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1371_crash_pulling_block_on_switch.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1371_crash_pulling_block_on_switch.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }
@@ -841,6 +851,7 @@ file{ path = "sprites/chests/chest.png", author = "Diarandor", license = "CC BY-
 file{ path = "sprites/chests/chest_brown.dat", author = "Diarandor", license = "CC BY-SA 4.0" }
 file{ path = "sprites/destructibles/vase.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "sprites/destructibles/vase.png", author = "Bertram", license = "CC BY-SA 4.0" }
+file{ path = "sprites/destructibles/vase_multi_directions.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "sprites/doors/door.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "sprites/doors/door.png", license = "CC BY-SA 4.0" }
 file{ path = "sprites/doors/door_16_24.dat", author = "Christopho", license = "CC BY-SA 4.0" }

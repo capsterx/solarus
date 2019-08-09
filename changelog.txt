@@ -9,17 +9,18 @@ Engine changes
 
 * Add state:get/set_can_use_teletransporter/switch/stream (#1363).
 * Add `-force-software-rendering` switch to solarus-run (stdgregwar).
-* Add argument to set mouse cursor visibility on start (!1263).
-* Add option in CMake to support building with OpenGL ES (!1270).
-* Add option in CMake to disable logging errors to file (!1276).
-* Add simple performance counters to the engine (!1280).
-* Add argument to set fullscreen mode on start (!1281).
-* Add joypad buttons combo for quitting the engine (!1283).
-* Add option in CMake to control building of unit tests (!1288).
-* Add root build path to unit tests environment in Windows (!1291).
-* Add git revision information to build and main loop startup (!1292).
-* Add argument to set the joypad axis deadzone (!1293).
-* Add debug warning if a surface is larger than 2048 x 2048 (!1294).
+* Add argument to set mouse cursor visibility on start (#1263).
+* Add option in CMake to support building with OpenGL ES (#1270).
+* Add option in CMake to disable logging errors to file (#1276).
+* Add simple performance counters to the engine (#1280).
+* Add argument to set fullscreen mode on start (#1281).
+* Add joypad buttons combo for quitting the engine (#1283).
+* Add option in CMake to control building of unit tests (#1288).
+* Add root build path to unit tests environment in Windows (#1291).
+* Add git revision information to build and main loop startup (#1292).
+* Add argument to set the joypad axis deadzone (#1293).
+* Add debug warning if a surface is larger than 2048 x 2048 (#1294).
+* Add support of carried object sprites with multiple directions (#1392).
 * Fix reordering hero sprites (#1243).
 * Fix crash when starting a hero movement from hero:on_state_changed() (#1354).
 * Fix crash when changing the hero state while pulling a block (#1371).
