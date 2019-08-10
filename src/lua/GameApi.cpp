@@ -69,6 +69,8 @@ void LuaContext::register_game_module() {
       { "set_value", game_api_set_value },
       { "get_starting_location", game_api_get_starting_location },
       { "set_starting_location", game_api_set_starting_location },
+      { "get_transition_style", game_api_get_transition_style },
+      { "set_transition_style", game_api_set_transition_style },
       { "get_life", game_api_get_life },
       { "set_life", game_api_set_life },
       { "add_life", game_api_add_life },
@@ -738,6 +740,41 @@ int LuaContext::game_api_set_starting_location(lua_State* l) {
 
     savegame.set_string(Savegame::KEY_STARTING_MAP, map_id);
     savegame.set_string(Savegame::KEY_STARTING_POINT, destination_name);
+
+    return 0;
+  });
+}
+
+/**
+ * \brief Implementation of game:get_transition_style().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::game_api_get_transition_style(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    const Savegame& savegame = *check_game(l, 1);
+
+    Transition::Style transition_style = savegame.get_default_transition_style();
+
+    push_string(l, enum_to_name(transition_style));
+
+    return 1;
+  });
+}
+
+/**
+ * \brief Implementation of game:set_transition_style().
+ * \param l The Lua context that is calling this function.
+ * \return Number of values to return to Lua.
+ */
+int LuaContext::game_api_set_transition_style(lua_State* l) {
+
+  return state_boundary_handle(l, [&] {
+    Savegame& savegame = *check_game(l, 1);
+    Transition::Style transition_style = LuaTools::check_enum<Transition::Style>(l, 2);
+
+    savegame.set_default_transition_style(transition_style);
 
     return 0;
   });

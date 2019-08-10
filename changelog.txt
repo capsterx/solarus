@@ -6,8 +6,6 @@ ___________________________
 Engine changes
 --------------
 
-
-* Add state:get/set_can_use_teletransporter/switch/stream (#1363).
 * Add `-force-software-rendering` switch to solarus-run (stdgregwar).
 * Add argument to set mouse cursor visibility on start (#1263).
 * Add option in CMake to support building with OpenGL ES (#1270).
@@ -55,6 +53,10 @@ Engine changes
 Lua API changes
 ---------------
 
+This release adds new features but does not introduce any incompatibility.
+
+* Add methods game:get/set_transition_style() (#1368).
+* Add methods state:get/set_can_use_teletransporter/switch/stream() (#1363).
 * Make surface, text_surface and timer userdata types indexable (#1394).
 
 __________________________

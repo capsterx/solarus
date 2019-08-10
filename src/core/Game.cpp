@@ -60,7 +60,7 @@ Game::Game(MainLoop& main_loop, const std::shared_ptr<Savegame>& savegame):
   current_map(nullptr),
   next_map(nullptr),
   previous_map_surface(nullptr),
-  transition_style(Transition::Style::IMMEDIATE),
+  current_transition_style(Transition::Style::IMMEDIATE),
   transition(nullptr),
   crystal_state(false) {
 
@@ -109,7 +109,7 @@ Game::Game(MainLoop& main_loop, const std::shared_ptr<Savegame>& savegame):
     starting_destination_name = "";  // Default destination.
   }
 
-  set_current_map(starting_map_id, starting_destination_name, Transition::Style::FADE);
+  set_current_map(starting_map_id, starting_destination_name, get_default_transition_style());
 }
 
 /**
@@ -417,7 +417,7 @@ void Game::update_transitions() {
     }
     else { // normal case: stop the control and play an out transition before leaving the current map
       transition = std::unique_ptr<Transition>(Transition::create(
-          transition_style,
+          current_transition_style,
           Transition::Direction::CLOSING,
           this
       ));
@@ -508,7 +508,7 @@ void Game::update_transitions() {
         // same map
         hero->place_on_destination(*current_map, previous_map_location);
         transition = std::unique_ptr<Transition>(Transition::create(
-            transition_style,
+            current_transition_style,
             Transition::Direction::OPENING,
             this
         ));
@@ -539,7 +539,7 @@ void Game::update_transitions() {
   if (started && !current_map->is_started()) {
     Debug::check_assertion(current_map->is_loaded(), "This map is not loaded");
     transition = std::unique_ptr<Transition>(Transition::create(
-        transition_style,
+        current_transition_style,
         Transition::Direction::OPENING,
         this
     ));
@@ -684,7 +684,7 @@ void Game::set_current_map(
   }
 
   next_map->set_destination(destination_name);
-  this->transition_style = transition_style;
+  this->current_transition_style = transition_style;
 }
 
 /**
@@ -697,6 +697,22 @@ void Game::notify_map_changed() {
 
   // Notify the equipment.
   get_equipment().notify_map_changed(*current_map);
+}
+
+/**
+ * \brief Returns the transition style to use by default.
+ * \return The default transition style.
+ */
+Transition::Style Game::get_default_transition_style() const {
+  return get_savegame().get_default_transition_style();
+}
+
+/**
+ * \param Sets the transition style to use by default.
+ * \param default_transition_style The default transition style.
+ */
+void Game::set_default_transition_style(Transition::Style default_transition_style) {
+  get_savegame().set_default_transition_style(default_transition_style);
 }
 
 /**
@@ -917,7 +933,7 @@ void Game::restart() {
 
   if (current_map != nullptr) {
     transition = std::unique_ptr<Transition>(Transition::create(
-        Transition::Style::FADE,
+        get_default_transition_style(),
         Transition::Direction::CLOSING,
         this
     ));

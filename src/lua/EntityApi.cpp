@@ -2116,16 +2116,17 @@ int LuaContext::hero_api_teleport(lua_State* l) {
 
   return state_boundary_handle(l, [&] {
     Hero& hero = *check_hero(l, 1);
+    Game& game = hero.get_game();
     const std::string& map_id = LuaTools::check_string(l, 2);
     const std::string& destination_name = LuaTools::opt_string(l, 3, "");
     Transition::Style transition_style = LuaTools::opt_enum<Transition::Style>(
-        l, 4, Transition::Style::FADE);
+        l, 4, game.get_default_transition_style());
 
     if (!CurrentQuest::resource_exists(ResourceType::MAP, map_id)) {
       LuaTools::arg_error(l, 2, std::string("No such map: '") + map_id + "'");
     }
 
-    hero.get_game().set_current_map(map_id, destination_name, transition_style);
+    game.set_current_map(map_id, destination_name, transition_style);
 
     return 0;
   });

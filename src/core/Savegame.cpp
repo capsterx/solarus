@@ -88,7 +88,8 @@ Savegame::Savegame(MainLoop& main_loop, const std::string& file_name):
   file_name(file_name),
   main_loop(main_loop),
   equipment(*this),
-  game(nullptr) {
+  game(nullptr),
+  default_transition_style(Transition::Style::FADE) {
 
   // Don't call initialize() manually because the shared_ptr does not exist
   // at this point, but is needed by initialize() when calling item scripts.
@@ -429,6 +430,22 @@ bool Savegame::is_string(const std::string& key) const {
     result = (value.type == SavedValue::VALUE_STRING);
   }
   return result;
+}
+
+/**
+ * \brief Returns the transition style to use by default.
+ * \return The default transition style.
+ */
+Transition::Style Savegame::get_default_transition_style() const {
+  return default_transition_style;
+}
+
+/**
+ * \param Sets the transition style to use by default.
+ * \param default_transition_style The default transition style.
+ */
+void Savegame::set_default_transition_style(Transition::Style default_transition_style) {
+  this->default_transition_style = default_transition_style;
 }
 
 /**
