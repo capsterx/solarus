@@ -30,7 +30,7 @@ Engine changes
 * Fix stairs not activating in a custom state with fixed direction (#1364).
 * Fix crash when pickable follow streams (#1361).
 * Fix camera movement stuck on separators (#1351).
-* Fix blocks when the hero size is other than 16x16 (#1368).
+* Fix blocks when the hero size is other than 16x16 (#1383).
 * Fix blocks stuck on separators (#1356).
 * Fix entity:overlaps(...) crashing when given bad collision mode (#1041).
 * Fix straight movement progress reinitialized when setting speed/angle.
