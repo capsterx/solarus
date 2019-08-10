@@ -141,6 +141,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1364_state_set_can_use_stairs_not_working"
   "bugs/1366_crash_disabled_stairs_on_dynamic_tile"
   "bugs/1371_crash_pulling_block_on_switch"
+  "bugs/1381_jumpers_hero_16_8"
   "bugs/1383_blocks_hero_16_8"
   "bugs/1392_carried_object_directions"
 )

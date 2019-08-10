@@ -57,7 +57,7 @@ Jumper::Jumper(const std::string& name,
     }
   }
   // check the jump length
-  Debug::check_assertion(jump_length >= 16, "The jump length of this jumper is lower than 16");
+  Debug::check_assertion(jump_length > 0, "The jump distance of this jumper must be positive");
 }
 
 /**
@@ -150,15 +150,15 @@ bool Jumper::is_in_jump_position(
     // right
     case 0:
       facing_point = {
-          candidate_position.get_x() + 16,
-          candidate_position.get_y() + 8
+          candidate_position.get_x() + candidate_position.get_width(),
+          candidate_position.get_y() + candidate_position.get_height() / 2
       };
       break;
 
       // up
     case 1:
       facing_point = {
-          candidate_position.get_x() + 8,
+          candidate_position.get_x() + candidate_position.get_width() / 2,
           candidate_position.get_y() - 1
       };
       break;
@@ -167,15 +167,15 @@ bool Jumper::is_in_jump_position(
     case 2:
       facing_point = {
           candidate_position.get_x() - 1,
-          candidate_position.get_y() + 8
+          candidate_position.get_y() + candidate_position.get_height() / 2
       };
       break;
 
       // down
     case 3:
       facing_point = {
-          candidate_position.get_x() + 8,
-          candidate_position.get_y() + 16
+          candidate_position.get_x() + candidate_position.get_width() / 2,
+          candidate_position.get_y() + candidate_position.get_height()
       };
       break;
 
@@ -191,8 +191,8 @@ bool Jumper::is_in_jump_position(
     }
     else {
       // Are we inside the strip and the bounding box?
-      return overlaps(facing_point.x, facing_point.y - 8)
-          && overlaps(facing_point.x, facing_point.y + 7);
+      return overlaps(facing_point.x, facing_point.y - candidate_position.get_height() / 2)
+          && overlaps(facing_point.x, facing_point.y + candidate_position.get_height() / 2 - 1);
     }
   }
   else {
@@ -203,8 +203,8 @@ bool Jumper::is_in_jump_position(
           facing_point.y < get_top_left_y() + get_height();
     }
     else {
-      return overlaps(facing_point.x - 8, facing_point.y) &&
-          overlaps(facing_point.x + 7, facing_point.y);
+      return overlaps(facing_point.x - candidate_position.get_width() / 2, facing_point.y) &&
+          overlaps(facing_point.x + candidate_position.get_width() / 2 - 1, facing_point.y);
     }
   }
 }

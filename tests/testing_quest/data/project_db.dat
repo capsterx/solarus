@@ -66,6 +66,7 @@ map{ id = "bugs/1361_crash_pickable_on_stream", description = "#1361: Crash when
 map{ id = "bugs/1364_state_set_can_use_stairs_not_working", description = "#1364: state:set_can_use_stairs() does not work when direction is locked" }
 map{ id = "bugs/1366_crash_disabled_stairs_on_dynamic_tile", description = "#1366: Crash when disabled stairs overlap a dynamic tile" }
 map{ id = "bugs/1371_crash_pulling_block_on_switch", description = "#1371: Crash when pulling a block on a switch and changing state" }
+map{ id = "bugs/1381_jumpers_hero_16_8", description = "#1381: Jumpers not working with a 16x8 hero" }
 map{ id = "bugs/1383_blocks_hero_16_8", description = "#1383: Blocks not working with a 16x8 hero" }
 map{ id = "bugs/1392_carried_object_directions", description = "#1392: Allow carried objects to have 4 directions" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
