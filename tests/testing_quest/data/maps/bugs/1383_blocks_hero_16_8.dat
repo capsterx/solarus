@@ -1,0 +1,135 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 64,
+  y = 80,
+  width = 16,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 96,
+  y = 32,
+  width = 16,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 48,
+  width = 16,
+  height = 16,
+  pattern = "34",
+}
+
+tile{
+  layer = 0,
+  x = 32,
+  y = 0,
+  width = 16,
+  height = 16,
+  pattern = "34",
+}
+
+sensor{
+  name = "sensor_3",
+  layer = 0,
+  x = 40,
+  y = 65,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_4",
+  layer = 0,
+  x = 40,
+  y = 45,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_2",
+  layer = 0,
+  x = 72,
+  y = 69,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_1",
+  layer = 0,
+  x = 72,
+  y = 49,
+  width = 16,
+  height = 16,
+}
+
+block{
+  layer = 0,
+  x = 72,
+  y = 45,
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = true,
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 56,
+  y = 45,
+  direction = 1,
+}
+
+block{
+  layer = 0,
+  x = 72,
+  y = 61,
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = true,
+}
+
+block{
+  layer = 0,
+  x = 56,
+  y = 61,
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = true,
+}
+
+block{
+  layer = 0,
+  x = 40,
+  y = 45,
+  sprite = "blocks/block_brown",
+  pushable = true,
+  pullable = true,
+}
+

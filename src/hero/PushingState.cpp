@@ -210,29 +210,29 @@ void Hero::PushingState::stop_moving_pushed_entity() {
   if (pushed_entity != nullptr) {
     pushed_entity->stop_movement_by_hero();
 
-    // the hero may have moved one or several pixels too much
-    // because he moved before the block, not knowing that the block would not follow him
+    // The hero may have moved one or several pixels too much
+    // because he moved before the block, not knowing that the block would not follow him.
 
     switch (pushing_direction4) {
 
       case 0:
-        // east
-        hero.set_x(pushed_entity->get_x() - 16);
+        // East.
+        hero.set_top_left_x(pushed_entity->get_top_left_x() - hero.get_width());
         break;
 
       case 1:
-        // north
-        hero.set_y(pushed_entity->get_y() + 16);
+        // North.
+        hero.set_top_left_y(pushed_entity->get_top_left_y() + pushed_entity->get_height());
         break;
 
       case 2:
-        // west
-        hero.set_x(pushed_entity->get_x() + 16);
+        // West
+        hero.set_top_left_x(pushed_entity->get_top_left_x() + pushed_entity->get_width());
         break;
 
       case 3:
-        // south
-        hero.set_y(pushed_entity->get_y() - 16);
+        // South.
+        hero.set_top_left_y(pushed_entity->get_top_left_y() - hero.get_height());
         break;
     }
 

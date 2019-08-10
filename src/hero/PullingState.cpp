@@ -204,25 +204,25 @@ void Hero::PullingState::stop_moving_pulled_entity() {
     int direction4 = get_sprites().get_animation_direction();
     switch (direction4) {
 
-      case 0:
-        // east
-        hero.set_x(pulled_entity->get_x() - 16);
-        break;
+    case 0:
+      // East.
+      hero.set_top_left_x(pulled_entity->get_top_left_x() - hero.get_width());
+      break;
 
-      case 1:
-        // north
-        hero.set_y(pulled_entity->get_y() + 16);
-        break;
+    case 1:
+      // North.
+      hero.set_top_left_y(pulled_entity->get_top_left_y() + pulled_entity->get_height());
+      break;
 
-      case 2:
-        // west
-        hero.set_x(pulled_entity->get_x() + 16);
-        break;
+    case 2:
+      // West
+      hero.set_top_left_x(pulled_entity->get_top_left_x() + pulled_entity->get_width());
+      break;
 
-      case 3:
-        // south
-        hero.set_y(pulled_entity->get_y() - 16);
-        break;
+    case 3:
+      // South.
+      hero.set_top_left_y(pulled_entity->get_top_left_y() - hero.get_height());
+      break;
     }
 
     hero.clear_movement();

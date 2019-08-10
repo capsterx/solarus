@@ -2140,16 +2140,18 @@ bool Hero::is_striking_with_sword(Entity& entity) const {
 void Hero::try_snap_to_facing_entity() {
 
   Rectangle collision_box = get_bounding_box();
+  const Point& center = collision_box.get_center();
   const Entity* facing_entity = get_facing_entity();
+  const Point& facing_entity_center = facing_entity->get_center_point();
 
   if (get_animation_direction() % 2 == 0) {
-    if (abs(collision_box.get_y() - facing_entity->get_top_left_y()) <= 5) {
-      collision_box.set_y(facing_entity->get_top_left_y());
+    if (abs(center.y - facing_entity_center.y) <= 5) {
+      collision_box.set_center(center.x, facing_entity_center.y);
     }
   }
   else {
-    if (abs(collision_box.get_x() - facing_entity->get_top_left_x()) <= 5) {
-      collision_box.set_x(facing_entity->get_top_left_x());
+    if (abs(center.x - facing_entity_center.x) <= 5) {
+      collision_box.set_center(facing_entity_center.x, center.y);
     }
   }
 
