@@ -38,17 +38,53 @@ tile{
 tile{
   layer = 0,
   x = 96,
-  y = 152,
+  y = 144,
   width = 32,
   height = 96,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 128,
+  y = 144,
+  width = 192,
+  height = 32,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 144,
+  width = 64,
+  height = 32,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 32,
+  y = 176,
+  width = 32,
+  height = 64,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 32,
+  y = 0,
+  width = 32,
+  height = 64,
   pattern = "67",
 }
 
 sensor{
   name = "end_sensor",
   layer = 0,
-  x = 112,
-  y = 173,
+  x = 48,
+  y = 53,
   width = 16,
   height = 16,
 }
@@ -96,6 +132,64 @@ sensor{
   layer = 0,
   x = 112,
   y = 237,
+  width = 16,
+  height = 16,
+}
+
+teletransporter{
+  layer = 0,
+  x = 320,
+  y = 152,
+  width = 16,
+  height = 16,
+  transition = "scrolling",
+  destination_map = "teletransportation_tests/start_scrolling_same_map",
+  destination = "_side",
+}
+
+sensor{
+  name = "go_right_sensor",
+  layer = 0,
+  x = 112,
+  y = 165,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_on_opening_transition_finished_3",
+  layer = 0,
+  x = 8,
+  y = 165,
+  width = 16,
+  height = 16,
+}
+
+teletransporter{
+  layer = 0,
+  x = 40,
+  y = 240,
+  width = 16,
+  height = 16,
+  transition = "scrolling",
+  destination_map = "teletransportation_tests/start_scrolling_same_map",
+  destination = "_side",
+}
+
+sensor{
+  name = "go_down_sensor",
+  layer = 0,
+  x = 48,
+  y = 165,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_on_opening_transition_finished_4",
+  layer = 0,
+  x = 48,
+  y = 13,
   width = 16,
   height = 16,
 }
