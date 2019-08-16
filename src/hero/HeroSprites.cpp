@@ -851,7 +851,7 @@ void HeroSprites::draw_on_map() {
   if (camera == nullptr) {
     return;
   }
-  hero.draw_sprites(*camera);
+  hero.draw_sprites(*camera, clipping_rectangle);
   if (lifted_item != nullptr) {
     lifted_item->draw(*camera);
   }

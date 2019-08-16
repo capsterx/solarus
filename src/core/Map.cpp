@@ -644,6 +644,18 @@ void Map::draw_foreground(const SurfacePtr& dst_surface) {
  * \brief Draws a drawable object on the camera surface.
  * \param drawable The drawable object to draw.
  * \param xy Coordinates of the drawable's origin point in the map.
+ * \param clipping_area Rectangle of the map where the drawing will be
+ * restricted. A flat rectangle means no restriction.
+ */
+void Map::draw_visual(Drawable& drawable, const Point &xy, const Rectangle& clipping_area) {
+
+  draw_visual(drawable, xy.x, xy.y, clipping_area);
+}
+
+/**
+ * \brief Draws a drawable object on the camera surface.
+ * \param drawable The drawable object to draw.
+ * \param xy Coordinates of the drawable's origin point in the map.
  */
 void Map::draw_visual(Drawable& drawable, const Point &xy) {
 
@@ -658,8 +670,8 @@ void Map::draw_visual(Drawable& drawable, const Point &xy) {
  */
 void Map::draw_visual(Drawable& drawable, int x, int y) {
 
-  // the position is given in the map coordinate system:
-  // convert it to the visible surface coordinate system
+  // The position is given in the map coordinate system:
+  // convert it to the visible surface coordinate system.
   const CameraPtr& camera = get_camera();
   if (camera == nullptr) {
     return;

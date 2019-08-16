@@ -7,6 +7,7 @@ Engine changes
 --------------
 
 * Fix scrolling teletransporters with a square size (#1412).
+* Fix hero displayed above stairs walls.
 
 __________________________
 
