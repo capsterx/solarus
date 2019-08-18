@@ -137,6 +137,7 @@ void MainWindow::initialize_menus() {
 void MainWindow::update_menus() {
 
   update_fullscreen_action();
+  update_force_software_action();
 }
 
 /**
