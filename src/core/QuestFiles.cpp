@@ -511,7 +511,9 @@ SOLARUS_API std::string get_full_quest_write_dir() {
  */
 SOLARUS_API std::string get_base_write_dir() {
 
-#if defined(SOLARUS_OSX) || defined(SOLARUS_IOS)
+#if defined(SOLARUS_BASE_WRITE_DIR)
+  return SOLARUS_BASE_WRITE_DIR;
+#elif defined(SOLARUS_OSX) || defined(SOLARUS_IOS)
   return get_user_application_support_directory();
 #elif defined(ANDROID)
           char *base_path = SDL_GetPrefPath("org.solarus-games.solarus", "solarus");
