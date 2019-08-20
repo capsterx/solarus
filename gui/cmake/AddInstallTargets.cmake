@@ -47,6 +47,6 @@ endif(UNIX AND NOT APPLE)
 
 # Linux Manpage
 if(UNIX AND NOT APPLE)
-  install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/../solarus.6
+  install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/../solarus-launcher.6
     DESTINATION ${SOLARUS_MANUAL_INSTALL_DESTINATION}/man6)
 endif(UNIX AND NOT APPLE)
