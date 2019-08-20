@@ -6,13 +6,20 @@ if(SOLARUS_DEFAULT_QUEST)
   add_definitions(-DSOLARUS_DEFAULT_QUEST=\"${SOLARUS_DEFAULT_QUEST}\")
 endif()
 
+# Base directory where to write files.
+# If blank it will be set depending on the OS (typically the user's home directory).
+set(SOLARUS_BASE_WRITE_DIR "" CACHE STRING "Base directory where to write files, if blank it will be set depending on the OS (typically the user's home directory).")
+if(SOLARUS_BASE_WRITE_DIR)
+  add_definitions(-DSOLARUS_BASE_WRITE_DIR=\"${SOLARUS_BASE_WRITE_DIR}\")
+endif()
+
 # Directory where to write savegames and other files saved by quests.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(SOLARUS_INITIAL_WRITE_DIR "Solarus")
 else()
   set(SOLARUS_INITIAL_WRITE_DIR ".solarus")
 endif()
-set(SOLARUS_WRITE_DIR ${SOLARUS_INITIAL_WRITE_DIR} CACHE STRING "Directory where Solarus savegames are stored, relative to the user's base write directory.")
+set(SOLARUS_WRITE_DIR ${SOLARUS_INITIAL_WRITE_DIR} CACHE STRING "Directory where Solarus savegames are stored, relative to the base write directory.")
 if(SOLARUS_WRITE_DIR)
   add_definitions(-DSOLARUS_WRITE_DIR=\"${SOLARUS_WRITE_DIR}\")
 endif()
