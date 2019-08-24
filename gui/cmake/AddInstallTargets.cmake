@@ -12,6 +12,10 @@ install(FILES
   ${solarus-gui_FORMS_HEADERS}
   DESTINATION "${SOLARUS_HEADERS_INSTALL_DESTINATION}/solarus/gui"
 )
+install(FILES
+  ${solarus-gui_TRANSLATIONS_QM}
+  DESTINATION "${SOLARUSGUI_INSTALL_DATADIR}/translations"
+)
 
 # FreeDesktop compatible icons
 if(UNIX AND NOT APPLE)
