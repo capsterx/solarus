@@ -139,10 +139,14 @@ local function movement_events(cont)
                    end,
                    te("on_changed",
                       function(cont)
-                        local movement = sol.movement.create("random")
+                        local movement = sol.movement.create("straight")
+                        movement:set_speed(32)
                         local t = {x=0,y=0}
                         movement.on_changed = cont
                         movement:start(t)
+                        sol.timer.start(map, 2000, function()
+                            movement:set_speed(16)
+                        end)
                       end,
                       te("on_finished",
                          function(cont)
