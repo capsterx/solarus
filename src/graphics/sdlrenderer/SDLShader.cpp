@@ -497,8 +497,8 @@ void SDLShader::compute_matrices(const Size& surface_size, const Rectangle& regi
                                      glm::mat4& viewport, glm::mat4& dst, glm::mat4& scale, glm::mat3 &uvm) {
 
   viewport = glm::ortho<float>(0,dst_size.width,0,dst_size.height); //Specify float as type to avoid integral division
-  dst = glm::translate(glm::mat4(),glm::vec3(dst_position.x,dst_position.y,0));
-  scale = glm::scale(glm::mat4(),glm::vec3(region.get_width(),region.get_height(),1));
+  dst = glm::translate(glm::mat4(1.f),glm::vec3(dst_position.x,dst_position.y,0));
+  scale = glm::scale(glm::mat4(1.f),glm::vec3(region.get_width(),region.get_height(),1));
 
   float uxf = 1.f/surface_size.width;
   float uyf = 1.f/surface_size.height;
@@ -510,7 +510,7 @@ void SDLShader::compute_matrices(const Size& surface_size, const Rectangle& regi
           region.get_height()*uyf
           )
         );
-  glm::mat3 uv_trans = glm::translate(glm::mat3(),glm::vec2(region.get_left()*uxf,region.get_top()*uyf));
+  glm::mat3 uv_trans = glm::translate(glm::mat3(1.f),glm::vec2(region.get_left()*uxf,region.get_top()*uyf));
   uvm = uv_trans*uv_scale;
   if(!flip_y){
     uvm = glm::scale(uvm,glm::vec2(1,-1));

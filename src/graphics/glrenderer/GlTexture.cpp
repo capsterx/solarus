@@ -10,7 +10,7 @@ namespace Solarus {
 
 inline glm::mat3 uv_view(int width, int height) {
   using namespace glm;
-    return scale(mat3(),vec2(1.f/width,1.f/height));
+    return scale(mat3(1.f),vec2(1.f/width,1.f/height));
 }
 
 GlTexture::GlTexture(int width, int height, bool screen_tex)
