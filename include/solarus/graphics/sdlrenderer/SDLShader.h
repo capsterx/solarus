@@ -75,8 +75,8 @@ class SOLARUS_API SDLShader : public Shader {
      */
      void render(const VertexArray& array,
                         const Surface &texture,
-                        const glm::mat4& mvp_matrix = glm::mat4(),
-                        const glm::mat3& uv_matrix = glm::mat3());
+                        const glm::mat4& mvp_matrix = glm::mat4(1.f),
+                        const glm::mat3& uv_matrix = glm::mat3(1.f));
 
   private:
     void compile();

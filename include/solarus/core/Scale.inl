@@ -39,7 +39,7 @@ inline Scale& Scale::operator*=(float factor) {
 }
 
 inline Scale::operator glm::vec2() const {
-  return {x,y};
+  return glm::vec2(x,y);
 }
 
 /**

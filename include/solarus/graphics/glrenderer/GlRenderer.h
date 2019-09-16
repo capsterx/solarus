@@ -114,7 +114,7 @@ private:
 
   std::vector<Vertex> vertex_buffer;
 
-  Fbo screen_fbo = {0,glm::mat4()};
+  Fbo screen_fbo = {0,glm::mat4(1.f)};
   std::unordered_map<uint_fast64_t,Fbo> fbos;
   Rectangle window_viewport;
 

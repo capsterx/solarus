@@ -151,7 +151,7 @@ inline float Transform::kernel_size() const {
  * @return the matrix
  */
 inline mat4 Transform::get_glm_transform() const {
-  mat4 transform_trans_i = translate(mat4(),vec3(position.x+origin.x,position.y+origin.y,0));
+  mat4 transform_trans_i = translate(mat4(1.f),vec3(position.x+origin.x,position.y+origin.y,0));
   mat4 transform_rot = rotate(transform_trans_i,(float)rotation,vec3(0,0,-1));
   mat4 transform_scale = glm::scale(transform_rot,vec3(scale.x,scale.y,1));
   return translate(transform_scale,vec3(-origin.x,-origin.y,0));

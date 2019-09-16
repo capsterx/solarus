@@ -90,7 +90,7 @@ MessageCallback( GLenum source,
 
 GlRenderer::GlRenderer(SDL_GLContext sdl_ctx) :
   sdl_gl_context(sdl_ctx),
-  screen_fbo{0,glm::mat4()}
+  screen_fbo{0,glm::mat4(1.f)}
 {
 
   Debug::check_assertion(!instance,"Creating two GL renderer");
