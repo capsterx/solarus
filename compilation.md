@@ -54,7 +54,7 @@ Compiling the core part (Solarus) generates:
 Compiling the GUI part (Solarus GUI) is *optional* and generates:
 
 1. A dynamic library called `solarus-gui`.
-2. An executable file called `solarus`, providing a GUI window to run quests.
+2. An executable file called `solarus-launcher`, providing a GUI window to run quests.
 
 It is possible to play Solarus games without the GUI part: the `solarus-run`
 executable will directly run the quest in the current directory if any.
@@ -232,7 +232,7 @@ Once the compilation is finished, you will obtain a dynamic library named
 `solarus` and an executable named `solarus-run`.
 If you built the Solarus GUI too, you will also have a `gui` directory that
 contains a dynamic library named `solarus-gui` and an executable
-named `solarus`.
+named `solarus-launcher`.
 
 ## Running the Solarus GUI
 
@@ -276,7 +276,7 @@ directory, or if you want to use the Solarus libraries in another project.
 **Using a GUI**
 
 Copy the `solarus` library, the `solarus-run` executable, the `solarus-gui`
-library and the `solarus` executable where you want them to be installed.
+library and the `solarus-launcher` executable where you want them to be installed.
 
 If you intend to use the Solarus libraries from another project, you need to
 copy the whole include/solarus directory somewhere as well, and
