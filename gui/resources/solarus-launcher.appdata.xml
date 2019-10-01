@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>solarus-launcher</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Solarus Launcher</name>
+  <summary>Browse and play your Solarus quest collection.</summary>
+  <description>
+    <p>
+      Solarus Launcher is a desktop GUI frontend that allows to browse and play to Solarus quests, which are video games made with the Solarus game engine.
+    </p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://www.solarus-games.org/wp-content/uploads/2016/07/solarus-launcher.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://www.solarus-games.org/</url>
+  <update_contact>christopho@solarus-games.org</update_contact>
+  ​<launchable type="desktop-id">solarus-launcher.desktop</launchable>
+  <project_group>Solarus</project_group>
+  <developer_name>Solarus Team</developer_name>
+</component>
