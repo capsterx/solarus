@@ -144,6 +144,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1381_jumpers_hero_16_8"
   "bugs/1383_blocks_hero_16_8"
   "bugs/1392_carried_object_directions"
+  "bugs/1418_state_set_can_be_hurt"
 )
 
 # Test that should not fail when there are errors
