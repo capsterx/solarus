@@ -84,6 +84,12 @@ double StraightMovement::get_speed() const {
   return std::sqrt(x_speed * x_speed + y_speed * y_speed);
 }
 
+inline int64_t compute_to_go(int64_t delay, int64_t next_move_date, int64_t now, double keep_factor, double speed) {
+ return 0;
+ int64_t remaining = now < next_move_date ? delay - (next_move_date - now) : 0;
+ return speed != 0.0 ? keep_factor * remaining : 0;
+}
+
 /**
  * \brief Sets the x speed.
  * \param x_speed the x speed of the object in pixels per second
@@ -97,9 +103,8 @@ void StraightMovement::set_x_speed(double x_speed, double keep_factor) {
 
   uint32_t now = System::now();
 
-  int64_t remaining = now < next_move_date_x ? int64_t(x_delay) - (int64_t(next_move_date_x) - int64_t(now)) : 0;
-  //if speed was 0, don't even try to compensate
-  int64_t to_go = this->x_speed != 0.0 ? keep_factor * remaining : 0;
+
+  int64_t to_go = compute_to_go(x_delay, next_move_date_x, now, keep_factor, x_speed);
 
   this->x_speed = x_speed;
   // compute x_delay, x_move and next_move_date_x
@@ -137,10 +142,7 @@ void StraightMovement::set_y_speed(double y_speed, double keep_factor) {
   uint32_t now = System::now();
 
 
-  int64_t remaining = now < next_move_date_y ? int64_t(y_delay) - (int64_t(next_move_date_y) - int64_t(now)) : 0;
-
-   //if speed was 0, don't even try to compensate
-  int64_t to_go = this->y_speed != 0.0 ? keep_factor * remaining : 0;
+  int64_t to_go = compute_to_go(y_delay, next_move_date_y, now, keep_factor, y_speed);
 
   this->y_speed = y_speed;
 
