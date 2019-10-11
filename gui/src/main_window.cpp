@@ -168,7 +168,7 @@ void MainWindow::update_force_software_action() {
  * @brief Add and select a quest if it exists and is not already known.
  * @param quest_path Path to the quest to try to add.
  */
-void MainWindow::try_adding_quest(QString quest_path) {
+bool MainWindow::add_quest(QString quest_path) {
 
   // Sanitize path: Quest is a folder with a data folder.
   QString end0("data/quest.dat");
@@ -182,13 +182,12 @@ void MainWindow::try_adding_quest(QString quest_path) {
   // Check if the quest is already in the list.
   if (ui.quests_view->has_quest(quest_path)) {
     ui.quests_view->select_quest(quest_path);
-    return;
+    return false;
   }
 
   // Add to the quest list view.
   if (!ui.quests_view->add_quest(quest_path)) {
-    GuiTools::error_dialog("No quest was found in this directory");
-    return;
+    return false;
   }
 
   // Remember the new quest list.
@@ -197,6 +196,8 @@ void MainWindow::try_adding_quest(QString quest_path) {
 
   // Select the new quest.
   ui.quests_view->select_quest(quest_path);
+
+  return true;
 }
 
 /**
@@ -235,7 +236,9 @@ void MainWindow::dropEvent(QDropEvent* event) {
     for (QUrl const & url : mime->urls()) {
       // Local file actually can be a non-local file.
       if (url.isLocalFile() && url.host().isEmpty()) {
-        return try_adding_quest(url.path());
+        if (add_quest(url.toLocalFile())) {
+          break;
+        }
       }
     }
   }
@@ -292,7 +295,9 @@ void MainWindow::on_action_add_quest_triggered() {
     return;
   }
 
-  try_adding_quest(quest_path);
+  if (!add_quest(quest_path)) {
+    GuiTools::error_dialog(tr("No quest was found in this directory"));
+  }
 }
 
 /**

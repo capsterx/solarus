@@ -70,7 +70,7 @@ private:
   void update_menus();
   void update_fullscreen_action();
   void update_force_software_action();
-  void try_adding_quest(QString quest_path);
+  bool add_quest(QString quest_path);
 
   Ui::MainWindow ui;         /**< The widgets. */
   QuestRunner quest_runner;  /**< The quest executor. */
