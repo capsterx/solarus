@@ -504,7 +504,7 @@ void MainLoop::check_input() {
     notify_input(*event);
     event = InputEvent::get_event();
   }
-
+/*
   // Check Lua requests.
   if (!lua_commands.empty()) {
     std::lock_guard<std::mutex> lock(lua_commands_mutex);
@@ -523,7 +523,7 @@ void MainLoop::check_input() {
       ++num_lua_commands_done;
     }
     lua_commands.clear();
-  }
+  }*/
 }
 
 void MainLoop::setup_game_icon() {

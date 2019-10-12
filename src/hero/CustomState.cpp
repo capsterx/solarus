@@ -117,6 +117,12 @@ void CustomState::start(const State* previous_state) {
 
   HeroState::start(previous_state);
 
+  Hero& hero = get_entity();
+  HeroSprites& sprites = get_sprites();
+  if (!is_affected_by_ground(hero.get_ground_below())) {
+    hero.set_walking_speed(hero.get_normal_walking_speed());
+    sprites.destroy_ground();
+  }
   if (get_can_control_movement()) {
     start_player_movement();
   }
@@ -129,7 +135,6 @@ void CustomState::start(const State* previous_state) {
       previous_state != nullptr) {
     // Keep the carried object of the previous state.
     carried_object = previous_state->get_carried_object();
-    HeroSprites& sprites = get_sprites();
     sprites.set_lifted_item(carried_object);
   }
 
@@ -1586,6 +1591,16 @@ void CustomState::notify_movement_changed() {
   if (movement != nullptr &&
       get_entity().are_movement_notifications_enabled()) {
     get_lua_context().state_on_movement_changed(*this, *movement);
+  }
+}
+
+/**
+ * \copydoc Entity::State::notify_walking_speed_changed
+ */
+void CustomState::notify_walking_speed_changed() {
+
+  if (get_can_control_movement() && player_movement != nullptr) {
+    player_movement->set_moving_speed(get_entity().get_walking_speed());
   }
 }
 

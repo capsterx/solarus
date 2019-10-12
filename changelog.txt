@@ -7,6 +7,7 @@ Engine changes
 --------------
 
 * Fix crash when removing the shadow of a carried object (#1423).
+* Fix custom states wronlyg affected by ground speeds (#1416).
 
 __________________________
 

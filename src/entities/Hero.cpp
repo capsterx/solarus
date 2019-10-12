@@ -1335,7 +1335,7 @@ void Hero::notify_ground_below_changed() {
   case Ground::SHALLOW_WATER:
     if (get_state()->is_affected_by_shallow_water()) {
       start_shallow_water();
-     }
+    }
     break;
 
   case Ground::GRASS:
@@ -2278,7 +2278,7 @@ void Hero::hurt(int damage) {
  */
 void Hero::start_grass() {
 
-  // display a special sprite below the hero
+  // Display a special sprite below the hero.
   sprites->create_ground(Ground::GRASS);
 
   uint32_t now = System::now();
@@ -2293,7 +2293,7 @@ void Hero::start_grass() {
  */
 void Hero::start_shallow_water() {
 
-  // display a special sprite below the hero
+  // Display a special sprite below the hero.
   sprites->create_ground(Ground::SHALLOW_WATER);
 
   uint32_t now = System::now();
