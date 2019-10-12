@@ -62,7 +62,8 @@ int run_gui(int argc, char* argv[]) {
 
   // Set up the application.
   QApplication application(argc, argv);
-  application.setApplicationName("solarus");
+  application.setApplicationName("solarus-launcher");
+  application.setApplicationDisplayName("Solarus Launcher");
   application.setApplicationVersion(SOLARUS_VERSION);
   application.setOrganizationName("solarus");
 
