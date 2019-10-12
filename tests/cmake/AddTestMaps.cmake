@@ -90,6 +90,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1038_hero_hurt_in_stairs"
   "bugs/1041_crash_entity_overlaps"
   "bugs/1042_multiple_facing_entities_random_picked"
+  "bugs/1043_cannot_talk_to_npc_when_swimming"
   "bugs/1044_sol_menu_multiple_start"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1075_straight_movement_set_max_distance_tables"

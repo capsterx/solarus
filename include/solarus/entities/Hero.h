@@ -293,6 +293,7 @@ class Hero: public Entity {
     bool can_push() const;
     bool can_grab() const;
     bool can_pull() const;
+    bool can_interact_with_npc(Npc& npc);
     bool can_use_shield() const;
     bool can_start_sword() const;
     void start_sword();

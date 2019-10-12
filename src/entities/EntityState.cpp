@@ -1337,6 +1337,15 @@ bool Entity::State::get_can_pick_treasure(EquipmentItem& /* item */) const {
 }
 
 /**
+ * \brief Returns whether the entity can interact with an NPC in this state.
+ * \param npc A non-playing character.
+ * \return \c true if the entity can interact with that NPC in this state.
+ */
+bool Entity::State::get_can_interact_with_npc(Npc& /* npc */) const {
+  return false;
+}
+
+/**
  * \brief Returns whether attack can be stopped with a shield in this state.
  *
  * Returns \c true by default.

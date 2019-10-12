@@ -45,6 +45,7 @@ class Hero::SwimmingState: public Hero::PlayerMovementState {
 
     bool is_stairs_obstacle(Stairs& stairs) override;
     bool get_can_pick_treasure(EquipmentItem& item) const override;
+    bool get_can_interact_with_npc(Npc& npc) const override;
 
   private:
 

@@ -2725,6 +2725,15 @@ bool Hero::can_pull() const {
 }
 
 /**
+ * \brief Returns whether the hero can interact with the given NPC.
+ * \param npc A non-playing character.
+ * \return \c true if the hero can interact with this NPC.
+ */
+bool Hero::can_interact_with_npc(Npc& npc) {
+  return get_state()->get_can_interact_with_npc(npc);
+}
+
+/**
  * \brief Returns whether the hero can stop attacks with a shield in his
  * current state.
  * \return \c true if the shield is active is this state.
