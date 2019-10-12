@@ -1,5 +1,15 @@
 __________________________
 
+Solarus 1.6.3 (in progress)
+__________________________
+
+Engine changes
+--------------
+
+* Fix crash when removing the shadow of a carried object (#1423).
+
+__________________________
+
 Solarus 1.6.2 (2019-08-15)
 __________________________
 
