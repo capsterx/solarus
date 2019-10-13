@@ -44,6 +44,12 @@ class StraightMovement: public Movement {
     double get_x_speed() const;
     double get_y_speed() const;
     double get_speed() const;
+    void set_dim_speed(uint32_t& delay,
+                       uint32_t& next_move_date,
+                       double &current_speed,
+                       int& move,
+                       double target_speed,
+                       double keep_factor);
     void set_x_speed(double x_speed, double keep_factor = 0);
     void set_y_speed(double y_speed, double keep_factor = 0);
     void set_speed(double speed);
@@ -65,8 +71,7 @@ class StraightMovement: public Movement {
 
   protected:
 
-    void set_next_move_date_x(uint32_t next_move_date_x);
-    void set_next_move_date_y(uint32_t next_move_date_y);
+    void set_next_move_date(uint32_t& current_next_move_date, uint32_t next_move_date);
 
     void update_smooth_xy();
     void update_smooth_x();
