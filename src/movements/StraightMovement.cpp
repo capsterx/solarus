@@ -84,10 +84,44 @@ double StraightMovement::get_speed() const {
   return std::sqrt(x_speed * x_speed + y_speed * y_speed);
 }
 
-inline int64_t compute_to_go(int64_t delay, int64_t next_move_date, int64_t now, double keep_factor, double speed) {
- return 0;
- int64_t remaining = now < next_move_date ? delay - (next_move_date - now) : 0;
- return speed != 0.0 ? keep_factor * remaining : 0;
+void StraightMovement::set_dim_speed(uint32_t& delay,
+                                     uint32_t& next_move_date,
+                                     double &current_speed,
+                                     int& move,
+                                     double target_speed,
+                                     double keep_factor) {
+  if (std::abs(target_speed) <= 1E-6) {
+    target_speed = 0;
+  }
+
+  uint32_t now = System::now();
+
+  int64_t remaining = now < next_move_date ? delay - (next_move_date - now) : 0;
+  //if(remaining < 0) return 0; //Don't counter compensate TODO check if to_go needs to be 0 in this case
+  int64_t to_go = target_speed != 0.0 ? keep_factor * remaining : 0;
+
+  current_speed = target_speed;
+  // compute x_delay, x_move and next_move_date_x
+  if (target_speed == 0) {
+    move = 0;
+  }
+  else {
+    if (target_speed > 0) {
+      delay = (uint32_t) (1000 / target_speed);
+      move = 1;
+    }
+    else {
+      delay = (uint32_t) (1000 / (-target_speed));
+      move = -1;
+    }
+
+    set_next_move_date(next_move_date, now + delay - to_go); //Substract the already waited time
+  }
+  angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
+  initial_xy = get_xy();
+  finished = false;
+
+  notify_movement_changed();
 }
 
 /**
@@ -95,38 +129,7 @@ inline int64_t compute_to_go(int64_t delay, int64_t next_move_date, int64_t now,
  * \param x_speed the x speed of the object in pixels per second
  */
 void StraightMovement::set_x_speed(double x_speed, double keep_factor) {
-
-  if (std::abs(x_speed) <= 1E-6) {
-    x_speed = 0;
-  }
-
-
-  uint32_t now = System::now();
-
-
-  int64_t to_go = compute_to_go(x_delay, next_move_date_x, now, keep_factor, x_speed);
-
-  this->x_speed = x_speed;
-  // compute x_delay, x_move and next_move_date_x
-  if (x_speed == 0) {
-    x_move = 0;
-  }
-  else {
-    if (x_speed > 0) {
-      x_delay = (uint32_t) (1000 / x_speed);
-      x_move = 1;
-    }
-    else {
-      x_delay = (uint32_t) (1000 / (-x_speed));
-      x_move = -1;
-    }
-    set_next_move_date_x(now + x_delay - to_go); //Substract the already waited time
-  }
-  angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
-  initial_xy = get_xy();
-  finished = false;
-
-  notify_movement_changed();
+  set_dim_speed(x_delay, next_move_date_x, this->x_speed, x_move, x_speed, keep_factor);
 }
 
 /**
@@ -134,39 +137,7 @@ void StraightMovement::set_x_speed(double x_speed, double keep_factor) {
  * \param y_speed the y speed of the object in pixels per second
  */
 void StraightMovement::set_y_speed(double y_speed, double keep_factor) {
-
-  if (std::abs(y_speed) <= 1E-6) {
-    y_speed = 0;
-  }
-
-  uint32_t now = System::now();
-
-
-  int64_t to_go = compute_to_go(y_delay, next_move_date_y, now, keep_factor, y_speed);
-
-  this->y_speed = y_speed;
-
-  // compute y_delay, y_move and next_move_date_y
-  if (y_speed == 0) {
-    y_move = 0;
-  }
-  else {
-    if (y_speed > 0) {
-      y_delay = (uint32_t) (1000 / y_speed);
-      y_move = 1;
-    }
-    else {
-      y_delay = (uint32_t) (1000 / (-y_speed));
-      y_move = -1;
-    }
-    uint64_t date = now + y_delay-to_go;
-    set_next_move_date_y(date); //Substract already waited time
-  }
-  angle = Geometry::get_angle(0.0, 0.0, x_speed * 100.0, y_speed * 100.0);
-  initial_xy = get_xy();
-  finished = false;
-
-  notify_movement_changed();
+  set_dim_speed(y_delay, next_move_date_y, this->y_speed, y_move, y_speed, keep_factor);
 }
 
 /**
@@ -211,32 +182,17 @@ void StraightMovement::stop() {
 }
 
 /**
- * \brief Sets the date of the next change of the x coordinate.
+ * \brief Sets the date of the next change of the dim coordinate.
  * \param next_move_date_x the date in milliseconds
  */
-void StraightMovement::set_next_move_date_x(uint32_t next_move_date_x) {
+void StraightMovement::set_next_move_date(uint32_t& current_next_move_date, uint32_t next_move_date) {
 
   if (is_suspended()) {
-    uint32_t delay = next_move_date_x - System::now();
-    this->next_move_date_x = get_when_suspended() + delay;
+    uint32_t delay = next_move_date - System::now();
+    current_next_move_date = get_when_suspended() + delay;
   }
   else {
-    this->next_move_date_x = next_move_date_x;
-  }
-}
-
-/**
- * \brief Sets the date of the next change of the y coordinate.
- * \param next_move_date_y the date in milliseconds
- */
-void StraightMovement::set_next_move_date_y(uint32_t next_move_date_y) {
-
-  if (is_suspended()) {
-    uint32_t delay = next_move_date_y - System::now();
-    this->next_move_date_y = get_when_suspended() + delay;
-  }
-  else {
-    this->next_move_date_y = next_move_date_y;
+    current_next_move_date = next_move_date;
   }
 }
 
@@ -438,17 +394,26 @@ void StraightMovement::update_smooth_x() {
     // By default, next_move_date_x will be incremented by x_delay,
     // unless we modify below the movement in such a way that the
     // x speed needs to be fixed.
-    uint32_t next_move_date_x_increment = x_delay;
+
+    bool did_increment = false;
+    auto increment_next_move_date = [&](uint32_t incr) {
+      did_increment = true;
+      next_move_date_x += incr;
+    };
 
     if (!test_collision_with_obstacles(x_move, 0)) {
 
-      translate_x(x_move);  // Make the move.
-
-      if (y_move != 0 && test_collision_with_obstacles(0, y_move)) {
+      if (y_move != 0 && test_collision_with_obstacles(x_move, y_move)) {
         // If there is also a y move, and if this y move is illegal,
         // we still allow the x move and we give it all the speed.
-        next_move_date_x_increment = (int) (1000.0 / get_speed());
+        increment_next_move_date(1000.0 / get_speed());
+      } else {
+        increment_next_move_date(x_delay);
       }
+
+      translate_x(x_move);  // Make the move.
+
+
     }
     else {
       if (y_move == 0) {
@@ -461,15 +426,15 @@ void StraightMovement::update_smooth_x() {
             && (test_collision_with_obstacles(0, -1) ||  // the wall is really diagonal
                 test_collision_with_obstacles(0, 1))     // or we don't have a choice anyway.
         ) {
+          increment_next_move_date(x_delay * Geometry::SQRT_2);
           translate_xy(x_move, 1);
-          next_move_date_x_increment = (int) (x_delay * Geometry::SQRT_2);  // Fix the speed.
         }
         else if (!test_collision_with_obstacles(x_move, -1)
             && (test_collision_with_obstacles(0, 1) ||
                 test_collision_with_obstacles(0, -1))
         ) {
+          increment_next_move_date(x_delay * Geometry::SQRT_2);
           translate_xy(x_move, -1);
-          next_move_date_x_increment = (int) (x_delay * Geometry::SQRT_2);
         }
         else {
 
@@ -477,6 +442,7 @@ void StraightMovement::update_smooth_x() {
           // So we look for a place (up to 8 pixels up and down)
           // where the required move would be allowed.
           // If we find a such place, then we move towards this place.
+
 
           bool moved = false;
           for (int i = 1; i <= 8 && !moved; i++) {
@@ -490,6 +456,7 @@ void StraightMovement::update_smooth_x() {
               moved = true;
             }
           }
+          increment_next_move_date(x_delay);
         }
       }
       else {
@@ -505,13 +472,16 @@ void StraightMovement::update_smooth_x() {
           // We do it as a last resort, because we want separate x and y
           // steps whenever possible: otherwise, the hero could bypass sensors.
           if (!test_collision_with_obstacles(x_move, y_move)) {
-            translate_xy(x_move, y_move);
             next_move_date_y += y_delay;  // Delay the next update_smooth_y() since we just replaced it.
+            translate_xy(x_move, y_move);
           }
         }
       }
     }
-    next_move_date_x += next_move_date_x_increment;
+    //Increment anyway if it wasn't done (in case the move was impossible
+    if(not did_increment) {
+      increment_next_move_date(x_delay);
+    }
   }
 }
 
@@ -520,23 +490,28 @@ void StraightMovement::update_smooth_x() {
  * (smooth version).
  */
 void StraightMovement::update_smooth_y() {
-
   if (y_move != 0) {  // The entity wants to move on y.
 
     // By default, next_move_date_y will be incremented by y_delay,
     // unless we modify the movement in such a way that the
     // y speed needs to be fixed.
-    uint32_t next_move_date_y_increment = y_delay;
+
+    bool did_increment = false;
+    auto increment_next_move_date = [&](uint32_t incr) {
+      next_move_date_y += incr;
+      did_increment = true;
+    };
 
     if (!test_collision_with_obstacles(0, y_move)) {
-
-      translate_y(y_move);  // Make the move.
-
-      if (x_move != 0 && test_collision_with_obstacles(x_move, 0)) {
+      //Doing this before to fix the speed
+      if (x_move != 0 && test_collision_with_obstacles(x_move, y_move)) {
         // If there is also an x move, and if this x move is illegal,
         // we still allow the y move and we give it all the speed.
-        next_move_date_y_increment = (int) (1000.0 / get_speed());
+        increment_next_move_date(1000.0 / get_speed());
+      } else {
+        increment_next_move_date(y_delay);
       }
+      translate_y(y_move);  // Make the move.
     }
     else {
       if (x_move == 0) {
@@ -549,15 +524,15 @@ void StraightMovement::update_smooth_y() {
             && (test_collision_with_obstacles(-1, 0) ||  // the wall is really diagonal
                 test_collision_with_obstacles(1, 0))     // or we don't have a choice anyway.
         ) {
+          increment_next_move_date(y_delay * Geometry::SQRT_2);  // Fix the speed.
           translate_xy(1, y_move);
-          next_move_date_y_increment = (int) (y_delay * Geometry::SQRT_2);  // Fix the speed.
         }
         else if (!test_collision_with_obstacles(-1, y_move)
             && (test_collision_with_obstacles(1, 0) ||
                 test_collision_with_obstacles(-1, 0))
         ) {
+          increment_next_move_date(y_delay * Geometry::SQRT_2);
           translate_xy(-1, y_move);
-          next_move_date_y_increment = (int) (y_delay * Geometry::SQRT_2);
         }
         else {
           // The diagonal moves didn't work either.
@@ -565,10 +540,12 @@ void StraightMovement::update_smooth_y() {
           // where the required move would be allowed.
           // If we find a such place, then we move towards this place.
 
+
           bool moved = false;
           for (int i = 1; i <= 8 && !moved; i++) {
 
             if (!test_collision_with_obstacles(i, y_move) && !test_collision_with_obstacles(1, 0)) {
+
               translate_x(1);
               moved = true;
             }
@@ -577,6 +554,7 @@ void StraightMovement::update_smooth_y() {
               moved = true;
             }
           }
+          increment_next_move_date(y_delay);
         }
       }
       else {
@@ -592,13 +570,16 @@ void StraightMovement::update_smooth_y() {
           // We do it as a last resort, because we want separate x and y
           // steps whenever possible: otherwise, the hero could bypass sensors.
           if (!test_collision_with_obstacles(x_move, y_move)) {
-            translate_xy(x_move, y_move);
             next_move_date_x += x_delay;  // Delay the next update_smooth_x() since we just replaced it.
+            translate_xy(x_move, y_move);
           }
         }
       }
     }
-    next_move_date_y += next_move_date_y_increment;
+    //Increment anyway if it wasn't done (in case the move was impossible
+    if(not did_increment) {
+      increment_next_move_date(y_delay);
+    }
   }
 }
 
@@ -621,24 +602,26 @@ void StraightMovement::update_non_smooth_xy() {
     if (y_move_now) {
       // but it's also time to make a y move
 
+      next_move_date_x += x_delay;
+      next_move_date_y += y_delay;
       if (!test_collision_with_obstacles(x_move, y_move)) {
         translate_xy(x_move, y_move);
       }
-      next_move_date_x += x_delay;
-      next_move_date_y += y_delay;
     }
     else {
+      next_move_date_x += x_delay;
       if (!test_collision_with_obstacles(x_move, 0)) {
         translate_x(x_move);
       }
-      next_move_date_x += x_delay;
+
     }
   }
   else {
+    next_move_date_y += y_delay;
     if (!test_collision_with_obstacles(0, y_move)) {
       translate_y(y_move);
     }
-    next_move_date_y += y_delay;
+
   }
 
   if (!is_suspended() &&
