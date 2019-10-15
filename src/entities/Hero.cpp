@@ -1335,7 +1335,7 @@ void Hero::notify_ground_below_changed() {
   case Ground::SHALLOW_WATER:
     if (get_state()->is_affected_by_shallow_water()) {
       start_shallow_water();
-     }
+    }
     break;
 
   case Ground::GRASS:
@@ -2278,7 +2278,7 @@ void Hero::hurt(int damage) {
  */
 void Hero::start_grass() {
 
-  // display a special sprite below the hero
+  // Display a special sprite below the hero.
   sprites->create_ground(Ground::GRASS);
 
   uint32_t now = System::now();
@@ -2293,7 +2293,7 @@ void Hero::start_grass() {
  */
 void Hero::start_shallow_water() {
 
-  // display a special sprite below the hero
+  // Display a special sprite below the hero.
   sprites->create_ground(Ground::SHALLOW_WATER);
 
   uint32_t now = System::now();
@@ -2722,6 +2722,15 @@ bool Hero::can_grab() const {
 bool Hero::can_pull() const {
 
   return get_equipment().has_ability(Ability::PULL);
+}
+
+/**
+ * \brief Returns whether the hero can interact with the given NPC.
+ * \param npc A non-playing character.
+ * \return \c true if the hero can interact with this NPC.
+ */
+bool Hero::can_interact_with_npc(Npc& npc) {
+  return get_state()->get_can_interact_with_npc(npc);
 }
 
 /**

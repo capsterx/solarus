@@ -144,6 +144,7 @@ class Entity::State : public ExportableToLua {
     virtual bool is_separator_obstacle(Separator& separator);
     virtual bool get_can_start_sword() const;
     virtual bool get_can_pick_treasure(EquipmentItem& item) const;
+    virtual bool get_can_interact_with_npc(Npc& npc) const;
     virtual bool get_can_use_shield() const;
     virtual bool get_can_start_item(EquipmentItem& item) const;
     virtual bool get_can_take_stairs() const;

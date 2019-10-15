@@ -145,5 +145,12 @@ void Hero::LiftingState::throw_item() {
   lifted_item = nullptr;
 }
 
+/**
+ * \copydoc Entity::State::get_carried_object
+ */
+std::shared_ptr<CarriedObject> Hero::LiftingState::get_carried_object() const {
+  return lifted_item;
+}
+
 }
 

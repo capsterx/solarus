@@ -228,14 +228,17 @@ void Npc::notify_collision(Entity& entity_overlapping, CollisionMode collision_m
     Hero& hero = static_cast<Hero&>(entity_overlapping);
 
     CommandsEffects::ActionKeyEffect action_effect = get_commands_effects().get_action_key_effect();
-    if (action_effect == CommandsEffects::ACTION_KEY_NONE || action_effect == CommandsEffects::ACTION_KEY_LIFT) {
+    if (action_effect == CommandsEffects::ACTION_KEY_NONE ||
+        action_effect == CommandsEffects::ACTION_KEY_LIFT ||
+        action_effect == CommandsEffects::ACTION_KEY_SWIM) {
 
-      if (hero.is_free()) {
-        if (subtype == USUAL_NPC // the hero can talk to usual NPCs from any direction
+      if (hero.can_interact_with_npc(*this)) {
+        if (subtype == USUAL_NPC  // The hero can talk to usual NPCs from any direction.
             || get_direction() == -1
             || hero.is_facing_direction4((get_direction() + 2) % 4)) {
 
-          // show the appropriate action icon
+          // Set the appropriate action command effect.
+          get_commands_effects().save_action_key_effect();
           get_commands_effects().set_action_key_effect(subtype == USUAL_NPC ?
               CommandsEffects::ACTION_KEY_SPEAK : CommandsEffects::ACTION_KEY_LOOK);
         }
@@ -260,7 +263,7 @@ void Npc::notify_collision(Entity& entity_overlapping, CollisionMode collision_m
 bool Npc::notify_action_command_pressed() {
 
   Hero& hero = get_hero();
-  if (hero.is_free() &&
+  if (hero.can_interact_with_npc(*this) &&
       get_commands_effects().get_action_key_effect() != CommandsEffects::ACTION_KEY_NONE
   ) {
     CommandsEffects::ActionKeyEffect effect = get_commands_effects().get_action_key_effect();
@@ -277,7 +280,7 @@ bool Npc::notify_action_command_pressed() {
 
     if (effect != CommandsEffects::ACTION_KEY_LIFT) {
       // start the normal behavior
-      get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
+      get_commands_effects().restore_action_key_effect();
       if (behavior == BEHAVIOR_DIALOG) {
         get_game().start_dialog(dialog_to_show, ScopedLuaRef(), ScopedLuaRef());
       }

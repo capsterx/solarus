@@ -1,0 +1,18 @@
+[Desktop Entry]
+Version=1.6.2
+Type=Application
+Name=Solarus Launcher
+GenericName[es]=Lanzador de videojuegos Solarus
+GenericName[fr]=Lecteur de jeux vidéos Solarus
+GenericName=Solarus video games player
+Comment[es]=Explora y juega tu colección de videojuegos Solarus.
+Comment[fr]=Parcourez et jouez à votre collection de quêtes Solarus.
+Comment=Browse and play your Solarus quest collection.
+Exec=solarus-launcher
+Icon=solarus-launcher
+Terminal=false
+StartupNotify=true
+Categories=Game;AdventureGame;
+Keywords[es]=juego;videojuego;video juego;solarus;
+Keywords[fr]=jeu;jeuvidéo;jeu vidéo;solarus;
+Keywords=game;videogame;video game;solarus;

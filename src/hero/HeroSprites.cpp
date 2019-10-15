@@ -693,7 +693,9 @@ void HeroSprites::set_animation_direction(int direction) {
   Debug::check_assertion(direction >= 0 && direction < 4,
     "Invalid direction for set_animation_direction");
 
-  tunic_sprite->set_current_direction(direction);
+  if (tunic_sprite != nullptr) {
+    tunic_sprite->set_current_direction(direction);
+  }
 
   if (is_sword_visible()) {
     sword_sprite->set_current_direction(direction);
@@ -713,12 +715,14 @@ void HeroSprites::set_animation_direction(int direction) {
 
   if (lifted_item != nullptr) {
     const SpritePtr& sprite = lifted_item->get_sprite();
-    sprite->restart_animation();
-    if (direction < sprite->get_nb_directions()) {
-      sprite->set_current_direction(direction);
+    if (sprite != nullptr) {
+      sprite->restart_animation();
+      if (direction < sprite->get_nb_directions()) {
+        sprite->set_current_direction(direction);
+      }
     }
     const SpritePtr& shadow_sprite = lifted_item->get_sprite("shadow");
-    if (direction < shadow_sprite->get_nb_directions()) {
+    if (shadow_sprite != nullptr && direction < shadow_sprite->get_nb_directions()) {
       shadow_sprite->set_current_direction(direction);
     }
   }

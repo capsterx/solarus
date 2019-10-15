@@ -40,6 +40,7 @@ class Hero::FreeState: public Hero::PlayerMovementState {
     void notify_obstacle_reached() override;
 
     bool is_free() const override;
+    bool get_can_interact_with_npc(Npc& npc) const override;
     bool get_can_start_sword() const override;
     bool get_can_start_item(EquipmentItem& item) const override;
     bool get_can_take_stairs() const override;

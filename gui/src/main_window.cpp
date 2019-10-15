@@ -37,9 +37,6 @@ MainWindow::MainWindow(QWidget* parent) :
   // Set up widgets.
   ui.setupUi(this);
 
-  // Title.
-  update_title();
-
   // Icon.
   const QStringList& icon_sizes = { "16", "24", "32", "48", "64", "128", "256" };
   QIcon icon;
@@ -110,16 +107,6 @@ void MainWindow::initialize_geometry_on_screen() {
   int y = screen.height() / 2 - frameGeometry().height() / 2 + screen.top() - 10;
 
   move(qMax(0, x), qMax(0, y));
-}
-
-/**
- * @brief Sets the title of the window.
- */
-void MainWindow::update_title() {
-
-  QString version = QApplication::applicationVersion();
-  QString title = tr("Solarus %1").arg(version);
-  setWindowTitle(title);
 }
 
 /**

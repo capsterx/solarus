@@ -32,11 +32,12 @@ class Hero::LiftingState: public HeroState {
 
     LiftingState(Hero& hero, const std::shared_ptr<CarriedObject>& lifted_item);
 
-    virtual void start(const State* previous_state) override;
-    virtual void stop(const State* next_state) override;
-    virtual void update() override;
-    virtual void set_suspended(bool suspended) override;
-    virtual bool get_can_be_hurt(Entity* attacker) override;
+    void start(const State* previous_state) override;
+    void stop(const State* next_state) override;
+    void update() override;
+    void set_suspended(bool suspended) override;
+    bool get_can_be_hurt(Entity* attacker) override;
+    std::shared_ptr<CarriedObject> get_carried_object() const override;
 
   private:
 

@@ -1,0 +1,36 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "overworld",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 48,
+  pattern = "4",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 48,
+  width = 320,
+  height = 192,
+  pattern = "2",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 1,
+}
+

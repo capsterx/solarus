@@ -90,6 +90,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1038_hero_hurt_in_stairs"
   "bugs/1041_crash_entity_overlaps"
   "bugs/1042_multiple_facing_entities_random_picked"
+  "bugs/1043_cannot_talk_to_npc_when_swimming"
   "bugs/1044_sol_menu_multiple_start"
   "bugs/1062_enemy_set_attack_consequence_callback"
   "bugs/1075_straight_movement_set_max_distance_tables"
@@ -144,7 +145,9 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1381_jumpers_hero_16_8"
   "bugs/1383_blocks_hero_16_8"
   "bugs/1392_carried_object_directions"
+  "bugs/1416_state_set_affected_by_ground_speed"
   "bugs/1418_state_set_can_be_hurt"
+  "bugs/1423_crash_carried_without_shadow"
 )
 
 # Test that should not fail when there are errors

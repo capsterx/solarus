@@ -157,6 +157,13 @@ bool Hero::FreeState::is_free() const {
 }
 
 /**
+ * \copydoc Entity::State::get_can_interact_with_npc
+ */
+bool Hero::FreeState::get_can_interact_with_npc(Npc& /* npc */) const {
+  return true;
+}
+
+/**
  * \brief Returns whether the hero can swing his sword in this state.
  * \return true if the hero can swing his sword in this state
  */

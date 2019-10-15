@@ -10,6 +10,7 @@ map{ id = "bugs/1037_stairs_methods", description = "#1037: Stairs methods" }
 map{ id = "bugs/1038_hero_hurt_in_stairs", description = "#1038: The hero can be hurt while taking spiral stairs" }
 map{ id = "bugs/1041_crash_entity_overlaps", description = "#1041: Crash when entity:overlaps is called with invalid value" }
 map{ id = "bugs/1042_multiple_facing_entities_random_picked", description = "#1042: Facing entity is random when multiple ones overlap" }
+map{ id = "bugs/1043_cannot_talk_to_npc_when_swimming", description = "#1043: Cannot talk to an NPC when swimming" }
 map{ id = "bugs/1044_sol_menu_multiple_start", description = "#1044 : menus can be started multiple times" }
 map{ id = "bugs/1062_enemy_set_attack_consequence_callback", description = "#1062: Add callback parameter to enemy:set_attack_consequence" }
 map{ id = "bugs/1075_straight_movement_set_max_distance_tables", description = "#1075: straight_movement:set_max_distance() not working on tables" }
@@ -69,7 +70,9 @@ map{ id = "bugs/1371_crash_pulling_block_on_switch", description = "#1371: Crash
 map{ id = "bugs/1381_jumpers_hero_16_8", description = "#1381: Jumpers not working with a 16x8 hero" }
 map{ id = "bugs/1383_blocks_hero_16_8", description = "#1383: Blocks not working with a 16x8 hero" }
 map{ id = "bugs/1392_carried_object_directions", description = "#1392: Allow carried objects to have 4 directions" }
+map{ id = "bugs/1416_state_set_affected_by_ground_speed", description = "#1416: state:set_affected_by_ground() not working on grounds that alter the speed" }
 map{ id = "bugs/1418_state_set_can_be_hurt", description = "#1418: state:set_can_be_hurt() not working with touching attack mode" }
+map{ id = "bugs/1423_crash_carried_without_shadow", description = "#1423: Crash when carrying an object without shadow sprite" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -407,6 +410,8 @@ file{ path = "maps/bugs/1041_crash_entity_overlaps.dat", author = "Christopho", 
 file{ path = "maps/bugs/1041_crash_entity_overlaps.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1042_multiple_facing_entities_random_picked.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1043_cannot_talk_to_npc_when_swimming.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1043_cannot_talk_to_npc_when_swimming.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1044_sol_menu_multiple_start.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1044_sol_menu_multiple_start.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1062_enemy_set_attack_consequence_callback.dat", author = "Christopho", license = "CC BY-SA 4.0" }
@@ -519,8 +524,12 @@ file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.dat", author 
 file{ path = "maps/bugs/1366_crash_disabled_stairs_on_dynamic_tile.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1371_crash_pulling_block_on_switch.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1371_crash_pulling_block_on_switch.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1416_state_set_affected_by_ground_speed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1416_state_set_affected_by_ground_speed.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1418_state_set_can_be_hurt.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1418_state_set_can_be_hurt.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1423_crash_carried_without_shadow.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1423_crash_carried_without_shadow.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }

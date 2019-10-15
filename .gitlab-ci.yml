@@ -1,2 +1,2 @@
 include:
-  - https://gitlab.com/solarus-games/solarus-devops/raw/master/gitlab-ci-cd/solarus.yml
+  - https://gitlab.com/solarus-games/solarus-devops/raw/master/gitlab/solarus.yml
