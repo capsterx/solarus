@@ -77,7 +77,7 @@ int run_gui(int argc, char* argv[]) {
   QString filename = "solarus_" + QLocale::system().name();
   bool translation_loaded = translator.load(filename);
   if (!translation_loaded) {
-    translator.load(filename, SOLARUSGUI_TRANSLATION_PATH);
+    translator.load(filename, SOLARUS_GUI_TRANSLATIONS_PATH);
   }
   application.installTranslator(&translator);
 
