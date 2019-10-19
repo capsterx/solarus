@@ -7,8 +7,13 @@ Engine changes
 --------------
 
 * Fix crash when removing the shadow of a carried object (#1423).
-* Fix custom states wronlyg affected by ground speeds (#1416).
+* Fix custom states wrongly affected by ground speeds (#1416).
 * Fix talking to NPCs while swimming (#1043).
+
+Solarus launcher GUI changes
+----------------------------
+
+* Add drag and drop functionality to add new quests (#1420).
 
 __________________________
 

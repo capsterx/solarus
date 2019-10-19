@@ -38,6 +38,8 @@ public:
 protected:
 
   void closeEvent(QCloseEvent* event) override;
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
 
 private slots:
 
@@ -68,6 +70,7 @@ private:
   void update_menus();
   void update_fullscreen_action();
   void update_force_software_action();
+  bool add_quest(QString quest_path);
 
   Ui::MainWindow ui;         /**< The widgets. */
   QuestRunner quest_runner;  /**< The quest executor. */
