@@ -1,0 +1,117 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "3",
+}
+
+tile{
+  layer = 0,
+  x = 144,
+  y = 152,
+  width = 16,
+  height = 16,
+  pattern = "85",
+}
+
+tile{
+  layer = 0,
+  x = 160,
+  y = 136,
+  width = 16,
+  height = 16,
+  pattern = "85",
+}
+
+tile{
+  layer = 0,
+  x = 176,
+  y = 120,
+  width = 16,
+  height = 16,
+  pattern = "85",
+}
+
+tile{
+  layer = 0,
+  x = 72,
+  y = 24,
+  width = 32,
+  height = 32,
+  pattern = "67",
+}
+
+tile{
+  layer = 0,
+  x = 136,
+  y = 32,
+  width = 32,
+  height = 32,
+  pattern = "67",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 72,
+  y = 165,
+  direction = 1,
+}
+
+sensor{
+  name = "ramp_sensor",
+  layer = 0,
+  x = 152,
+  y = 149,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "diagonal_sensor",
+  layer = 0,
+  x = 152,
+  y = 109,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "fail_sensor",
+  layer = 0,
+  x = 152,
+  y = 53,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "success_sensor",
+  layer = 0,
+  x = 88,
+  y = 45,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "start_sensor",
+  layer = 0,
+  x = 72,
+  y = 165,
+  width = 16,
+  height = 16,
+}
+

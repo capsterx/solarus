@@ -73,6 +73,7 @@ map{ id = "bugs/1392_carried_object_directions", description = "#1392: Allow car
 map{ id = "bugs/1416_state_set_affected_by_ground_speed", description = "#1416: state:set_affected_by_ground() not working on grounds that alter the speed" }
 map{ id = "bugs/1418_state_set_can_be_hurt", description = "#1418: state:set_can_be_hurt() not working with touching attack mode" }
 map{ id = "bugs/1423_crash_carried_without_shadow", description = "#1423: Crash when carrying an object without shadow sprite" }
+map{ id = "bugs/1428_movement_blocking", description = "#1428: straight movements blocking" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
 map{ id = "bugs/496_stream_speed_0", description = "#496: Allow streams to have a speed of zero" }
 map{ id = "bugs/526_get_entities_same_region", description = "#526: map:get_entities_in_same_region()" }
@@ -530,6 +531,8 @@ file{ path = "maps/bugs/1418_state_set_can_be_hurt.dat", author = "Christopho", 
 file{ path = "maps/bugs/1418_state_set_can_be_hurt.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1423_crash_carried_without_shadow.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1423_crash_carried_without_shadow.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1428_movement_blocking.dat", author = "stdgregwar", }
+file{ path = "maps/bugs/1428_movement_blocking.lua", author = "stdgregwar", }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/496_stream_speed_0.dat", author = "Christopho", license = "CC BY-SA 4.0" }
