@@ -13,9 +13,9 @@ if(EXISTS '/usr/bin/apt')
 else()
   set(SOLARUS_EXECUTABLE_INSTALL_DESTINATION "bin" CACHE PATH "Binary install destination")
 endif()
-set(SOLARUS_MANUAL_INSTALL_DESTINATION "share/man" CACHE PATH "Manual install destination")
+set(SOLARUS_SHARE_INSTALL_DESTINATION "share" CACHE PATH "Shared files install destination")
+set(SOLARUS_MANUAL_INSTALL_DESTINATION "${SOLARUS_SHARE_INSTALL_DESTINATION}/man" CACHE PATH "Manual install destination")
 set(SOLARUS_HEADERS_INSTALL_DESTINATION "include" CACHE PATH "Headers install destination")
-set(SOLARUSGUI_INSTALL_DATADIR "share/solarus-gui" CACHE PATH "GUI data install destination")
 
 # Files to install with make install.
 # Install the shared library and the solarus-run executable.
