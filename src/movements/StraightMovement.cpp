@@ -96,7 +96,7 @@ void StraightMovement::set_dim_speed(uint32_t& delay,
 
   uint32_t now = System::now();
 
-  int64_t remaining = now < next_move_date ? static_cast<uint64_t>(delay) - (static_cast<uint64_t>(next_move_date) - static_cast<uint64_t>(now)) : 0;
+  int64_t remaining = now < next_move_date ? static_cast<int64_t>(delay) - (static_cast<int64_t>(next_move_date) - static_cast<int64_t>(now)) : 0;
   //if(remaining < 0) return 0; //Don't counter compensate TODO check if to_go needs to be 0 in this case
   int64_t to_go = target_speed != 0.0 ? keep_factor * remaining : 0;
 
