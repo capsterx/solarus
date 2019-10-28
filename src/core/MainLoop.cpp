@@ -94,40 +94,6 @@ void check_version_compatibility(const std::pair<int, int>& quest_version) {
 }
 
 /**
- * \brief Converts a string from the local 8-bit encoding of the system to UTF-8.
- *
- * Simplistic implementation that only supports Windows-1252 or UTF-8 system encoding.
- *
- * \param input A string in system 8-bit encoding
- * (only Windows-1252 and UTF-8 are supported for now).
- * \return The corresponding UTF-8 string.
- */
-std::string local_8bit_to_utf8(const std::string& input) {
-
-  // Get the locale of the system.
-  std::setlocale(LC_ALL, "");
-  std::string locale_string = std::setlocale(LC_CTYPE, NULL);
-
-  if (locale_string.size() > 5 &&
-      locale_string.substr(locale_string.size() - 5) == ".1252") {
-    // Convert from Windows-1252/ISO-8859-1 to UTF-8.
-    std::string output;
-    for (uint8_t byte : input) {
-      if (byte < 0x80) {
-       output.push_back(byte);
-      }
-      else {
-        output.push_back(0xc0 | byte >> 6);
-        output.push_back(0x80 | (byte & 0x3f));
-      }
-    }
-    return output;
-  }
-
-  return input;
-}
-
-/**
  * \brief Returns path of the quest to run.
  *
  * It may be the path defined as command-line argument,
@@ -145,7 +111,7 @@ std::string get_quest_path(const Arguments& args) {
       && !options.back().empty()
       && options.back()[0] != '-') {
     // The last parameter is not an option: it is the quest path.
-    return local_8bit_to_utf8(options.back());
+    return options.back();
   }
 
   // The default quest path is defined during the build process.
