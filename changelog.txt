@@ -6,6 +6,7 @@ __________________________
 Engine changes
 --------------
 
+* Fix UTF-8 quest path encoding handling (#1429).
 * Fix crash when removing the shadow of a carried object (#1423).
 * Fix custom states wrongly affected by ground speeds (#1416).
 * Fix talking to NPCs while swimming (#1043).
@@ -13,6 +14,7 @@ Engine changes
 Solarus launcher GUI changes
 ----------------------------
 
+* Fix UTF-8 quest path encoding handling (#1429).
 * Add drag and drop functionality to add new quests (#1420).
 
 __________________________

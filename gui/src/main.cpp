@@ -29,6 +29,9 @@
 #include <QTextStream>
 #include <QTranslator>
 #include <iostream>
+
+// SDLmain is required in some platforms, i.e. Windows, for proper initialization.
+// For instance, in Windows, SDLmain encodes argv in main() using UTF-8 by default.
 #include <SDL.h>
 
 namespace SolarusGui {

@@ -21,6 +21,9 @@
 #include "solarus/core/MainLoop.h"
 #include <iostream>
 #include <string>
+
+// SDLmain is required in some platforms, i.e. Windows, for proper initialization.
+// For instance, in Windows, SDLmain encodes argv in main() using UTF-8 by default.
 #include <SDL.h>
 
 namespace Solarus {
