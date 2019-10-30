@@ -43,5 +43,20 @@ function map:on_started()
   files = sol.file.list_dir("does_not_exist")
   assert(files == nil)
 
+  -- UTF-8 file name handling.
+  assert(not sol.file.exists("971_ñandú"))
+  local f = sol.file.open("971_ñandú", "w")
+  f:write("hello")
+  f:close()
+  assert(sol.file.exists("971_ñandú"))
+  assert(not sol.file.is_dir("971_ñandú"))
+  f = sol.file.open("971_ñandú")
+  assert_equal(f:read("*a"), "hello")
+  f:close()
+  files = sol.file.list_dir("971_ñandú")
+  assert(files == nil)
+  sol.file.remove("971_ñandú")
+  assert(not sol.file.exists("971_ñandú"))
+
   sol.main.exit()
 end

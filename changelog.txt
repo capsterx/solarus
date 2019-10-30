@@ -9,6 +9,7 @@ Engine changes
 * Fix UTF-8 quest path encoding handling (#1429).
 * Fix crash when removing the shadow of a carried object (#1423).
 * Fix custom states wrongly affected by ground speeds (#1416).
+* Fix UTF-8 file names in Lua Open File API for Windows (#1413).
 * Fix talking to NPCs while swimming (#1043).
 
 Solarus launcher GUI changes

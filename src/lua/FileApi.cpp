@@ -18,6 +18,9 @@
 #include "solarus/core/QuestFiles.h"
 #include "solarus/lua/LuaContext.h"
 #include "solarus/lua/LuaTools.h"
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <windows.h>
+#endif
 
 namespace Solarus {
 
@@ -120,6 +123,14 @@ int LuaContext::file_api_open(lua_State* l) {
       }
       }
     }
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    // convert filename from UTF-8 to Windows Unicode
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &real_file_name[0], -1, NULL, 0);
+    std::wstring converted(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, &real_file_name[0], -1, &converted[0], size_needed);
+    real_file_name = std::string(converted.begin(), converted.end());
+#endif
 
     // Call io.open.
     lua_getfield(l, LUA_REGISTRYINDEX, "io.open");
