@@ -6,6 +6,7 @@ __________________________
 Engine changes
 --------------
 
+* Fix shaders compilation in some OpenGL ES 3.0 platforms (#1437).
 * Fix UTF-8 quest path encoding handling (#1429).
 * Fix crash when removing the shadow of a carried object (#1423).
 * Fix custom states wrongly affected by ground speeds (#1416).

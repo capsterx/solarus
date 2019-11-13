@@ -23,30 +23,46 @@ namespace Solarus {
 
 namespace DefaultShaders {
 
-inline const std::string& get_default_vertex_source() {
+/**
+ * \brief Gets the default vertex shader compatibility source header.
+ * This should be included at the beginning of every vertex shader program
+ * source to ensure compatibility across different GLSL versions.
+ */
+inline const std::string& get_default_vertex_compat_header() {
 
   static const std::string source =
-R"(#if __VERSION__ >= 130
+R"(
+#if __VERSION__ >= 130
 #define COMPAT_VARYING out
 #define COMPAT_ATTRIBUTE in
+#define COMPAT_TEXTURE texture
 #else
 #define COMPAT_VARYING varying
 #define COMPAT_ATTRIBUTE attribute
+#define COMPAT_TEXTURE texture2D
 #endif
 
 #ifdef GL_ES
-precision mediump float;
 #define COMPAT_PRECISION mediump
 #else
 #define COMPAT_PRECISION
 #endif
+)";
+  return source;
+}
 
+/**
+ * \brief Gets the Solarus default vertex shader program source.
+ */
+inline const std::string& get_default_vertex_source() {
+
+  static const std::string source = get_default_vertex_compat_header() +
+R"(
 uniform mat4 sol_mvp_matrix;
 uniform mat3 sol_uv_matrix;
 COMPAT_ATTRIBUTE vec2 sol_vertex;
 COMPAT_ATTRIBUTE vec2 sol_tex_coord;
 COMPAT_ATTRIBUTE vec4 sol_color;
-
 COMPAT_VARYING vec2 sol_vtex_coord;
 COMPAT_VARYING vec4 sol_vcolor;
 
@@ -59,26 +75,46 @@ void main() {
   return source;
 }
 
-inline const std::string& get_default_fragment_source() {
+/**
+ * \brief Gets the default fragment shader compatibility source header.
+ * This should be included at the beginning of every fragment shader program
+ * source to ensure compatibility across different GLSL versions.
+ */
+inline const std::string& get_default_fragment_compat_header() {
 
-static const std::string source =
-R"(#if __VERSION__ >= 130
-#define COMPAT_VARYING in
-#define COMPAT_TEXTURE texture
-out vec4 FragColor;
-#else
-#define COMPAT_VARYING varying
-#define FragColor gl_FragColor
-#define COMPAT_TEXTURE texture2D
-#endif
-
+  static const std::string source =
+R"(
 #ifdef GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 #define COMPAT_PRECISION mediump
 #else
 #define COMPAT_PRECISION
 #endif
 
+#if __VERSION__ >= 130
+#define COMPAT_VARYING in
+#define COMPAT_TEXTURE texture
+out COMPAT_PRECISION vec4 FragColor;
+#else
+#define COMPAT_VARYING varying
+#define FragColor gl_FragColor
+#define COMPAT_TEXTURE texture2D
+#endif
+)";
+  return source;
+}
+
+/**
+ * \brief Gets the Solarus default fragment shader program source.
+ */
+inline const std::string& get_default_fragment_source() {
+
+static const std::string source = get_default_fragment_compat_header() +
+R"(
 uniform sampler2D sol_texture;
 uniform bool sol_vcolor_only;
 uniform bool sol_alpha_mult;
@@ -86,14 +122,14 @@ COMPAT_VARYING vec2 sol_vtex_coord;
 COMPAT_VARYING vec4 sol_vcolor;
 
 void main() {
-    if(!sol_vcolor_only) {
-      vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
-      FragColor = tex_color * sol_vcolor;
-      if(sol_alpha_mult) {
-        FragColor.rgb *= sol_vcolor.a; //Premultiply by opacity too
-      }
+    if (!sol_vcolor_only) {
+        vec4 tex_color = COMPAT_TEXTURE(sol_texture, sol_vtex_coord);
+        FragColor = tex_color * sol_vcolor;
+        if (sol_alpha_mult) {
+            FragColor.rgb *= sol_vcolor.a; //Premultiply by opacity too
+        }
     } else {
-      FragColor = sol_vcolor;
+        FragColor = sol_vcolor;
     }
 }
 )";
