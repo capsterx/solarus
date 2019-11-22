@@ -79,7 +79,6 @@ class CarriedObject: public Entity {
 
     void set_suspended(bool suspended) override;
     void update() override;
-    void built_in_draw(Camera& camera) override;
 
     bool is_teletransporter_obstacle(Teletransporter& teletransporter) override;
     bool is_stream_obstacle(Stream& stream) override;

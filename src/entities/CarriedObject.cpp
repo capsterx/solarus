@@ -473,6 +473,7 @@ void CarriedObject::update() {
         next_down_date += 40;
         item_height -= y_increment;
         y_increment++;
+        main_sprite->set_xy({ 0, -item_height });
       }
     }
   }
@@ -486,24 +487,6 @@ void CarriedObject::notify_obstacle_reached() {
 
   if (is_throwing && !is_broken()) {
     break_item();
-  }
-}
-
-/**
- * \copydoc Entity::built_in_draw
- *
- * This is a redefinition to draw the shadow independently of the movement.
- */
-void CarriedObject::built_in_draw(Camera& camera) {
-
-  if (!is_throwing) {
-    // Draw the sprite normally.
-    Entity::built_in_draw(camera);
-  }
-  else {
-    // When the item is being thrown, draw the shadow and the item separately.
-    get_map().draw_visual(*shadow_sprite, get_xy());
-    get_map().draw_visual(*main_sprite, get_x(), get_y() - item_height);
   }
 }
 
