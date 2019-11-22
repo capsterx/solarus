@@ -2361,15 +2361,14 @@ void Hero::start_hole() {
     next_ground_date = System::now();
 
     // Don't calculate the attraction direction based on the wanted movement
-    // because the wanted movement may be different from the real one
+    // because the wanted movement may be different from the real one.
 
     if (last_solid_ground_coords.x == -1 ||
         (last_solid_ground_coords == get_xy())) {
-      // fall immediately because the hero was not moving but directly placed on the hole
+      // Fall immediately because the hero was not moving but directly placed on the hole.
       set_state(std::make_shared<FallingState>(*this));
     }
     else {
-
       ground_dxy = { 0, 0 };
 
       if (get_x() > last_solid_ground_coords.x) {
