@@ -756,8 +756,13 @@ static void load_GL_ARB_vertex_array_object(GLADloadproc load) {
 }
 static int find_extensionsGL(void) {
 	if (!get_exts()) return 0;
+#ifdef __APPLE__  // Solarus workaround for extension detection not working
+	GLAD_GL_ARB_framebuffer_object = 1;
+	GLAD_GL_ARB_vertex_array_object = 1;
+#else
 	GLAD_GL_ARB_framebuffer_object = has_ext("GL_ARB_framebuffer_object");
 	GLAD_GL_ARB_vertex_array_object = has_ext("GL_ARB_vertex_array_object");
+#endif
 	free_exts();
 	return 1;
 }

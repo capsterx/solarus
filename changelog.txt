@@ -6,6 +6,7 @@ __________________________
 Engine changes
 --------------
 
+* Fix macOS port not working since 1.6.1 due to OpenGL.
 * Fix shaders compilation in some OpenGL ES 3.0 platforms (#1437).
 * Fix UTF-8 quest path encoding handling (#1429).
 * Fix UTF-8 file names in Lua Open File API for Windows (#1413).
