@@ -56,8 +56,6 @@ void Hero::SwimmingState::stop(const State* next_state) {
 
   PlayerMovementState::stop(next_state);
 
-  Hero& hero = get_entity();
-  hero.set_walking_speed(hero.get_normal_walking_speed());
   get_commands_effects().set_action_key_effect(CommandsEffects::ACTION_KEY_NONE);
 }
 

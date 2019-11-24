@@ -32,6 +32,7 @@ map{ id = "bugs/1171_sword_knowledge_on_ability_used", description = "#1171: Fix
 map{ id = "bugs/1175_dynamic_tile_set_get_tileset", description = "#1175: dynamic_tile:set/get_tileset()" }
 map{ id = "bugs/1179_enemy_on_restarted_called_twice", description = "#1179: enemy:on_restarted() is called twice" }
 map{ id = "bugs/1181_hurt_enemy_after_custom_attack", description = "#1181: enemy:hurt() does not work after a custom attack" }
+map{ id = "bugs/1186_shallow_water_speed", description = "#1186: Wrong hero speed when going from deep water to shallow water" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_1", description = "#1193: Entity still drawn after removed" }
 map{ id = "bugs/1193_entity_drawn_after_removed/map_2", description = "Destination map" }
 map{ id = "bugs/1195_enemy_dying_animation_never_finishes", description = "#1195: Enemy dying animation never finishes" }
@@ -457,6 +458,8 @@ file{ path = "maps/bugs/1179_enemy_on_restarted_called_twice.dat", author = "Chr
 file{ path = "maps/bugs/1179_enemy_on_restarted_called_twice.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1181_hurt_enemy_after_custom_attack.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1181_hurt_enemy_after_custom_attack.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1186_shallow_water_speed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1186_shallow_water_speed.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_1.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_1.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1193_entity_drawn_after_removed/map_2.dat", author = "Christopho", license = "CC BY-SA 4.0" }

@@ -112,6 +112,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1175_dynamic_tile_set_get_tileset"
   "bugs/1179_enemy_on_restarted_called_twice"
   "bugs/1181_hurt_enemy_after_custom_attack"
+  "bugs/1186_shallow_water_speed"
   "bugs/1193_entity_drawn_after_removed/map_1"
   "bugs/1195_enemy_dying_animation_never_finishes"
   "bugs/1214_blocks_in_water"
