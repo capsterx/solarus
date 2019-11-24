@@ -456,6 +456,7 @@ void Enemy::set_life(int life) {
 
   this->life = life;
   if (!being_hurt && this->life <= 0) {
+    get_lua_context()->enemy_on_dying(*this);
     kill();
   }
 }

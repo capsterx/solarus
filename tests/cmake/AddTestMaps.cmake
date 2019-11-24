@@ -150,6 +150,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1423_crash_carried_without_shadow"
   "bugs/1428_movement_blocking"
   "bugs/1436_thrown_object_shadow"
+  "bugs/1440_enemy_set_life_0_on_dying"
 )
 
 # Test that should not fail when there are errors
