@@ -20,4 +20,5 @@ function shallow_water_sensor:on_activated()
   assert_equal(hero:get_ground_below(), "shallow_water")
   local movement = hero:get_movement()
   assert_equal(movement:get_speed(), 70)
+  sol.main.exit()
 end
