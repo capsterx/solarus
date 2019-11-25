@@ -143,6 +143,12 @@ RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
     return nullptr;
   }
 
+  if(not Gl::has_framebuffer()) {
+    Debug::warning("failed to load framebuffer extension");
+    SDL_GL_DeleteContext(sdl_ctx);
+    return nullptr;
+  }
+
 #ifdef DEBUG
   /*glEnable(GL_DEBUG_OUTPUT);
   GLuint unusedIds = 0;
@@ -346,7 +352,9 @@ const DrawProxy& GlRenderer::default_terminal() const {
 }
 
 GlRenderer::~GlRenderer() {
-  Gl::DeleteVertexArrays(1,&vao); //TODO delete rest
+  if(Gl::use_vao()) {
+    Gl::DeleteVertexArrays(1,&vao); //TODO delete rest
+  }
   SDL_GL_DeleteContext(sdl_gl_context);
   instance = nullptr;
 }
@@ -582,8 +590,10 @@ GlRenderer::GLBlendMode GlRenderer::make_gl_blend_modes(BlendMode mode) {
 void GlRenderer::create_vbo(size_t num_sprites) {
   buffer_size = num_sprites;
 
-  Gl::GenVertexArrays(1,&vao); //TODO for android ifndef this
-  Gl::BindVertexArray(vao);
+  if(Gl::use_vao()) {
+    Gl::GenVertexArrays(1,&vao); //TODO for android ifndef this
+    Gl::BindVertexArray(vao);
+  }
 
   glGenBuffers(1,&ibo);
 
