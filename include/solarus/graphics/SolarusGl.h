@@ -33,22 +33,6 @@ namespace Solarus { namespace Gl {
 #endif
     }
 
-    inline bool has_framebuffer() {
-#ifdef SOLARUS_GL_ES
-        return true;
-#else
-        return GLAD_GL_ARB_framebuffer_object;
-#endif
-    }
-
-    inline bool use_vao() {
-#ifdef SOLARUS_GL_ES
-        return false;
-#else
-        return GLAD_GL_ARB_vertex_array_object;
-#endif
-    }
-
     inline void DeleteVertexArrays(GLsizei count, GLuint* arrays) {
 #ifndef SOLARUS_GL_ES
         glDeleteVertexArrays(count, arrays);
