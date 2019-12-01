@@ -595,7 +595,6 @@ void GlRenderer::create_vbo(size_t num_sprites) {
     Gl::BindVertexArray(vao);
   }
 
-
   glGenBuffers(1,&ibo);
 
   size_t indice_count = num_sprites*6;
