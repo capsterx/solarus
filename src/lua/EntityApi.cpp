@@ -701,7 +701,6 @@ EntityPtr LuaContext::check_entity(lua_State* l, int index) {
   }
   else {
     LuaTools::type_error(l, index, "entity");
-    throw;
   }
 }
 
