@@ -1257,10 +1257,11 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
 ) {
   index = LuaTools::get_positive_index(l, index);
 
-  const ExportableToLuaPtr& userdata = *(static_cast<ExportableToLuaPtr*>(
-    luaL_checkudata(l, index, module_name.c_str())
-  ));
-  return userdata;
+  void * userdata = luaL_testudata(l, index, module_name.c_str());
+  if (nullptr == userdata) {
+    LuaTools::type_error(l, index, module_name);
+  }
+  return *static_cast<ExportableToLuaPtr*>(userdata);
 }
 
 /**
