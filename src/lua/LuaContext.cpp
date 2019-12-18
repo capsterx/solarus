@@ -1260,7 +1260,7 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
 
   void* udata = luaL_testudata(l, index, module_name.c_str());
   if (udata == nullptr) {
-    LuaTools::type_error(l, index, module_name);
+    LuaTools::type_error(l, index, LuaTools::get_type_name(module_name));
   }
   return *static_cast<ExportableToLuaPtr*>(udata);
 }

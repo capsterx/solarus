@@ -82,7 +82,20 @@ std::string get_type_name(lua_State*l, int index) {
   }
 
   // This is a Solarus type.
-  // Remove the "sol." prefix.
+  return get_type_name(module_name);
+}
+
+/**
+ * \brief Returns the type name of a Solarus module.
+ *
+ * Converts Solarus module names into the name of the type the module wraps.
+ *
+ * \param module_name
+ * \return The type name.
+ */
+std::string get_type_name(const std::string& module_name) {
+
+  // Just remove the "sol." prefix.
   return module_name.substr(4);
 }
 
