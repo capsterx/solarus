@@ -400,7 +400,6 @@ std::shared_ptr<Movement> LuaContext::check_movement(lua_State* l, int index) {
   }
   else {
     LuaTools::type_error(l, index, "movement");
-    throw;
   }
 }
 

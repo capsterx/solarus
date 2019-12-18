@@ -63,16 +63,16 @@ int exception_boundary_handle(
     Callable&& func
 );
 
-void error(
+[[noreturn]] void error(
     lua_State* l,
     const std::string& message
 );
-void arg_error(
+[[noreturn]] void arg_error(
     lua_State* l,
     int arg_index,
     const std::string& message
 );
-void type_error(
+[[noreturn]] void type_error(
     lua_State* l,
     int arg_index,
     const std::string& expected_type_name

@@ -59,7 +59,6 @@ DrawablePtr LuaContext::check_drawable(lua_State* l, int index) {
   }
   else {
     LuaTools::type_error(l, index, "drawable");
-    throw;
   }
 }
 
