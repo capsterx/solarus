@@ -164,7 +164,7 @@ bool call_function(
  * \param l A Lua state.
  * \param message Error message.
  */
-[[noreturn]] void error(lua_State* l, const std::string& message) {
+void error(lua_State* l, const std::string& message) {
   throw LuaException(l, message);
 }
 
@@ -177,7 +177,7 @@ bool call_function(
  * \param arg_index Index of an argument in the stack.
  * \param message Error message.
  */
-[[noreturn]] void arg_error(lua_State* l, int arg_index, const std::string& message) {
+void arg_error(lua_State* l, int arg_index, const std::string& message) {
 
   // The code below is very similar to luaL_argerror(), but ends with
   // an exception instead of a luaL_error() call.
@@ -216,7 +216,7 @@ bool call_function(
  * \param arg_index Index of an argument in the stack.
  * \param expected_type_name A name describing the type that was expected.
  */
-[[noreturn]] void type_error(
+void type_error(
     lua_State* l,
     int arg_index,
     const std::string& expected_type_name

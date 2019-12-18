@@ -121,7 +121,7 @@ void SOLARUS_API check_assertion(bool assertion, const std::string& error_messag
  *
  * \param error_message The error message to report.
  */
-[[noreturn]] void SOLARUS_API die(const std::string& error_message) {
+void SOLARUS_API die(const std::string& error_message) {
 
   Logger::fatal(error_message);
 
