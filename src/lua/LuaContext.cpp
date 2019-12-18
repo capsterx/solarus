@@ -1255,12 +1255,14 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
     int index,
     const std::string& module_name
 ) {
+
   index = LuaTools::get_positive_index(l, index);
 
-  const ExportableToLuaPtr& userdata = *(static_cast<ExportableToLuaPtr*>(
-    luaL_checkudata(l, index, module_name.c_str())
-  ));
-  return userdata;
+  void* udata = luaL_testudata(l, index, module_name.c_str());
+  if (udata == nullptr) {
+    LuaTools::type_error(l, index, LuaTools::get_type_name(module_name));
+  }
+  return *static_cast<ExportableToLuaPtr*>(udata);
 }
 
 /**
