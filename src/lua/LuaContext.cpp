@@ -1258,7 +1258,18 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
 
   index = LuaTools::get_positive_index(l, index);
 
-  void* udata = luaL_testudata(l, index, module_name.c_str());
+  // This entire section can be become lua_testudata.
+  void* udata = lua_touserdata(l, index);
+  if (udata != nullptr && lua_getmetatable(l, index)) {
+    lua_getfield(l, LUA_REGISTRYINDEX, module_name.c_str());
+    if (0 == lua_rawequal(l, -1, -2)) {
+      udata = nullptr;
+    }
+    lua_pop(l, 2);
+  }
+  else {
+    udata = nullptr;
+  }
   if (udata == nullptr) {
     LuaTools::type_error(l, index, LuaTools::get_type_name(module_name));
   }
