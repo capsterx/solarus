@@ -1258,11 +1258,11 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
 
   index = LuaTools::get_positive_index(l, index);
 
-  // This entire section can be become lua_testudata.
+  // TODO: Use lua_testudata in if the minimum becomes Lua 5.3 or LuaJIT 2.1.
   void* udata = lua_touserdata(l, index);
   if (udata != nullptr && lua_getmetatable(l, index)) {
     lua_getfield(l, LUA_REGISTRYINDEX, module_name.c_str());
-    if (0 == lua_rawequal(l, -1, -2)) {
+    if (lua_rawequal(l, -1, -2) == 0) {
       udata = nullptr;
     }
     lua_pop(l, 2);
@@ -1270,6 +1270,7 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
   else {
     udata = nullptr;
   }
+  // End of lua_testudata.
   if (udata == nullptr) {
     LuaTools::type_error(l, index, LuaTools::get_type_name(module_name));
   }
