@@ -1223,7 +1223,8 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
  * \return Pointer to userdata if it is a userdata of the given type,
  *   nullptr otherwise.
  */
-static void* test_userdata(lua_State* l, int index, const char* module_name) {
+void* LuaContext::test_userdata(
+    lua_State* l, int index, const char* module_name) {
 
   index = LuaTools::get_positive_index(l, index);
 

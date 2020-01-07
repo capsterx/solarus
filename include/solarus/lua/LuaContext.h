@@ -1405,6 +1405,8 @@ private:
     // Getting objects from Lua.
     static bool is_main(lua_State* current_l, int index);
     static bool is_menu(lua_State* current_l, int index);
+    static void* test_userdata(lua_State* current_l, int index,
+        const char* module_name);
     static bool is_userdata(lua_State* current_l, int index,
         const std::string& module_name);
     static const ExportableToLuaPtr& check_userdata(
