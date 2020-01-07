@@ -1212,6 +1212,38 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
 }
 
 /**
+ * \brief Get pointer to userdata if it is of the given type.
+ *
+ * This is luaL_testudata from the Lua auxiliary library.
+ * It should be replaced when Lua 5.3/LuaJIT 2.1 or higher is required.
+ *
+ * \param l A Lua context.
+ * \param index An index in the stack.
+ * \param module_name Name of a userdata metatable in the registry.
+ * \return Pointer to userdata if it is a userdata of the given type,
+ *   nullptr otherwise.
+ */
+void* LuaContext::test_userdata(
+    lua_State* l, int index, const char* module_name) {
+
+  index = LuaTools::get_positive_index(l, index);
+
+  void* udata = lua_touserdata(l, index);
+  if (udata == nullptr || !lua_getmetatable(l, index)) {
+    return nullptr;
+  }
+  // ... udata ... meta(found)
+  lua_getfield(l, LUA_REGISTRYINDEX, module_name);
+  // ... udata ... meta(found) meta(expected)
+  if (lua_rawequal(l, -1, -2) == 0) {
+    udata = nullptr;
+  }
+  lua_pop(l, 2);
+  // ... udata ...
+  return udata;
+}
+
+/**
  * \brief Returns whether a value is a userdata of a given type.
  * \param l a Lua context
  * \param index an index in the stack
@@ -1221,25 +1253,8 @@ void LuaContext::push_userdata(lua_State* l, ExportableToLua& userdata) {
 bool LuaContext::is_userdata(lua_State* l, int index,
     const std::string& module_name) {
 
-  index = LuaTools::get_positive_index(l, index);
-
-                                  // ... udata ...
-  void* udata = lua_touserdata(l, index);
-  if (udata == nullptr) {
-    // This is not a userdata.
-    return false;
-  }
-  if (!lua_getmetatable(l, index)) {
-    // The userdata has no metatable.
-    return false;
-  }
-                                  // ... udata ... mt_found
-  lua_getfield(l, LUA_REGISTRYINDEX, module_name.c_str());
-                                  // ... udata ... mt_found mt_expected
-  bool result = lua_rawequal(l, -1, -2);
-  lua_pop(l, 2);
-                                  // ... udata ...
-  return result;
+  void* udata = test_userdata(l, index, module_name.c_str());
+  return (udata != nullptr);
 }
 
 /**
@@ -1256,9 +1271,7 @@ const ExportableToLuaPtr& LuaContext::check_userdata(
     const std::string& module_name
 ) {
 
-  index = LuaTools::get_positive_index(l, index);
-
-  void* udata = luaL_testudata(l, index, module_name.c_str());
+  void* udata = test_userdata(l, index, module_name.c_str());
   if (udata == nullptr) {
     LuaTools::type_error(l, index, LuaTools::get_type_name(module_name));
   }
