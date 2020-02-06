@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "solarus/core/Debug.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 using namespace Solarus;
 

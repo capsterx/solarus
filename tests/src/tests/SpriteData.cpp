@@ -20,7 +20,7 @@
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/ResourceType.h"
 #include "solarus/graphics/SpriteData.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 #include <iostream>
 
 using namespace Solarus;

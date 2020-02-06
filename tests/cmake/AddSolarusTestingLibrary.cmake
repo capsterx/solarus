@@ -3,10 +3,10 @@
 add_library(solarus-testing "")
 target_sources(solarus-testing
   PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/test_tools/TestEnvironment.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/test_tools/TestEnvironment.inl"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/tools/TestEnvironment.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/tools/TestEnvironment.inl"
   PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_tools/TestEnvironment.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/TestEnvironment.cpp"
 )
 
 # Declare the public/private libraries that "solarus-testing" depends on

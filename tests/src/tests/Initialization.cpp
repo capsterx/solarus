@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 /**
  * \brief Simple test that does nothing except initializing the engine.

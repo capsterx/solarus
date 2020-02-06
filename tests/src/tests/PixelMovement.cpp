@@ -16,7 +16,7 @@
  */
 #include "solarus/core/Debug.h"
 #include "solarus/movements/PixelMovement.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 using namespace Solarus;
 

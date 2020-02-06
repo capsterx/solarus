@@ -17,7 +17,7 @@
 #include "solarus/containers/Quadtree.h"
 #include "solarus/core/Debug.h"
 #include "solarus/core/Rectangle.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 #include <memory>
 #include <sstream>
 
