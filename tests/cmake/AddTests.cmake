@@ -47,7 +47,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
   )
 
   # Add test to ctest
-  if (${TEST_NAME} MATCHES "lua-map")
+  if (${TEST_NAME} STREQUAL "lua-map")
     # Lua map test: add an individual test for each map
     foreach(MAP_ID ${LUA_TEST_MAPS})
       _add_test("lua/${MAP_ID}" "bin/${TEST_TARGET}" -no-audio -no-video -turbo=yes "-map=${MAP_ID}" "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
@@ -65,5 +65,16 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
   else()
     # Standard C++ test: for engine testing
     _add_test("${TEST_NAME}" "bin/${TEST_TARGET}" -no-audio -no-video -turbo=yes "${CMAKE_CURRENT_SOURCE_DIR}/testing_quest")
+  endif()
+
+  # Add install targets for "initialization" and "lua-map" tests
+  if (SOLARUS_TESTS_INSTALL)
+    if (${TEST_NAME} STREQUAL "initialization" OR ${TEST_NAME} STREQUAL "lua-map")
+      install(TARGETS ${TEST_TARGET}
+        ARCHIVE DESTINATION ${SOLARUS_LIBRARY_INSTALL_DESTINATION}
+        LIBRARY DESTINATION ${SOLARUS_LIBRARY_INSTALL_DESTINATION}
+        RUNTIME DESTINATION ${SOLARUS_EXECUTABLE_INSTALL_DESTINATION}
+      )
+    endif()
   endif()
 endforeach()
