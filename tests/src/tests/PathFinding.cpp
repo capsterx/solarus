@@ -21,7 +21,7 @@
 #include "solarus/entities/Hero.h"
 #include "solarus/entities/Npc.h"
 #include "solarus/movements/PathFinding.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 using namespace Solarus;
 

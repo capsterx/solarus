@@ -19,7 +19,7 @@
 #include "solarus/core/QuestDatabase.h"
 #include "solarus/core/QuestFiles.h"
 #include "solarus/core/MapData.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 #include <iostream>
 
 using namespace Solarus;

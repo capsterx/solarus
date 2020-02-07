@@ -17,7 +17,7 @@
 #include "solarus/core/Debug.h"
 #include "solarus/entities/CustomEntity.h"
 #include "solarus/movements/PathMovement.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 using namespace Solarus;
 
