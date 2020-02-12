@@ -441,8 +441,7 @@ void PathMovement::set_snapping_trajectory(const Point& src, const Point& dst) {
 }
 
 /**
- * @brief Returns the current angle with the horizontal in radians.
- * @return The angle in radians.
+ * \copydoc Movement::get_angle
  */
 double PathMovement::get_angle() const {
     return get_current_direction() * Geometry::PI_OVER_4;

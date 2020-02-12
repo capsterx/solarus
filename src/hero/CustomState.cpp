@@ -16,6 +16,7 @@
  */
 #include "solarus/core/Equipment.h"
 #include "solarus/core/EquipmentItem.h"
+#include "solarus/core/Geometry.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
 #include "solarus/entities/Block.h"
@@ -504,7 +505,11 @@ int CustomState::get_wanted_movement_direction8() const {
   }
 
   if (!get_can_control_movement()) {
-    return -1;
+    const std::shared_ptr<const Movement>& movement = get_entity().get_movement();
+    if (movement == nullptr) {
+      return -1;
+    }
+    return static_cast<int>((movement->get_angle() + Geometry::PI / 8.0) * 8.0 / Geometry::TWO_PI);
   }
 
   if (get_entity().has_stream_action() &&

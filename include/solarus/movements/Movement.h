@@ -71,6 +71,7 @@ class SOLARUS_API Movement: public ExportableToLua {
     void translate_y(int dy);
     void translate_xy(int dx, int dy);
     void translate_xy(const Point& dxy);
+    virtual double get_angle() const;
     virtual void notify_position_changed(); // called whenever x or y is changed
     virtual void notify_obstacle_reached();
     virtual void notify_movement_changed();

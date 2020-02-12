@@ -14,6 +14,7 @@ Engine changes
 * Fix carried object shadow still displayed after removing it (#1436).
 * Fix hero speed when going from deep water to shallow water (#1186).
 * Fix custom states wrongly affected by ground speeds (#1416).
+* Fix custom states not activating side teletransporters (#1448).
 * Fix enemy:on_dying() not called when setting enemies life to zero (#1440).
 * Fix talking to NPCs while swimming (#1043).
 

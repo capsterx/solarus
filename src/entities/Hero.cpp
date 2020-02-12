@@ -20,6 +20,7 @@
 #include "solarus/core/Equipment.h"
 #include "solarus/core/EquipmentItem.h"
 #include "solarus/core/Game.h"
+#include "solarus/core/Geometry.h"
 #include "solarus/core/Map.h"
 #include "solarus/core/System.h"
 #include "solarus/entities/Block.h"
@@ -1066,8 +1067,9 @@ int Hero::get_real_movement_direction8() {
  * If he is making a diagonal move, this function considers that he is moving
  * towards both directions.
  *
- * \param direction4 one of the four main directions (0 to 3)
- * \return true if the hero is moving in that direction, even if he is actually doing a diagonal move
+ * \param direction4 One of the four main directions (0 to 3).
+ * \return \c true if the hero is moving in that direction,
+ * even if he is actually doing a diagonal move.
  */
 bool Hero::is_moving_towards(int direction4) const {
 

@@ -539,8 +539,16 @@ void Movement::restore_default_ignore_obstacles() {
 }
 
 /**
+ * \brief Returns the angle in radians of this movement.
+ * \return The angle in radians.
+ */
+double Movement::get_angle() const {
+  return 0.0;
+}
+
+/**
  * \brief Returns the direction a sprite controlled by this movement should take.
- * \return the direction to use to display the object controlled by this movement (0 to 3)
+ * \return The direction to use to display the object controlled by this movement (0 to 3).
  */
 int Movement::get_displayed_direction4() const {
   return 3; // by default, look down

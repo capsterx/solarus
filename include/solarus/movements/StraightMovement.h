@@ -53,13 +53,13 @@ class StraightMovement: public Movement {
     void set_x_speed(double x_speed, double keep_factor = 0);
     void set_y_speed(double y_speed, double keep_factor = 0);
     void set_speed(double speed);
-    double get_angle() const;
+    double get_angle() const override;
     void set_angle(double angle);
     int get_max_distance() const;
     void set_max_distance(int max_distance);
     bool is_smooth() const;
     void set_smooth(bool smooth);
-    virtual int get_displayed_direction4() const override;
+    int get_displayed_direction4() const override;
 
     // movement
     virtual bool is_started() const override;
@@ -67,7 +67,7 @@ class StraightMovement: public Movement {
     void set_finished();
     virtual void stop() override;
 
-    virtual const std::string& get_lua_type_name() const override;
+    const std::string& get_lua_type_name() const override;
 
   protected:
 
