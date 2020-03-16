@@ -16,6 +16,7 @@ Engine changes
 * Fix custom states wrongly affected by ground speeds (#1416).
 * Fix enemy:on_dying() not called when setting enemies life to zero (#1440).
 * Fix talking to NPCs while swimming (#1043).
+* Fix creating dynamic sprite with tileset anims (#1461).
 
 
 Solarus launcher GUI changes
