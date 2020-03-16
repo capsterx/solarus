@@ -1585,6 +1585,13 @@ int LuaContext::entity_api_create_sprite(lua_State* l) {
 
     const SpritePtr& sprite = entity.create_sprite(animation_set_id, sprite_name);
     sprite->enable_pixel_collisions();
+
+    //if entity is already on a map, notify the sprite that tileset is there
+    if(entity.is_on_map()){
+      const Map& map = entity.get_map();
+      sprite->set_tileset(map.get_tileset());
+    }
+
     if (entity.is_suspended()) {
       sprite->set_suspended(true);
     }

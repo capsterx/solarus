@@ -153,6 +153,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1436_thrown_object_shadow"
   "bugs/1440_enemy_set_life_0_on_dying"
   "bugs/1448_custom_state_side_teletransporter"
+  "bugs/1461_tileset_sprite"
 )
 
 # Test that should not fail when there are errors
