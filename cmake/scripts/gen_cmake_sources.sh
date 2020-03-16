@@ -1,6 +1,8 @@
 #!/bin/bash
 # Usage: $0 <TARGET-NAME> <PRIVATE_EXCLUDE>
 
+PRIVATE=()
+PUBLIC=()
 while IFS= read -r source; do
   if grep -q "Q_OBJECT" "$source"; then
     PRIVATE+=("$source")

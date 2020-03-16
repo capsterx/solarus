@@ -70,6 +70,7 @@ class CircleMovement: public Movement {
     void set_max_rotations(int max_rotations);
     uint32_t get_loop() const;
     void set_loop(uint32_t delay);
+    double get_angle() const override;
     int get_displayed_direction4() const override;
 
     const std::string& get_lua_type_name() const override;

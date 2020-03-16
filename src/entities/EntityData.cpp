@@ -917,10 +917,13 @@ EntityData EntityData::check_entity_data(lua_State* l, int index, EntityType typ
   bool enabled_at_start = LuaTools::opt_boolean_field(l, index, "enabled_at_start", true);
 
   EntityData entity(type);
-  entity.set_name(name);
   entity.set_layer(layer);
   entity.set_xy({ x, y });
-  entity.set_enabled_at_start(enabled_at_start);
+
+  if (entity.is_dynamic()) {
+    entity.set_name(name);
+    entity.set_enabled_at_start(enabled_at_start);
+  }
 
   // User-defined properties.
   lua_getfield(l, index, "properties");

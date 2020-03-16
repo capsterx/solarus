@@ -245,7 +245,7 @@ bool Teletransporter::test_collision_custom(Entity& entity) {
     }
   }
 
-  // normal case
+  // usual collision test
   if (normal_case) {
     const Rectangle& entity_rectangle = entity.get_bounding_box();
     int x1 = entity_rectangle.get_x() + 4;

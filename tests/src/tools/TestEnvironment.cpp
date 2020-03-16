@@ -22,7 +22,7 @@
 #include "solarus/entities/CustomEntity.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/Npc.h"
-#include "test_tools/TestEnvironment.h"
+#include "tools/TestEnvironment.h"
 
 namespace Solarus {
 

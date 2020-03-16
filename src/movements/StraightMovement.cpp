@@ -197,8 +197,7 @@ void StraightMovement::set_next_move_date(uint32_t& current_next_move_date, uint
 }
 
 /**
- * \brief Computes and returns the direction of the speed vector.
- * \return the current angle of the speed vector in degrees
+ * \copydoc Movement::get_angle
  */
 double StraightMovement::get_angle() const {
   return angle;
@@ -262,8 +261,7 @@ void StraightMovement::set_finished() {
 }
 
 /**
- * \brief Returns the direction a sprite controlled by this movement should take.
- * \return the direction to use to display the object controlled by this movement (0 to 3)
+ * \copydoc Movement::get_displayed_direction4
  */
 int StraightMovement::get_displayed_direction4() const {
 

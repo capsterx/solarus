@@ -503,12 +503,21 @@ void CircleMovement::stop() {
 }
 
 /**
- * \copydoc Movement::get_displayed_direction4()
+ * \copydoc Movement::get_angle
+ */
+double CircleMovement::get_angle() const {
+
+  // The angle of the trajectory is the tangent of the circle,
+  // not the angle from the center.
+  return current_angle + (is_clockwise() ? -Geometry::PI_OVER_2 : Geometry::PI_OVER_2);
+}
+
+/**
+ * \copydoc Movement::get_displayed_direction4
  */
 int CircleMovement::get_displayed_direction4() const {
 
-  int tangent_angle = Geometry::radians_to_degrees(current_angle) +
-      (is_clockwise() ? (-90) : 90);
+  int tangent_angle = Geometry::radians_to_degrees(get_angle());
   int direction = (tangent_angle + 45 + 360) / 90;
   return direction % 4;
 }
