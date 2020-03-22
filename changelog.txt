@@ -12,6 +12,7 @@ Engine changes
 * Fix UTF-8 file names in Lua Open File API for Windows (#1413).
 * Fix crash when removing the shadow of a carried object (#1423).
 * Fix carried object shadow still displayed after removing it (#1436).
+* Fix animating hero sprites dynamically created (#1348).
 * Fix hero speed when going from deep water to shallow water (#1186).
 * Fix custom states wrongly affected by ground speeds (#1416).
 * Fix custom states not activating side teletransporters (#1448).

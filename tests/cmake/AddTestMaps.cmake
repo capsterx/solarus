@@ -135,6 +135,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1291_hero_start_attack_loading"
   "bugs/1301_state_set_can_be_hurt_function"
   "bugs/1319_disabled_entity_timer_unsuspended"
+  "bugs/1348_hero_sprite_stuck"
   "bugs/1354_crash_start_movement"
   "bugs/1351_camera_stuck_on_separator"
   "bugs/1353_water_no_flippers"

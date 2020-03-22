@@ -3621,13 +3621,7 @@ void Entity::set_suspended(bool suspended) {
   }
 
   // Suspend/unsuspend sprite animations.
-  for (const NamedSprite& named_sprite: sprites) {
-    if (named_sprite.removed) {
-      continue;
-    }
-    Sprite& sprite = *named_sprite.sprite;
-    sprite.set_suspended(suspended || !is_enabled());
-  }
+  set_sprites_suspended(suspended);
 
   // Suspend/unsuspend the movement.
   if (movement != nullptr) {
@@ -3676,6 +3670,21 @@ void Entity::set_animation_ignore_suspend(bool ignore_suspend) {
 }
 
 /**
+ * \brief Suspends or resumes the animations of this entity.
+ * \param suspended \c true to suspend the animations, false to resume them
+ */
+void Entity::set_sprites_suspended(bool suspended) {
+
+  for (const NamedSprite& named_sprite: sprites) {
+    if (named_sprite.removed) {
+      continue;
+    }
+    Sprite& sprite = *named_sprite.sprite;
+    sprite.set_suspended(suspended || !is_enabled());
+  }
+}
+
+/**
  * \brief Updates the entity.
  *
  * This function is called repeatedly by the map.
@@ -3702,7 +3711,24 @@ void Entity::update() {
     set_facing_entity(nullptr);
   }
 
-  // Update the sprites.
+  update_sprites();
+
+  // Update the movement.
+  if (movement != nullptr) {
+    movement->update();
+  }
+  clear_old_movements();
+  update_stream_action();
+
+  // Update the state if any.
+  update_state();
+}
+
+/**
+ * \brief Updates all sprites of this entity.
+ */
+void Entity::update_sprites() {
+
   if (sprites.size() == 1) {
     // Special case just to avoid a copy of the vector.
     if (!sprites[0].removed) {
@@ -3719,16 +3745,6 @@ void Entity::update() {
     }
   }
   clear_old_sprites();
-
-  // Update the movement.
-  if (movement != nullptr) {
-    movement->update();
-  }
-  clear_old_movements();
-  update_stream_action();
-
-  // Update the state if any.
-  update_state();
 }
 
 /**

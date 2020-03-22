@@ -234,6 +234,8 @@ class SOLARUS_API Entity: public ExportableToLua {
     bool is_drawn_in_y_order() const;
     void set_drawn_in_y_order(bool drawn_in_y_order);
     void set_animation_ignore_suspend(bool ignore_suspend);
+    void set_sprites_suspended(bool suspended);
+    void update_sprites();
     void update_sprite(Sprite& sprite);
     ScopedLuaRef get_draw_override() const;
     void set_draw_override(const ScopedLuaRef& draw_override);

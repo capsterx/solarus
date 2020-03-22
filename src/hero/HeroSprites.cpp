@@ -783,53 +783,18 @@ void HeroSprites::restore_animation_direction() {
  */
 void HeroSprites::update() {
 
-  // Hero sprites are all updated here, Entity::update() is overridden for the hero.
-
-  // Keep the current sprites here in case they change from a script during the operation.
-  SpritePtr tunic_sprite = this->tunic_sprite;
-  SpritePtr sword_sprite = this->sword_sprite;
-
-  // Update the frames.
-  tunic_sprite->update();
-
-  if (is_sword_visible()) {
-    sword_sprite->update();
-    sword_sprite->set_current_frame(tunic_sprite->get_current_frame());
-    hero.check_collision_with_detectors(*sword_sprite);
-  }
-  hero.check_collision_with_detectors(*tunic_sprite);
-
-  if (is_sword_stars_visible()) {
-    // The stars are not synchronized with the other sprites.
-    sword_stars_sprite->update();
-  }
-
-  if (is_shield_visible()) {
-    shield_sprite->update();
-    if (walking) {
-      shield_sprite->set_current_frame(tunic_sprite->get_current_frame());
-    }
-  }
-
-  if (is_trail_visible()) {
-    trail_sprite->update();
-  }
-
-  if (is_ground_visible()) {
-    ground_sprite->update();
-  }
-
   if (hero.is_shadow_visible()) {
     if (!shadow_sprite->is_animation_started()) {
       shadow_sprite->set_current_animation("big");
     }
     shadow_sprite->set_xy(hero.get_xy() - hero.get_displayed_xy());
-    shadow_sprite->update();
   } else {
     if (shadow_sprite->is_animation_started()) {
       shadow_sprite->stop_animation();
     }
   }
+
+  hero.update_sprites();
 
   // Blinking.
   if (is_blinking()
@@ -870,26 +835,7 @@ void HeroSprites::draw_on_map() {
  */
 void HeroSprites::set_suspended(bool suspended) {
 
-  if (tunic_sprite != nullptr) {
-    tunic_sprite->set_suspended(suspended);
-  }
-
-  if (equipment.has_ability(Ability::SWORD) && sword_sprite != nullptr) {
-    sword_sprite->set_suspended(suspended);
-    sword_stars_sprite->set_suspended(suspended);
-  }
-
-  if (equipment.has_ability(Ability::SHIELD) && shield_sprite != nullptr) {
-    shield_sprite->set_suspended(suspended);
-  }
-
-  if (trail_sprite != nullptr) {
-    trail_sprite->set_suspended(suspended);
-  }
-
-  if (is_ground_visible()) {
-    ground_sprite->set_suspended(suspended);
-  }
+  hero.set_sprites_suspended(suspended);
 
   // Timer.
   uint32_t now = System::now();
