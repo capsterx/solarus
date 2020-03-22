@@ -176,6 +176,12 @@ void StreamAction::update() {
     return;
   }
 
+  if (entity_moved->get_layer() != stream->get_layer()) {
+    // The entity's layer has changed: stop influencing its position.
+    active = false;
+    return;
+  }
+
   // Stop the stream action if the entity escapes a non-blocking stream.
   const Point& ground_point = entity_moved->get_ground_point();
   if (
