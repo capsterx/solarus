@@ -1277,11 +1277,11 @@ void Hero::notify_ground_below_changed() {
 
   Entity::notify_ground_below_changed();
 
+  sprites->destroy_ground();
+
   switch (get_ground_below()) {
 
   case Ground::TRAVERSABLE:
-    // Traversable ground: remove any special sprite displayed under the hero.
-    sprites->destroy_ground();
     set_walking_speed(normal_walking_speed);
     break;
 
