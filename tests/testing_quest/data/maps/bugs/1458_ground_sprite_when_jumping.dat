@@ -1,0 +1,54 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "overworld",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 320,
+  height = 240,
+  pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 0,
+  y = 0,
+  width = 112,
+  height = 48,
+  pattern = "44",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 0,
+}
+
+sensor{
+  name = "sensor",
+  layer = 0,
+  x = 40,
+  y = 29,
+  width = 16,
+  height = 16,
+}
+
+sensor{
+  name = "sensor_2",
+  layer = 0,
+  x = 88,
+  y = 29,
+  width = 16,
+  height = 16,
+}
+

@@ -794,6 +794,10 @@ void HeroSprites::update() {
     }
   }
 
+  if (ground_sprite != nullptr && !hero.is_ground_visible()) {
+    destroy_ground();
+  }
+
   hero.update_sprites();
 
   // Blinking.
