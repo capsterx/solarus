@@ -12,7 +12,7 @@ tile{
   layer = 0,
   x = 0,
   y = 0,
-  width = 320,
+  width = 48,
   height = 48,
   pattern = "4",
 }
@@ -24,6 +24,15 @@ tile{
   width = 320,
   height = 192,
   pattern = "2",
+}
+
+tile{
+  layer = 0,
+  x = 48,
+  y = 0,
+  width = 272,
+  height = 48,
+  pattern = "32",
 }
 
 destination{
