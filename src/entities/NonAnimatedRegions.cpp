@@ -160,28 +160,29 @@ bool NonAnimatedRegions::overlaps_animated_tile(const TileInfo& tile) const {
 void NonAnimatedRegions::update() {
 
   // Limit the size of the cache to avoid growing the memory usage.
+  if (optimized_tiles_surfaces.size() < 25) {
+    return;
+  }
+
   std::vector<int> indexes_to_clear;
-  if (optimized_tiles_surfaces.size() >= 25) {
+  const CameraPtr& camera = map.get_camera();
+  if (camera == nullptr) {
+    return;
+  }
 
-    const CameraPtr& camera = map.get_camera();
-    if (camera == nullptr) {
-      return;
-    }
+  const Size& cell_size = non_animated_tiles.get_cell_size();
+  const Rectangle& camera_position = camera->get_bounding_box();
+  const int row1 = camera_position.get_y() / cell_size.height;
+  const int row2 = (camera_position.get_y() + camera_position.get_height()) / cell_size.height;
+  const int column1 = camera_position.get_x() / cell_size.width;
+  const int column2 = (camera_position.get_x() + camera_position.get_width()) / cell_size.width;
 
-    const Size& cell_size = non_animated_tiles.get_cell_size();
-    const Rectangle& camera_position = camera->get_bounding_box();
-    const int row1 = camera_position.get_y() / cell_size.height;
-    const int row2 = (camera_position.get_y() + camera_position.get_height()) / cell_size.height;
-    const int column1 = camera_position.get_x() / cell_size.width;
-    const int column2 = (camera_position.get_x() + camera_position.get_width()) / cell_size.width;
-
-    for (const auto& kvp : optimized_tiles_surfaces) {
-      const int cell_index = kvp.first;
-      const int row = cell_index / non_animated_tiles.get_num_columns();
-      const int column = cell_index % non_animated_tiles.get_num_columns();
-      if (column < column1 || column > column2 || row < row1 || row > row2) {
-        indexes_to_clear.push_back(cell_index);
-      }
+  for (const auto& kvp : optimized_tiles_surfaces) {
+    const int cell_index = kvp.first;
+    const int row = cell_index / non_animated_tiles.get_num_columns();
+    const int column = cell_index % non_animated_tiles.get_num_columns();
+    if (column < column1 || column > column2 || row < row1 || row > row2) {
+      indexes_to_clear.push_back(cell_index);
     }
   }
 
