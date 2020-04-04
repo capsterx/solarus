@@ -21,6 +21,7 @@
 #include "solarus/containers/Grid.h"
 #include "solarus/entities/TileInfo.h"
 #include "solarus/graphics/SurfacePtr.h"
+#include <unordered_map>
 #include <vector>
 
 namespace Solarus {
@@ -62,7 +63,7 @@ class NonAnimatedRegions {
     Grid<TileInfo> non_animated_tiles;      /**< All non-animated tiles. Stored in a grid so that
                                              * we can quickly find the ones to draw lazily later when the
                                              * camera moves. */
-    std::map<int, SurfacePtr>
+    std::unordered_map<int, SurfacePtr>
         optimized_tiles_surfaces;           /**< Cache of drawn non-animated tiles for each cell. */
 
 };

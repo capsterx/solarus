@@ -54,6 +54,7 @@
 #include "solarus/entities/Switch.h"
 #include "solarus/entities/Teletransporter.h"
 #include "solarus/entities/Tile.h"
+#include "solarus/entities/TileInfo.h"
 #include "solarus/entities/TilePattern.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/entities/Wall.h"

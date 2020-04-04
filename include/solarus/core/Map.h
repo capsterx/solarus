@@ -24,7 +24,6 @@
 #include "solarus/entities/CameraPtr.h"
 #include "solarus/entities/Entities.h"
 #include "solarus/entities/Ground.h"
-#include "solarus/entities/NonAnimatedRegions.h"
 #include "solarus/entities/TilePattern.h"
 #include "solarus/entities/Tileset.h"
 #include "solarus/graphics/SurfacePtr.h"

@@ -18,7 +18,6 @@
 #define SOLARUS_SPRITE_H
 
 #include "solarus/core/Common.h"
-#include "solarus/entities/NonAnimatedRegions.h"
 #include "solarus/graphics/Drawable.h"
 #include "solarus/graphics/SpritePtr.h"
 #include "solarus/lua/ScopedLuaRef.h"
