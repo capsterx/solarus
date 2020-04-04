@@ -155,6 +155,7 @@ list(APPEND LUA_TEST_MAPS
   "bugs/1439_ground_sprite_ladder"
   "bugs/1440_enemy_set_life_0_on_dying"
   "bugs/1448_custom_state_side_teletransporter"
+  "bugs/1452_crash_carried_object"
   "bugs/1458_ground_sprite_when_jumping"
   "bugs/1461_tileset_sprite"
 )

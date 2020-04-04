@@ -80,6 +80,7 @@ map{ id = "bugs/1436_thrown_object_shadow", description = "#1436: Unwanted shado
 map{ id = "bugs/1439_ground_sprite_ladder", description = "#1439: Ground sprite still shown on ladders" }
 map{ id = "bugs/1440_enemy_set_life_0_on_dying", description = "#1440: enemy:on_dying() not called when setting life to 0" }
 map{ id = "bugs/1448_custom_state_side_teletransporter", description = "#1448: Side teletransporters don't activate in custom state" }
+map{ id = "bugs/1452_crash_carried_object", description = "#1452: Crash when stopping the movement of a thrown object" }
 map{ id = "bugs/1458_ground_sprite_when_jumping", description = "#1458: Ground sprite displayed while jumping" }
 map{ id = "bugs/1461_tileset_sprite", description = "#1461 : Tileset sprite dynamicaly created cause crash" }
 map{ id = "bugs/486_diagonal_dynamic_tiles", description = "#486: Wrong obstacles with diagonal dynamic tiles" }
@@ -560,8 +561,10 @@ file{ path = "maps/bugs/1440_enemy_set_life_0_on_dying.dat", author = "Christoph
 file{ path = "maps/bugs/1440_enemy_set_life_0_on_dying.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1448_custom_state_side_teletransporter.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1448_custom_state_side_teletransporter.lua", author = "Christopho", license = "GPL v3" }
-file{ path = "maps/bugs/1458_ground_sprite_when_jumping.dat", author = "Christopho", }
-file{ path = "maps/bugs/1458_ground_sprite_when_jumping.lua", author = "Christopho", }
+file{ path = "maps/bugs/1452_crash_carried_object.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1452_crash_carried_object.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1458_ground_sprite_when_jumping.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1458_ground_sprite_when_jumping.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1461_tileset_sprite.dat", author = "stdgregwar", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1461_tileset_sprite.lua", author = "stdgregwar", license = "GPL v3" }
 file{ path = "maps/bugs/486_diagonal_dynamic_tiles.dat", author = "Christopho", license = "CC BY-SA 4.0" }
