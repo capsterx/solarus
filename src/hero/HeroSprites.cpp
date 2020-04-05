@@ -1365,6 +1365,7 @@ void HeroSprites::set_animation_prepare_running() {
 
   set_animation_walking_normal();
   trail_sprite->set_current_animation("running");
+  trail_sprite->set_current_direction(tunic_sprite->get_current_direction());
 }
 
 /**
@@ -1375,6 +1376,7 @@ void HeroSprites::set_animation_running() {
   set_animation_walking_sword_loading();
   stop_displaying_sword_stars();
   trail_sprite->set_current_animation("running");
+  trail_sprite->set_current_direction(tunic_sprite->get_current_direction());
 }
 
 /**

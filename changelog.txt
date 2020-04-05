@@ -15,6 +15,7 @@ Engine changes
 * Fix carried object shadow still displayed after removing it (#1436).
 * Fix animating hero sprites dynamically created (#1348).
 * Fix hero speed when going from deep water to shallow water (#1186).
+* Fix trail sprite not taking the hero's direction (#1464).
 * Fix ground sprite still displayed while jumping (#1458).
 * Fix custom states wrongly affected by ground speeds (#1416).
 * Fix custom states not activating side teletransporters (#1448).
