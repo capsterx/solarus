@@ -10,6 +10,7 @@ Engine changes
 * Fix shaders compilation in some OpenGL ES 3.0 platforms (#1437).
 * Fix UTF-8 quest path encoding handling (#1429).
 * Fix UTF-8 file names in Lua Open File API for Windows (#1413).
+* Fix memory usage when visiting very large maps (#1395).
 * Fix crash when removing the shadow of a carried object (#1423).
 * Fix crash when stopping the movement of a thrown object (#1452).
 * Fix carried object shadow still displayed after removing it (#1436).

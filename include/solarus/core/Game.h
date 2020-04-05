@@ -24,7 +24,6 @@
 #include "solarus/core/GameCommands.h"
 #include "solarus/core/Point.h"
 #include "solarus/entities/HeroPtr.h"
-#include "solarus/entities/NonAnimatedRegions.h"
 #include "solarus/graphics/SurfacePtr.h"
 #include "solarus/graphics/Transition.h"
 #include <memory>

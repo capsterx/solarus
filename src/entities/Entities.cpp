@@ -1144,6 +1144,9 @@ void Entities::update() {
   // Update the camera after everyone else.
   camera->update();
   entities_to_draw.clear();  // Invalidate entities to draw.
+  for (int layer = map.get_min_layer(); layer <= map.get_max_layer(); ++layer) {
+    non_animated_regions[layer]->update();
+  }
 
   // Remove the entities that have to be removed now.
   remove_marked_entities();

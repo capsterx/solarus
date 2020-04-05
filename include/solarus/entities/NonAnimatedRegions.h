@@ -21,6 +21,7 @@
 #include "solarus/containers/Grid.h"
 #include "solarus/entities/TileInfo.h"
 #include "solarus/graphics/SurfacePtr.h"
+#include <unordered_map>
 #include <vector>
 
 namespace Solarus {
@@ -44,6 +45,7 @@ class NonAnimatedRegions {
     void add_tile(const TileInfo& tile);
     void build(std::vector<TileInfo>& rejected_tiles);
     void notify_tileset_changed();
+    void update();
     void draw_on_map();
 
   private:
@@ -53,20 +55,16 @@ class NonAnimatedRegions {
 
     Map& map;                               /**< The map. */
     int layer;                              /**< Layer of the map managed by this object. */
-    std::vector<TileInfo>
-        tiles;                              /**< All tiles contained in this layer and candidates to
+    std::vector<TileInfo> tiles;            /**< All tiles contained in this layer and candidates to
                                              * be optimized. This list is cleared after build() is called. */
     std::vector<bool> are_squares_animated; /**< Whether each 8x8 square of the map has animated tiles. */
 
     // Handle the lazy drawing.
-    Grid<TileInfo>
-        non_animated_tiles;                 /**< All non-animated tiles. Stored in a grid so that
+    Grid<TileInfo> non_animated_tiles;      /**< All non-animated tiles. Stored in a grid so that
                                              * we can quickly find the ones to draw lazily later when the
                                              * camera moves. */
-    std::vector<SurfacePtr>
-        optimized_tiles_surfaces;           /**< All non-animated tiles are drawn here once for all
-                                             * for performance. Each cell of the grid has a surface
-                                             * or nullptr before it is drawn. */
+    std::unordered_map<int, SurfacePtr>
+        optimized_tiles_surfaces;           /**< Cache of drawn non-animated tiles for each cell. */
 
 };
 

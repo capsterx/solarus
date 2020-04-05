@@ -41,7 +41,7 @@ NonAnimatedRegions::NonAnimatedRegions(Map& map, int layer):
  */
 void NonAnimatedRegions::add_tile(const TileInfo& tile) {
 
-  Debug::check_assertion(optimized_tiles_surfaces.empty(),
+  Debug::check_assertion(are_squares_animated.empty(),
       "Tile regions are already built");
   Debug::check_assertion(tile.layer == layer, "Wrong layer for add tile");
 
@@ -57,7 +57,7 @@ void NonAnimatedRegions::add_tile(const TileInfo& tile) {
  */
 void NonAnimatedRegions::build(std::vector<TileInfo>& rejected_tiles) {
 
-  Debug::check_assertion(optimized_tiles_surfaces.empty(),
+  Debug::check_assertion(are_squares_animated.empty(),
       "Tile regions are already built");
 
   const int map_width8 = map.get_width8();
@@ -67,9 +67,6 @@ void NonAnimatedRegions::build(std::vector<TileInfo>& rejected_tiles) {
   for (int i = 0; i < map_width8 * map_height8; ++i) {
     are_squares_animated.push_back(false);
   }
-
-  // Create the surfaces where all non-animated tiles will be drawn.
-  optimized_tiles_surfaces.resize(non_animated_tiles.get_num_cells());
 
   // Mark animated 8x8 squares of the map.
   for (size_t i = 0; i < tiles.size(); ++i) {
@@ -120,9 +117,7 @@ void NonAnimatedRegions::build(std::vector<TileInfo>& rejected_tiles) {
  */
 void NonAnimatedRegions::notify_tileset_changed() {
 
-  for (unsigned i = 0; i < non_animated_tiles.get_num_cells(); ++i) {
-    optimized_tiles_surfaces[i] = nullptr;
-  }
+  optimized_tiles_surfaces.clear();
   // Everything will be redrawn when necessary.
 }
 
@@ -157,6 +152,43 @@ bool NonAnimatedRegions::overlaps_animated_tile(const TileInfo& tile) const {
     }
   }
   return false;
+}
+
+/**
+ * \brief Called at each frame of the main loop.
+ */
+void NonAnimatedRegions::update() {
+
+  // Limit the size of the cache to avoid growing the memory usage.
+  if (optimized_tiles_surfaces.size() < 25) {
+    return;
+  }
+
+  std::vector<int> indexes_to_clear;
+  const CameraPtr& camera = map.get_camera();
+  if (camera == nullptr) {
+    return;
+  }
+
+  const Size& cell_size = non_animated_tiles.get_cell_size();
+  const Rectangle& camera_position = camera->get_bounding_box();
+  const int row1 = camera_position.get_y() / cell_size.height;
+  const int row2 = (camera_position.get_y() + camera_position.get_height()) / cell_size.height;
+  const int column1 = camera_position.get_x() / cell_size.width;
+  const int column2 = (camera_position.get_x() + camera_position.get_width()) / cell_size.width;
+
+  for (const auto& kvp : optimized_tiles_surfaces) {
+    const int cell_index = kvp.first;
+    const int row = cell_index / non_animated_tiles.get_num_columns();
+    const int column = cell_index % non_animated_tiles.get_num_columns();
+    if (column < column1 || column > column2 || row < row1 || row > row2) {
+      indexes_to_clear.push_back(cell_index);
+    }
+  }
+
+  for (int cell_index : indexes_to_clear) {
+    optimized_tiles_surfaces.erase(cell_index);
+  }
 }
 
 /**
@@ -197,7 +229,7 @@ void NonAnimatedRegions::draw_on_map() {
 
       // Make sure this cell is built.
       int cell_index = i * num_columns + j;
-      if (optimized_tiles_surfaces[cell_index] == nullptr) {
+      if (optimized_tiles_surfaces.find(cell_index) == optimized_tiles_surfaces.end()) {
         // Lazily build the cell.
         build_cell(cell_index);
       }
@@ -208,7 +240,7 @@ void NonAnimatedRegions::draw_on_map() {
       };
 
       const Point dst_position = cell_xy - camera_position.get_xy();
-      optimized_tiles_surfaces[cell_index]->draw(
+      optimized_tiles_surfaces.at(cell_index)->draw(
           map.get_camera_surface(), dst_position
       );
     }
@@ -225,7 +257,7 @@ void NonAnimatedRegions::build_cell(int cell_index) {
       cell_index >= 0 && (size_t) cell_index < non_animated_tiles.get_num_cells(),
       "Wrong cell index"
   );
-  Debug::check_assertion(optimized_tiles_surfaces[cell_index] == nullptr,
+  Debug::check_assertion(optimized_tiles_surfaces.find(cell_index) == optimized_tiles_surfaces.end(),
       "This cell is already built"
   );
 
@@ -241,8 +273,6 @@ void NonAnimatedRegions::build_cell(int cell_index) {
 
   SurfacePtr cell_surface = Surface::create(cell_size,true);
   optimized_tiles_surfaces[cell_index] = cell_surface;
-  // Let this surface as a software destination because it is built only
-  // once (here) and never changes later.
 
   const std::vector<TileInfo>& tiles_in_cell =
       non_animated_tiles.get_elements(cell_index);

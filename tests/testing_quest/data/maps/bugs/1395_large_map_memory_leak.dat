@@ -1,0 +1,27 @@
+properties{
+  x = 0,
+  y = 0,
+  width = 35000,
+  height = 35000,
+  min_layer = 0,
+  max_layer = 2,
+  tileset = "castle",
+}
+
+destination{
+  name = "destination",
+  layer = 0,
+  x = 24,
+  y = 29,
+  direction = 1,
+}
+
+sensor{
+  name = "end_sensor",
+  layer = 0,
+  x = 34960,
+  y = 34965,
+  width = 48,
+  height = 48,
+}
+

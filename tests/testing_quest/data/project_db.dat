@@ -72,6 +72,7 @@ map{ id = "bugs/1371_crash_pulling_block_on_switch", description = "#1371: Crash
 map{ id = "bugs/1381_jumpers_hero_16_8", description = "#1381: Jumpers not working with a 16x8 hero" }
 map{ id = "bugs/1383_blocks_hero_16_8", description = "#1383: Blocks not working with a 16x8 hero" }
 map{ id = "bugs/1392_carried_object_directions", description = "#1392: Allow carried objects to have 4 directions" }
+map{ id = "bugs/1395_large_map_memory_leak", description = "#1395: Memory leak when traversing a large map" }
 map{ id = "bugs/1416_state_set_affected_by_ground_speed", description = "#1416: state:set_affected_by_ground() not working on grounds that alter the speed" }
 map{ id = "bugs/1418_state_set_can_be_hurt", description = "#1418: state:set_can_be_hurt() not working with touching attack mode" }
 map{ id = "bugs/1423_crash_carried_without_shadow", description = "#1423: Crash when carrying an object without shadow sprite" }
@@ -545,6 +546,8 @@ file{ path = "maps/bugs/1383_blocks_hero_16_8.dat", author = "Christopho", licen
 file{ path = "maps/bugs/1383_blocks_hero_16_8.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1392_carried_object_directions.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1392_carried_object_directions.lua", author = "Christopho", license = "GPL v3" }
+file{ path = "maps/bugs/1395_large_map_memory_leak.dat", author = "Christopho", license = "CC BY-SA 4.0" }
+file{ path = "maps/bugs/1395_large_map_memory_leak.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1416_state_set_affected_by_ground_speed.dat", author = "Christopho", license = "CC BY-SA 4.0" }
 file{ path = "maps/bugs/1416_state_set_affected_by_ground_speed.lua", author = "Christopho", license = "GPL v3" }
 file{ path = "maps/bugs/1418_state_set_can_be_hurt.dat", author = "Christopho", license = "CC BY-SA 4.0" }
