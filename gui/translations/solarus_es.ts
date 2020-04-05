@@ -160,7 +160,7 @@
     <message>
         <location filename="../src/main_window.ui" line="775"/>
         <source>Force Software</source>
-        <translation type="unfinished"></translation>
+        <translation>Forzar Software</translation>
     </message>
     <message>
         <source>None</source>
@@ -283,12 +283,12 @@
     <message>
         <location filename="../src/main_window.cpp" line="278"/>
         <source>Select archive or quest.dat</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar archivo o quest.dat</translation>
     </message>
     <message>
         <location filename="../src/main_window.cpp" line="286"/>
         <source>No quest was found in this directory</source>
-        <translation type="unfinished"></translation>
+        <translation>No se ha encontrado proyecto en este directorio</translation>
     </message>
     <message>
         <source>Select quest directory</source>
@@ -321,12 +321,12 @@
     <message>
         <location filename="../src/quests_model.cpp" line="74"/>
         <source>Quest</source>
-        <translation type="unfinished">Proyecto</translation>
+        <translation>Proyecto</translation>
     </message>
     <message>
         <location filename="../src/quests_model.cpp" line="77"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato</translation>
     </message>
 </context>
 </TS>
