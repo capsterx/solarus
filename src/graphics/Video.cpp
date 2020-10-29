@@ -121,11 +121,13 @@ void create_window(const Arguments& args) {
         title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        context.geometry.wanted_quest_size.width,
-        context.geometry.wanted_quest_size.height,
 #ifdef __SWITCH__
+	0,
+	0,
         SDL_WINDOW_FULLSCREEN
 #else
+        context.geometry.wanted_quest_size.width,
+        context.geometry.wanted_quest_size.height,
         SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | (force_software ? 0 : SDL_WINDOW_OPENGL)
 #endif
         );
@@ -560,13 +562,20 @@ void set_fullscreen(bool fullscreen) {
   if (context.fullscreen_window != fullscreen) {
     Uint32 fullscreen_flag;
     if (fullscreen) {
+#ifdef __SWITCH__
+      fullscreen_flag = SDL_WINDOW_FULLSCREEN;
+#else
       fullscreen_flag = SDL_WINDOW_FULLSCREEN_DESKTOP;
       context.geometry.window_size = get_window_size();  // Store the window size before fullscreen.
+#endif
     }
     else {
       fullscreen_flag = 0;
     }
     context.fullscreen_window = fullscreen;
+#ifdef __SWITCH__
+    context.fullscreen_window = true;
+#endif
 
     SDL_SetWindowFullscreen(context.main_window, fullscreen_flag);
     if (not fullscreen && not context.geometry.window_size.is_flat()) {
@@ -754,6 +763,15 @@ bool set_video_mode(const SoftwareVideoMode& mode) {
       context.scaled_surface->fill_with_color(Color::black);  // To initialize the internal surface.
     }
 
+#ifdef __SWITCH__
+    SDL_SetWindowFullscreen(context.main_window, SDL_WINDOW_FULLSCREEN);
+    Logger::info("SDL_RenderSetLogicalSize");
+    /*SDL_RenderSetLogicalSize(
+        SDLRenderer::get().get_sdl(),
+        render_size.width,
+        render_size.height);*/
+#endif
+
     if (mode_changed) {
       reset_window_size();
     }
@@ -863,6 +881,9 @@ void set_window_size(const Size& size) {
             size.width,
             size.height
             );
+//#ifdef __SWITCH__
+//      SDL_SetWindowFullscreen(context.main_window, SDL_WINDOW_FULLSCREEN);
+//#endif
       on_window_resized(size);
       SDL_SetWindowPosition(
             context.main_window,

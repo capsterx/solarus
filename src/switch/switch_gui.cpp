@@ -12,7 +12,7 @@
 
 Solarus_GUI::Solarus_GUI() : Layout::Layout()
 {
-    auto dir = std::filesystem::path("sdmc:/switch/solarus");
+    auto dir = std::filesystem::path("sdmc:/switch/solarus/games");
     this->menu = pu::ui::elm::Menu::New(0, 156, 1280, pu::ui::Color::FromHex("#c7efd5"), 84, (506 / 84));
     this->Add(menu);
     printf("menu: %p\n", this->menu.get());

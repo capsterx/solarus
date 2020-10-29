@@ -1794,12 +1794,12 @@ bool LuaContext::on_input(const InputEvent& event) {
 bool LuaContext::on_key_pressed(const InputEvent& event) {
   check_callback_thread();
   bool handled = false;
-  printf("on key pressed\n");
+  //printf("on key pressed\n");
   if (find_method("on_key_pressed")) {
 
-    printf("on key pressed found\n");
+    //printf("on key pressed found\n");
     const std::string& key_name = enum_to_name(event.get_keyboard_key());
-    printf("key name=%s\n", key_name.c_str());
+    //printf("key name=%s\n", key_name.c_str());
     if (!key_name.empty()) { // This key exists in the Solarus API.
 
       push_string(current_l, key_name);

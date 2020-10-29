@@ -51,7 +51,7 @@ Arguments::Arguments(int argc, char** argv) {
   //printf("argc=%d\n", argc);
   //printf("argv[0]=%s\n", argv[0]);
   //args.push_back("-fullscreen=yes");
-  args.push_back("-force-software-rendering");
+  //args.push_back("-force-software-rendering");
   args.push_back("-quest-size=400x240");
   if (argc == 1) {
     args.push_back("romfs:");

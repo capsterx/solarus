@@ -43,7 +43,7 @@ EXEFS_SRC	:=	exefs_src
 
 APP_TITLE	:=	Solarus Engine
 APP_AUTHOR	:=	Solarus Team & carstene1ns
-APP_VERSION	:=	1.7.0
+APP_VERSION	:=	1.6.4.
 #ROMFS	:=	romfs
 ICON		:=	solarus.jpg
 #---------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ ifneq ($(APP_TITLEID),)
 endif
 
 ifneq ($(ROMFS),)
-	export NROFLAGS += --romfsdir=$(CURDIR)/$(ROMFS)
+	export NROFLAGS += --romfsdir=$(ROMFS)
 endif
 
 .PHONY: $(BUILD) clean all
@@ -242,10 +242,10 @@ $(OUTPUT).elf	:	$(OFILES)
 #	$(NM) -CSn $@ > $(notdir $*.lst)
 
 launcher: $(OUTPUT).elf
-	@nacptool --create $(EMBEDED_TITLE) $(EMBEDED_AUTHOR) $(EMBEDED_VERSION) $(TOPDIR)/$(EMBEDED_TARGET).nacp
-	@echo built ... $(EMBEDED_TARGET).nacp
-	@elf2nro  $(OUTPUT).elf $(TOPDIR)/$(EMBEDED_TARGET).nro --icon=$(EMBEDED_ICON) $(NROFLAGS) --nacp=$(TOPDIR)/$(EMBEDED_TARGET).nacp
-	@echo built ... $(EMBEDED_TARGET).nro
+	nacptool --create $(EMBEDED_TITLE) $(EMBEDED_AUTHOR) $(EMBEDED_VERSION) $(TOPDIR)/$(EMBEDED_TARGET).nacp
+	echo built ... $(EMBEDED_TARGET).nacp
+	elf2nro  $(OUTPUT).elf $(TOPDIR)/$(EMBEDED_TARGET).nro --icon=$(EMBEDED_ICON) $(NROFLAGS) --nacp=$(TOPDIR)/$(EMBEDED_TARGET).nacp
+	echo built ... $(EMBEDED_TARGET).nro
 
 switch_gui:
 	$(MAKE) -C ../Plutonium

@@ -19,14 +19,18 @@ There are two ways to build:
 
 make SWITCH\_GUI=1
 
-this builds a very primitive gui I made that will find all quests in sdmc:/switch/solarus
-and let you select one
+this builds a very primitive gui I made that will find all quests in sdmc:/switch/solarus/games
+and let you select one.  You can have them in the zipped .solarus format or unpacked.  If you leave them zipped the gui is a lot slower to load as it reads the titles from them.
 
 The other is to build a standalone game where the game is put in romfs, to do this, for example Mystery of Solarus DX:
 
 make EMBEDED\_TARGET=MysteryOfSolarusDX EMBEDED\_TITLE="Mystery Of Solarus DX" EMBEDED\_VERSION="1.10" EMBEDED\_ICON=MysteryOfSolarusDX.jpg ROMFS=romfs
 
+the romfs dir should have a game renamed to data.solarus.zip or data.solarus unzipped or you can unpack the whole thing in the dir
+
 this will create a standalone nro
+
+Note:  you will need to 'touch src/main/Main.cpp' when switching between the two
 
 
 
