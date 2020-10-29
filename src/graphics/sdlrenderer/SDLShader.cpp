@@ -34,6 +34,7 @@
 
 namespace Solarus {
 
+#ifdef SOLARUS_HAVE_OPENGL
 VertexArray SDLShader::screen_quad(TRIANGLES);
 
 /**
@@ -576,5 +577,8 @@ void SDLShader::draw(Surface& dst_surface, const Surface &src_surface, const Dra
     that->set_uniform_2f(Shader::INPUT_SIZE_NAME, region.get_width(), region.get_height());
     that->render(screen_quad,src_surface,viewport*transform,uvm);
 }
+
+#else
+#endif
 
 }

@@ -42,6 +42,10 @@
 #include <string>
 #include <thread>
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 namespace Solarus {
 
 namespace {
@@ -137,6 +141,16 @@ MainLoop::MainLoop(const Arguments& args):
   lua_commands_mutex(),
   num_lua_commands_pushed(0),
   num_lua_commands_done(0) {
+
+#ifdef __SWITCH__
+  printf("hello\n");
+  Result rc = romfsInit();
+
+  if (R_FAILED(rc))
+  {
+    printf("romfsInit: %08X\n", rc);
+  }
+#endif
 
 #ifdef SOLARUS_GIT_REVISION
   Logger::info("Solarus " SOLARUS_VERSION " (" SOLARUS_GIT_REVISION ")");
@@ -251,6 +265,11 @@ MainLoop::~MainLoop() {
   QuestFiles::close_quest();
   System::quit();
   quit_lua_console();
+#ifdef __SWITCH__
+  romfsExit();
+  consoleExit(NULL);
+  socketExit();
+#endif
 }
 
 /**
@@ -354,8 +373,10 @@ int MainLoop::push_lua_command(const std::string& command) {
 void MainLoop::run() {
 
   if (!QuestFiles::quest_exists()) {
+    printf("no quest\n");
     return;
   }
+
 
   // Main loop.
   Logger::info("Simulation started");
@@ -455,6 +476,9 @@ void MainLoop::step() {
       lua_context->exit();
       lua_context->initialize(Arguments());
       Music::stop_playing();
+#ifdef SOLARUS_SWITCH_GUI
+      set_exiting();
+#endif
     }
   }
 }

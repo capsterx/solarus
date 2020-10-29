@@ -10,4 +10,10 @@ tags
 developer_doc/1.*
 work/unversioned/
 build/
-
+*.nro
+*.nso
+*.elf
+*.pfs0
+*.nacp
+Plutonium/Plutonium/Output
+romfs

@@ -123,7 +123,11 @@ void create_window(const Arguments& args) {
         SDL_WINDOWPOS_CENTERED,
         context.geometry.wanted_quest_size.width,
         context.geometry.wanted_quest_size.height,
+#ifdef __SWITCH__
+        SDL_WINDOW_FULLSCREEN
+#else
         SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | (force_software ? 0 : SDL_WINDOW_OPENGL)
+#endif
         );
 
   Debug::check_assertion(context.main_window != nullptr,
@@ -137,10 +141,12 @@ void create_window(const Arguments& args) {
   Logger::info("Renderer: " + context.renderer->get_name());
 
   if(not force_software) {
+#ifdef SOLARUS_HAVE_OPENGL 
     context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
     context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
     context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+#endif
   }
 
   Logger::info(std::string("OpenGL: ") + context.opengl_version);
@@ -174,11 +180,13 @@ void initialize_software_video_modes() {
         context.geometry.quest_size * 3,
         std::unique_ptr<SoftwarePixelFilter>(new Hq3xFilter())
         );
+#ifndef __SWITCH__
   context.all_video_modes.emplace_back(
         "hq4x",
         context.geometry.quest_size * 4,
         std::unique_ptr<SoftwarePixelFilter>(new Hq4xFilter())
         );
+#endif
 
   context.default_video_mode = &context.all_video_modes[0];
 

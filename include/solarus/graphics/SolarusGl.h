@@ -10,6 +10,7 @@
 #endif
 
 namespace Solarus { namespace Gl {
+#ifdef SOLARUS_HAVE_OPENGL
     inline std::pair<GLint, GLint> getVersion() {
 #ifdef ANDROID
       GLint major, minor;
@@ -74,5 +75,9 @@ namespace Solarus { namespace Gl {
         (void)array;
 #endif
     }
-
+#else
+    inline std::pair<GLint, GLint> getVersion() {
+	    throw;
+    }
+#endif
 }}

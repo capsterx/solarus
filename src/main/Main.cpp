@@ -26,6 +26,10 @@
 // For instance, in Windows, SDLmain encodes argv in main() using UTF-8 by default.
 #include <SDL.h>
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 namespace Solarus {
 
 namespace {
@@ -116,14 +120,31 @@ void print_help(const Arguments& args) {
  * \param argc Number of command-line arguments.
  * \param argv Command-line arguments.
  */
+#ifdef SOLARUS_SWITCH_GUI
+std::string switch_gui_main(int argc, char **argv);
+#endif
 int main(int argc, char** argv) {
 
   using namespace Solarus;
 
-  Debug::set_abort_on_die(true);  // Better for debugging (get a callstack).
+#ifdef __SWITCH__
+  socketInitializeDefault();
+  nxlinkConnectToHost(true, false);
+  printf("test\n");
+#endif
+  
+   Debug::set_abort_on_die(true);  // Better for debugging (get a callstack).
 
   // Store the command-line arguments.
-  const Arguments args(argc, argv);
+  Arguments args(argc, argv);
+#ifdef SOLARUS_SWITCH_GUI
+  std::string path = switch_gui_main(argc, argv);
+  if (path != "")
+  {
+	  printf("Adding path %s\n", path.c_str());
+	  args.add_argument(path);
+  }
+#endif
 
   // Check the -help option.
   if (args.has_argument("-help")) {
@@ -132,6 +153,7 @@ int main(int argc, char** argv) {
   }
   else {
     // Run the main loop.
+    printf("going main loop\n");
     MainLoop(args).run();
   }
 

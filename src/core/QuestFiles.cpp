@@ -36,6 +36,8 @@
 #   include "solarus/core/AppleInterface.h"
 #endif
 
+#include "solarus/core/Logger.h"
+
 namespace Solarus {
 
 namespace QuestFiles {
@@ -129,10 +131,15 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
     PHYSFS_init(nullptr);
   }
   else {
+    printf("program name!\n");
     PHYSFS_init(program_name.c_str());
   }
 
   quest_path_ = quest_path;
+//#ifdef __SWITCH__
+//  printf("%d\n", PHYSFS_mount(("romfs:/data.solarus.zip"), NULL, 1));
+//  printf("%s\n", PHYSFS_getLastError());
+//#else
 
   //Allow physfs to follow symbolic links
   PHYSFS_permitSymbolicLinks(true);
@@ -152,6 +159,7 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
   PHYSFS_addToSearchPath((base_dir + "/" + dir_quest_path).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_1).c_str(), 1);
   PHYSFS_addToSearchPath((base_dir + "/" + archive_quest_path_2).c_str(), 1);
+//#endif
 
 
   // Set the engine root write directory.
@@ -216,7 +224,6 @@ SOLARUS_API const std::string& get_quest_path() {
  * @return @c true if the quest exists.
  */
 SOLARUS_API bool quest_exists() {
-
   const std::string file_name = "quest.dat";
   return data_file_exists(file_name) &&
       !data_file_is_dir(file_name);
@@ -267,6 +274,8 @@ SOLARUS_API bool data_file_exists(
     bool language_specific
 ) {
   const std::string& actual_file_name = get_actual_file_name(file_name, language_specific);
+  Logger::info(actual_file_name);
+  Logger::info(std::to_string(PHYSFS_exists(actual_file_name.c_str())));
   return PHYSFS_exists(actual_file_name.c_str());
 }
 

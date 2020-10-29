@@ -166,6 +166,7 @@ void GameCommands::notify_input(const InputEvent& event) {
   // for this input event and we ignore the event if no binding is found.
   // If a command is being customized, we consider instead this event as
   // the new binding for this game command.
+  printf("notify_input\n");
 
   if (event.is_keyboard_key_pressed()) {
     keyboard_key_pressed(event.get_keyboard_key());
@@ -192,6 +193,7 @@ void GameCommands::notify_input(const InputEvent& event) {
  * \param keyboard_key_pressed The key pressed.
  */
 void GameCommands::keyboard_key_pressed(InputEvent::KeyboardKey keyboard_key_pressed) {
+	printf("GameCommands::keyboard_key_pressed\n");
 
   // Retrieve the game command (if any) corresponding to this keyboard key.
   const GameCommand command_pressed = get_command_from_keyboard(keyboard_key_pressed);

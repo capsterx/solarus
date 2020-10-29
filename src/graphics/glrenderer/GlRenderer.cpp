@@ -19,6 +19,7 @@
 #define SOLARUS_SPRITE_BUFFER_SIZE 64
 
 namespace Solarus {
+#ifdef SOLARUS_HAVE_OPENGL
 
 using namespace glm;
 
@@ -685,5 +686,11 @@ void GlRenderer::add_sprite(const DrawInfos& infos) {
   current_vertex += 4; //Shift current quad index
   buffered_sprites++;
 }
+#else
+  RendererPtr GlRenderer::create(SDL_Window* window, bool force_software) {
+    return nullptr;
+  }
+#endif
+
 
 }

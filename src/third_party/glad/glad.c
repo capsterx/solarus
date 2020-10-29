@@ -54,6 +54,7 @@ static PFNWGLGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
   #endif
 #endif
 
+#ifndef __SWITCH__
 static
 int open_gl(void) {
 #ifndef IS_UWP
@@ -123,6 +124,7 @@ void close_gl(void) {
         libGL = NULL;
     }
 }
+#endif
 #endif
 
 static

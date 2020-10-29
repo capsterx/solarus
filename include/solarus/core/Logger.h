@@ -33,7 +33,11 @@ namespace Solarus {
  */
 namespace Logger {
 
+#ifndef __SWITCH__
 SOLARUS_API void print(const std::string& message, std::ostream& out = std::cerr);
+#else
+SOLARUS_API void print(const std::string& message, std::ostream& out = std::cout);
+#endif
 
 SOLARUS_API void debug(const std::string& message);
 SOLARUS_API void info(const std::string& message);
