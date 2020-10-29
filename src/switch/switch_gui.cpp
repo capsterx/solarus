@@ -74,9 +74,9 @@ void MainApplication::OnLoad()
 {
     // Create the layout (calling the smart constructor above)
     auto gui = Solarus_GUI::New();
-    printf("gui1 %p\n", gui.get());
+    //printf("gui1 %p\n", gui.get());
     this->layout = gui;
-    printf("gui2 %p\n", gui.get());
+    //printf("gui2 %p\n", gui.get());
 
     // Load the layout. In applications layouts are loaded, not added into a container (you don't select an added layout, just load it from this function)
     // Simply explained: loading layout = the application will render that layout in the very next frame
@@ -84,7 +84,7 @@ void MainApplication::OnLoad()
     this->SetOnInput([this, gui](u64 Down, u64 Up, u64 Held, pu::ui::Touch Pos) {
       if (Down & KEY_A)
       {
-        printf("%p\n", gui.get());
+        //printf("%p\n", gui.get());
         Solarus_GUI::selected_path_ = gui->get_path();
         this->Close();
       }

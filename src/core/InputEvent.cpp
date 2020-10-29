@@ -475,7 +475,7 @@ bool InputEvent::is_joypad_button_down(int button) {
 #endif
 
   auto ret = SDL_JoystickGetButton(joystick, button) != 0;
-  printf("is_joypad_button_down=%d, %d\n", button, ret);
+  //printf("is_joypad_button_down=%d, %d\n", button, ret);
   return ret;
 }
 
@@ -778,7 +778,7 @@ bool InputEvent::is_keyboard_direction_key_pressed() const {
   return is_keyboard_key_pressed(directional_keys);
 #else
   auto ret = is_keyboard_key_pressed() && is_switch_keyboard_from_joy_direction(internal_event);
-  printf("is_keyboard_direction_key_pressed=%d\n", ret);
+  //printf("is_keyboard_direction_key_pressed=%d\n", ret);
   return ret;
 #endif
 }
@@ -918,14 +918,14 @@ bool InputEvent::is_with_alt() const {
  */
 InputEvent::KeyboardKey InputEvent::get_keyboard_key() const {
 
-	printf("InputEvent::get_keyboard_key: %d\n", is_keyboard_event());
+	//printf("InputEvent::get_keyboard_key: %d\n", is_keyboard_event());
   if (!is_keyboard_event()) {
     return KeyboardKey::NONE;
   }
 
 #ifdef __SWITCH__
   {
-    printf("get_keyboard_key\b");
+    //printf("get_keyboard_key\b");
     switch(internal_event.jbutton.button)
     {
       case (int)Switch_Joy::KEY_LSTICK_LEFT:
@@ -947,7 +947,7 @@ InputEvent::KeyboardKey InputEvent::get_keyboard_key() const {
       case (int)Switch_Joy::KEY_MINUS:
         return KeyboardKey::ESCAPE;
     }
-    printf("Key none\n");
+    //printf("Key none\n");
     return KeyboardKey::NONE;
   }
 #endif
@@ -1100,7 +1100,7 @@ int InputEvent::get_joypad_button() const {
   if (!is_joypad_button_pressed() && !is_joypad_button_released()) {
     return -1;
   }
-  printf("get_joypad_button:%d\n", internal_event.jbutton.button);
+  //printf("get_joypad_button:%d\n", internal_event.jbutton.button);
   auto button = internal_event.jbutton.button;
 
   #ifdef __SWITCH__
@@ -1508,7 +1508,7 @@ float InputEvent::get_finger_pressure() const {
 int InputEvent::get_direction() const {
 
   int result = -1;
-  printf("get direction\n");
+  //printf("get direction\n");
 
   if (is_keyboard_direction_key_pressed()) {
 
@@ -1582,7 +1582,7 @@ bool InputEvent::is_direction_pressed() const {
   auto ret = is_keyboard_direction_key_pressed()
     || (is_joypad_axis_moved() && !is_joypad_axis_centered())
     || (is_joypad_hat_moved() && !is_joypad_hat_centered());
-  printf("is_direction_pressed=%d\n", ret);
+  //printf("is_direction_pressed=%d\n", ret);
   return ret;
 }
 

@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
   }
   else {
     // Run the main loop.
-    printf("going main loop\n");
+    //printf("going main loop\n");
     MainLoop(args).run();
   }
 

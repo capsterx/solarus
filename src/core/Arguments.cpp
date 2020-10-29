@@ -43,13 +43,13 @@ Arguments::Arguments(int argc, char** argv) {
   }
 #ifdef __SWITCH__
   if (argc == 1) {
-    printf("Adding args");
+    //printf("Adding args");
     args.push_back("-turbo=yes");
     args.push_back("-cursor-visible=no");
     args.push_back("-lua-console=no");
   }
-  printf("argc=%d\n", argc);
-  printf("argv[0]=%s\n", argv[0]);
+  //printf("argc=%d\n", argc);
+  //printf("argv[0]=%s\n", argv[0]);
   //args.push_back("-fullscreen=yes");
   args.push_back("-force-software-rendering");
   args.push_back("-quest-size=400x240");

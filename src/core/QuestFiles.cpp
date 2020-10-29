@@ -131,7 +131,7 @@ SOLARUS_API bool open_quest(const std::string& program_name, const std::string& 
     PHYSFS_init(nullptr);
   }
   else {
-    printf("program name!\n");
+    //printf("program name!\n");
     PHYSFS_init(program_name.c_str());
   }
 

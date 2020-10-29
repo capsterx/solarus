@@ -1731,9 +1731,9 @@ bool LuaContext::on_input(const InputEvent& event) {
   bool handled = false;
   if (event.is_keyboard_event()) {
     // Keyboard.
-    printf("LuaContext::on_input::event.is_keyboard_event\n");
+    //printf("LuaContext::on_input::event.is_keyboard_event\n");
     if (event.is_keyboard_key_pressed()) {
-      printf("LuaContext::on_input::event.is_keyboard_key_pressed\n");
+      //printf("LuaContext::on_input::event.is_keyboard_key_pressed\n");
       handled = on_key_pressed(event) || handled;
     }
     else if (event.is_keyboard_key_released()) {

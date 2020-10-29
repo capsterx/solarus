@@ -143,7 +143,7 @@ MainLoop::MainLoop(const Arguments& args):
   num_lua_commands_done(0) {
 
 #ifdef __SWITCH__
-  printf("hello\n");
+  //printf("hello\n");
   Result rc = romfsInit();
 
   if (R_FAILED(rc))
