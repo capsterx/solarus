@@ -557,23 +557,24 @@ void set_fullscreen(bool fullscreen) {
     return;
   }
 
+#ifdef __SWITCH__
+    fullscreen = true;
+#endif
+
   if (context.fullscreen_window != fullscreen) {
     Uint32 fullscreen_flag;
-    if (fullscreen) {
 #ifdef __SWITCH__
-      fullscreen_flag = SDL_WINDOW_FULLSCREEN;
+    fullscreen_flag = SDL_WINDOW_FULLSCREEN;
 #else
+    if (fullscreen) {
       fullscreen_flag = SDL_WINDOW_FULLSCREEN_DESKTOP;
       context.geometry.window_size = get_window_size();  // Store the window size before fullscreen.
-#endif
     }
     else {
       fullscreen_flag = 0;
     }
-    context.fullscreen_window = fullscreen;
-#ifdef __SWITCH__
-    context.fullscreen_window = true;
 #endif
+    context.fullscreen_window = fullscreen;
 
     SDL_SetWindowFullscreen(context.main_window, fullscreen_flag);
     if (not fullscreen && not context.geometry.window_size.is_flat()) {
