@@ -1,18 +1,21 @@
 #pragma once
 
-#ifdef ANDROID
+#ifdef ANDROID 
 #include <SDL_opengles2.h>
 #include <stdio.h>
 #define SOLARUS_GL_ES
+#elif defined(__SWITCH__)
+#include <glad/glad.h>  // glad library (OpenGL loader)
+#include <SDL_video.h>
+//#define SOLARUS_GL_ES
 #else
 #include "solarus/third_party/glad/glad.h" // Only include glad to have GL work
 #include <SDL_video.h>
 #endif
 
 namespace Solarus { namespace Gl {
-#ifdef SOLARUS_HAVE_OPENGL
     inline std::pair<GLint, GLint> getVersion() {
-#ifdef ANDROID
+#ifdef SOLARUS_GL_ES
       GLint major, minor;
       const char* version = (const char*)glGetString(GL_VERSION);
       sscanf(version,"OpenGL ES %d.%d", &major, &minor);
@@ -25,9 +28,9 @@ namespace Solarus { namespace Gl {
     }
 
     inline bool load() {
-#ifdef ANDROID
+#ifdef ANDROID  
         return true;
-#elif SOLARUS_GL_ES
+#elif defined(SOLARUS_GL_ES)
         return gladLoadGLES2Loader(SDL_GL_GetProcAddress);
 #else
         return gladLoadGLLoader(SDL_GL_GetProcAddress);
@@ -37,6 +40,8 @@ namespace Solarus { namespace Gl {
     inline bool has_framebuffer() {
 #ifdef SOLARUS_GL_ES
         return true;
+#elif defined(__SWITCH__)
+	return GLAD_GL_VERSION_3_0;
 #else
         return GLAD_GL_VERSION_3_0 || GLAD_GL_ARB_framebuffer_object;
 #endif
@@ -44,7 +49,9 @@ namespace Solarus { namespace Gl {
 
     inline bool use_vao() {
 #ifdef SOLARUS_GL_ES
-        return false;
+        return true;
+#elif defined(__SWITCH__)
+	return GLAD_GL_VERSION_3_0;
 #else
         return GLAD_GL_VERSION_3_0 || GLAD_GL_ARB_vertex_array_object;
 #endif
@@ -75,9 +82,4 @@ namespace Solarus { namespace Gl {
         (void)array;
 #endif
     }
-#else
-    inline std::pair<GLint, GLint> getVersion() {
-	    throw;
-    }
-#endif
 }}

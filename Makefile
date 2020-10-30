@@ -61,7 +61,7 @@ CXXFLAGS	:= $(CFLAGS) -frtti -fexceptions -std=c++11
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=	-lSDL2_ttf -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
+LIBS	:=	-lSDL2_ttf -lglad -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
 			-lphysfs -lmodplug -lvorbisfile -lvorbis -logg \
 			-lwebp -lEGL -lglapi -ldrm_nouveau -lnx
 #SWITCH_GUI := 1

@@ -13,7 +13,6 @@ inline glm::mat3 uv_view(int width, int height) {
     return scale(mat3(1.f),vec2(1.f/width,1.f/height));
 }
 
-#ifndef SOLARUS_HAVE_OPENGL
 GlTexture::GlTexture(int width, int height, bool screen_tex)
   : target(true),
     uv_transform(uv_view(width,height)),
@@ -113,6 +112,4 @@ int GlTexture::get_height() const {
 void GlTexture::release() const {
   glDeleteTextures(1,&tex_id);
 }
-
-#endif
 }

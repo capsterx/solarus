@@ -45,9 +45,7 @@ RendererPtr SDLRenderer::create(SDL_Window* window, bool force_software) {
   }
 
   // Set OpenGL as the default renderer driver when available, to avoid using Direct3d.
-#ifndef SOLARUS_HAVE_OPENGL
   SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_DEFAULT);
-#endif
 
   if(force_software) {
     SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "software", SDL_HINT_OVERRIDE);
@@ -62,9 +60,6 @@ RendererPtr SDLRenderer::create(SDL_Window* window, bool force_software) {
           window,
           -1,
           SDL_RENDERER_ACCELERATED
-#ifndef SOLARUS_HAVE_OPENGL
-	  | SDL_RENDERER_PRESENTVSYNC
-#endif
 	  );
   if(not renderer) {
     renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_SOFTWARE);

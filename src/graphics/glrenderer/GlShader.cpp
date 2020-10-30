@@ -42,7 +42,6 @@ namespace {
 std::string version_string;
 }
 
-#ifndef SOLARUS_HAVE_OPENGL
 /**
  * \brief Initializes the GL 2D shader system.
  * \return \c true if GL 2D shaders are supported.
@@ -366,9 +365,4 @@ bool GlShader::set_uniform_texture(const std::string& uniform_name, const Surfac
   set_uniform(Uniform(uniform_name,(int)texture_unit));
   return true;
 }
-#else
-  bool GlShader::initialize() {
-    return false;
-  }
-#endif
 }

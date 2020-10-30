@@ -33,18 +33,13 @@
 #include "../SolarusGl.h"
 
 namespace Solarus {
-#ifdef SOLARUS_HAVE_OPENGL
-#define SOLARUS_OVERRIDE SOLARUS_OVERRIDE
-#else
-#define SOLARUS_OVERRIDE {throw;}
-#endif
 
 /**
  * \brief Represents a shader for a driver and sampler-independant uses.
  */
 class SOLARUS_API SDLShader : public Shader {
   public:
-#ifdef SOLARUS_HAVE_OPENGL
+//#ifdef SOLARUS_HAVE_OPENGL
     SDLShader();
     explicit SDLShader(const std::string& shader_id);
     SDLShader(const std::string& vertex_source,
@@ -53,35 +48,25 @@ class SOLARUS_API SDLShader : public Shader {
     ~SDLShader() override;
     
     static bool initialize();
-#else
-    explicit SDLShader(const std::string& shader_id) : Shader(shader_id) {}
-    SDLShader(const std::string& vertex_source,
-           const std::string& fragment_source,
-           double scaling_factor) : Shader(vertex_source, fragment_source, scaling_factor) {}
-    ~SDLShader() override {};
-  static bool initialize() {
-    return false;
-  }
-#endif
 
     static void quit();
 
     void set_uniform_1b(
-        const std::string& uniform_name, bool value) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, bool value) override;
     void set_uniform_1i(
-        const std::string& uniform_name, int value) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, int value) override;
      void set_uniform_1f(
-        const std::string& uniform_name, float value) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, float value) override;
      void set_uniform_2f(
-        const std::string& uniform_name, float value_1, float value_2) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, float value_1, float value_2) override;
      void set_uniform_3f(
-        const std::string& uniform_name, float value_1, float value_2, float value_3) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, float value_1, float value_2, float value_3) override;
      void set_uniform_4f(
-        const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) SOLARUS_OVERRIDE;
-     bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value) SOLARUS_OVERRIDE;
+        const std::string& uniform_name, float value_1, float value_2, float value_3, float value_4) override;
+     bool set_uniform_texture(const std::string& uniform_name, const SurfacePtr& value) override;
 
     void render(const Surface& surface, const Rectangle& region, const Size& dst_size, const Point& dst_position = Point(), bool flip_y = false);
-    void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const SOLARUS_OVERRIDE;
+    void draw(Surface& dst_surface, const Surface& src_surface, const DrawInfos& infos) const override;
 
     /**
      * \brief render the given vertex array with this shader, passing the texture and matrices as uniforms

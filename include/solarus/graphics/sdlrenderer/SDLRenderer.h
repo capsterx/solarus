@@ -55,10 +55,6 @@ public:
   }
   ~SDLRenderer() override;
 
-#ifdef __SWITCH__
-  SDL_Renderer * get_sdl() { return renderer; }
-#endif
-
 private:
   static SDLRenderer* instance;
 

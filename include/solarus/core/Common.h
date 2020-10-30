@@ -25,6 +25,8 @@
 
 #ifdef ANDROID
 #include "solarus/core/AndroidConfig.h"
+#elif defined(__SWITCH__)
+#include "solarus/core/SwitchConfig.h"
 #else
 #include "solarus/core/config.h"
 #endif

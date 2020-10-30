@@ -143,12 +143,10 @@ void create_window(const Arguments& args) {
   Logger::info("Renderer: " + context.renderer->get_name());
 
   if(not force_software) {
-#ifdef SOLARUS_HAVE_OPENGL 
     context.opengl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     context.shading_language_version = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
     context.opengl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
     context.opengl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-#endif
   }
 
   Logger::info(std::string("OpenGL: ") + context.opengl_version);
