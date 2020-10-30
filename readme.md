@@ -8,8 +8,6 @@ I did not find a prebuilt Plutonium or lua, so i included these in the source tr
 
 I took some code from https://github.com/carstene1ns/solarus-engine but have since modified it quite a bit also upgrading it to 1.6.4.
 
-Few dev notes, while the codebase is fully happy to run without opengl, it did not seem to want to compile without, so i had to ifdef around that.  If there is a switch opengl I dont know about, someone let me know as that would allow the shaders to work.
-
 I basically have the code for the switch ignoring the sdl axis movement and any of the joypad buttons that are directional and instead fake them as keyboard directions.
 Dont know if that's the best way to go about it, but it works.
 
