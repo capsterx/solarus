@@ -38,7 +38,8 @@ DATA		:=	data
 INCLUDES	:=	include include/solarus include/solarus/core include/solarus/hero include/solarus/entities \
 				include/solarus/lowlevel include/solarus/lua include/solarus/movements \
 				include/solarus/containers include/solarus/third_party/snes_spc \
-				include/solarus/third_party/mojoAL/AL include/solarus/third_party/lua include/solarus/third_party
+				include/solarus/third_party/mojoAL/AL include/solarus/third_party/lua \
+				include/solarus/third_party
 EXEFS_SRC	:=	exefs_src
 
 APP_TITLE	:=	Solarus Engine
@@ -61,7 +62,7 @@ CXXFLAGS	:= $(CFLAGS) -frtti -fexceptions -std=c++11
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=	-lSDL2_ttf -lglad -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
+LIBS	:=	-lSDL2_ttf -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
 			-lphysfs -lmodplug -lvorbisfile -lvorbis -logg \
 			-lwebp -lEGL -lglapi -ldrm_nouveau -lnx
 #SWITCH_GUI := 1
@@ -75,13 +76,17 @@ LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 
 ifneq ($(strip $(SWITCH_GUI)),)
 SOURCES	+= src/switch
-INCLUDES += include/solarus/switch Plutonium/Plutonium/Include
+INCLUDES += include/solarus/switch 
 CFLAGS += -DSOLARUS_SWITCH_GUI
-CXXFLAGS += -DSOLARUS_SWITCH_GUI -std=c++17
-SOLARUS_SWITCH_GUI=switch_gui
-LIBDIRS	+= $(CURDIR)/Plutonium/Plutonium/Output
-TMP_LIB=$(LIBS)
-LIBS := -lpu -lSDL2_gfx -lSDL2_mixer -lopusfile -lopus -lmpg123 $(LIBS)
+ROMFS:=$(TOPDIR)/resources
+BOREALIS_RESOURCES:=romfs:/
+BOREALIS_PATH:=borealis
+CXXFLAGS += -DSOLARUS_SWITCH_GUI -std=c++17 -DBOREALIS_RESOURCES="\"$(BOREALIS_RESOURCES)\""
+include $(TOPDIR)/$(BOREALIS_PATH)/library/borealis.mk
+#SOLARUS_SWITCH_GUI=switch_gui
+#LIBDIRS	+= $(CURDIR)/Plutonium/Plutonium/Output
+#TMP_LIB=$(LIBS)
+#LIBS := -lpu -lSDL2_gfx -lSDL2_mixer -lopusfile -lopus -lmpg123 $(LIBS)
 else
 ifeq ($(strip $(EMBEDED_TARGET)),)
 $(error no EMBEDED_TARGET set and SWITCH_GUI is not set)

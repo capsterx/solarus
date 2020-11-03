@@ -217,7 +217,7 @@ void ListItem::layout(NVGcontext* vg, Style* style, FontStash* stash)
     if (this->thumbnailView)
     {
         Style* style           = Application::getStyle();
-        unsigned thumbnailSize = height - style->List.Item.thumbnailPadding * 2;
+        unsigned thumbnailSize = style->List.Item.height - style->List.Item.thumbnailPadding * 2;
 
         this->thumbnailView->setBoundaries(
             x + style->List.Item.thumbnailPadding,

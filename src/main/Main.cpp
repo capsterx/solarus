@@ -121,13 +121,17 @@ void print_help(const Arguments& args) {
  * \param argv Command-line arguments.
  */
 #ifdef SOLARUS_SWITCH_GUI
-std::string switch_gui_main(int argc, char **argv);
+std::vector<std::string> switch_gui_main(int argc, char **argv);
 #endif
 int main(int argc, char** argv) {
 
   using namespace Solarus;
 
 #ifdef __SWITCH__
+  Result nsError = nsInitialize();
+  if (R_FAILED(nsError)) {
+    return 1;
+  }
   socketInitializeDefault();
   nxlinkConnectToHost(true, false);
   printf("test\n");
@@ -136,14 +140,10 @@ int main(int argc, char** argv) {
    Debug::set_abort_on_die(true);  // Better for debugging (get a callstack).
 
   // Store the command-line arguments.
-  Arguments args(argc, argv);
 #ifdef SOLARUS_SWITCH_GUI
-  std::string path = switch_gui_main(argc, argv);
-  if (path != "")
-  {
-	  printf("Adding path %s\n", path.c_str());
-	  args.add_argument(path);
-  }
+  Arguments args(switch_gui_main(argc, argv));
+#else
+  Arguments args(argc, argv);
 #endif
 
   // Check the -help option.
@@ -157,6 +157,9 @@ int main(int argc, char** argv) {
     MainLoop(args).run();
   }
 
+#ifdef __SWITCH__
+  nsExit();
+#endif
   return 0;
 }
 

@@ -292,6 +292,7 @@ int LuaContext::main_api_load_settings(lua_State* l) {
     if (QuestFiles::data_file_exists(file_name) &&
         !QuestFiles::data_file_is_dir(file_name)) {
       Settings settings;
+      printf("Loading settings: %s\n", file_name.c_str());
       success = settings.load(file_name);
       if (success) {
         settings.apply_to_quest();

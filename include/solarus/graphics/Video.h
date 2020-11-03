@@ -122,6 +122,8 @@ namespace Video {
     void invalidate(const SurfaceImpl &texture);
     SurfacePtr& get_screen_surface();
 
+    extern size_t default_video_mode_index;
+
 }  // namespace Video
 
 }  // namespace Solarus

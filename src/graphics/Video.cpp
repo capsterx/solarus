@@ -188,7 +188,8 @@ void initialize_software_video_modes() {
         );
 #endif
 
-  context.default_video_mode = &context.all_video_modes[0];
+  context.default_video_mode = &context.all_video_modes[Video::default_video_mode_index];
+  printf("Setting default video mode to: %s\n", context.default_video_mode->get_name().c_str());
 
   // Everything is ready now.
   Video::set_default_video_mode();
@@ -197,6 +198,7 @@ void initialize_software_video_modes() {
 }  // Anonymous namespace.
 
 namespace Video {
+    size_t default_video_mode_index=0;
 
 /**
  * \brief Initializes the video system.
@@ -739,6 +741,7 @@ void switch_video_mode() {
  * \return true in case of success, false if this mode is not supported.
  */
 bool set_video_mode(const SoftwareVideoMode& mode) {
+  printf("set video mode: %s\n", mode.get_name().c_str());
 
   bool mode_changed = context.video_mode == nullptr
       || mode.get_name() != context.video_mode->get_name();

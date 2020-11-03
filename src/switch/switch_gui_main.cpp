@@ -1,41 +1,38 @@
-#include <solarus/switch/switch_gui.hpp>
+#include <solarus/switch/TabOptionsFrame.hpp>
 #include <switch.h>
+#include <borealis.hpp>
 
-/*
+namespace i18n = brls::i18n; // for loadTranslations() and getStr()
+using namespace i18n::literals; // for _i18n
 
-// If you would like to initialize and finalize stuff before or after Plutonium, you can use libnx's userAppInit/userAppExit
-
-extern "C" void userAppInit()
+std::vector<std::string> switch_gui_main(int argc, char **argv)
 {
-    // Initialize stuff
-}
-
-extern "C" void userAppExit()
-{
-    // Cleanup/finalize stuff
-}
-
-*/
-
-// Main entrypoint
-std::string switch_gui_main(int argc, char **argv)
-{
-    // First create our renderer, where one can customize SDL or other stuff's initialization.
+  brls::Logger::setLogLevel(brls::LogLevel::DEBUG);
+  
+  i18n::loadTranslations();
+  if (!brls::Application::init("main/name"_i18n))
   {
-    auto renderer = pu::ui::render::Renderer::New(pu::ui::render::RendererInitOptions(SDL_INIT_EVERYTHING, pu::ui::render::RendererHardwareFlags).WithIMG(pu::ui::render::IMGAllFlags).WithMixer(pu::ui::render::MixerAllFlags).WithTTF());
-
-      // Create our main application from the renderer
-    auto main = MainApplication::New(renderer);
-
-    // Prepare out application. This MUST be called or Show() will exit and nothing will be rendered.
-    main->Prepare();
-
-    // Show -> start rendering in an "infinite" loop
-    // If wou would like to show with a "fade in" from black-screen to the UI, use instead ->ShowWithFadeIn();
-    main->Show();
+    brls::Logger::error("Unable to init Borealis application");
+    return {};
   }
-  printf("selected path: %s\n", Solarus_GUI::selected_path_.c_str());
-  return Solarus_GUI::selected_path_;
-
-    // Exit homebrew (Plutonium will handle all disposing of UI and renderer/application, don't worry!
+  auto settings = std::make_shared<GameSettings>();
+  std::string path;
+  brls::Application::pushView(new TabOptionsFrame(
+   settings, 
+   path,
+   getTitles("sdmc:/switch/solarus/games")));
+	
+  while (brls::Application::mainLoop());
+  printf("Leaving...\n");
+  brls::Application::quit();
+  std::vector<std::string> args;
+  for (auto && kv : *settings)
+  {
+    args.push_back(kv.first + kv.second);
+  }
+  if (path != "")
+  {
+    args.push_back(path);
+  }
+  return args;
 }

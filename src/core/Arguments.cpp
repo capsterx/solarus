@@ -25,6 +25,11 @@ namespace Solarus {
 Arguments::Arguments() {
 }
 
+Arguments::Arguments(std::vector<std::string> const & args)
+  : args(args)
+{
+}
+
 /**
  * \brief Creates an argument object from standard main() arguments.
  * \param argc Number of command-line arguments.

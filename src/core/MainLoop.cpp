@@ -160,11 +160,13 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Main loop settings.
   const std::string lag_arg = args.get_argument_value("-lag");
+  printf("lag=%s\n", lag_arg.c_str());
   if (!lag_arg.empty()) {
     std::istringstream iss(lag_arg);
     iss >> debug_lag;
   }
   const std::string& turbo_arg = args.get_argument_value("-turbo");
+  printf("turbo=%s\n", turbo_arg.c_str());
   turbo = (turbo_arg == "yes");
 
   // Try to open the quest.
@@ -176,15 +178,19 @@ MainLoop::MainLoop(const Arguments& args):
   }
 
   // Initialize engine features (audio, video...).
+  printf("init\n");
   System::initialize(args);
 
   // Read the quest resource list from data.
+  printf("quest init\n");
   CurrentQuest::initialize();
 
   // Read the quest general properties.
+  printf("load_quest_properties\n");
   load_quest_properties();
 
   // Create the quest surface.
+  printf("Surface::create\n");
   root_surface = Surface::create(
       Video::get_quest_size()
   );
@@ -192,6 +198,7 @@ MainLoop::MainLoop(const Arguments& args):
   // Run the Lua world.
   // Do this after the creation of the window, but before showing the window,
   // because Lua might change the video mode initially.
+  printf("lua context\n");
   lua_context = std::unique_ptr<LuaContext>(new LuaContext(*this));
 
   if(Video::get_renderer().needs_window_workaround()) {
@@ -204,6 +211,7 @@ MainLoop::MainLoop(const Arguments& args):
 
   // Set up the Lua console.
   const std::string& lua_console_arg = args.get_argument_value("-lua-console");
+  printf("lua_console: %s\n", lua_console_arg.c_str());
   const bool enable_lua_console = lua_console_arg.empty() || lua_console_arg == "yes";
   if (enable_lua_console) {
     Logger::info("Lua console: yes");

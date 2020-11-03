@@ -44,22 +44,29 @@ uint32_t System::ticks = 0;
 void System::initialize(const Arguments& args) {
 
   // initialize SDL
+  printf("sdl init\n");
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
   initial_time = get_real_time();
   ticks = 0;
 
   // audio
+  printf("sound init\n");
   Sound::initialize(args);
 
   // input
+  printf("input init\n");
   InputEvent::initialize(args);
 
   // random number generator
+  printf("random init\n");
   Random::initialize();
 
   // video
+  printf("video init\n");
   Video::initialize(args);
+  printf("font init\n");
   FontResource::initialize();
+  printf("sprinte init\n");
   Sprite::initialize();
 }
 

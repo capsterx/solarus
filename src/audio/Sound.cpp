@@ -185,27 +185,32 @@ void Sound::initialize(const Arguments& args) {
 
   // Check the -no-audio option.
   const bool disable = args.has_argument("-no-audio");
+  printf("audo disable: %d\n", disable);
   if (disable) {
     return;
   }
 
   // Check the -perf-sound-play option.
   pc_play = args.get_argument_value("-perf-sound-play") == "yes";
+  printf("perf sound play: %d\n", pc_play);
 
   // Initialize OpenAL.
 
+  printf("alOpendevice\n");
   device = alcOpenDevice(nullptr);
   if (!device) {
     Debug::error("Cannot open audio device");
     return;
   }
 
+  printf("alcCreateContext\n");
   context = alcCreateContext(device, nullptr);
   if (!context) {
     Debug::error("Cannot create audio context");
     alcCloseDevice(device);
     return;
   }
+  printf("alcMakeContextCurrent\n");
   if (!alcMakeContextCurrent(context)) {
     Debug::error("Cannot activate audio context");
     alcDestroyContext(context);
@@ -213,12 +218,14 @@ void Sound::initialize(const Arguments& args) {
     return;
   }
 
+  printf("alGenBuffers\n");
   alGenBuffers(0, nullptr);  // Necessary on some systems to avoid errors with the first sound loaded.
 
   initialized = true;
   set_volume(100);
 
   // initialize the music system
+  printf("music::init\n");
   Music::initialize();
 }
 
