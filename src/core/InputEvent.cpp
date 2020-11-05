@@ -385,6 +385,9 @@ void InputEvent::set_key_repeat(bool repeat) {
  * \return true if the SHIFT key is currently down
  */
 bool InputEvent::is_shift_down() {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_SHIFT;
@@ -398,6 +401,9 @@ bool InputEvent::is_shift_down() {
  * \return true if the CTRL key is currently down
  */
 bool InputEvent::is_control_down() {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_CTRL;
@@ -411,6 +417,9 @@ bool InputEvent::is_control_down() {
  * \return true if the ALT key is currently down
  */
 bool InputEvent::is_alt_down() {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_ALT;
@@ -421,6 +430,9 @@ bool InputEvent::is_alt_down() {
  * \return \c true if the caps lock key is currently active.
  */
 bool InputEvent::is_caps_lock_on() {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_CAPS;
@@ -431,6 +443,9 @@ bool InputEvent::is_caps_lock_on() {
  * \return \c true if the num lock key is currently active.
  */
 bool InputEvent::is_num_lock_on() {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_NUM;
@@ -872,6 +887,9 @@ bool InputEvent::is_keyboard_non_direction_key_released() const {
  * \return true if SHIFT was pressed during this keyboard event
  */
 bool InputEvent::is_with_shift() const {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_SHIFT);
@@ -886,6 +904,9 @@ bool InputEvent::is_with_shift() const {
  * \return true if CTRL was pressed during this keyboard event
  */
 bool InputEvent::is_with_control() const {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_CTRL);
@@ -900,6 +921,9 @@ bool InputEvent::is_with_control() const {
  * \return true if ALT was pressed during this keyboard event
  */
 bool InputEvent::is_with_alt() const {
+#ifdef __SWITCH__
+  return false;
+#endif
 
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_ALT);
