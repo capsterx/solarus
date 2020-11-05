@@ -71,7 +71,7 @@ CCWARN= -Wall
 # as dynamic mode.
 #
 # Mixed mode creates a static + dynamic library and a statically linked luajit.
-BUILDMODE= mixed
+BUILDMODE= static
 #
 # Static mode creates a static library and a statically linked luajit.
 #BUILDMODE= static
@@ -171,6 +171,18 @@ else
     HOST_SYS= Windows
     HOST_MSYS= cygwin
   endif
+endif
+
+
+ifeq (Switch,$(TARGET_SYS))
+  ifeq ($(strip $(DEVKITPRO)),)
+    $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+  endif
+  HOST_CC:=$(CC)
+  CROSS:=$(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-
+  BUILDMODE=static
+  TARGET_FLAGS:=-march=armv8-a -mtp=soft  -fPIE --sysroot $(DEVKITPRO)/devkitA64/aarch64-none-elf  -DLJ_NO_SYSTEM=1 -DLUAJIT_NO_LOG2=1  -DLJ_TARGET_SWITCH -I$(DEVKITPRO)/libnx/include/ -DLUAJIT_USE_SYSMALLOC -L$(DEVKITPRO)/libnx/lib -DLJ_HASPROFILE=0 -D__SWITCH__=1 -specs=$(DEVKITPRO)/libnx/switch.specs
+  #TARGET_FLAGS:=-march=armv8-a -mtp=soft  -fPIE --sysroot $(DEVKITPRO)/devkitA64/aarch64-none-elf -DLUAJIT_SECURITY_PRNG=0 -DLJ_NO_SYSTEM=1 -DLUAJIT_NO_LOG2=1  -DLJ_TARGET_SWITCH -I$(DEVKITPRO)/libnx/include/ -DLUAJIT_USE_SYSMALLOC -L$(DEVKITPRO)/libnx/lib -DLJ_HASPROFILE=0 -D__SWITCH__=1 -specs=$(DEVKITPRO)/libnx/switch.specs
 endif
 
 ##############################################################################
@@ -346,6 +358,9 @@ else
   endif
   ifeq (GNU/kFreeBSD,$(TARGET_SYS))
     TARGET_XLIBS+= -ldl
+  endif
+  ifeq (Switch,$(TARGET_SYS))
+    TARGET_XLIBS+= -lnx
   endif
 endif
 endif

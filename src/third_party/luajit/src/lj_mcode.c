@@ -22,6 +22,7 @@
 
 /* -- OS-specific functions ----------------------------------------------- */
 
+
 #if LJ_HASJIT || LJ_HASFFI
 
 /* Define this if you want to run LuaJIT with Valgrind. */
@@ -119,10 +120,100 @@ static int mcode_setprot(void *p, size_t sz, int prot)
   return mprotect(p, sz, prot);
 }
 
+#elif defined(LJ_TARGET_SWITCH)
+
+#include <switch/kernel/svc.h>
+#include <switch/runtime/env.h>
+#define LJ_MCBOTTOM_OFFSET sizeof(void*)
+void *memalign(size_t alignment, size_t size);
+
+#define MCPROT_RW	(Perm_Rw)
+#define MCPROT_RX	(Perm_Rx)
+
+void * get_orig_addr(void * ptr)
+{
+  return (char *)ptr + sizeof(MCLink);
+}
+
+void * get_orig(void * ptr)
+{
+  void * orig;
+  memcpy(&orig, get_orig_addr(ptr), sizeof(void *));
+  return orig;
+}
+
+static void *mcode_alloc_at(jit_State *J, uintptr_t hint, size_t sz, int prot)
+{
+    void * p = memalign(0x1000, sz);
+    memcpy(get_orig_addr(p), &p, sizeof(void*));
+
+    MemoryInfo info = {0};
+    u32 pageInfo = {0};
+    svcQueryMemory(&info, &pageInfo, hint);
+    if (info.type != MemType_Unmapped)
+    {
+      return NULL;
+    }
+    bool succeded = R_SUCCEEDED(svcMapProcessCodeMemory(envGetOwnProcessHandle(), hint, (u64)p, sz));
+    if (!succeded)
+    {
+      free(p);
+      return NULL;
+    }
+    succeded = R_SUCCEEDED(svcSetProcessMemoryPermission(envGetOwnProcessHandle(), hint, sz, prot));
+    if (!succeded)
+    {
+      svcUnmapProcessCodeMemory(envGetOwnProcessHandle(), hint, (u64)p, sz);
+      free(p);
+      return NULL;
+    }
+
+    return (void*)hint;
+}
+
+static void mcode_free(jit_State *J, void *p, size_t sz)
+{
+  void * orig_p=get_orig_addr(p);
+  svcUnmapProcessCodeMemory(envGetOwnProcessHandle(), (u64)p, (u64)orig_p, sz);
+  free(orig_p);
+}
+
+static int mcode_setprot(void *p, size_t sz, int prot)
+{
+  void * orig_p=get_orig_addr(p);
+  bool succeded=false;
+  // Switch lets us change from RW -> RX but not RX -> RW, unmap and map again
+  if (prot == MCPROT_RX)
+  {
+    succeded = R_SUCCEEDED(svcUnmapProcessCodeMemory(envGetOwnProcessHandle(), (u64)p, (u64)orig_p, sz));
+    if (!succeded)
+    {
+      return 1;
+    }
+
+    succeded = R_SUCCEEDED(svcMapProcessCodeMemory(envGetOwnProcessHandle(), (u64)p, (u64)orig_p, sz));
+    if (!succeded)
+    {
+      return 1;
+    }
+  }
+
+  succeded = R_SUCCEEDED(svcSetProcessMemoryPermission(envGetOwnProcessHandle(), (u64)p, sz, prot));
+  if (!succeded)
+  {
+    return 1;
+  }
+  return 0;
+}
+
+
 #else
 
 #error "Missing OS support for explicit placement of executable memory"
+#endif
 
+#ifndef LJ_MCBOTTOM_OFFSET
+#define LJ_MCBOTTOM_OFFSET 0
 #endif
 
 /* -- MCode area protection ----------------------------------------------- */
@@ -265,7 +356,7 @@ static void mcode_allocarea(jit_State *J)
   J->szmcarea = sz;
   J->mcprot = MCPROT_GEN;
   J->mctop = (MCode *)((char *)J->mcarea + J->szmcarea);
-  J->mcbot = (MCode *)((char *)J->mcarea + sizeof(MCLink));
+  J->mcbot = (MCode *)((char *)J->mcarea + sizeof(MCLink) + LJ_MCBOTTOM_OFFSET);
   ((MCLink *)J->mcarea)->next = oldarea;
   ((MCLink *)J->mcarea)->size = sz;
   J->szallmcarea += sz;

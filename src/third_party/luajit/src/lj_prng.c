@@ -15,6 +15,10 @@
 #include "lj_arch.h"
 #include "lj_prng.h"
 
+#if LJ_TARGET_SWITCH
+void randomGet(void* buf, size_t len);
+#endif
+
 /* -- PRNG step function -------------------------------------------------- */
 
 /* This implements a Tausworthe PRNG with period 2^223. Based on:
@@ -221,6 +225,9 @@ int LJ_FASTCALL lj_prng_seed_secure(PRNGState *rs)
     }
   }
 
+#elif LJ_TARGET_SWITCH
+  randomGet(rs->u, sizeof(rs->u));
+  goto ok;
 #else
 
   /* Add an elif above for your OS with a secure PRNG seed.

@@ -33,17 +33,17 @@ TARGET		:=	solarus
 BUILD		:=	build
 SOURCES		:=	src src/entities src/audio src/hero src/movements src/graphics src/graphics/sdlrenderer \
                         	src/graphics/glrenderer src/third_party src/third_party/hqx \
-				src/third_party/mojoAL src/third_party/lua src/third_party/snes_spc src/lua src/main src/core
+				src/third_party/mojoAL src/third_party/snes_spc src/lua src/main src/core
 DATA		:=	data
 INCLUDES	:=	include include/solarus include/solarus/core include/solarus/hero include/solarus/entities \
 				include/solarus/lowlevel include/solarus/lua include/solarus/movements \
 				include/solarus/containers include/solarus/third_party/snes_spc \
-				include/solarus/third_party/mojoAL/AL include/solarus/third_party/lua \
+				include/solarus/third_party/mojoAL/AL  \
 				include/solarus/third_party
 EXEFS_SRC	:=	exefs_src
 
 APP_TITLE	:=	Solarus Engine
-APP_AUTHOR	:=	Solarus Team & carstene1ns
+APP_AUTHOR	:=	Solarus Team & capsterx
 APP_VERSION	:=	1.6.4.
 #ROMFS	:=	romfs
 ICON		:=	solarus.jpg
@@ -60,12 +60,20 @@ CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DCOCO_DISABLE
 CXXFLAGS	:= $(CFLAGS) -frtti -fexceptions -std=c++11
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) 
 
 LIBS	:=	-lSDL2_ttf -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
 			-lphysfs -lmodplug -lvorbisfile -lvorbis -logg \
-			-lwebp -lEGL -lglapi -ldrm_nouveau -lnx
-#SWITCH_GUI := 1
+			-lwebp -lEGL -lglapi -ldrm_nouveau  -lnx 
+ifneq ($(strip $(LUAJIT)),)
+INCLUDES += src/solarus/third_party/luajit/src
+LDFLAGS += -L$(TOPDIR)/src/third_party/luajit/src
+LIBS += -lluajit -lnx
+SOLARUS_LUA_JIT:=luajit_make
+else
+SOURCES += src/third_party/lua
+INCLUDE += include/solarus/third_party/lua
+endif
 
 
 #---------------------------------------------------------------------------------
@@ -192,7 +200,7 @@ endif
 .PHONY: $(BUILD) clean all
 
 #---------------------------------------------------------------------------------
-all: $(BUILD)
+all: $(BUILD) 
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
@@ -208,11 +216,13 @@ switch_gui:
 	@$(MAKE) -C Plutonium
 
 
+
+
 #---------------------------------------------------------------------------------
 else
-.PHONY:	all  switch_gui
+.PHONY:	all  switch_gui 
 
-DEPENDS	:=	$(OFILES:.o=.d) $(SOLARUS_SWITCH_GUI)
+DEPENDS	:=	$(OFILES:.o=.d) $(SOLARUS_SWITCH_GUI) 
 
 #---------------------------------------------------------------------------------
 # main targets
@@ -229,7 +239,7 @@ else
 $(OUTPUT).nro	:	$(OUTPUT).elf
 endif
 
-$(OUTPUT).elf	:	$(OFILES)
+$(OUTPUT).elf	:	$(OFILES) $(SOLARUS_LUA_JIT) 
 
 # make compiling silent
 %.o: %.cpp
@@ -245,6 +255,9 @@ $(OUTPUT).elf	:	$(OFILES)
 #	@echo linking $(notdir $@)
 #	$(LD) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
 #	$(NM) -CSn $@ > $(notdir $*.lst)
+
+luajit_make:
+	@$(MAKE) -C $(TOPDIR)/src/third_party/luajit TARGET_SYS=Switch
 
 launcher: $(OUTPUT).elf
 	nacptool --create $(EMBEDED_TITLE) $(EMBEDED_AUTHOR) $(EMBEDED_VERSION) $(TOPDIR)/$(EMBEDED_TARGET).nacp
