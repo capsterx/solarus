@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/LuaJIT/LuaJIT
+	branch = v2.1
+	commit = 1d8b747c161db457e032a023ebbff511f5de5ec2
+	parent = ee267089702ad76b3636adb40067c1aed0652236
+	method = merge
+	cmdver = 0.4.1
