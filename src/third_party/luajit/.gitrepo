@@ -4,9 +4,9 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = https://github.com/LuaJIT/LuaJIT
+	remote = git@github.com:capsterx-switch/luajit.git
 	branch = v2.1
-	commit = 1d8b747c161db457e032a023ebbff511f5de5ec2
-	parent = ee267089702ad76b3636adb40067c1aed0652236
+	commit = c3cf1c19b04f3a3e87c6794b0d6980ce898aeba1
+	parent = 53d5fa6637d60745f6ce2c93ccd4c34d6058f763
 	method = merge
 	cmdver = 0.4.1
