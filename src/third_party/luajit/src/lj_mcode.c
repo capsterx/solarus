@@ -173,14 +173,14 @@ static void *mcode_alloc_at(jit_State *J, uintptr_t hint, size_t sz, int prot)
 
 static void mcode_free(jit_State *J, void *p, size_t sz)
 {
-  void * orig_p=get_orig_addr(p);
+  void * orig_p=get_orig(p);
   svcUnmapProcessCodeMemory(envGetOwnProcessHandle(), (u64)p, (u64)orig_p, sz);
   free(orig_p);
 }
 
 static int mcode_setprot(void *p, size_t sz, int prot)
 {
-  void * orig_p=get_orig_addr(p);
+  void * orig_p=get_orig(p);
   bool succeded=false;
   // Switch lets us change from RW -> RX but not RX -> RW, unmap and map again
   if (prot == MCPROT_RX)
