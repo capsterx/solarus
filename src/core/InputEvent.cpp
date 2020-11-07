@@ -199,7 +199,7 @@ enum class Switch_Joy
   KEY_SL_LEFT, KEY_SR_LEFT, KEY_SL_RIGHT, KEY_SR_RIGHT
 };
 
-bool is_switch_keyboad_from_joy(SDL_Event const & event)
+bool is_switch_keyboard_from_joy(SDL_Event const & event)
 {
   auto ret = 
       event.jbutton.which == 0 &&
@@ -215,14 +215,17 @@ bool is_switch_keyboad_from_joy(SDL_Event const & event)
       event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_RIGHT ||
       event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_UP ||
       event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_DOWN ||
-      event.jbutton.button == (int)Switch_Joy::KEY_MINUS
+      event.jbutton.button == (int)Switch_Joy::KEY_MINUS ||
+      event.jbutton.button == (int)Switch_Joy::KEY_ZR
       );
   return ret;
 }
 
 bool is_switch_keyboard_from_joy_direction(SDL_Event const & event)
 {
-  return is_switch_keyboad_from_joy(event) && event.jbutton.button != (int)Switch_Joy::KEY_MINUS;
+  return is_switch_keyboard_from_joy(event) 
+	  && event.jbutton.button != (int)Switch_Joy::KEY_MINUS
+	  && event.jbutton.button != (int)Switch_Joy::KEY_ZR;
 }
 #endif
 
@@ -681,7 +684,7 @@ bool InputEvent::is_keyboard_event() const {
   return (internal_event.type == SDL_KEYDOWN || internal_event.type == SDL_KEYUP)
     && (!internal_event.key.repeat || repeat_keyboard);
 #else
-  return (internal_event.type == SDL_JOYBUTTONDOWN || internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboad_from_joy(internal_event);
+  return (internal_event.type == SDL_JOYBUTTONDOWN || internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboard_from_joy(internal_event);
 #endif
 }
 
@@ -741,7 +744,7 @@ bool InputEvent::is_keyboard_key_pressed() const {
   auto ret = internal_event.type == SDL_KEYDOWN
     && (!internal_event.key.repeat || repeat_keyboard);
 #else
-  auto ret = (internal_event.type == SDL_JOYBUTTONDOWN && is_switch_keyboad_from_joy(internal_event));
+  auto ret = (internal_event.type == SDL_JOYBUTTONDOWN && is_switch_keyboard_from_joy(internal_event));
 #endif
   //printf("is_keyboard_key_pressed: %d\n", ret);
   return ret;
@@ -819,7 +822,7 @@ bool InputEvent::is_keyboard_key_released() const {
   return internal_event.type == SDL_KEYUP
     && (!internal_event.key.repeat || repeat_keyboard);
 #else
-  return ((internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboad_from_joy(internal_event));
+  return ((internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboard_from_joy(internal_event));
 #endif
 }
 
@@ -967,6 +970,9 @@ InputEvent::KeyboardKey InputEvent::get_keyboard_key() const {
       case (int)Switch_Joy::KEY_LSTICK_DOWN:
       case (int)Switch_Joy::KEY_DDOWN:
         return KeyboardKey::DOWN;
+      
+      case (int)Switch_Joy::KEY_ZR:
+	return KeyboardKey::RETURN;
 
       case (int)Switch_Joy::KEY_MINUS:
         return KeyboardKey::ESCAPE;
@@ -1095,7 +1101,7 @@ void InputEvent::set_joypad_enabled(bool joypad_enabled) {
 bool InputEvent::is_joypad_button_pressed() const {
   auto ret = internal_event.type == SDL_JOYBUTTONDOWN;
 #ifdef __SWITCH__
-  ret &= !is_switch_keyboad_from_joy(internal_event);
+  ret &= !is_switch_keyboard_from_joy(internal_event);
 #endif
   //printf("is_joypad_button_pressed=%d\n", ret);
   return ret;
