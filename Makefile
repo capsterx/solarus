@@ -66,13 +66,13 @@ LIBS	:=	-lSDL2_ttf -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2
 			-lphysfs -lmodplug -lvorbisfile -lvorbis -logg \
 			-lwebp -lEGL -lglapi -ldrm_nouveau  -lnx 
 ifneq ($(strip $(LUAJIT)),)
-INCLUDES += src/solarus/third_party/luajit/src
+INCLUDES += src/third_party/luajit/src
 LDFLAGS += -L$(TOPDIR)/src/third_party/luajit/src
 LIBS += -lluajit -lnx
 SOLARUS_LUA_JIT:=luajit_make
 else
 SOURCES += src/third_party/lua
-INCLUDE += include/solarus/third_party/lua
+INCLUDES += include/solarus/third_party/lua
 endif
 
 
