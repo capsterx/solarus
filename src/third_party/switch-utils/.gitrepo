@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:capsterx-switch/switch-utils.git
+	branch = master
+	commit = b30979f1c49a92d245740a645489d8bcf2e62c59
+	parent = 2aa73fc74f168fb8d62c279bbe506c65eebc77fd
+	method = merge
+	cmdver = 0.4.1
