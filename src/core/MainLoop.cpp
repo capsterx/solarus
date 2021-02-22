@@ -107,6 +107,9 @@ void check_version_compatibility(const std::pair<int, int>& quest_version) {
  * \param args Command-line arguments in system 8-bit encoding.
  * \return The quest path in UTF-8 encoding.
  */
+
+}  // Anonymous namespace.
+
 std::string get_quest_path(const Arguments& args) {
 
   // If a quest command-line argument was specified, use it instead.
@@ -121,9 +124,6 @@ std::string get_quest_path(const Arguments& args) {
   // The default quest path is defined during the build process.
   return SOLARUS_DEFAULT_QUEST;
 }
-
-}  // Anonymous namespace.
-
 /**
  * \brief Initializes the game engine.
  * \param args Command-line arguments.

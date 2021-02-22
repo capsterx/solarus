@@ -20,6 +20,12 @@
 #include "solarus/core/Logger.h"
 #include "solarus/core/Rectangle.h"
 #include "solarus/graphics/Video.h"
+
+#ifdef __SWITCH__
+#include <switch/switch_event.hpp>
+#include <switch/keymap.hpp>
+#include <vector>
+#endif
 #include <SDL.h>
 #include <cstdlib>  // std::abs
 #include <sstream>
@@ -185,50 +191,8 @@ const EnumInfo<InputEvent::MouseButton>::names_type EnumInfoTraits<InputEvent::M
     { InputEvent::MouseButton::X2,     "x2" }
 };
 
-#ifdef __SWITCH__
-enum class Switch_Joy
-{
-  KEY_A, KEY_B, KEY_X, KEY_Y,
-  KEY_LSTICK, KEY_RSTICK,
-  KEY_L, KEY_R,
-  KEY_ZL, KEY_ZR,
-  KEY_PLUS, KEY_MINUS,
-  KEY_DLEFT, KEY_DUP, KEY_DRIGHT, KEY_DDOWN,
-  KEY_LSTICK_LEFT, KEY_LSTICK_UP, KEY_LSTICK_RIGHT, KEY_LSTICK_DOWN,
-  KEY_RSTICK_LEFT, KEY_RSTICK_UP, KEY_RSTICK_RIGHT, KEY_RSTICK_DOWN,
-  KEY_SL_LEFT, KEY_SR_LEFT, KEY_SL_RIGHT, KEY_SR_RIGHT
-};
 
-bool is_switch_keyboard_from_joy(SDL_Event const & event)
-{
-  auto ret = 
-      event.jbutton.which == 0 &&
-      (event.jbutton.button == (int)Switch_Joy::KEY_DLEFT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_DRIGHT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_DUP ||
-      event.jbutton.button == (int)Switch_Joy::KEY_DDOWN ||
-      event.jbutton.button == (int)Switch_Joy::KEY_LSTICK_LEFT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_LSTICK_RIGHT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_LSTICK_UP ||
-      event.jbutton.button == (int)Switch_Joy::KEY_LSTICK_DOWN ||
-      event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_LEFT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_RIGHT ||
-      event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_UP ||
-      event.jbutton.button == (int)Switch_Joy::KEY_RSTICK_DOWN ||
-      event.jbutton.button == (int)Switch_Joy::KEY_MINUS ||
-      event.jbutton.button == (int)Switch_Joy::KEY_ZR
-      );
-  return ret;
-}
-
-bool is_switch_keyboard_from_joy_direction(SDL_Event const & event)
-{
-  return is_switch_keyboard_from_joy(event) 
-	  && event.jbutton.button != (int)Switch_Joy::KEY_MINUS
-	  && event.jbutton.button != (int)Switch_Joy::KEY_ZR;
-}
-#endif
-
+std::string get_quest_path(const Arguments& args);
 
 /**
  * \brief Initializes the input event manager.
@@ -259,6 +223,25 @@ void InputEvent::initialize(const Arguments& args) {
 #ifndef __SWITCH__
   // Initialize text events.
   SDL_StartTextInput();
+#else
+  const std::string& quest_path = get_quest_path(args);
+  std::vector<std::string> paths = {
+    quest_path + "/keymap.keys",
+    std::string("sdmc:/switch/solarus/keymap.keys")
+    };
+  
+  nswitch::keymap = new nswitch::Switch_Key_Map;
+  for (auto path : paths)
+  {
+    try {
+      printf("Loading %s\n", path.c_str());
+      nswitch::keymap->load_file(path);
+      break;
+    } catch (std::runtime_error const & e)
+    {
+      printf("Error: %s\n", e.what());
+    }
+  }
 #endif
 
   // Initialize the joypad.
@@ -314,7 +297,7 @@ std::unique_ptr<InputEvent> InputEvent::get_event() {
 
   InputEvent* result = nullptr;
   SDL_Event internal_event;
-  if (SDL_PollEvent(&internal_event)) {
+  if (nswitch::PollEvent(&internal_event)) {
 
     // Check if keyboard events are correct.
     // For some reason, when running Solarus from a Qt application
@@ -388,10 +371,6 @@ void InputEvent::set_key_repeat(bool repeat) {
  * \return true if the SHIFT key is currently down
  */
 bool InputEvent::is_shift_down() {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_SHIFT;
 }
@@ -404,10 +383,6 @@ bool InputEvent::is_shift_down() {
  * \return true if the CTRL key is currently down
  */
 bool InputEvent::is_control_down() {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_CTRL;
 }
@@ -420,10 +395,6 @@ bool InputEvent::is_control_down() {
  * \return true if the ALT key is currently down
  */
 bool InputEvent::is_alt_down() {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_ALT;
 }
@@ -433,10 +404,6 @@ bool InputEvent::is_alt_down() {
  * \return \c true if the caps lock key is currently active.
  */
 bool InputEvent::is_caps_lock_on() {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_CAPS;
 }
@@ -446,10 +413,6 @@ bool InputEvent::is_caps_lock_on() {
  * \return \c true if the num lock key is currently active.
  */
 bool InputEvent::is_num_lock_on() {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   SDL_Keymod mod = SDL_GetModState();
   return mod & KMOD_NUM;
 }
@@ -477,20 +440,6 @@ bool InputEvent::is_joypad_button_down(int button) {
   if (joystick == nullptr) {
     return false;
   }
-
-#ifdef __SWITCH__
-  /* Swap stick buttons to +/- for better accessibility */
-  switch (button) {
-    case 4:
-    case 5:
-      button += 6;
-      break;
-    case 10:
-    case 11:
-      button -= 6;
-      break;
-  }
-#endif
 
   auto ret = SDL_JoystickGetButton(joystick, button) != 0;
   //printf("is_joypad_button_down=%d, %d\n", button, ret);
@@ -680,12 +629,8 @@ bool InputEvent::is_valid() const {
  * \return true if this is a keyboard event
  */
 bool InputEvent::is_keyboard_event() const {
-#ifndef __SWITCH__
   return (internal_event.type == SDL_KEYDOWN || internal_event.type == SDL_KEYUP)
     && (!internal_event.key.repeat || repeat_keyboard);
-#else
-  return (internal_event.type == SDL_JOYBUTTONDOWN || internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboard_from_joy(internal_event);
-#endif
 }
 
 /**
@@ -740,12 +685,8 @@ bool InputEvent::is_window_event() const {
  * \return true if this is a key pressed event
  */
 bool InputEvent::is_keyboard_key_pressed() const {
-#ifndef __SWITCH__
   auto ret = internal_event.type == SDL_KEYDOWN
     && (!internal_event.key.repeat || repeat_keyboard);
-#else
-  auto ret = (internal_event.type == SDL_JOYBUTTONDOWN && is_switch_keyboard_from_joy(internal_event));
-#endif
   //printf("is_keyboard_key_pressed: %d\n", ret);
   return ret;
 }
@@ -757,9 +698,6 @@ bool InputEvent::is_keyboard_key_pressed() const {
  * \return true if this event corresponds to pressing that key
  */
 bool InputEvent::is_keyboard_key_pressed(KeyboardKey key) const {
-#ifdef __SWITCH__
-	throw;
-#endif
   return is_keyboard_key_pressed()
     && get_keyboard_key() == key;
 }
@@ -772,9 +710,6 @@ bool InputEvent::is_keyboard_key_pressed(KeyboardKey key) const {
  */
 bool InputEvent::is_keyboard_key_pressed(const KeyboardKey* keys) const {
 
-#ifdef __SWITCH__
-	throw;
-#endif
   while (*keys != KeyboardKey::NONE) {
 
     if (is_keyboard_key_pressed(*keys)) {
@@ -792,13 +727,7 @@ bool InputEvent::is_keyboard_key_pressed(const KeyboardKey* keys) const {
  * \return true if this event corresponds to pressing one of the four directional keys
  */
 bool InputEvent::is_keyboard_direction_key_pressed() const {
-#ifndef __SWITCH__
   return is_keyboard_key_pressed(directional_keys);
-#else
-  auto ret = is_keyboard_key_pressed() && is_switch_keyboard_from_joy_direction(internal_event);
-  //printf("is_keyboard_direction_key_pressed=%d\n", ret);
-  return ret;
-#endif
 }
 
 /**
@@ -818,12 +747,8 @@ bool InputEvent::is_keyboard_non_direction_key_pressed() const {
  * \return true if this is a key released event
  */
 bool InputEvent::is_keyboard_key_released() const {
-#ifndef __SWITCH__
   return internal_event.type == SDL_KEYUP
     && (!internal_event.key.repeat || repeat_keyboard);
-#else
-  return ((internal_event.type == SDL_JOYBUTTONUP) && is_switch_keyboard_from_joy(internal_event));
-#endif
 }
 
 /**
@@ -863,11 +788,7 @@ bool InputEvent::is_keyboard_key_released(const KeyboardKey* keys) const {
  * \return true if this event corresponds to releasing one of the four directional keys
  */
 bool InputEvent::is_keyboard_direction_key_released() const {
-#ifndef __SWITCH__
   return is_keyboard_key_released(directional_keys);
-#else
-  return is_keyboard_key_released() && is_switch_keyboard_from_joy_direction(internal_event);
-#endif
 }
 
 /**
@@ -890,10 +811,6 @@ bool InputEvent::is_keyboard_non_direction_key_released() const {
  * \return true if SHIFT was pressed during this keyboard event
  */
 bool InputEvent::is_with_shift() const {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_SHIFT);
 }
@@ -907,10 +824,6 @@ bool InputEvent::is_with_shift() const {
  * \return true if CTRL was pressed during this keyboard event
  */
 bool InputEvent::is_with_control() const {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_CTRL);
 }
@@ -924,10 +837,6 @@ bool InputEvent::is_with_control() const {
  * \return true if ALT was pressed during this keyboard event
  */
 bool InputEvent::is_with_alt() const {
-#ifdef __SWITCH__
-  return false;
-#endif
-
   return is_keyboard_event()
     && (internal_event.key.keysym.mod & KMOD_ALT);
 }
@@ -950,37 +859,6 @@ InputEvent::KeyboardKey InputEvent::get_keyboard_key() const {
     return KeyboardKey::NONE;
   }
 
-#ifdef __SWITCH__
-  {
-    //printf("get_keyboard_key\b");
-    switch(internal_event.jbutton.button)
-    {
-      case (int)Switch_Joy::KEY_LSTICK_LEFT:
-      case (int)Switch_Joy::KEY_DLEFT:
-        return KeyboardKey::LEFT;
-
-      case (int)Switch_Joy::KEY_LSTICK_RIGHT:
-      case (int)Switch_Joy::KEY_DRIGHT:
-        return KeyboardKey::RIGHT;
-
-      case (int)Switch_Joy::KEY_LSTICK_UP:
-      case (int)Switch_Joy::KEY_DUP:
-        return KeyboardKey::UP;
-
-      case (int)Switch_Joy::KEY_LSTICK_DOWN:
-      case (int)Switch_Joy::KEY_DDOWN:
-        return KeyboardKey::DOWN;
-      
-      case (int)Switch_Joy::KEY_ZR:
-	return KeyboardKey::RETURN;
-
-      case (int)Switch_Joy::KEY_MINUS:
-        return KeyboardKey::ESCAPE;
-    }
-    //printf("Key none\n");
-    return KeyboardKey::NONE;
-  }
-#endif
   SDL_Keycode sdl_symbol = internal_event.key.keysym.sym;
   if (EnumInfoTraits<KeyboardKey>::names.find(static_cast<KeyboardKey>(sdl_symbol)) ==
       EnumInfoTraits<KeyboardKey>::names.end()) {
@@ -1100,9 +978,6 @@ void InputEvent::set_joypad_enabled(bool joypad_enabled) {
  */
 bool InputEvent::is_joypad_button_pressed() const {
   auto ret = internal_event.type == SDL_JOYBUTTONDOWN;
-#ifdef __SWITCH__
-  ret &= !is_switch_keyboard_from_joy(internal_event);
-#endif
   //printf("is_joypad_button_pressed=%d\n", ret);
   return ret;
 }
@@ -1133,20 +1008,6 @@ int InputEvent::get_joypad_button() const {
   //printf("get_joypad_button:%d\n", internal_event.jbutton.button);
   auto button = internal_event.jbutton.button;
 
-  #ifdef __SWITCH__
-    /* Swap stick buttons to +/- for better accessibility */
-    switch (button) {
-      case 4:
-      case 5:
-        button += 6;
-        break;
-      case 10:
-      case 11:
-        button -= 6;
-        break;
-    }
-  #endif
-
   return  button;
 }
 
@@ -1156,11 +1017,7 @@ int InputEvent::get_joypad_button() const {
  * \return true if this is a joypad axis event
  */
 bool InputEvent::is_joypad_axis_moved() const {
-#ifndef __SWITCH__
   return internal_event.type == SDL_JOYAXISMOTION;
-#else
-  return false;
-#endif
 }
 
 /**

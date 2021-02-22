@@ -83,8 +83,8 @@ endif
 LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 
 ifneq ($(strip $(SWITCH_GUI)),)
-SOURCES	+= src/switch
-INCLUDES += include/solarus/switch 
+SOURCES	+= src/switch src/third_party/switch-utils/src
+INCLUDES += include/solarus/switch  src/third_party/switch-utils/include
 CFLAGS += -DSOLARUS_SWITCH_GUI
 ROMFS:=$(TOPDIR)/resources
 BOREALIS_RESOURCES:=romfs:/
