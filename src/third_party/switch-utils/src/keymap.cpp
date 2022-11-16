@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include "SDL_mouse_internals.h"
 #include <switch/keyboard.hpp>
+#include <array>
 
 enum {
 KMOD_SWITCH_KEYBOARD=(KMOD_RESERVED + 1),
