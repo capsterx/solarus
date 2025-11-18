@@ -62,9 +62,9 @@ CXXFLAGS	:= $(CFLAGS) -frtti -fexceptions -std=c++11
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) 
 
-LIBS	:=	-lSDL2_ttf -lglapi -lfreetype -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
+LIBS	:=	-Wl,--start-group  -lSDL2_ttf -lglapi -lbz2 -lSDL2_image -lpng -lz -ljpeg -lSDL2 \
 			-lphysfs -lmodplug -lvorbisfile -lvorbis -logg \
-			-lwebp -lEGL -lglapi -ldrm_nouveau  -lnx 
+			-lwebp -lEGL -lglapi -ldrm_nouveau  -lnx  -lharfbuzz -lfreetype -Wl,--end-group
 ifneq ($(strip $(LUAJIT)),)
 INCLUDES += src/third_party/luajit/src
 LDFLAGS += -L$(TOPDIR)/src/third_party/luajit/src
